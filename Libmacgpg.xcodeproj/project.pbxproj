@@ -1,0 +1,360 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 45;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		30C60EEF12FF3321006BB8DA /* Libmacgpg.h in Headers */ = {isa = PBXBuildFile; fileRef = 30C60EEE12FF3321006BB8DA /* Libmacgpg.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		30FF413712FAC6CD00F39832 /* GPGController.h in Headers */ = {isa = PBXBuildFile; fileRef = 30FF411D12FAC6CD00F39832 /* GPGController.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		30FF413812FAC6CD00F39832 /* GPGController.m in Sources */ = {isa = PBXBuildFile; fileRef = 30FF411E12FAC6CD00F39832 /* GPGController.m */; };
+		30FF413912FAC6CD00F39832 /* GPGException.h in Headers */ = {isa = PBXBuildFile; fileRef = 30FF411F12FAC6CD00F39832 /* GPGException.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		30FF413A12FAC6CD00F39832 /* GPGException.m in Sources */ = {isa = PBXBuildFile; fileRef = 30FF412012FAC6CD00F39832 /* GPGException.m */; };
+		30FF413B12FAC6CD00F39832 /* GPGGlobals.h in Headers */ = {isa = PBXBuildFile; fileRef = 30FF412112FAC6CD00F39832 /* GPGGlobals.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		30FF413C12FAC6CD00F39832 /* GPGGlobals.m in Sources */ = {isa = PBXBuildFile; fileRef = 30FF412212FAC6CD00F39832 /* GPGGlobals.m */; };
+		30FF413D12FAC6CD00F39832 /* GPGKey.h in Headers */ = {isa = PBXBuildFile; fileRef = 30FF412312FAC6CD00F39832 /* GPGKey.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		30FF413E12FAC6CD00F39832 /* GPGKey.m in Sources */ = {isa = PBXBuildFile; fileRef = 30FF412412FAC6CD00F39832 /* GPGKey.m */; };
+		30FF413F12FAC6CD00F39832 /* GPGKeySignature.h in Headers */ = {isa = PBXBuildFile; fileRef = 30FF412512FAC6CD00F39832 /* GPGKeySignature.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		30FF414012FAC6CD00F39832 /* GPGKeySignature.m in Sources */ = {isa = PBXBuildFile; fileRef = 30FF412612FAC6CD00F39832 /* GPGKeySignature.m */; };
+		30FF414112FAC6CD00F39832 /* GPGPhotoID.h in Headers */ = {isa = PBXBuildFile; fileRef = 30FF412712FAC6CD00F39832 /* GPGPhotoID.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		30FF414212FAC6CD00F39832 /* GPGPhotoID.m in Sources */ = {isa = PBXBuildFile; fileRef = 30FF412812FAC6CD00F39832 /* GPGPhotoID.m */; };
+		30FF414312FAC6CD00F39832 /* GPGRemoteKey.h in Headers */ = {isa = PBXBuildFile; fileRef = 30FF412912FAC6CD00F39832 /* GPGRemoteKey.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		30FF414412FAC6CD00F39832 /* GPGRemoteKey.m in Sources */ = {isa = PBXBuildFile; fileRef = 30FF412A12FAC6CD00F39832 /* GPGRemoteKey.m */; };
+		30FF414512FAC6CD00F39832 /* GPGRemoteUserID.h in Headers */ = {isa = PBXBuildFile; fileRef = 30FF412B12FAC6CD00F39832 /* GPGRemoteUserID.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		30FF414612FAC6CD00F39832 /* GPGRemoteUserID.m in Sources */ = {isa = PBXBuildFile; fileRef = 30FF412C12FAC6CD00F39832 /* GPGRemoteUserID.m */; };
+		30FF414712FAC6CD00F39832 /* GPGSignature.h in Headers */ = {isa = PBXBuildFile; fileRef = 30FF412D12FAC6CD00F39832 /* GPGSignature.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		30FF414812FAC6CD00F39832 /* GPGSignature.m in Sources */ = {isa = PBXBuildFile; fileRef = 30FF412E12FAC6CD00F39832 /* GPGSignature.m */; };
+		30FF414912FAC6CD00F39832 /* GPGSubkey.h in Headers */ = {isa = PBXBuildFile; fileRef = 30FF412F12FAC6CD00F39832 /* GPGSubkey.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		30FF414A12FAC6CD00F39832 /* GPGSubkey.m in Sources */ = {isa = PBXBuildFile; fileRef = 30FF413012FAC6CD00F39832 /* GPGSubkey.m */; };
+		30FF414B12FAC6CD00F39832 /* GPGTask.h in Headers */ = {isa = PBXBuildFile; fileRef = 30FF413112FAC6CD00F39832 /* GPGTask.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		30FF414C12FAC6CD00F39832 /* GPGTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 30FF413212FAC6CD00F39832 /* GPGTask.m */; };
+		30FF414D12FAC6CD00F39832 /* GPGTaskOrder.h in Headers */ = {isa = PBXBuildFile; fileRef = 30FF413312FAC6CD00F39832 /* GPGTaskOrder.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		30FF414E12FAC6CD00F39832 /* GPGTaskOrder.m in Sources */ = {isa = PBXBuildFile; fileRef = 30FF413412FAC6CD00F39832 /* GPGTaskOrder.m */; };
+		30FF414F12FAC6CD00F39832 /* GPGUserID.h in Headers */ = {isa = PBXBuildFile; fileRef = 30FF413512FAC6CD00F39832 /* GPGUserID.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		30FF415012FAC6CD00F39832 /* GPGUserID.m in Sources */ = {isa = PBXBuildFile; fileRef = 30FF413612FAC6CD00F39832 /* GPGUserID.m */; };
+		8DC2EF570486A6940098B216 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
+		30C60EEE12FF3321006BB8DA /* Libmacgpg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Libmacgpg.h; sourceTree = "<group>"; };
+		30FF411D12FAC6CD00F39832 /* GPGController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGController.h; path = Source/GPGController.h; sourceTree = "<group>"; };
+		30FF411E12FAC6CD00F39832 /* GPGController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GPGController.m; path = Source/GPGController.m; sourceTree = "<group>"; };
+		30FF411F12FAC6CD00F39832 /* GPGException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGException.h; path = Source/GPGException.h; sourceTree = "<group>"; };
+		30FF412012FAC6CD00F39832 /* GPGException.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GPGException.m; path = Source/GPGException.m; sourceTree = "<group>"; };
+		30FF412112FAC6CD00F39832 /* GPGGlobals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGGlobals.h; path = Source/GPGGlobals.h; sourceTree = "<group>"; };
+		30FF412212FAC6CD00F39832 /* GPGGlobals.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GPGGlobals.m; path = Source/GPGGlobals.m; sourceTree = "<group>"; };
+		30FF412312FAC6CD00F39832 /* GPGKey.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGKey.h; path = Source/GPGKey.h; sourceTree = "<group>"; };
+		30FF412412FAC6CD00F39832 /* GPGKey.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GPGKey.m; path = Source/GPGKey.m; sourceTree = "<group>"; };
+		30FF412512FAC6CD00F39832 /* GPGKeySignature.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGKeySignature.h; path = Source/GPGKeySignature.h; sourceTree = "<group>"; };
+		30FF412612FAC6CD00F39832 /* GPGKeySignature.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GPGKeySignature.m; path = Source/GPGKeySignature.m; sourceTree = "<group>"; };
+		30FF412712FAC6CD00F39832 /* GPGPhotoID.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGPhotoID.h; path = Source/GPGPhotoID.h; sourceTree = "<group>"; };
+		30FF412812FAC6CD00F39832 /* GPGPhotoID.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GPGPhotoID.m; path = Source/GPGPhotoID.m; sourceTree = "<group>"; };
+		30FF412912FAC6CD00F39832 /* GPGRemoteKey.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGRemoteKey.h; path = Source/GPGRemoteKey.h; sourceTree = "<group>"; };
+		30FF412A12FAC6CD00F39832 /* GPGRemoteKey.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GPGRemoteKey.m; path = Source/GPGRemoteKey.m; sourceTree = "<group>"; };
+		30FF412B12FAC6CD00F39832 /* GPGRemoteUserID.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGRemoteUserID.h; path = Source/GPGRemoteUserID.h; sourceTree = "<group>"; };
+		30FF412C12FAC6CD00F39832 /* GPGRemoteUserID.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GPGRemoteUserID.m; path = Source/GPGRemoteUserID.m; sourceTree = "<group>"; };
+		30FF412D12FAC6CD00F39832 /* GPGSignature.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGSignature.h; path = Source/GPGSignature.h; sourceTree = "<group>"; };
+		30FF412E12FAC6CD00F39832 /* GPGSignature.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GPGSignature.m; path = Source/GPGSignature.m; sourceTree = "<group>"; };
+		30FF412F12FAC6CD00F39832 /* GPGSubkey.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGSubkey.h; path = Source/GPGSubkey.h; sourceTree = "<group>"; };
+		30FF413012FAC6CD00F39832 /* GPGSubkey.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GPGSubkey.m; path = Source/GPGSubkey.m; sourceTree = "<group>"; };
+		30FF413112FAC6CD00F39832 /* GPGTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGTask.h; path = Source/GPGTask.h; sourceTree = "<group>"; };
+		30FF413212FAC6CD00F39832 /* GPGTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GPGTask.m; path = Source/GPGTask.m; sourceTree = "<group>"; };
+		30FF413312FAC6CD00F39832 /* GPGTaskOrder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGTaskOrder.h; path = Source/GPGTaskOrder.h; sourceTree = "<group>"; };
+		30FF413412FAC6CD00F39832 /* GPGTaskOrder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GPGTaskOrder.m; path = Source/GPGTaskOrder.m; sourceTree = "<group>"; };
+		30FF413512FAC6CD00F39832 /* GPGUserID.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGUserID.h; path = Source/GPGUserID.h; sourceTree = "<group>"; };
+		30FF413612FAC6CD00F39832 /* GPGUserID.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GPGUserID.m; path = Source/GPGUserID.m; sourceTree = "<group>"; };
+		32DBCF5E0370ADEE00C91783 /* Libmacgpg_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Libmacgpg_Prefix.pch; sourceTree = "<group>"; };
+		8DC2EF5A0486A6940098B216 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		8DC2EF5B0486A6940098B216 /* Libmacgpg.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Libmacgpg.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		8DC2EF560486A6940098B216 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8DC2EF570486A6940098B216 /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		034768DFFF38A50411DB9C8B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8DC2EF5B0486A6940098B216 /* Libmacgpg.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		0867D691FE84028FC02AAC07 /* Libmacgpg */ = {
+			isa = PBXGroup;
+			children = (
+				08FB77AEFE84172EC02AAC07 /* Classes */,
+				32C88DFF0371C24200C91783 /* Other Sources */,
+				089C1665FE841158C02AAC07 /* Resources */,
+				0867D69AFE84028FC02AAC07 /* Frameworks */,
+				034768DFFF38A50411DB9C8B /* Products */,
+			);
+			name = Libmacgpg;
+			sourceTree = "<group>";
+		};
+		0867D69AFE84028FC02AAC07 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		089C1665FE841158C02AAC07 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				8DC2EF5A0486A6940098B216 /* Info.plist */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+		08FB77AEFE84172EC02AAC07 /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+				30C60EEE12FF3321006BB8DA /* Libmacgpg.h */,
+				30FF411D12FAC6CD00F39832 /* GPGController.h */,
+				30FF411E12FAC6CD00F39832 /* GPGController.m */,
+				30FF411F12FAC6CD00F39832 /* GPGException.h */,
+				30FF412012FAC6CD00F39832 /* GPGException.m */,
+				30FF412112FAC6CD00F39832 /* GPGGlobals.h */,
+				30FF412212FAC6CD00F39832 /* GPGGlobals.m */,
+				30FF412312FAC6CD00F39832 /* GPGKey.h */,
+				30FF412412FAC6CD00F39832 /* GPGKey.m */,
+				30FF412512FAC6CD00F39832 /* GPGKeySignature.h */,
+				30FF412612FAC6CD00F39832 /* GPGKeySignature.m */,
+				30FF412712FAC6CD00F39832 /* GPGPhotoID.h */,
+				30FF412812FAC6CD00F39832 /* GPGPhotoID.m */,
+				30FF412912FAC6CD00F39832 /* GPGRemoteKey.h */,
+				30FF412A12FAC6CD00F39832 /* GPGRemoteKey.m */,
+				30FF412B12FAC6CD00F39832 /* GPGRemoteUserID.h */,
+				30FF412C12FAC6CD00F39832 /* GPGRemoteUserID.m */,
+				30FF412D12FAC6CD00F39832 /* GPGSignature.h */,
+				30FF412E12FAC6CD00F39832 /* GPGSignature.m */,
+				30FF412F12FAC6CD00F39832 /* GPGSubkey.h */,
+				30FF413012FAC6CD00F39832 /* GPGSubkey.m */,
+				30FF413112FAC6CD00F39832 /* GPGTask.h */,
+				30FF413212FAC6CD00F39832 /* GPGTask.m */,
+				30FF413312FAC6CD00F39832 /* GPGTaskOrder.h */,
+				30FF413412FAC6CD00F39832 /* GPGTaskOrder.m */,
+				30FF413512FAC6CD00F39832 /* GPGUserID.h */,
+				30FF413612FAC6CD00F39832 /* GPGUserID.m */,
+			);
+			name = Classes;
+			sourceTree = "<group>";
+		};
+		32C88DFF0371C24200C91783 /* Other Sources */ = {
+			isa = PBXGroup;
+			children = (
+				32DBCF5E0370ADEE00C91783 /* Libmacgpg_Prefix.pch */,
+			);
+			name = "Other Sources";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		8DC2EF500486A6940098B216 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				30FF413712FAC6CD00F39832 /* GPGController.h in Headers */,
+				30FF413912FAC6CD00F39832 /* GPGException.h in Headers */,
+				30FF413B12FAC6CD00F39832 /* GPGGlobals.h in Headers */,
+				30FF413D12FAC6CD00F39832 /* GPGKey.h in Headers */,
+				30FF413F12FAC6CD00F39832 /* GPGKeySignature.h in Headers */,
+				30FF414112FAC6CD00F39832 /* GPGPhotoID.h in Headers */,
+				30FF414312FAC6CD00F39832 /* GPGRemoteKey.h in Headers */,
+				30FF414512FAC6CD00F39832 /* GPGRemoteUserID.h in Headers */,
+				30FF414712FAC6CD00F39832 /* GPGSignature.h in Headers */,
+				30FF414912FAC6CD00F39832 /* GPGSubkey.h in Headers */,
+				30FF414B12FAC6CD00F39832 /* GPGTask.h in Headers */,
+				30FF414D12FAC6CD00F39832 /* GPGTaskOrder.h in Headers */,
+				30FF414F12FAC6CD00F39832 /* GPGUserID.h in Headers */,
+				30C60EEF12FF3321006BB8DA /* Libmacgpg.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		8DC2EF4F0486A6940098B216 /* Libmacgpg */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1DEB91AD08733DA50010E9CD /* Build configuration list for PBXNativeTarget "Libmacgpg" */;
+			buildPhases = (
+				8DC2EF500486A6940098B216 /* Headers */,
+				8DC2EF520486A6940098B216 /* Resources */,
+				8DC2EF540486A6940098B216 /* Sources */,
+				8DC2EF560486A6940098B216 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Libmacgpg;
+			productInstallPath = "$(HOME)/Library/Frameworks";
+			productName = Libmacgpg;
+			productReference = 8DC2EF5B0486A6940098B216 /* Libmacgpg.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		0867D690FE84028FC02AAC07 /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = 1DEB91B108733DA50010E9CD /* Build configuration list for PBXProject "Libmacgpg" */;
+			compatibilityVersion = "Xcode 3.1";
+			developmentRegion = English;
+			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+			);
+			mainGroup = 0867D691FE84028FC02AAC07 /* Libmacgpg */;
+			productRefGroup = 034768DFFF38A50411DB9C8B /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				8DC2EF4F0486A6940098B216 /* Libmacgpg */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		8DC2EF520486A6940098B216 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		8DC2EF540486A6940098B216 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				30FF413812FAC6CD00F39832 /* GPGController.m in Sources */,
+				30FF413A12FAC6CD00F39832 /* GPGException.m in Sources */,
+				30FF413C12FAC6CD00F39832 /* GPGGlobals.m in Sources */,
+				30FF413E12FAC6CD00F39832 /* GPGKey.m in Sources */,
+				30FF414012FAC6CD00F39832 /* GPGKeySignature.m in Sources */,
+				30FF414212FAC6CD00F39832 /* GPGPhotoID.m in Sources */,
+				30FF414412FAC6CD00F39832 /* GPGRemoteKey.m in Sources */,
+				30FF414612FAC6CD00F39832 /* GPGRemoteUserID.m in Sources */,
+				30FF414812FAC6CD00F39832 /* GPGSignature.m in Sources */,
+				30FF414A12FAC6CD00F39832 /* GPGSubkey.m in Sources */,
+				30FF414C12FAC6CD00F39832 /* GPGTask.m in Sources */,
+				30FF414E12FAC6CD00F39832 /* GPGTaskOrder.m in Sources */,
+				30FF415012FAC6CD00F39832 /* GPGUserID.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		1DEB91AE08733DA50010E9CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_VERSION = A;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = Libmacgpg_Prefix.pch;
+				INFOPLIST_FILE = Info.plist;
+				INSTALL_PATH = "@executable_path/../Frameworks";
+				PRODUCT_NAME = Libmacgpg;
+				WRAPPER_EXTENSION = framework;
+			};
+			name = Debug;
+		};
+		1DEB91AF08733DA50010E9CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_VERSION = A;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = Libmacgpg_Prefix.pch;
+				INFOPLIST_FILE = Info.plist;
+				INSTALL_PATH = "@executable_path/../Frameworks";
+				PRODUCT_NAME = Libmacgpg;
+				WRAPPER_EXTENSION = framework;
+			};
+			name = Release;
+		};
+		1DEB91B208733DA50010E9CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_GC = supported;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PREBINDING = NO;
+				SDKROOT = macosx10.5;
+			};
+			name = Debug;
+		};
+		1DEB91B308733DA50010E9CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_GC = supported;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				PREBINDING = NO;
+				SDKROOT = macosx10.5;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1DEB91AD08733DA50010E9CD /* Build configuration list for PBXNativeTarget "Libmacgpg" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DEB91AE08733DA50010E9CD /* Debug */,
+				1DEB91AF08733DA50010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1DEB91B108733DA50010E9CD /* Build configuration list for PBXProject "Libmacgpg" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DEB91B208733DA50010E9CD /* Debug */,
+				1DEB91B308733DA50010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 0867D690FE84028FC02AAC07 /* Project object */;
+}
