@@ -3,10 +3,12 @@
 #import "GPGTask.h"
 
 @class GPGSignature;
+@class GPGController;
 
 @protocol GPGControllerDelegate
 @optional
 
+- (void)gpgController:(GPGController *)gpgc operationFinishedWithReturnValue:(id)value;
 
 @end
 

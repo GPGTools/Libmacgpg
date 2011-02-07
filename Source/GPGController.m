@@ -17,6 +17,7 @@
 - (void)addArgumentsForComments;
 - (void)addArgumentsForOptions;
 - (void)handleException:(NSException *)e;
+- (void)operationFinishedWithReturnValue:(id)value;
 @end
 
 
@@ -186,7 +187,6 @@
 
 - (NSData *)processData:(NSData *)data withEncryptSignMode:(GPGEncryptSignMode)mode recipients:(id <EnumerationList>)recipients hiddenRecipients:(id <EnumerationList>)hiddenRecipients {
 	@try {
-		
 		if (async && !asyncStarted) {
 			asyncStarted = YES;
 			[asyncProxy processData:data withEncryptSignMode:mode recipients:recipients hiddenRecipients:hiddenRecipients];
@@ -249,21 +249,19 @@
 				break;
 		}
 		
-		
-		
-		
 		if ([gpgTask start] != 0) {
 			@throw [GPGException exceptionWithReason:@"Process data failed!" gpgTask:gpgTask];
 		}
 		
-		//TODO: Delegate!
 	} @catch (NSException *e) {
 		[self handleException:e];
 	} @finally {
 		
 	}
 	
-	return gpgTask.outData;
+	NSData *returnData = gpgTask.outData;
+	[self operationFinishedWithReturnValue:returnData];	
+	return returnData;
 }
 
 - (NSData *)decryptData:(NSData *)data {
@@ -1209,11 +1207,23 @@
 
 
 
-#pragma mark Private
+#pragma mark Notify delegate
+
 
 - (void)handleException:(NSException *)e {
 	//TODO!
 }
+
+- (void)operationFinishedWithReturnValue:(id)value {
+	if ([delegate respondsToSelector:@selector(gpgController:operationFinishedWithReturnValue:)]) {
+		[delegate gpgController:self operationFinishedWithReturnValue:value];
+	}
+}
+
+
+
+#pragma mark Private
+
 
 - (void)addArgumentsForSignerKeys {
 	for (GPGKey *key in signerKeys) {
