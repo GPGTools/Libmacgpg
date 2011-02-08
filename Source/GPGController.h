@@ -8,7 +8,8 @@
 @protocol GPGControllerDelegate
 @optional
 
-- (void)gpgController:(GPGController *)gpgc operationFinishedWithReturnValue:(id)value;
+- (void)gpgController:(GPGController *)gpgc operationDidFinishWithReturnValue:(id)value;
+- (void)gpgController:(GPGController *)gpgc operationDidFailWithException:(NSException *)e;
 
 @end
 

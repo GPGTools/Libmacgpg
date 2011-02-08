@@ -17,7 +17,7 @@
 - (void)addArgumentsForComments;
 - (void)addArgumentsForOptions;
 - (void)handleException:(NSException *)e;
-- (void)operationFinishedWithReturnValue:(id)value;
+- (void)operationDidFinishWithReturnValue:(id)value;
 @end
 
 
@@ -255,45 +255,72 @@
 		
 	} @catch (NSException *e) {
 		[self handleException:e];
-	} @finally {
-		
 	}
 	
-	NSData *returnData = gpgTask.outData;
-	[self operationFinishedWithReturnValue:returnData];	
-	return returnData;
+	NSData *retVal = gpgTask.outData;
+	[self operationDidFinishWithReturnValue:retVal];	
+	return retVal;
 }
 
 - (NSData *)decryptData:(NSData *)data {
-	gpgTask = [GPGTask gpgTask];
-	gpgTask.delegate = self;
-	[gpgTask addInData:data];
-	
-	[self addArgumentsForOptions];
-	[gpgTask addArgument:@"--decrypt"];
-	
-	if ([gpgTask start] != 0) {
-		@throw [GPGException exceptionWithReason:@"Decrypt failed!" gpgTask:gpgTask];
+	@try {
+		if (async && !asyncStarted) {
+			asyncStarted = YES;
+			[asyncProxy decryptData:data];
+			return nil;
+		}
+		asyncStarted = NO;
+
+		
+		gpgTask = [GPGTask gpgTask];
+		gpgTask.delegate = self;
+		[gpgTask addInData:data];
+		
+		[self addArgumentsForOptions];
+		[gpgTask addArgument:@"--decrypt"];
+		
+		if ([gpgTask start] != 0) {
+			@throw [GPGException exceptionWithReason:@"Decrypt failed!" gpgTask:gpgTask];
+		}
+	} @catch (NSException *e) {
+		[self handleException:e];
 	}
 	
-	return gpgTask.outData;
+	NSData *retVal = gpgTask.outData;
+	[self operationDidFinishWithReturnValue:retVal];	
+	return retVal;
 }
 
 - (NSArray *)verifySignature:(NSData *)signatureData originalData:(NSData *)originalData {
-	gpgTask = [GPGTask gpgTask];
-	gpgTask.delegate = self;
-	[gpgTask addInData:signatureData];
-	[gpgTask addInData:originalData];
+	@try {
+		if (async && !asyncStarted) {
+			asyncStarted = YES;
+			[asyncProxy verifySignature:signatureData originalData:originalData];
+			return nil;
+		}
+		asyncStarted = NO;
+		
+		
+		gpgTask = [GPGTask gpgTask];
+		gpgTask.delegate = self;
+		[gpgTask addInData:signatureData];
+		[gpgTask addInData:originalData];
+		
+		
+		[self addArgumentsForOptions];
+		[gpgTask addArgument:@"--verify"];
+		
+		if ([gpgTask start] != 0) {
+			@throw [GPGException exceptionWithReason:@"Verify failed!" gpgTask:gpgTask];
+		}
 	
-	
-	[self addArgumentsForOptions];
-	[gpgTask addArgument:@"--verify"];
-	
-	if ([gpgTask start] != 0) {
-		@throw [GPGException exceptionWithReason:@"Verify failed!" gpgTask:gpgTask];
+	} @catch (NSException *e) {
+		[self handleException:e];
 	}
 	
-	return self.signatures;
+	NSArray *retVal = self.signatures;
+	[self operationDidFinishWithReturnValue:retVal];	
+	return retVal;
 }
 
 
@@ -1211,12 +1238,14 @@
 
 
 - (void)handleException:(NSException *)e {
-	//TODO!
+	if ([delegate respondsToSelector:@selector(gpgController:operationDidFailWithException:)]) {
+		[delegate gpgController:self operationDidFailWithException:e];
+	}
 }
 
-- (void)operationFinishedWithReturnValue:(id)value {
-	if ([delegate respondsToSelector:@selector(gpgController:operationFinishedWithReturnValue:)]) {
-		[delegate gpgController:self operationFinishedWithReturnValue:value];
+- (void)operationDidFinishWithReturnValue:(id)value {
+	if ([delegate respondsToSelector:@selector(gpgController:operationDidFinishWithReturnValue:)]) {
+		[delegate gpgController:self operationDidFinishWithReturnValue:value];
 	}
 }
 
