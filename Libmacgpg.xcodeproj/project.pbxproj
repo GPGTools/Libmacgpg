@@ -10,8 +10,8 @@
 		30C60EEF12FF3321006BB8DA /* Libmacgpg.h in Headers */ = {isa = PBXBuildFile; fileRef = 30C60EEE12FF3321006BB8DA /* Libmacgpg.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		30FF413712FAC6CD00F39832 /* GPGController.h in Headers */ = {isa = PBXBuildFile; fileRef = 30FF411D12FAC6CD00F39832 /* GPGController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		30FF413812FAC6CD00F39832 /* GPGController.m in Sources */ = {isa = PBXBuildFile; fileRef = 30FF411E12FAC6CD00F39832 /* GPGController.m */; };
-		30FF413912FAC6CD00F39832 /* GPGException.h in Headers */ = {isa = PBXBuildFile; fileRef = 30FF411F12FAC6CD00F39832 /* GPGException.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		30FF413A12FAC6CD00F39832 /* GPGException.m in Sources */ = {isa = PBXBuildFile; fileRef = 30FF412012FAC6CD00F39832 /* GPGException.m */; };
+		30FF413912FAC6CD00F39832 /* GPGTaskException.h in Headers */ = {isa = PBXBuildFile; fileRef = 30FF411F12FAC6CD00F39832 /* GPGTaskException.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		30FF413A12FAC6CD00F39832 /* GPGTaskException.m in Sources */ = {isa = PBXBuildFile; fileRef = 30FF412012FAC6CD00F39832 /* GPGTaskException.m */; };
 		30FF413B12FAC6CD00F39832 /* GPGGlobals.h in Headers */ = {isa = PBXBuildFile; fileRef = 30FF412112FAC6CD00F39832 /* GPGGlobals.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		30FF413C12FAC6CD00F39832 /* GPGGlobals.m in Sources */ = {isa = PBXBuildFile; fileRef = 30FF412212FAC6CD00F39832 /* GPGGlobals.m */; };
 		30FF413D12FAC6CD00F39832 /* GPGKey.h in Headers */ = {isa = PBXBuildFile; fileRef = 30FF412312FAC6CD00F39832 /* GPGKey.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -39,11 +39,11 @@
 
 /* Begin PBXFileReference section */
 		1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
-		30C60EEE12FF3321006BB8DA /* Libmacgpg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Libmacgpg.h; sourceTree = "<group>"; };
+		30C60EEE12FF3321006BB8DA /* Libmacgpg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Libmacgpg.h; path = Source/Libmacgpg.h; sourceTree = "<group>"; };
 		30FF411D12FAC6CD00F39832 /* GPGController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGController.h; path = Source/GPGController.h; sourceTree = "<group>"; };
 		30FF411E12FAC6CD00F39832 /* GPGController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GPGController.m; path = Source/GPGController.m; sourceTree = "<group>"; };
-		30FF411F12FAC6CD00F39832 /* GPGException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGException.h; path = Source/GPGException.h; sourceTree = "<group>"; };
-		30FF412012FAC6CD00F39832 /* GPGException.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GPGException.m; path = Source/GPGException.m; sourceTree = "<group>"; };
+		30FF411F12FAC6CD00F39832 /* GPGTaskException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGTaskException.h; path = Source/GPGTaskException.h; sourceTree = "<group>"; };
+		30FF412012FAC6CD00F39832 /* GPGTaskException.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GPGTaskException.m; path = Source/GPGTaskException.m; sourceTree = "<group>"; };
 		30FF412112FAC6CD00F39832 /* GPGGlobals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGGlobals.h; path = Source/GPGGlobals.h; sourceTree = "<group>"; };
 		30FF412212FAC6CD00F39832 /* GPGGlobals.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GPGGlobals.m; path = Source/GPGGlobals.m; sourceTree = "<group>"; };
 		30FF412312FAC6CD00F39832 /* GPGKey.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGKey.h; path = Source/GPGKey.h; sourceTree = "<group>"; };
@@ -125,8 +125,6 @@
 				30C60EEE12FF3321006BB8DA /* Libmacgpg.h */,
 				30FF411D12FAC6CD00F39832 /* GPGController.h */,
 				30FF411E12FAC6CD00F39832 /* GPGController.m */,
-				30FF411F12FAC6CD00F39832 /* GPGException.h */,
-				30FF412012FAC6CD00F39832 /* GPGException.m */,
 				30FF412112FAC6CD00F39832 /* GPGGlobals.h */,
 				30FF412212FAC6CD00F39832 /* GPGGlobals.m */,
 				30FF412312FAC6CD00F39832 /* GPGKey.h */,
@@ -145,6 +143,8 @@
 				30FF413012FAC6CD00F39832 /* GPGSubkey.m */,
 				30FF413112FAC6CD00F39832 /* GPGTask.h */,
 				30FF413212FAC6CD00F39832 /* GPGTask.m */,
+				30FF411F12FAC6CD00F39832 /* GPGTaskException.h */,
+				30FF412012FAC6CD00F39832 /* GPGTaskException.m */,
 				30FF413312FAC6CD00F39832 /* GPGTaskOrder.h */,
 				30FF413412FAC6CD00F39832 /* GPGTaskOrder.m */,
 				30FF413512FAC6CD00F39832 /* GPGUserID.h */,
@@ -169,7 +169,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				30FF413712FAC6CD00F39832 /* GPGController.h in Headers */,
-				30FF413912FAC6CD00F39832 /* GPGException.h in Headers */,
+				30FF413912FAC6CD00F39832 /* GPGTaskException.h in Headers */,
 				30FF413B12FAC6CD00F39832 /* GPGGlobals.h in Headers */,
 				30FF413D12FAC6CD00F39832 /* GPGKey.h in Headers */,
 				30FF413F12FAC6CD00F39832 /* GPGKeySignature.h in Headers */,
@@ -212,7 +212,7 @@
 /* Begin PBXProject section */
 		0867D690FE84028FC02AAC07 /* Project object */ = {
 			isa = PBXProject;
-			buildConfigurationList = 1DEB91B108733DA50010E9CD /* Build configuration list for PBXProject "Libmacgpg" */;
+			buildConfigurationList = 1DEB91B108733DA50010E9CD /* Build configuration list for PBXProject "libmacgpg" */;
 			compatibilityVersion = "Xcode 3.1";
 			developmentRegion = English;
 			hasScannedForEncodings = 1;
@@ -248,7 +248,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				30FF413812FAC6CD00F39832 /* GPGController.m in Sources */,
-				30FF413A12FAC6CD00F39832 /* GPGException.m in Sources */,
+				30FF413A12FAC6CD00F39832 /* GPGTaskException.m in Sources */,
 				30FF413C12FAC6CD00F39832 /* GPGGlobals.m in Sources */,
 				30FF413E12FAC6CD00F39832 /* GPGKey.m in Sources */,
 				30FF414012FAC6CD00F39832 /* GPGKeySignature.m in Sources */,
@@ -279,7 +279,7 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = Libmacgpg_Prefix.pch;
+				GCC_PREFIX_HEADER = Source/Libmacgpg_Prefix.pch;
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				PRODUCT_NAME = Libmacgpg;
@@ -297,7 +297,7 @@
 				FRAMEWORK_VERSION = A;
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = Libmacgpg_Prefix.pch;
+				GCC_PREFIX_HEADER = Source/Libmacgpg_Prefix.pch;
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				PRODUCT_NAME = Libmacgpg;
@@ -345,7 +345,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		1DEB91B108733DA50010E9CD /* Build configuration list for PBXProject "Libmacgpg" */ = {
+		1DEB91B108733DA50010E9CD /* Build configuration list for PBXProject "libmacgpg" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1DEB91B208733DA50010E9CD /* Debug */,

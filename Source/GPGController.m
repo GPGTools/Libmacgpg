@@ -1,12 +1,11 @@
 #import "GPGController.h"
 #import "GPGKey.h"
-#import "GPGException.h"
+#import "GPGTaskException.h"
 #import "GPGTaskOrder.h"
 #import "GPGRemoteKey.h"
 #import "GPGSignature.h"
 
 
-//TODO: Handle exception!
 
 
 @interface GPGController ()
@@ -144,7 +143,7 @@
 	[gpgTask addArguments:searchStrings];
 	
 	if ([gpgTask start] != 0) {
-		@throw [GPGException exceptionWithReason:@"List public keys failed!" gpgTask:gpgTask];
+		@throw [GPGTaskException exceptionWithReason:@"List public keys failed!" gpgTask:gpgTask];
 	}
 	pubColonListing = gpgTask.outText;
 	
@@ -155,7 +154,7 @@
 	[gpgTask addArguments:searchStrings];
 	
 	if ([gpgTask start] != 0) {
-		@throw [GPGException exceptionWithReason:@"List secret keys failed!" gpgTask:gpgTask];
+		@throw [GPGTaskException exceptionWithReason:@"List secret keys failed!" gpgTask:gpgTask];
 	}
 	secColonListing = gpgTask.outText;
 	
@@ -192,7 +191,6 @@
 			[asyncProxy processData:data withEncryptSignMode:mode recipients:recipients hiddenRecipients:hiddenRecipients];
 			return nil;
 		}
-		asyncStarted = NO;
 		
 		
 		if (mode & (GPGEncryptFlags | GPGSignFlags) == 0) {
@@ -250,11 +248,13 @@
 		}
 		
 		if ([gpgTask start] != 0) {
-			@throw [GPGException exceptionWithReason:@"Process data failed!" gpgTask:gpgTask];
+			@throw [GPGTaskException exceptionWithReason:@"Process data failed!" gpgTask:gpgTask];
 		}
 		
 	} @catch (NSException *e) {
 		[self handleException:e];
+	} @finally {
+		asyncStarted = NO;
 	}
 	
 	NSData *retVal = gpgTask.outData;
@@ -269,7 +269,6 @@
 			[asyncProxy decryptData:data];
 			return nil;
 		}
-		asyncStarted = NO;
 
 		
 		gpgTask = [GPGTask gpgTask];
@@ -280,10 +279,12 @@
 		[gpgTask addArgument:@"--decrypt"];
 		
 		if ([gpgTask start] != 0) {
-			@throw [GPGException exceptionWithReason:@"Decrypt failed!" gpgTask:gpgTask];
+			@throw [GPGTaskException exceptionWithReason:@"Decrypt failed!" gpgTask:gpgTask];
 		}
 	} @catch (NSException *e) {
 		[self handleException:e];
+	} @finally {
+		asyncStarted = NO;
 	}
 	
 	NSData *retVal = gpgTask.outData;
@@ -298,7 +299,6 @@
 			[asyncProxy verifySignature:signatureData originalData:originalData];
 			return nil;
 		}
-		asyncStarted = NO;
 		
 		
 		gpgTask = [GPGTask gpgTask];
@@ -311,11 +311,13 @@
 		[gpgTask addArgument:@"--verify"];
 		
 		if ([gpgTask start] != 0) {
-			@throw [GPGException exceptionWithReason:@"Verify failed!" gpgTask:gpgTask];
+			@throw [GPGTaskException exceptionWithReason:@"Verify failed!" gpgTask:gpgTask];
 		}
 	
 	} @catch (NSException *e) {
 		[self handleException:e];
+	} @finally {
+		asyncStarted = NO;
 	}
 	
 	NSArray *retVal = self.signatures;
@@ -332,54 +334,67 @@
 - (void)generateNewKeyWithName:(NSString *)name email:(NSString *)email comment:(NSString *)comment 
 					   keyType:(GPGPublicKeyAlgorithm)keyType keyLength:(NSInteger)keyLength subkeyType:(GPGPublicKeyAlgorithm)subkeyType subkeyLength:(NSInteger)subkeyLength 
 				  daysToExpire:(NSInteger)daysToExpire preferences:(NSString *)preferences passphrase:(NSString *)passphrase {
-		
-	
-	NSMutableString *cmdText = [NSMutableString string];
-	
-	
-	
-	[cmdText appendFormat:@"Key-Type: %i\n", keyType];
-	[cmdText appendFormat:@"Key-Length: %i\n", keyLength];
-	
-	if (subkeyType) {
-		[cmdText appendFormat:@"Subkey-Type: %i\n", subkeyType];
-		[cmdText appendFormat:@"Subkey-Length: %i\n", subkeyLength];
-	}
-	
-	[cmdText appendFormat:@"Name-Real: %@\n", name];
-	[cmdText appendFormat:@"Name-Email: %@\n", email];
-	if ([comment length] > 0) {
-		[cmdText appendFormat:@"Name-Comment: %@\n", comment];
-	}
-	
-	[cmdText appendFormat:@"Expire-Date: %i\n", daysToExpire];
-	
-	if (preferences) {
-		[cmdText appendFormat:@"Preferences: %@\n", preferences];
-	}
-	
-	if (passphrase) {
-		if (![passphrase isEqualToString:@""]) {
-			[cmdText appendFormat:@"Passphrase: %@\n", passphrase];
+	@try {
+		if (async && !asyncStarted) {
+			asyncStarted = YES;
+			[asyncProxy generateNewKeyWithName:name email:email comment:comment 
+									   keyType:keyType keyLength:keyLength subkeyType:subkeyType subkeyLength:subkeyLength 
+								  daysToExpire:daysToExpire preferences:preferences passphrase:passphrase];
+			return;
 		}
-		[cmdText appendString:@"%no-ask-passphrase\n"];
-	} else {
-		[cmdText appendString:@"%ask-passphrase\n"];
-	}
-	
-	[cmdText appendString:@"%commit\n"];
-	
-	
-	
-	gpgTask = [GPGTask gpgTaskWithArgument:@"--gen-key"];
-	gpgTask.batchMode = YES;
-	gpgTask.delegate = self;
-	[gpgTask addInText:cmdText];
+		
+		NSMutableString *cmdText = [NSMutableString string];
+		
+		
+		[cmdText appendFormat:@"Key-Type: %i\n", keyType];
+		[cmdText appendFormat:@"Key-Length: %i\n", keyLength];
+		
+		if (subkeyType) {
+			[cmdText appendFormat:@"Subkey-Type: %i\n", subkeyType];
+			[cmdText appendFormat:@"Subkey-Length: %i\n", subkeyLength];
+		}
+		
+		[cmdText appendFormat:@"Name-Real: %@\n", name];
+		[cmdText appendFormat:@"Name-Email: %@\n", email];
+		if ([comment length] > 0) {
+			[cmdText appendFormat:@"Name-Comment: %@\n", comment];
+		}
+		
+		[cmdText appendFormat:@"Expire-Date: %i\n", daysToExpire];
+		
+		if (preferences) {
+			[cmdText appendFormat:@"Preferences: %@\n", preferences];
+		}
+		
+		if (passphrase) {
+			if (![passphrase isEqualToString:@""]) {
+				[cmdText appendFormat:@"Passphrase: %@\n", passphrase];
+			}
+			[cmdText appendString:@"%no-ask-passphrase\n"];
+		} else {
+			[cmdText appendString:@"%ask-passphrase\n"];
+		}
+		
+		[cmdText appendString:@"%commit\n"];
+		
+		
+		
+		gpgTask = [GPGTask gpgTaskWithArgument:@"--gen-key"];
+		gpgTask.batchMode = YES;
+		gpgTask.delegate = self;
+		[gpgTask addInText:cmdText];
 
-	
-	if ([gpgTask start] != 0) {
-		@throw [GPGException exceptionWithReason:@"Generate new key failed!" gpgTask:gpgTask];
+		
+		if ([gpgTask start] != 0) {
+			@throw [GPGTaskException exceptionWithReason:@"Generate new key failed!" gpgTask:gpgTask];
+		}
+	} @catch (NSException *e) {
+		[self handleException:e];
+	} @finally {
+		asyncStarted = NO;
 	}
+	
+	[self operationDidFinishWithReturnValue:nil];	
 }
 
 - (void)deleteKeys:(id <EnumerationList>)keys withMode:(GPGDeleteKeyMode)mode {
@@ -406,7 +421,7 @@
 	}
 
 	if ([gpgTask start] != 0) {
-		@throw [GPGException exceptionWithReason:@"Set primary userID failed!" gpgTask:gpgTask];
+		@throw [GPGTaskException exceptionWithReason:@"Set primary userID failed!" gpgTask:gpgTask];
 	}
 }
 
@@ -418,7 +433,7 @@
 	[gpgTask addArgument:@"save"];
 	
 	if ([gpgTask start] != 0) {
-		@throw [GPGException exceptionWithReason:@"Clean failed!" gpgTask:gpgTask];
+		@throw [GPGTaskException exceptionWithReason:@"Clean failed!" gpgTask:gpgTask];
 	}
 }
 
@@ -430,7 +445,7 @@
 	[gpgTask addArgument:@"save"];
 	
 	if ([gpgTask start] != 0) {
-		@throw [GPGException exceptionWithReason:@"Minimize failed!" gpgTask:gpgTask];
+		@throw [GPGTaskException exceptionWithReason:@"Minimize failed!" gpgTask:gpgTask];
 	}
 }
 
@@ -454,7 +469,7 @@
 	[gpgTask addArgument:[key description]];
 	
 	if ([gpgTask start] != 0) {
-		@throw [GPGException exceptionWithReason:@"Generate revoke certificate failed!" gpgTask:gpgTask];
+		@throw [GPGTaskException exceptionWithReason:@"Generate revoke certificate failed!" gpgTask:gpgTask];
 	}
 	
 	return gpgTask.outData;
@@ -468,7 +483,7 @@
 		if (index > 0) {
 			[order addCmd:[NSString stringWithFormat:@"key %i\n", index] prompt:@"keyedit.prompt"];
 		} else {
-			@throw [GPGException exceptionWithName:@"GPGException" reason:@"Subkey not found!" userInfo:
+			@throw [GPGTaskException exceptionWithName:@"GPGTaskException" reason:@"Subkey not found!" userInfo:
 					[NSDictionary dictionaryWithObjectsAndKeys:subkey, @"subkey", key, @"key", nil]];
 		}
 	}
@@ -485,7 +500,7 @@
 	[gpgTask addArgument:[key description]];
 	
 	if ([gpgTask start] != 0) {
-		@throw [GPGException exceptionWithReason:@"Add userID failed!" gpgTask:gpgTask];
+		@throw [GPGTaskException exceptionWithReason:@"Add userID failed!" gpgTask:gpgTask];
 	}
 }
 
@@ -502,7 +517,7 @@
 	[gpgTask addArgument:[key description]];
 	
 	if ([gpgTask start] != 0) {
-		@throw [GPGException exceptionWithReason:@"Change passphrase failed!" gpgTask:gpgTask];
+		@throw [GPGTaskException exceptionWithReason:@"Change passphrase failed!" gpgTask:gpgTask];
 	}
 }
 
@@ -513,7 +528,7 @@
 		NSInteger uid = [self indexOfUserID:hashID fromKey:key];
 		
 		if (uid <= 0) {
-			@throw [GPGException exceptionWithName:@"GPGException" reason:@"UserID not found!" userInfo:
+			@throw [GPGTaskException exceptionWithName:@"GPGTaskException" reason:@"UserID not found!" userInfo:
 					[NSDictionary dictionaryWithObjectsAndKeys:hashID, @"hashID", key, @"key", nil]];
 		}
 		[order addCmd:[NSString stringWithFormat:@"uid %i\n", uid] prompt:@"keyedit.prompt"];
@@ -528,7 +543,7 @@
 	[gpgTask addArgument:[key description]];
 	
 	if ([gpgTask start] != 0) {
-		@throw [GPGException exceptionWithReason:@"Set preferences failed!" gpgTask:gpgTask];
+		@throw [GPGTaskException exceptionWithReason:@"Set preferences failed!" gpgTask:gpgTask];
 	}
 }
 
@@ -540,7 +555,7 @@
 	[gpgTask addArgument:@"quit"];
 	
 	if ([gpgTask start] != 0) {
-		@throw [GPGException exceptionWithReason:disabled ? @"Disable key failed!" : @"Enable key failed!" gpgTask:gpgTask];
+		@throw [GPGTaskException exceptionWithReason:disabled ? @"Disable key failed!" : @"Enable key failed!" gpgTask:gpgTask];
 	}
 }
 
@@ -559,7 +574,7 @@
 
 	
 	if ([gpgTask start] != 0) {
-		@throw [GPGException exceptionWithReason:@"Set trust failed!" gpgTask:gpgTask];
+		@throw [GPGTaskException exceptionWithReason:@"Set trust failed!" gpgTask:gpgTask];
 	}
 }
 
@@ -567,61 +582,89 @@
 #pragma mark Import and export
 
 - (NSString *)importFromData:(NSData *)data fullImport:(BOOL)fullImport {
-	gpgTask = [GPGTask gpgTask];
-	[gpgTask addInData:data];
-	[self addArgumentsForOptions];
-	[gpgTask addArgument:@"--import"];
-	if (fullImport) {
-		[gpgTask addArgument:@"--import-options"];
-		[gpgTask addArgument:@"import-local-sigs"];
-		[gpgTask addArgument:@"--allow-non-selfsigned-uid"];
+	NSString *statusText;
+	@try {
+		if (async && !asyncStarted) {
+			asyncStarted = YES;
+			[asyncProxy importFromData:data fullImport:fullImport];
+			return nil;
+		}
+		
+		gpgTask = [GPGTask gpgTask];
+		[gpgTask addInData:data];
+		[self addArgumentsForOptions];
+		[gpgTask addArgument:@"--import"];
+		if (fullImport) {
+			[gpgTask addArgument:@"--import-options"];
+			[gpgTask addArgument:@"import-local-sigs"];
+			[gpgTask addArgument:@"--allow-non-selfsigned-uid"];
+		}
+		
+		
+		[gpgTask start];
+		
+		statusText = gpgTask.statusText;
+		//TODO: Better error detection!
+		if ([statusText rangeOfString:@"[GNUPG:] IMPORT_OK "].length <= 0) {
+			@throw [GPGTaskException exceptionWithReason:@"Import failed!" gpgTask:gpgTask];
+		}
+	} @catch (NSException *e) {
+		[self handleException:e];
+	} @finally {
+		asyncStarted = NO;
 	}
 	
-	
-	[gpgTask start];
-	
-	NSString *statusText = gpgTask.statusText;
-	//TODO: Better error detection!
-	if ([statusText rangeOfString:@"[GNUPG:] IMPORT_OK "].length <= 0) {
-		@throw [GPGException exceptionWithReason:@"Import failed!" gpgTask:gpgTask];
-	}
-	
+	[self operationDidFinishWithReturnValue:statusText];	
 	return statusText;
 }
 
 - (NSData *)exportKeys:(id <EnumerationList>)keys allowSecret:(BOOL)allowSec fullExport:(BOOL)fullExport {
-	NSMutableArray *arguments = [NSMutableArray arrayWithCapacity:5];
-	[arguments addObject:@"--export"];
-	
-	if (fullExport) {
-		[arguments addObject:@"--export-options"];
-		[arguments addObject:@"export-local-sigs,export-sensitive-revkeys"];
-	}
-	for (id <KeyFingerprint> key in keys) {
-		[arguments addObject:[key description]];
-	}
-	
-	
-	gpgTask = [GPGTask gpgTaskWithArguments:arguments];
-	[self addArgumentsForOptions];
-	[self addArgumentsForComments];
-	
-	if ([gpgTask start] != 0) {
-		@throw [GPGException exceptionWithReason:@"Export failed!" gpgTask:gpgTask];
-	}
-	NSData *exportedData = gpgTask.outData;
-	
-	
-	if (allowSec) {
-		[arguments replaceObjectAtIndex:0 withObject:@"--export-secret-keys"];
-		gpgTask = [GPGTask gpgTaskWithArguments:arguments];
-		if ([gpgTask start] != 0) {
-			@throw [GPGException exceptionWithReason:@"Export failed!" gpgTask:gpgTask];
+	NSData *exportedData;
+	@try {
+		if (async && !asyncStarted) {
+			asyncStarted = YES;
+			[asyncProxy exportKeys:keys allowSecret:allowSec fullExport:fullExport];
+			return nil;
 		}
-		exportedData = [NSMutableData dataWithData:exportedData];
-		[(NSMutableData *)exportedData appendData:gpgTask.outData];
+		
+		NSMutableArray *arguments = [NSMutableArray arrayWithCapacity:5];
+		[arguments addObject:@"--export"];
+		
+		if (fullExport) {
+			[arguments addObject:@"--export-options"];
+			[arguments addObject:@"export-local-sigs,export-sensitive-revkeys"];
+		}
+		for (id <KeyFingerprint> key in keys) {
+			[arguments addObject:[key description]];
+		}
+		
+		
+		gpgTask = [GPGTask gpgTaskWithArguments:arguments];
+		[self addArgumentsForOptions];
+		[self addArgumentsForComments];
+		
+		if ([gpgTask start] != 0) {
+			@throw [GPGTaskException exceptionWithReason:@"Export failed!" gpgTask:gpgTask];
+		}
+		exportedData = gpgTask.outData;
+		
+		
+		if (allowSec) {
+			[arguments replaceObjectAtIndex:0 withObject:@"--export-secret-keys"];
+			gpgTask = [GPGTask gpgTaskWithArguments:arguments];
+			if ([gpgTask start] != 0) {
+				@throw [GPGTaskException exceptionWithReason:@"Export failed!" gpgTask:gpgTask];
+			}
+			exportedData = [NSMutableData dataWithData:exportedData];
+			[(NSMutableData *)exportedData appendData:gpgTask.outData];
+		}
+	} @catch (NSException *e) {
+		[self handleException:e];
+	} @finally {
+		asyncStarted = NO;
 	}
 	
+	[self operationDidFinishWithReturnValue:exportedData];	
 	return exportedData;
 }
 
@@ -637,7 +680,7 @@
 		if (uidIndex > 0) {
 			uid = [NSString stringWithFormat:@"uid %i\n", uidIndex];
 		} else {
-			@throw [GPGException exceptionWithName:@"GPGException" reason:@"UserID not found!" userInfo:
+			@throw [GPGTaskException exceptionWithName:@"GPGTaskException" reason:@"UserID not found!" userInfo:
 					[NSDictionary dictionaryWithObjectsAndKeys:hashID, @"hashID", key, @"key", nil]];
 		}
 	}
@@ -663,7 +706,7 @@
 	[gpgTask addArgument:[key description]];
 	
 	if ([gpgTask start] != 0) {
-		@throw [GPGException exceptionWithReason:@"Sign userID failed!" gpgTask:gpgTask];
+		@throw [GPGTaskException exceptionWithReason:@"Sign userID failed!" gpgTask:gpgTask];
 	}
 }
 
@@ -703,10 +746,10 @@
 		
 		
 		if ([gpgTask start] != 0) {
-			@throw [GPGException exceptionWithReason:@"Revoke signature failed!" gpgTask:gpgTask];
+			@throw [GPGTaskException exceptionWithReason:@"Revoke signature failed!" gpgTask:gpgTask];
 		}
 	} else {
-		@throw [GPGException exceptionWithName:@"GPGException" reason:@"UserID not found!" userInfo:
+		@throw [GPGTaskException exceptionWithName:@"GPGTaskException" reason:@"UserID not found!" userInfo:
 				[NSDictionary dictionaryWithObjectsAndKeys:userID.hashID, @"hashID", key, @"key", nil]];
 	}
 }
@@ -742,10 +785,10 @@
 		
 		
 		if ([gpgTask start] != 0) {
-			@throw [GPGException exceptionWithReason:@"Remove signature failed!" gpgTask:gpgTask];
+			@throw [GPGTaskException exceptionWithReason:@"Remove signature failed!" gpgTask:gpgTask];
 		}
 	} else {
-		@throw [GPGException exceptionWithName:@"GPGException" reason:@"UserID not found!" userInfo:
+		@throw [GPGTaskException exceptionWithName:@"GPGTaskException" reason:@"UserID not found!" userInfo:
 				[NSDictionary dictionaryWithObjectsAndKeys:userID.hashID, @"hashID", key, @"key", nil]];
 	}
 }
@@ -769,10 +812,10 @@
 		[gpgTask addArgument:[key description]];
 		
 		if ([gpgTask start] != 0) {
-			@throw [GPGException exceptionWithReason:@"Remove subkey failed!" gpgTask:gpgTask];
+			@throw [GPGTaskException exceptionWithReason:@"Remove subkey failed!" gpgTask:gpgTask];
 		}
 	} else {
-		@throw [GPGException exceptionWithName:@"GPGException" reason:@"Subkey not found!" userInfo:
+		@throw [GPGTaskException exceptionWithName:@"GPGTaskException" reason:@"Subkey not found!" userInfo:
 				[NSDictionary dictionaryWithObjectsAndKeys:subkey, @"subkey", key, @"key", nil]];
 	}
 }
@@ -801,10 +844,10 @@
 		[gpgTask addArgument:[key description]];
 		
 		if ([gpgTask start] != 0) {
-			@throw [GPGException exceptionWithReason:@"Revoke subkey failed!" gpgTask:gpgTask];
+			@throw [GPGTaskException exceptionWithReason:@"Revoke subkey failed!" gpgTask:gpgTask];
 		}
 	} else {
-		@throw [GPGException exceptionWithName:@"GPGException" reason:@"Subkey not found!" userInfo:
+		@throw [GPGTaskException exceptionWithName:@"GPGTaskException" reason:@"Subkey not found!" userInfo:
 				[NSDictionary dictionaryWithObjectsAndKeys:subkey, @"subkey", key, @"key", nil]];
 	}
 }
@@ -825,7 +868,7 @@
 	[gpgTask addArgument:[key description]];
 	
 	if ([gpgTask start] != 0) {
-		@throw [GPGException exceptionWithReason:@"Add subkey failed!" gpgTask:gpgTask];
+		@throw [GPGTaskException exceptionWithReason:@"Add subkey failed!" gpgTask:gpgTask];
 	}
 }
 
@@ -848,7 +891,7 @@
 	[gpgTask addArgument:[key description]];
 	
 	if ([gpgTask start] != 0) {
-		@throw [GPGException exceptionWithReason:@"Add userID failed!" gpgTask:gpgTask];
+		@throw [GPGTaskException exceptionWithReason:@"Add userID failed!" gpgTask:gpgTask];
 	}
 }
 
@@ -868,10 +911,10 @@
 		[gpgTask addArgument:[key description]];
 		
 		if ([gpgTask start] != 0) {
-			@throw [GPGException exceptionWithReason:@"Remove userID failed!" gpgTask:gpgTask];
+			@throw [GPGTaskException exceptionWithReason:@"Remove userID failed!" gpgTask:gpgTask];
 		}
 	} else {
-		@throw [GPGException exceptionWithName:@"GPGException" reason:@"UserID not found!" userInfo:
+		@throw [GPGTaskException exceptionWithName:@"GPGTaskException" reason:@"UserID not found!" userInfo:
 				[NSDictionary dictionaryWithObjectsAndKeys:hashID, @"hashID", key, @"key", nil]];
 	}
 }
@@ -900,10 +943,10 @@
 		[gpgTask addArgument:[key description]];
 		
 		if ([gpgTask start] != 0) {
-			@throw [GPGException exceptionWithReason:@"Revoke userID failed!" gpgTask:gpgTask];
+			@throw [GPGTaskException exceptionWithReason:@"Revoke userID failed!" gpgTask:gpgTask];
 		}
 	} else {
-		@throw [GPGException exceptionWithName:@"GPGException" reason:@"UserID not found!" userInfo:
+		@throw [GPGTaskException exceptionWithName:@"GPGTaskException" reason:@"UserID not found!" userInfo:
 				[NSDictionary dictionaryWithObjectsAndKeys:hashID, @"hashID", key, @"key", nil]];
 	}
 }
@@ -921,10 +964,10 @@
 		[gpgTask addArgument:@"save"];
 		
 		if ([gpgTask start] != 0) {
-			@throw [GPGException exceptionWithReason:@"Set primary userID failed!" gpgTask:gpgTask];
+			@throw [GPGTaskException exceptionWithReason:@"Set primary userID failed!" gpgTask:gpgTask];
 		}
 	} else {
-		@throw [GPGException exceptionWithName:@"GPGException" reason:@"UserID not found!" userInfo:
+		@throw [GPGTaskException exceptionWithName:@"GPGTaskException" reason:@"UserID not found!" userInfo:
 				[NSDictionary dictionaryWithObjectsAndKeys:hashID, @"hashID", key, @"key", nil]];
 	}
 }
@@ -943,7 +986,7 @@
 	[gpgTask addArgument:@"save"];
 	
 	if ([gpgTask start] != 0) {
-		@throw [GPGException exceptionWithReason:@"Add photo failed!" gpgTask:gpgTask];
+		@throw [GPGTaskException exceptionWithReason:@"Add photo failed!" gpgTask:gpgTask];
 	}
 }
 
@@ -951,70 +994,123 @@
 #pragma mark Working with keyserver
 
 - (NSString *)refreshKeysFromServer:(id <EnumerationList>)keys {
-	gpgTask = [GPGTask gpgTask];
-	[self addArgumentsForKeyserver];
-	[gpgTask addArgument:@"--refresh-keys"];
-	for (id key in keys) {
-		[gpgTask addArgument:[key description]];
+	@try {
+		if (async && !asyncStarted) {
+			asyncStarted = YES;
+			[asyncProxy refreshKeysFromServer:keys];
+			return nil;
+		}
+
+		gpgTask = [GPGTask gpgTask];
+		[self addArgumentsForKeyserver];
+		[gpgTask addArgument:@"--refresh-keys"];
+		for (id key in keys) {
+			[gpgTask addArgument:[key description]];
+		}
+		
+		if ([gpgTask start] != 0) {
+			@throw [GPGTaskException exceptionWithReason:@"Refresh keys failed!" gpgTask:gpgTask];
+		}
+	} @catch (NSException *e) {
+		[self handleException:e];
+	} @finally {
+		asyncStarted = NO;
 	}
 	
-	if ([gpgTask start] != 0) {
-		@throw [GPGException exceptionWithReason:@"Receive keys failed!" gpgTask:gpgTask];
-	}
-	
-	return [gpgTask statusText];
+	NSString *retVal = [gpgTask statusText];
+	[self operationDidFinishWithReturnValue:retVal];	
+	return retVal;
 }
 
 - (NSString *)receiveKeysFromServer:(id <EnumerationList>)keys {
-	if ([keys count] == 0) {
-		[NSException raise:NSInvalidArgumentException format:@"Empty key list!"];
-	}
-	gpgTask = [GPGTask gpgTask];
-	[self addArgumentsForKeyserver];
-	[gpgTask addArgument:@"--recv-keys"];
-	for (id key in keys) {
-		[gpgTask addArgument:[key description]];
-	}
-			
-	if ([gpgTask start] != 0) {
-		@throw [GPGException exceptionWithReason:@"Receive keys failed!" gpgTask:gpgTask];
+	@try {
+		if (async && !asyncStarted) {
+			asyncStarted = YES;
+			[asyncProxy receiveKeysFromServer:keys];
+			return nil;
+		}
+		
+		if ([keys count] == 0) {
+			[NSException raise:NSInvalidArgumentException format:@"Empty key list!"];
+		}
+		gpgTask = [GPGTask gpgTask];
+		[self addArgumentsForKeyserver];
+		[gpgTask addArgument:@"--recv-keys"];
+		for (id key in keys) {
+			[gpgTask addArgument:[key description]];
+		}
+				
+		if ([gpgTask start] != 0) {
+			@throw [GPGTaskException exceptionWithReason:@"Receive keys failed!" gpgTask:gpgTask];
+		}
+	} @catch (NSException *e) {
+		[self handleException:e];
+	} @finally {
+		asyncStarted = NO;
 	}
 	
-	return [gpgTask statusText];
+	NSString *retVal = [gpgTask statusText];
+	[self operationDidFinishWithReturnValue:retVal];	
+	return retVal;
 }
 
 - (void)sendKeysToServer:(id <EnumerationList>)keys {
-	if ([keys count] == 0) {
-		[NSException raise:NSInvalidArgumentException format:@"Empty key list!"];
-	}
-	gpgTask = [GPGTask gpgTask];
-	[self addArgumentsForKeyserver];
-	[gpgTask addArgument:@"--send-keys"];
-	for (id key in keys) {
-		[gpgTask addArgument:[key description]];
-	}
+	@try {
+		if (async && !asyncStarted) {
+			asyncStarted = YES;
+			[asyncProxy sendKeysToServer:keys];
+			return;
+		}
 	
-	if ([gpgTask start] != 0) {
-		@throw [GPGException exceptionWithReason:@"Receive keys failed!" gpgTask:gpgTask];
+		if ([keys count] == 0) {
+			[NSException raise:NSInvalidArgumentException format:@"Empty key list!"];
+		}
+		gpgTask = [GPGTask gpgTask];
+		[self addArgumentsForKeyserver];
+		[gpgTask addArgument:@"--send-keys"];
+		for (id key in keys) {
+			[gpgTask addArgument:[key description]];
+		}
+		
+		if ([gpgTask start] != 0) {
+			@throw [GPGTaskException exceptionWithReason:@"Receive keys failed!" gpgTask:gpgTask];
+		}
+	} @catch (NSException *e) {
+		[self handleException:e];
+	} @finally {
+		asyncStarted = NO;
 	}
+	[self operationDidFinishWithReturnValue:nil];	
 }
 
 - (NSArray *)searchKeysOnServer:(NSString *)pattern {
-	gpgTask = [GPGTask gpgTask];
-	gpgTask.batchMode = YES;
-	[self addArgumentsForKeyserver];
-	[gpgTask addArgument:@"--search-keys"];
-	[gpgTask addArgument:@"--"];
-	[gpgTask addArgument:pattern];
-	
-	if ([gpgTask start] != 0) {
-		@throw [GPGException exceptionWithReason:@"Search keys failed!" gpgTask:gpgTask];
+	NSArray *keys;
+	@try {
+		if (async && !asyncStarted) {
+			asyncStarted = YES;
+			[asyncProxy searchKeysOnServer:pattern];
+			return nil;
+		}
+		
+		gpgTask = [GPGTask gpgTask];
+		gpgTask.batchMode = YES;
+		[self addArgumentsForKeyserver];
+		[gpgTask addArgument:@"--search-keys"];
+		[gpgTask addArgument:@"--"];
+		[gpgTask addArgument:pattern];
+		
+		if ([gpgTask start] != 0) {
+			@throw [GPGTaskException exceptionWithReason:@"Search keys failed!" gpgTask:gpgTask];
+		}
+		
+		keys = [GPGRemoteKey keysWithListing:gpgTask.outText];
+	} @catch (NSException *e) {
+		[self handleException:e];
+	} @finally {
+		asyncStarted = NO;
 	}
 	
-	NSArray *keys = [GPGRemoteKey keysWithListing:gpgTask.outText];
-	
-	NSLog(@"%@", keys);
-	
+	[self operationDidFinishWithReturnValue:keys];	
 	return keys;
 }
 
@@ -1028,7 +1124,7 @@
 	[gpgTask addArgument:[key description]];
 	
 	if ([gpgTask start] != 0) {
-		@throw [GPGException exceptionWithReason:@"indexOfUserID failed!" gpgTask:gpgTask];
+		@throw [GPGTaskException exceptionWithReason:@"indexOfUserID failed!" gpgTask:gpgTask];
 	}
 	
 	NSString *outText = gpgTask.outText;
@@ -1056,7 +1152,7 @@
 	[gpgTask addArgument:[key description]];
 	
 	if ([gpgTask start] != 0) {
-		@throw [GPGException exceptionWithReason:@"indexOfSubkey failed!" gpgTask:gpgTask];
+		@throw [GPGTaskException exceptionWithReason:@"indexOfSubkey failed!" gpgTask:gpgTask];
 	}
 	
 	NSString *outText = gpgTask.outText;
@@ -1238,8 +1334,12 @@
 
 
 - (void)handleException:(NSException *)e {
-	if ([delegate respondsToSelector:@selector(gpgController:operationDidFailWithException:)]) {
-		[delegate gpgController:self operationDidFailWithException:e];
+	if (asyncStarted) {
+		if ([delegate respondsToSelector:@selector(gpgController:operationDidFailWithException:)]) {
+			[delegate gpgController:self operationDidFailWithException:e];
+		}
+	} else {
+		@throw e;
 	}
 }
 

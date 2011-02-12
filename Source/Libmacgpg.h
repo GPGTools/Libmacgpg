@@ -1,7 +1,7 @@
 #import "GPGGlobals.h"
 #import "GPGKey.h"
 #import "GPGTask.h"
-#import "GPGException.h"
+#import "GPGTaskException.h"
 #import "GPGKeySignature.h"
 #import "GPGPhotoID.h"
 #import "GPGRemoteKey.h"
