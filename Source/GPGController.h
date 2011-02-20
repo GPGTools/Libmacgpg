@@ -36,6 +36,7 @@
 	GPGSignature *lastSignature;
 	GPGTask *gpgTask;
 	BOOL asyncStarted;
+	BOOL canceled;
 }
 
 @property (assign) NSObject <GPGControllerDelegate> *delegate;
@@ -71,6 +72,7 @@
 - (NSSet *)updateKeys:(id <EnumerationList>)keyList withSigs:(BOOL)withSigs;
 - (NSSet *)updateKeys:(id <EnumerationList>)keyList searchFor:(id <EnumerationList>)serachList withSigs:(BOOL)withSigs;
 
+- (void)cancel;
 
 - (void)cleanKey:(id <KeyFingerprint>)key;
 - (void)minimizeKey:(id <KeyFingerprint>)key;

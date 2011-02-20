@@ -41,10 +41,11 @@
 	int cmdFileDescriptor;
 	
 	pid_t childPID;
-	BOOL cancel;
+	BOOL canceled;
 	BOOL isRunning;
 }
 
+@property (readonly) BOOL canceled;
 @property (readonly) BOOL isRunning;
 @property BOOL batchMode;
 @property BOOL getAttributeData;
@@ -75,7 +76,7 @@
 
 - (NSInteger)start;
 
-- (void)stop;
+- (void)cancel;
 
 
 - (void)addInData:(NSData *)data;

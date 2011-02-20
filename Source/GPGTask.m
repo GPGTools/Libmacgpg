@@ -316,18 +316,23 @@ NSDictionary *statusCodes;
 	}
 
 	
+	
+	if (canceled) {
+		return 110;
+	}
+	
 	//fork
 	pid_t pid = fork();
 	if (pid == 0) { //Child process
 		
 		//Close unused pipes.
 		if (close(outPipe[0]) || close(errPipe[0]) || close(statusPipe[0]) || close(cmdPipe[1]) || (getAttributeData && close(attributePipe[0]))) {
-			exit(251);			
+			exit(101);			
 		}
 		
 		//Use pipes for in- and output.
 		if (dup2(outPipe[1], 1) == -1 || dup2(errPipe[1], 2) == -1 || dup2(statusPipe[1], 3) == -1 || dup2(cmdPipe[0], 0) == -1 || (getAttributeData && dup2(attributePipe[1], 4) == -1)) {
-			exit(254);
+			exit(102);
 		}
 		
 		
@@ -371,10 +376,10 @@ NSDictionary *statusCodes;
 		
 		for (i = 0; i < inDatasCount; i++) {
 			if (close(inPipes[i][1])) {
-				exit(252);			
+				exit(103);			
 			}
 			if (dup2(inPipes[i][0], i + 5) == -1) {
-				exit(253);
+				exit(104);
 			}
 			char *arg;
 			asprintf(&arg, "/dev/fd/%i", i + 5);
@@ -386,7 +391,7 @@ NSDictionary *statusCodes;
 		
 		execv(argv[0], argv); //Run GPG.
 		
-		exit(255);
+		exit(111);
 	} else if (pid < 0) { //fork Error
 		isRunning = NO;
 		@throw [NSException exceptionWithName:GPGTaskException
@@ -429,7 +434,6 @@ NSDictionary *statusCodes;
 			
 			int retval, stat_loc;
 			while ((retval = waitpid(pid, &stat_loc, 0)) != pid) {
-				//TODO: Ability to cancel! 
 				int e = errno;
 				if (retval != -1 || e != EINTR) {
 					NSLog(@"waitpid loop: %i errno: %i, %s", retval, e, strerror(e));
@@ -437,14 +441,12 @@ NSDictionary *statusCodes;
 			}
 			exitcode = WEXITSTATUS(stat_loc);
 			
-			
 			while ([t1 isExecuting] || [t2 isExecuting] || [t3 isExecuting] || [t4 isExecuting]) {
 				//TODO: Optimize sleep!
 				usleep(10000);
 			}
-			
 		} @catch (NSException * e) {
-			kill(pid, SIGTERM);
+			kill(pid, SIGKILL);
 			@throw;
 		} @finally {
 			close(outPipe[0]);
@@ -469,9 +471,10 @@ NSDictionary *statusCodes;
 	return exitcode;
 }
 
-- (void)stop {
+- (void)cancel {
+	canceled = YES;
 	if (childPID) {
-		kill(childPID, SIGTERM);
+		kill(childPID, SIGKILL);
 	}
 }
 

@@ -6,6 +6,8 @@
 #import "GPGSignature.h"
 
 
+#define cancelCheck if (canceled) {[NSException raise:@"Operation canceled" format:nil];}
+
 
 
 @interface GPGController ()
@@ -17,6 +19,7 @@
 - (void)addArgumentsForOptions;
 - (void)handleException:(NSException *)e;
 - (void)operationDidFinishWithReturnValue:(id)value;
+- (void)cleanAfterOperation;
 @end
 
 
@@ -78,9 +81,10 @@
 
 
 
-- (void)stop {
+- (void)cancel {
+	canceled = YES;
 	if (gpgTask.isRunning) {
-		[gpgTask stop];
+		[gpgTask cancel];
 	}
 }
 
@@ -97,7 +101,6 @@
 - (NSSet *)keysForSearchPatterns:(id <EnumerationList>)searchPatterns {
 	return [self updateKeys:nil searchFor:searchPatterns withSigs:NO];
 }
-
 - (NSSet *)updateKeys:(id <EnumerationList>)keyList {
 	return [self updateKeys:keyList searchFor:keyList withSigs:[keyList count] < 5];
 }
@@ -109,73 +112,88 @@
 	NSSet *secKeyFingerprints, *updatedKeys;
 	NSArray *fingerprints, *listings;
 	
-	if (!keyList) {
-		keyList = [NSSet set];
-	}
-	if (!serachList) {
-		serachList = [NSSet set];
-	}
-	
-	
-	NSArray *searchStrings = nil;
-	if ([serachList count] > 0) {
-		NSMutableSet *searchSet = [NSMutableSet setWithCapacity:[serachList count]];
-		
-		for (id item in serachList) {
-			[searchSet addObject:[item description]];
+	@try {
+		if (async && !asyncStarted) {
+			asyncStarted = YES;
+			[asyncProxy updateKeys:keyList searchFor:serachList withSigs:withSigs];
+			return nil;
 		}
-		searchStrings = [searchSet allObjects];
-	}
-	
-	
-	gpgTask = [GPGTask gpgTask];
-	if (withSigs) {
-		[gpgTask addArgument:@"--list-sigs"];
-		[gpgTask addArgument:@"--list-options"];
-		[gpgTask addArgument:@"show-sig-subpackets=29"];
-	} else {
-		[gpgTask addArgument:@"--list-keys"];
-	}
+		
+		if (!keyList) {
+			keyList = [NSSet set];
+		}
+		if (!serachList) {
+			serachList = [NSSet set];
+		}
+		
+		
+		NSArray *searchStrings = nil;
+		if ([serachList count] > 0) {
+			NSMutableSet *searchSet = [NSMutableSet setWithCapacity:[serachList count]];
+			
+			for (id item in serachList) {
+				cancelCheck;
+				[searchSet addObject:[item description]];
+			}
+			searchStrings = [searchSet allObjects];
+		}
+		
+		
+		gpgTask = [GPGTask gpgTask];
+		if (withSigs) {
+			[gpgTask addArgument:@"--list-sigs"];
+			[gpgTask addArgument:@"--list-options"];
+			[gpgTask addArgument:@"show-sig-subpackets=29"];
+		} else {
+			[gpgTask addArgument:@"--list-keys"];
+		}
 
-	[gpgTask addArgument:withSigs ? @"--list-sigs" : @"--list-keys"];
-	[gpgTask addArgument:@"--with-fingerprint"];
-	[gpgTask addArgument:@"--with-fingerprint"];
-	[gpgTask addArguments:searchStrings];
+		[gpgTask addArgument:withSigs ? @"--list-sigs" : @"--list-keys"];
+		[gpgTask addArgument:@"--with-fingerprint"];
+		[gpgTask addArgument:@"--with-fingerprint"];
+		[gpgTask addArguments:searchStrings];
+		
+		if ([gpgTask start] != 0) {
+			@throw [GPGTaskException exceptionWithReason:@"List public keys failed!" gpgTask:gpgTask];
+		}
+		pubColonListing = gpgTask.outText;
+		
+		
+		gpgTask = [GPGTask gpgTask];
+		[gpgTask addArgument:@"--list-secret-keys"];
+		[gpgTask addArgument:@"--with-fingerprint"];
+		[gpgTask addArguments:searchStrings];
+		
+		if ([gpgTask start] != 0) {
+			@throw [GPGTaskException exceptionWithReason:@"List secret keys failed!" gpgTask:gpgTask];
+		}
+		secColonListing = gpgTask.outText;
+		
+		
+		[[self class] colonListing:pubColonListing toArray:&listings andFingerprints:&fingerprints];
+		secKeyFingerprints = [[self class] fingerprintsFromColonListing:secColonListing];
+		
+		
+		
+		NSDictionary *argumentDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
+											listings, @"listings", 
+											fingerprints, @"fingerprints", 
+											secKeyFingerprints, @"secKeyFingerprints", 
+											keyList, @"keysToUpdate",
+											[NSValue valueWithPointer:&updatedKeys], @"updatedKeys",
+											[NSNumber numberWithBool:withSigs], @"withSigs", nil];
+		
+		cancelCheck;
+		
+		[self performSelectorOnMainThread:@selector(updateKeysWithDict:) withObject:argumentDictionary waitUntilDone:YES];
 	
-	if ([gpgTask start] != 0) {
-		@throw [GPGTaskException exceptionWithReason:@"List public keys failed!" gpgTask:gpgTask];
+	} @catch (NSException *e) {
+		[self handleException:e];
+	} @finally {
+		[self cleanAfterOperation];
 	}
-	pubColonListing = gpgTask.outText;
 	
-	
-	gpgTask = [GPGTask gpgTask];
-	[gpgTask addArgument:@"--list-secret-keys"];
-	[gpgTask addArgument:@"--with-fingerprint"];
-	[gpgTask addArguments:searchStrings];
-	
-	if ([gpgTask start] != 0) {
-		@throw [GPGTaskException exceptionWithReason:@"List secret keys failed!" gpgTask:gpgTask];
-	}
-	secColonListing = gpgTask.outText;
-	
-	
-	[[self class] colonListing:pubColonListing toArray:&listings andFingerprints:&fingerprints];
-	secKeyFingerprints = [[self class] fingerprintsFromColonListing:secColonListing];
-	
-	
-	
-	NSDictionary *argumentDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
-										listings, @"listings", 
-										fingerprints, @"fingerprints", 
-										secKeyFingerprints, @"secKeyFingerprints", 
-										keyList, @"keysToUpdate",
-										[NSValue valueWithPointer:&updatedKeys], @"updatedKeys",
-										[NSNumber numberWithBool:withSigs], @"withSigs", nil];
-	
-	[self performSelectorOnMainThread:@selector(updateKeysWithDict:) withObject:argumentDictionary waitUntilDone:YES];
-	
-	
-	
+	[self operationDidFinishWithReturnValue:updatedKeys];	
 	return updatedKeys;
 }
 
@@ -254,7 +272,7 @@
 	} @catch (NSException *e) {
 		[self handleException:e];
 	} @finally {
-		asyncStarted = NO;
+		[self cleanAfterOperation];
 	}
 	
 	NSData *retVal = gpgTask.outData;
@@ -284,7 +302,7 @@
 	} @catch (NSException *e) {
 		[self handleException:e];
 	} @finally {
-		asyncStarted = NO;
+		[self cleanAfterOperation];
 	}
 	
 	NSData *retVal = gpgTask.outData;
@@ -317,7 +335,7 @@
 	} @catch (NSException *e) {
 		[self handleException:e];
 	} @finally {
-		asyncStarted = NO;
+		[self cleanAfterOperation];
 	}
 	
 	NSArray *retVal = self.signatures;
@@ -391,7 +409,7 @@
 	} @catch (NSException *e) {
 		[self handleException:e];
 	} @finally {
-		asyncStarted = NO;
+		[self cleanAfterOperation];
 	}
 	
 	[self operationDidFinishWithReturnValue:nil];	
@@ -611,7 +629,7 @@
 	} @catch (NSException *e) {
 		[self handleException:e];
 	} @finally {
-		asyncStarted = NO;
+		[self cleanAfterOperation];
 	}
 	
 	[self operationDidFinishWithReturnValue:statusText];	
@@ -661,7 +679,7 @@
 	} @catch (NSException *e) {
 		[self handleException:e];
 	} @finally {
-		asyncStarted = NO;
+		[self cleanAfterOperation];
 	}
 	
 	[self operationDidFinishWithReturnValue:exportedData];	
@@ -1014,7 +1032,7 @@
 	} @catch (NSException *e) {
 		[self handleException:e];
 	} @finally {
-		asyncStarted = NO;
+		[self cleanAfterOperation];
 	}
 	
 	NSString *retVal = [gpgTask statusText];
@@ -1046,7 +1064,7 @@
 	} @catch (NSException *e) {
 		[self handleException:e];
 	} @finally {
-		asyncStarted = NO;
+		[self cleanAfterOperation];
 	}
 	
 	NSString *retVal = [gpgTask statusText];
@@ -1078,7 +1096,7 @@
 	} @catch (NSException *e) {
 		[self handleException:e];
 	} @finally {
-		asyncStarted = NO;
+		[self cleanAfterOperation];
 	}
 	[self operationDidFinishWithReturnValue:nil];	
 }
@@ -1107,7 +1125,7 @@
 	} @catch (NSException *e) {
 		[self handleException:e];
 	} @finally {
-		asyncStarted = NO;
+		[self cleanAfterOperation];
 	}
 	
 	[self operationDidFinishWithReturnValue:keys];	
@@ -1353,6 +1371,11 @@
 
 #pragma mark Private
 
+
+- (void)cleanAfterOperation {
+	asyncStarted = NO;
+	canceled = NO;
+}
 
 - (void)addArgumentsForSignerKeys {
 	for (GPGKey *key in signerKeys) {

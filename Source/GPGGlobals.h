@@ -517,9 +517,13 @@ NSString* getKeyID(NSString *fingerprint);
 - (NSString *)description;
 @end
 
-@interface NSArray (KeyList) <EnumerationList>
+@interface NSArray (IndexInfo)
 - (NSIndexSet *)indexesOfIdenticalObjects:(id <NSFastEnumeration>)objects;
 @end
+@interface NSArray (KeyList) <EnumerationList>
+@end
+
+
 @interface NSSet (KeyList) <EnumerationList>
 @end
 @interface NSString (KeyFingerprint) <KeyFingerprint>

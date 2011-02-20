@@ -91,7 +91,7 @@
 	}
 }
 @end
-@implementation NSArray (KeyList)
+@implementation NSArray (IndexInfo)
 - (NSIndexSet *)indexesOfIdenticalObjects:(id <NSFastEnumeration>)objects {
 	NSMutableIndexSet *indexes = [NSMutableIndexSet indexSet];
 	for (id object in objects) {
