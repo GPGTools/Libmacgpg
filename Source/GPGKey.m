@@ -52,18 +52,9 @@
 	NSUInteger i = 1, c = [listing count];
 	splitedLine = [[listing objectAtIndex:0] componentsSeparatedByString:@":"];
 	
-	
-	validity = [GPGKey validityForLetter:[splitedLine objectAtIndex:1] invalid:&invalid revoked:&revoked expired:&expired];
-	length = [[splitedLine objectAtIndex:2] intValue];
-	algorithm = [[splitedLine objectAtIndex:3] intValue];
-	self.keyID = [splitedLine objectAtIndex:4];
-	self.shortKeyID = getShortKeyID(keyID);
-	self.creationDate = [NSDate dateWithGPGString:[splitedLine objectAtIndex:5]];
-	self.expirationDate = [NSDate dateWithGPGString:[splitedLine objectAtIndex:6]];
-	if (expirationDate && !expired) {
-		expired = [[NSDate date] isGreaterThanOrEqualTo:expirationDate];
-	}
-	ownerTrust = [GPGKey validityForLetter:[splitedLine objectAtIndex:8] invalid:nil revoked:nil expired:nil];
+	[self updateWithLine:splitedLine];
+
+	ownerTrust = [[self class] validityFromLetter:[splitedLine objectAtIndex:8]];
 	
 	
 	tempItem = [splitedLine objectAtIndex:11];
@@ -273,50 +264,6 @@
 
 
 
-+ (GPGValidity)validityForLetter:(NSString *)letter invalid:(BOOL *)invalid revoked:(BOOL *)revoked expired:(BOOL *)expired {
-	if (invalid) {
-		*invalid = NO;
-	}
-	if (revoked) {
-		*revoked = NO;
-	}
-	if (expired) {
-		*expired = NO;
-	}
-	
-	if ([letter length] == 0) {
-		return 0;
-	}
-	switch ([letter characterAtIndex:0]) {
-		case 'q':
-			return 1;
-		case 'n':
-			return 2;
-		case 'm':
-			return 3;
-		case 'f':
-			return 4;
-		case 'u':
-			return 5;
-		case 'i':
-			if (invalid) {
-				*invalid = YES;
-			}
-			return 0;
-		case 'r':
-			if (revoked) {
-				*revoked = YES;
-			}
-			return 0;
-		case 'e':
-			if (expired) {
-				*expired = YES;
-			}
-			return 0;
-		default:
-			return 0;
-	}
-}
 
 + (void)splitUserID:(NSString *)aUserID intoName:(NSString **)namePtr email:(NSString **)emailPtr comment:(NSString **)commentPtr {
 	if (!aUserID) {
@@ -362,18 +309,7 @@
 @synthesize photos;
 @synthesize textForFilter;
 @synthesize fingerprint;
-@synthesize keyID;
-@synthesize shortKeyID;
-@synthesize algorithm;
-@synthesize length;
-@synthesize creationDate;
-@synthesize expirationDate;
 @synthesize ownerTrust;
-@synthesize validity;
-@synthesize expired;
-@synthesize disabled;
-@synthesize invalid;
-@synthesize revoked;
 @synthesize secret;
 @synthesize primaryUserID;
 
@@ -387,24 +323,6 @@
 - (NSString *)email { return primaryUserID.email; }
 - (NSString *)comment { return primaryUserID.comment; }
 
-
-- (NSInteger)status {
-	NSInteger statusValue = validity;
-	
-	if (invalid) {
-		statusValue = GPGKeyStatus_Invalid;
-	}
-	if (revoked) {
-		statusValue += GPGKeyStatus_Revoked;
-	}
-	if (expired) {
-		statusValue += GPGKeyStatus_Expired;
-	}
-	if (disabled) {
-		statusValue += GPGKeyStatus_Disabled;
-	}
-	return statusValue;
-}
 
 - (BOOL)safe {
 	if (length < 1536) { //Länge des Hauptschlüssels.
@@ -429,7 +347,6 @@
 	
 	return YES;
 }
-
 
 
 - (void)setChildren:(NSMutableArray *)value {
@@ -555,11 +472,6 @@
 	self.textForFilter = nil;;
 	
 	self.fingerprint = nil;
-	self.keyID = nil;
-	self.shortKeyID = nil;
-	
-	self.creationDate = nil;
-	self.expirationDate = nil;
 	
 	[super dealloc];
 }

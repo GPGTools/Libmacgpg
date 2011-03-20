@@ -210,7 +210,6 @@
 			return nil;
 		}
 		
-		
 		if (mode & (GPGEncryptFlags | GPGSignFlags) == 0) {
 			[NSException raise:NSInvalidArgumentException format:@"Unknwon mode: %i!", mode];
 		}
@@ -1319,7 +1318,7 @@
 			if (lastSignature && lastSignature.hasFilled) {
 				self.lastSignature = nil;
 			}
-			//Dont’t break!
+			//no break!
 		case GPG_STATUS_NEWSIG:
 		case GPG_STATUS_VALIDSIG:
 		case GPG_STATUS_TRUST_UNDEFINED:

@@ -33,6 +33,7 @@ NSDictionary *statusCodes;
 @synthesize attributeData;
 @synthesize lastUserIDHint;
 @synthesize lastNeedPassphrase;
+@synthesize canceled;
 
 
 - (NSArray *)arguments {
@@ -446,7 +447,7 @@ NSDictionary *statusCodes;
 				usleep(10000);
 			}
 		} @catch (NSException * e) {
-			kill(pid, SIGKILL);
+			kill(pid, SIGTERM);
 			@throw;
 		} @finally {
 			close(outPipe[0]);
@@ -474,7 +475,7 @@ NSDictionary *statusCodes;
 - (void)cancel {
 	canceled = YES;
 	if (childPID) {
-		kill(childPID, SIGKILL);
+		kill(childPID, SIGTERM);
 	}
 }
 

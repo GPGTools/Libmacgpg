@@ -16,10 +16,11 @@
 */
 
 #import "GPGGlobals.h"
+#import "GPGSuper_Template.h"
 
 @class GPGKey;
 
-@interface GPGUserID : NSObject {
+@interface GPGUserID : GPGSuper_Template {
 	NSInteger index;
 	GPGKey *primaryKey;
 	
@@ -37,32 +38,18 @@
 	NSString *name;
 	NSString *email;
 	NSString *comment;
-	
-	NSDate *creationDate;
-	NSDate *expirationDate;
-	
-	GPGValidity validity;
-	
-	BOOL expired;
-	BOOL disabled;
-	BOOL invalid;
-	BOOL revoked;
 }
 
 @property NSInteger index;
 @property (assign) GPGKey *primaryKey;
 @property (readonly) NSString *type;
 
-
 @property (readonly) NSArray *signatures;
-
 
 @property (readonly) NSArray *cipherPreferences;
 @property (readonly) NSArray *digestPreferences;
 @property (readonly) NSArray *compressPreferences;
 @property (readonly) NSArray *otherPreferences;
-
-
 
 @property (retain) NSString *hashID;
 
@@ -70,16 +57,6 @@
 @property (retain) NSString *name;
 @property (retain) NSString *email;
 @property (retain) NSString *comment;
-
-@property (retain) NSDate *creationDate;
-@property (retain) NSDate *expirationDate;
-
-@property GPGValidity validity;
-@property BOOL expired;
-@property BOOL disabled;
-@property BOOL invalid;
-@property BOOL revoked;
-@property (readonly) NSInteger status;
 
 @property (readonly) id children;
 @property (readonly) id keyID;

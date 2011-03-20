@@ -20,11 +20,12 @@
 #import "GPGKeySignature.h"
 #import "GPGPhotoID.h"
 #import "GPGGlobals.h"
+#import "GPGKey_Template.h"
 
 
 
 
-@interface GPGKey : NSObject <KeyFingerprint> {
+@interface GPGKey : GPGKey_Template <KeyFingerprint> {
 	NSMutableArray *children;
 	NSMutableArray *subkeys;
 	NSMutableArray *userIDs;
@@ -32,29 +33,12 @@
 	
 	NSString *textForFilter; //In diesem String stehen die verschiedenen Informationen über den Schlüssel, damit das Filtern schnell funktioniert.
 	
-	
 	GPGUserID *primaryUserID;	
-	
 	NSString *fingerprint;
-	NSString *keyID;
-	NSString *shortKeyID;
-	
-	GPGPublicKeyAlgorithm algorithm;
-	unsigned int length;
-	NSDate *creationDate;
-	NSDate *expirationDate;
-	
 	GPGValidity ownerTrust;
-	GPGValidity validity;
-	BOOL expired;
-	BOOL disabled;
-	BOOL invalid;
-	BOOL revoked;
-	
 	BOOL secret;
 }
 
-+ (GPGValidity)validityForLetter:(NSString *)letter invalid:(BOOL *)invalid revoked:(BOOL *)revoked expired:(BOOL *)expired;
 + (void)splitUserID:(NSString *)aUserID intoName:(NSString **)name email:(NSString **)email comment:(NSString **)comment;
 
 
@@ -76,19 +60,7 @@
 @property (retain) NSMutableArray *photos;
 @property (retain) NSString *textForFilter; //In diesem String stehen die verschiedenen Informationen über den Schlüssel, damit das Filtern schnell funktioniert.
 @property (retain) NSString *fingerprint;
-@property (retain) NSString *keyID;
-@property (retain) NSString *shortKeyID;
-@property GPGPublicKeyAlgorithm algorithm;
-@property unsigned int length;
-@property (retain) NSDate *creationDate;
-@property (retain) NSDate *expirationDate;
 @property GPGValidity ownerTrust;
-@property GPGValidity validity;
-@property BOOL expired;
-@property BOOL disabled;
-@property BOOL invalid;
-@property BOOL revoked;
-@property (readonly) NSInteger status;
 @property BOOL secret;
 @property (readonly) BOOL safe; //Gibt an ob der Schlüssel sicher ist. (Länge > 1024 Bit, kein MD5 oder SHA-1)
 

@@ -30,13 +30,6 @@
 @synthesize name;
 @synthesize email;
 @synthesize comment;
-@synthesize creationDate;
-@synthesize expirationDate;
-@synthesize validity;
-@synthesize expired;
-@synthesize disabled;
-@synthesize invalid;
-@synthesize revoked;
 
 
 - (id)children {return nil;}
@@ -46,23 +39,6 @@
 - (id)shortKeyID {return nil;}
 - (id)fingerprint {return nil;}
 
-- (NSInteger)status {
-	NSInteger statusValue = 0;
-	
-	if (invalid) {
-		statusValue = GPGKeyStatus_Invalid;
-	}
-	if (revoked) {
-		statusValue += GPGKeyStatus_Revoked;
-	}
-	if (expired) {
-		statusValue += GPGKeyStatus_Expired;
-	}
-	if (disabled) {
-		statusValue += GPGKeyStatus_Disabled;
-	}
-	return statusValue;
-}
 - (NSString *)type {return @"uid";}
 
 - (NSUInteger)hash {
@@ -109,14 +85,10 @@
 	return self;	
 }
 - (void)updateWithListing:(NSArray *)listing signatureListing:(NSArray *)sigListing {
-	validity = [GPGKey validityForLetter:[listing objectAtIndex:1] invalid:&invalid revoked:&revoked expired:&expired];
+	
+	[self updateWithLine:listing];
 
 	
-	self.creationDate = [NSDate dateWithGPGString:[listing objectAtIndex:5]];
-	self.expirationDate = [NSDate dateWithGPGString:[listing objectAtIndex:6]];
-	if (expirationDate && !expired) {
-		expired = [[NSDate date] isGreaterThanOrEqualTo:expirationDate];
-	}
 	self.hashID = [listing objectAtIndex:7];
 	self.userID = unescapeString([listing objectAtIndex:9]);
 	
@@ -253,9 +225,6 @@
 	
 	self.hashID = nil;
 	self.userID = nil;
-	
-	self.creationDate = nil;
-	self.expirationDate = nil;
 	
 	[super dealloc];
 }

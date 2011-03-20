@@ -16,28 +16,15 @@
 */
 
 #import "GPGGlobals.h"
+#import "GPGKey_Template.h"
 
 @class GPGKey;
 
-@interface GPGSubkey : NSObject <KeyFingerprint> {
+@interface GPGSubkey : GPGKey_Template <KeyFingerprint> {
 	NSInteger index;
 	GPGKey *primaryKey;
 	
 	NSString *fingerprint;
-	NSString *keyID;
-	NSString *shortKeyID;
-	
-	GPGPublicKeyAlgorithm algorithm;
-	unsigned int length;
-	NSDate *creationDate;
-	NSDate *expirationDate;
-	
-	GPGValidity validity;
-	BOOL expired;
-	BOOL disabled;
-	BOOL invalid;
-	BOOL revoked;
-	
 }
 
 @property (assign) GPGKey *primaryKey;
@@ -45,20 +32,6 @@
 @property NSInteger index;
 
 @property (retain) NSString *fingerprint;
-@property (retain) NSString *keyID;
-@property (retain) NSString *shortKeyID;
-
-@property GPGPublicKeyAlgorithm algorithm;
-@property unsigned int length;
-@property (retain) NSDate *creationDate;
-@property (retain) NSDate *expirationDate;
-
-@property GPGValidity validity;
-@property BOOL expired;
-@property BOOL disabled;
-@property BOOL invalid;
-@property BOOL revoked;
-@property (readonly) NSInteger status;
 
 @property (readonly) id children;
 @property (readonly) id name;

@@ -131,6 +131,7 @@
 }
 
 - (void)dealloc {
+	self.type = nil;
 	self.userID = nil;;
 	
 	self.keyID = nil;

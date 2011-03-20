@@ -119,6 +119,16 @@
 	return self;
 }
 
+- (void)dealloc {
+	self.fingerprint = nil;
+	self.primaryFingerprint = nil;
+	self.userID = nil;
+	self.creationDate = nil;
+	self.expirationDate = nil;
+	self.signatureClass = nil;
+	[super dealloc];
+}
+
 
 
 @end

@@ -16,7 +16,7 @@
 
 
 @interface GPGController : NSObject <GPGTaskDelegate> {
-	NSMutableArray *signerKeys; //TODO
+	NSMutableArray *signerKeys;
 	NSMutableArray *comments;
 	NSString *keyserver;
 	NSDictionary *userInfo;

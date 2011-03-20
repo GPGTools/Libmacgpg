@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		302AA37A133606260022A371 /* GPGKey_Template.h in Headers */ = {isa = PBXBuildFile; fileRef = 302AA378133606260022A371 /* GPGKey_Template.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		302AA37B133606260022A371 /* GPGKey_Template.m in Sources */ = {isa = PBXBuildFile; fileRef = 302AA379133606260022A371 /* GPGKey_Template.m */; };
+		302AA3AE133608BE0022A371 /* GPGSuper_Template.h in Headers */ = {isa = PBXBuildFile; fileRef = 302AA3AC133608BE0022A371 /* GPGSuper_Template.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		302AA3AF133608BE0022A371 /* GPGSuper_Template.m in Sources */ = {isa = PBXBuildFile; fileRef = 302AA3AD133608BE0022A371 /* GPGSuper_Template.m */; };
 		30C60EEF12FF3321006BB8DA /* Libmacgpg.h in Headers */ = {isa = PBXBuildFile; fileRef = 30C60EEE12FF3321006BB8DA /* Libmacgpg.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		30FF413712FAC6CD00F39832 /* GPGController.h in Headers */ = {isa = PBXBuildFile; fileRef = 30FF411D12FAC6CD00F39832 /* GPGController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		30FF413812FAC6CD00F39832 /* GPGController.m in Sources */ = {isa = PBXBuildFile; fileRef = 30FF411E12FAC6CD00F39832 /* GPGController.m */; };
@@ -39,6 +43,10 @@
 
 /* Begin PBXFileReference section */
 		1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
+		302AA378133606260022A371 /* GPGKey_Template.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGKey_Template.h; path = Source/GPGKey_Template.h; sourceTree = "<group>"; };
+		302AA379133606260022A371 /* GPGKey_Template.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GPGKey_Template.m; path = Source/GPGKey_Template.m; sourceTree = "<group>"; };
+		302AA3AC133608BE0022A371 /* GPGSuper_Template.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGSuper_Template.h; path = Source/GPGSuper_Template.h; sourceTree = "<group>"; };
+		302AA3AD133608BE0022A371 /* GPGSuper_Template.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GPGSuper_Template.m; path = Source/GPGSuper_Template.m; sourceTree = "<group>"; };
 		30C60EEE12FF3321006BB8DA /* Libmacgpg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Libmacgpg.h; path = Source/Libmacgpg.h; sourceTree = "<group>"; };
 		30FF411D12FAC6CD00F39832 /* GPGController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGController.h; path = Source/GPGController.h; sourceTree = "<group>"; };
 		30FF411E12FAC6CD00F39832 /* GPGController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GPGController.m; path = Source/GPGController.m; sourceTree = "<group>"; };
@@ -122,11 +130,29 @@
 		08FB77AEFE84172EC02AAC07 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				302AA377133605FE0022A371 /* GPGKey */,
 				30C60EEE12FF3321006BB8DA /* Libmacgpg.h */,
 				30FF411D12FAC6CD00F39832 /* GPGController.h */,
 				30FF411E12FAC6CD00F39832 /* GPGController.m */,
 				30FF412112FAC6CD00F39832 /* GPGGlobals.h */,
 				30FF412212FAC6CD00F39832 /* GPGGlobals.m */,
+				30FF413112FAC6CD00F39832 /* GPGTask.h */,
+				30FF413212FAC6CD00F39832 /* GPGTask.m */,
+				30FF411F12FAC6CD00F39832 /* GPGTaskException.h */,
+				30FF412012FAC6CD00F39832 /* GPGTaskException.m */,
+				30FF413312FAC6CD00F39832 /* GPGTaskOrder.h */,
+				30FF413412FAC6CD00F39832 /* GPGTaskOrder.m */,
+			);
+			name = Classes;
+			sourceTree = "<group>";
+		};
+		302AA377133605FE0022A371 /* GPGKey */ = {
+			isa = PBXGroup;
+			children = (
+				302AA378133606260022A371 /* GPGKey_Template.h */,
+				302AA379133606260022A371 /* GPGKey_Template.m */,
+				302AA3AC133608BE0022A371 /* GPGSuper_Template.h */,
+				302AA3AD133608BE0022A371 /* GPGSuper_Template.m */,
 				30FF412312FAC6CD00F39832 /* GPGKey.h */,
 				30FF412412FAC6CD00F39832 /* GPGKey.m */,
 				30FF412512FAC6CD00F39832 /* GPGKeySignature.h */,
@@ -141,16 +167,10 @@
 				30FF412E12FAC6CD00F39832 /* GPGSignature.m */,
 				30FF412F12FAC6CD00F39832 /* GPGSubkey.h */,
 				30FF413012FAC6CD00F39832 /* GPGSubkey.m */,
-				30FF413112FAC6CD00F39832 /* GPGTask.h */,
-				30FF413212FAC6CD00F39832 /* GPGTask.m */,
-				30FF411F12FAC6CD00F39832 /* GPGTaskException.h */,
-				30FF412012FAC6CD00F39832 /* GPGTaskException.m */,
-				30FF413312FAC6CD00F39832 /* GPGTaskOrder.h */,
-				30FF413412FAC6CD00F39832 /* GPGTaskOrder.m */,
 				30FF413512FAC6CD00F39832 /* GPGUserID.h */,
 				30FF413612FAC6CD00F39832 /* GPGUserID.m */,
 			);
-			name = Classes;
+			name = GPGKey;
 			sourceTree = "<group>";
 		};
 		32C88DFF0371C24200C91783 /* Other Sources */ = {
@@ -182,6 +202,8 @@
 				30FF414D12FAC6CD00F39832 /* GPGTaskOrder.h in Headers */,
 				30FF414F12FAC6CD00F39832 /* GPGUserID.h in Headers */,
 				30C60EEF12FF3321006BB8DA /* Libmacgpg.h in Headers */,
+				302AA37A133606260022A371 /* GPGKey_Template.h in Headers */,
+				302AA3AE133608BE0022A371 /* GPGSuper_Template.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -259,6 +281,8 @@
 				30FF414C12FAC6CD00F39832 /* GPGTask.m in Sources */,
 				30FF414E12FAC6CD00F39832 /* GPGTaskOrder.m in Sources */,
 				30FF415012FAC6CD00F39832 /* GPGUserID.m in Sources */,
+				302AA37B133606260022A371 /* GPGKey_Template.m in Sources */,
+				302AA3AF133608BE0022A371 /* GPGSuper_Template.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

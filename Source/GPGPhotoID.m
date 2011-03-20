@@ -34,7 +34,7 @@
 	return self;
 }
 
-- (void) dealloc {
+- (void)dealloc {
 	[image release];
 	[hashID release];
 	
