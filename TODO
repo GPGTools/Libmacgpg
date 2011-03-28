@@ -1,0 +1,7 @@
+
+TODO: Consistent errorCodes and Exceptions.
+GPGController.m: Add posiblity for async to all methods.
+
+
+GPGTask.m - getPassphraseFromPinentry: Find pinentry-mac
+

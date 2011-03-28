@@ -1,11 +1,12 @@
 
+@class GPGTask;
+
 typedef enum { 
     GPGKeyStatus_Invalid = 8,
     GPGKeyStatus_Revoked = 16,
     GPGKeyStatus_Expired = 32,
     GPGKeyStatus_Disabled = 64
 } GPGKeyStatus;
-
 typedef enum {
     GPGValidityUnknown   = 0,
     GPGValidityUndefined = 1,
@@ -14,7 +15,6 @@ typedef enum {
     GPGValidityFull      = 4,
     GPGValidityUltimate  = 5
 } GPGValidity;
-
 typedef enum {
     GPG_RSAAlgorithm                =  1,
     GPG_RSAEncryptOnlyAlgorithm     =  2,
@@ -26,8 +26,22 @@ typedef enum {
     GPG_ElgamalAlgorithm            = 20,
     GPG_DiffieHellmanAlgorithm      = 21
 } GPGPublicKeyAlgorithm;
-
-typedef enum { 
+typedef enum {
+    GPGErrorNoError = 0, 
+    GPGErrorGeneralError = 1, 
+    GPGErrorBadSignature = 8, 
+    GPGErrorNoPublicKey = 9, 
+    GPGErrorPINEntryError = 86, 
+    GPGErrorCertificateRevoked = 94, 
+    GPGErrorCancelled = 99, 
+    GPGErrorUnknownAlgorithm = 149, 
+    GPGErrorSignatureExpired = 154, 
+    GPGErrorKeyExpired = 153, 
+	GPGErrorTaskException, 
+	GPGErrorSubkeyNotFound, 
+	GPGErrorUserIDNotFound
+} GPGErrorCode;
+/*typedef enum { 
     GPGErrorNoError = 0, 
     GPGErrorGeneralError = 1, 
     GPGErrorUnknownPacket = 2, 
@@ -232,8 +246,8 @@ typedef enum {
     GPGErrorMissingErrno = 16381, 
     GPGErrorUnknownErrno = 16382, 
     GPGErrorEOF = 16383,  
-    /* The following error codes are used to map system errors.  */
-    GPGError_E2BIG = 16384, 
+    // The following error codes are used to map system errors.  
+	GPGError_E2BIG = 16384, 
     GPGError_EACCES = 16385, 
     GPGError_EADDRINUSE = 16386, 
     GPGError_EADDRNOTAVAIL = 16387, 
@@ -374,11 +388,9 @@ typedef enum {
     GPGError_EWOULDBLOCK = 16522, 
     GPGError_EXDEV = 16523, 
     GPGError_EXFULL = 16524,  
-    /* This is one more than the largest allowed entry.  */
+    // This is one more than the largest allowed entry.  
     GPGError_CODE_DIM = 65536 
-} GPGErrorCode;  
-
-
+} GPGErrorCode;  */
 typedef enum {
     GPGPublicKeyEncrypt = 1,
 	GPGSymetricEncrypt = 2,
@@ -394,14 +406,11 @@ typedef enum {
 	GPGSignFlags = 48
 } GPGEncryptSignMode;
 
-
-
 typedef enum {
 	GPGDeletePublicKey,
 	GPGDeleteSecretKey,
 	GPGDeletePublicAndSecretKey
 } GPGDeleteKeyMode;
-
 
 enum gpgStatusCodes {
 	GPG_STATUS_NONE = 0, //No Status Code!
@@ -489,6 +498,11 @@ enum gpgStatusCodes {
 };
 
 
+#define localizedString(key) [[NSBundle bundleWithIdentifier:@"org.gpgtools.Libmacgpg"] localizedStringForKey:(key) value:@"" table:@""]
+
+extern NSString *GPGTaskException;
+extern NSString *GPGException;
+
 
 
 @interface NSData (GPGExtension)
@@ -505,9 +519,15 @@ enum gpgStatusCodes {
 
 
 int hexToByte (const char *text);
-NSString *unescapeString(NSString *string);
+NSString* unescapeString(NSString *string);
 NSString* getShortKeyID(NSString *keyID);
 NSString* getKeyID(NSString *fingerprint);
+
+
+NSException* gpgTaskException(NSString *name, NSString *reason, int errorCode, GPGTask *gpgTask);
+NSException* gpgException(NSString *name, NSString *reason, int errorCode);
+NSException* gpgExceptionWithUserInfo(NSString *name, NSString *reason, int errorCode, NSDictionary *userInfo);
+
 
 
 @protocol EnumerationList <NSFastEnumeration>

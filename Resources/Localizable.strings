@@ -1,0 +1,4 @@
+
+GetPassphraseDescription = "You need a passphrase to unlock the secret key for user: \"%@\", ID %@";
+GetPassphraseDescription_Subkey = "You need a passphrase to unlock the secret key for user: \"%@\", ID %@, (main key ID %@)";
+PassphraseLabel = "Passphrase:";

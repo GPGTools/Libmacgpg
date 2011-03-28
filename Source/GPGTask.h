@@ -38,6 +38,8 @@
 	NSDictionary *lastUserIDHint;
 	NSDictionary *lastNeedPassphrase;
 	
+	char passphraseStatus;
+	
 	int cmdFileDescriptor;
 	
 	pid_t childPID;

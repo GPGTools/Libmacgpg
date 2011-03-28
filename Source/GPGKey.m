@@ -17,7 +17,6 @@
 
 #import "GPGKey.h"
 #import "GPGTask.h"
-#import "GPGTaskException.h"
 
 
 @implementation GPGKey
@@ -183,7 +182,7 @@
 	gpgTask.getAttributeData = YES;
 	
 	if ([gpgTask start] != 0) {
-		@throw [GPGTaskException exceptionWithReason:@"Update photos failed!" gpgTask:gpgTask];
+		@throw gpgTaskException(GPGTaskException, @"Update photos failed!", GPGErrorTaskException, gpgTask);
 	}
 	
 	
@@ -242,7 +241,7 @@
 	[gpgTask addArgument:@"quit"];
 	
 	if ([gpgTask start] != 0) {
-		@throw [GPGTaskException exceptionWithReason:@"Update preferences failed!" gpgTask:gpgTask];
+		@throw gpgTaskException(GPGTaskException, @"Update preferences failed!", GPGErrorTaskException, gpgTask);
 	}
 	
 	

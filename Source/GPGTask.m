@@ -2,7 +2,6 @@
 #import "GPGTask.h"
 #import "GPGGlobals.h"
 
-#define localString(key) [[NSBundle bundleForClass:[self class]] localizedStringForKey:(key) value:@"" table:@"GPGTask"]
 
 @interface GPGTask (Private)
 
@@ -10,13 +9,13 @@
 - (void)readDataFromFD:(NSDictionary *)dictionary;
 - (int)processStatusData:(char *)data;
 - (void)writeDataToFD:(NSDictionary *)dict;
+- (NSString *)getPassphraseFromPinentry;
 
 @end
 
 
 @implementation GPGTask
 
-NSString *GPGTaskException = @"GPGTaskException";
 NSString *_gpgPath;
 NSDictionary *statusCodes;
 
@@ -77,7 +76,7 @@ NSDictionary *statusCodes;
 	} else {
 		_gpgPath = [self findExecutableWithName:@"gpg"];
 		if (!_gpgPath) {
-			@throw [NSException exceptionWithName:GPGTaskException reason:localString(@"GPG not found!") userInfo:nil];
+			@throw [NSException exceptionWithName:GPGTaskException reason:localizedString(@"GPG not found!") userInfo:nil];
 		}
 	}
 	[_gpgPath retain];
@@ -202,6 +201,8 @@ NSDictionary *statusCodes;
 	return nil;
 }
 
+
+
 + (NSString *)nameOfStatusCode:(NSInteger)statusCode {
 	return [[statusCodes allKeysForObject:[NSNumber numberWithInteger:statusCode]] objectAtIndex:0];
 }
@@ -319,7 +320,7 @@ NSDictionary *statusCodes;
 	
 	
 	if (canceled) {
-		return 110;
+		return GPGErrorCancelled;
 	}
 	
 	//fork
@@ -364,7 +365,7 @@ NSDictionary *statusCodes;
 		argv[argPos++] = "-";
 		argv[argPos++] = batchMode ? "--batch" : "--no-batch";
 		argv[argPos++] = "--fixed-list-mode"; //For GPG1
-		argv[argPos++] = "--use-agent"; //For GPG1
+		//argv[argPos++] = "--use-agent"; //For GPG1
 		
 		
 		if (getAttributeData) {
@@ -445,6 +446,9 @@ NSDictionary *statusCodes;
 			while ([t1 isExecuting] || [t2 isExecuting] || [t3 isExecuting] || [t4 isExecuting]) {
 				//TODO: Optimize sleep!
 				usleep(10000);
+			}
+			if (canceled || exitcode != 0 && passphraseStatus == 3) {
+				exitcode = GPGErrorCancelled;
 			}
 		} @catch (NSException * e) {
 			kill(pid, SIGTERM);
@@ -561,6 +565,7 @@ NSDictionary *statusCodes;
 					NSString *keyID = [prompt substringToIndex:range.location];
 					NSString *userID = [prompt substringFromIndex:range.location + 1];
 					self.lastUserIDHint = [[NSDictionary alloc] initWithObjectsAndKeys:keyID, @"keyID", userID, @"userID", nil];
+					passphraseStatus = 1;
 					break; }
 				case GPG_STATUS_NEED_PASSPHRASE: {
 					NSArray *components = [prompt componentsSeparatedByString:@" "];
@@ -568,8 +573,19 @@ NSDictionary *statusCodes;
 										  [components objectAtIndex:0], @"mainKeyID", 
 										  [components objectAtIndex:1], @"keyID", 
 										  [components objectAtIndex:2], @"keyType", 
-										  [components objectAtIndex:3], @"KeyLength", nil];
+										  [components objectAtIndex:3], @"keyLength", nil];
+					passphraseStatus = 1;
 					break; }
+				case GPG_STATUS_BAD_PASSPHRASE:
+					self.lastUserIDHint = nil;
+					self.lastNeedPassphrase = nil;
+					passphraseStatus = 2;
+					break;
+				case GPG_STATUS_MISSING_PASSPHRASE:
+					self.lastUserIDHint = nil;
+					self.lastNeedPassphrase = nil;
+					passphraseStatus = 3;
+					break;
 				case GPG_STATUS_GET_HIDDEN:
 					if ([prompt isEqualToString:@"passphrase.enter"]) {
 						isPassphraseRequest = YES;
@@ -585,7 +601,10 @@ NSDictionary *statusCodes;
 			
 			if (isPassphraseRequest) {
 				if (!returnValue) {
-					//TODO: Getting passphrase! Use pinetry-mac.
+					returnValue = [self getPassphraseFromPinentry];
+					if (returnValue) {
+						returnValue = [NSString stringWithFormat:@"%@\n", returnValue];
+					}
 				}
 				self.lastUserIDHint = nil;
 				self.lastNeedPassphrase = nil;
@@ -615,6 +634,103 @@ NSDictionary *statusCodes;
 	[pool drain];
 	return bytesProcessed;
 }
+
+
+- (NSString *)getPassphraseFromPinentry {
+	NSPipe *inPipe = [NSPipe pipe];
+	NSPipe *outPipe = [NSPipe pipe];
+	NSTask *pinentryTask = [[NSTask new] autorelease];
+	
+	//TODO: Find pinentry-mac
+	pinentryTask.launchPath = @"/usr/local/MacGPG2/libexec/pinentry-mac.app/Contents/MacOS/pinentry-mac";
+	
+	pinentryTask.standardInput = inPipe;
+	pinentryTask.standardOutput = outPipe;
+
+	
+	
+		
+	NSString *keyID = [lastNeedPassphrase objectForKey:@"keyID"];
+	NSString *mainKeyID = [lastNeedPassphrase objectForKey:@"mainKeyID"];
+	NSString *userID = [lastUserIDHint objectForKey:@"userID"];
+	//NSString *keyLength = [lastNeedPassphrase objectForKey:@"keyLength"];
+	//NSString *keyType = [lastNeedPassphrase objectForKey:@"keyType"];
+	
+	NSString *description;
+	if ([keyID isEqualToString:mainKeyID]) {
+		description = [NSString stringWithFormat:NSLocalizedString(@"GetPassphraseDescription", nil), 
+					   userID, getShortKeyID(keyID)];
+	} else {
+		description = [NSString stringWithFormat:NSLocalizedString(@"GetPassphraseDescription_Subkey", nil), 
+					   userID, getShortKeyID(keyID), getShortKeyID(mainKeyID)];
+	}
+	description = [description stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+	NSString *prompt = [NSLocalizedString(@"PassphraseLabel", nil) stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+	
+	NSString *inText = [NSString stringWithFormat:@"OPTION grab\n"
+						"OPTION cache-id=%@\n"
+						"SETDESC %@\n"
+						"SETPROMPT %@\n"
+						"GETPIN\n"
+						"BYE\n", 
+						keyID, 
+						description, 
+						prompt];
+	
+	NSData *inData = [inText gpgData];
+	[[inPipe fileHandleForWriting] writeData:inData];
+	
+	
+	
+	
+	[pinentryTask launch];
+	NSData *output = [[outPipe fileHandleForReading] readDataToEndOfFile];
+	[pinentryTask waitUntilExit];
+	
+	if (!output) {
+		@throw gpgException(GPGException, @"Pinentry error!", GPGErrorPINEntryError);
+	}
+	NSString *outString = [output gpgString];
+	
+	NSRange range;
+	range = [outString rangeOfString:@"\nERR "];
+	if (range.length > 0) {
+		range.location++; 
+		range.length--;
+		range = [outString lineRangeForRange:range];
+		range.location += 4;
+		range.length -= 5;
+		NSRange spaceRange = [outString rangeOfString:@" " options:NSLiteralSearch range:range];
+		if (spaceRange.length > 0) {
+			range.length = spaceRange.location - range.location;
+		}
+		NSInteger errorCode = [[outString substringWithRange:range] integerValue];
+		if (errorCode == 0x5000063) {
+			[self cancel];
+		} else {
+			@throw gpgException(GPGException, @"Pinentry error!", GPGErrorPINEntryError);
+		}
+		return nil;
+	}
+	
+	range = [outString rangeOfString:@"\nD "];
+	if (range.length == 0) {
+		return @"";
+	}
+	
+	range.location++;
+	range.length--;
+	range = [outString lineRangeForRange:range];
+	range.location += 2;
+	range.length -= 3;
+	
+	if (range.length <= 0) {
+		return @"";
+	}
+	
+	return [[outString substringWithRange:range] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+}
+
 
 
 - (void)writeDataToFD:(NSDictionary *)dict {

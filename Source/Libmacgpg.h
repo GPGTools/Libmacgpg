@@ -11,3 +11,6 @@
 #import "GPGTaskOrder.h"
 #import "GPGUserID.h"
 #import "GPGController.h"
+
+
+//TODO: Add canSign to GPGKey

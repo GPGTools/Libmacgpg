@@ -19,7 +19,7 @@
 #import "GPGKey.h"
 #import "GPGController.h"
 #import "GPGTask.h"
-#import "GPGTaskException.h"
+
 
 
 @implementation GPGUserID
@@ -127,7 +127,7 @@
 		[gpgTask addArgument:[primaryKey fingerprint]];
 		
 		if ([gpgTask start] != 0) {
-			@throw [GPGTaskException exceptionWithReason:@"List signatures failed!" gpgTask:gpgTask];
+			@throw gpgTaskException(GPGTaskException, @"List signatures failed!", GPGErrorTaskException, gpgTask);
 		}
 		
 		NSArray *listings, *fingerprints;

@@ -114,7 +114,7 @@
 
 - (id) init {
 	if (self = [super init]) {
-		status = 1;
+		status = GPGErrorGeneralError;
 	}
 	return self;
 }

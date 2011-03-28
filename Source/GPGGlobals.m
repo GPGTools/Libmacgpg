@@ -1,4 +1,5 @@
 #import "GPGGlobals.h"
+#import "GPGTask.h"
 
 @implementation NSData (GPGExtension)
 - (NSString *)gpgString {
@@ -104,6 +105,9 @@
 }
 @end
 
+NSString *GPGTaskException = @"GPGTaskException";
+NSString *GPGException = @"GPGException";
+
 
 int hexToByte (const char *text) {
 	int retVal = 0;
@@ -197,6 +201,31 @@ NSString* getShortKeyID(NSString *keyID) {
 NSString* getKeyID(NSString *fingerprint) {
 	return [fingerprint substringFromIndex:[fingerprint length] - 16];
 }
+
+
+
+NSException* gpgTaskException(NSString *name, NSString *reason, int errorCode, GPGTask *gpgTask) {
+	if (gpgTask.exitcode == GPGErrorCancelled) {
+		errorCode = GPGErrorCancelled;
+		reason = @"Operation canceled!";
+	}
+	NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:gpgTask, @"gpgTask", [NSNumber numberWithInt:errorCode], @"errorCode", nil];
+	return [NSException exceptionWithName:name reason:localizedString(reason) userInfo:userInfo];
+}
+
+NSException* gpgException(NSString *name, NSString *reason, int errorCode) {
+	NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:errorCode], @"errorCode", nil];
+	return [NSException exceptionWithName:name reason:localizedString(reason) userInfo:userInfo];
+}
+
+NSException* gpgExceptionWithUserInfo(NSString *name, NSString *reason, int errorCode, NSDictionary *userInfo) {
+	NSMutableDictionary *mutableUserInfo = [NSMutableDictionary dictionaryWithDictionary:userInfo];
+	[mutableUserInfo setObject:[NSNumber numberWithInt:errorCode] forKey:@"errorCode"];
+	return [NSException exceptionWithName:name reason:localizedString(reason) userInfo:mutableUserInfo];
+}
+
+
+
 
 
 
