@@ -25,6 +25,7 @@
 @implementation GPGController
 @synthesize delegate;
 @synthesize keyserver;
+@synthesize keyserverTimeout;
 @synthesize async;
 @synthesize userInfo;
 @synthesize useArmor;
@@ -72,6 +73,7 @@
 		comments = [[NSMutableArray alloc] init];
 		signerKeys = [[NSMutableArray alloc] init];
 		signatures = [[NSMutableArray alloc] init];
+		keyserverTimeout = 15;
 		asyncProxy = [AsyncProxy alloc];
 		[asyncProxy setRealObject:self];
 	}
@@ -1375,8 +1377,11 @@
 - (void)addArgumentsForKeyserver {
 	if (keyserver) {
 		[gpgTask addArgument:@"--keyserver"];
-		[gpgTask addArgument:keyserver];		
+		[gpgTask addArgument:keyserver];			
 	}
+	[gpgTask addArgument:@"--keyserver-options"];
+	[gpgTask addArgument:[NSString stringWithFormat:@"timeout=%lu", keyserverTimeout]];
+
 }
 
 - (void)addArgumentsForComments {

@@ -1,7 +1,8 @@
 
+TODO: Add GPGOptions (based on GPGOptions from MacGPGME and GPGDefaults from GPG Keychain Access)
 TODO: Consistent errorCodes and Exceptions.
+TODO: getPacketInfo: It should return informations over type of the data (Key, Signature, Message or anything) and the signer key and the recipients.
+
 GPGController.m: Add posiblity for async to all methods.
 
-
-GPGTask.m - getPassphraseFromPinentry: Find pinentry-mac
 

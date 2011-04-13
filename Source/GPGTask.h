@@ -68,7 +68,7 @@
 
 
 
-
++ (NSString *)findPinentry;
 + (NSString *)findExecutableWithName:(NSString *)executable;
 + (NSString *)findExecutableWithName:(NSString *)executable atPaths:(NSArray *)paths;
 + (NSString *)nameOfStatusCode:(NSInteger)statusCode;

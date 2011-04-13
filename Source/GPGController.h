@@ -19,6 +19,7 @@
 	NSMutableArray *signerKeys;
 	NSMutableArray *comments;
 	NSString *keyserver;
+	NSUInteger keyserverTimeout;
 	NSDictionary *userInfo;
 	BOOL useArmor;
 	BOOL useTextMode;
@@ -30,6 +31,7 @@
 	NSObject <GPGControllerDelegate> *delegate;
 	
 	NSMutableArray *signatures;
+	
 	
 	//Private
 	id asyncProxy; //AsyncProxy
@@ -44,6 +46,7 @@
 @property (readonly) NSArray *comments;
 @property (readonly) NSArray *signatures;
 @property (retain) NSString *keyserver;
+@property NSUInteger keyserverTimeout;
 @property (retain) NSDictionary *userInfo;
 @property BOOL async;
 @property BOOL useArmor;

@@ -170,9 +170,20 @@ NSDictionary *statusCodes;
 				   nil];
 }
 
+
++ (NSString *)findPinentry {
+	NSString *executable = @"../libexec/pinentry-mac.app/Contents/MacOS/pinentry-mac";
+	NSString *foundPath;
+
+	//TODO: read "pinentry-path" from gpg-agent.conf
+	
+	foundPath = [self findExecutableWithName:executable];
+	
+	return foundPath;
+}
 + (NSString *)findExecutableWithName:(NSString *)executable {
 	NSString *foundPath;
-	NSArray *searchPaths = [NSMutableArray arrayWithObjects:@"/usr/local/bin", @"/usr/bin/", @"/bin/", @"/opt/local/bin", @"/sw/bin/", nil];
+	NSArray *searchPaths = [NSMutableArray arrayWithObjects:@"/usr/local/bin", @"/usr/local/MacGPG2/bin", @"/usr/local/MacGPG1/bin", @"/usr/bin", @"/bin", @"/opt/local/bin", @"/sw/bin", nil];
 	
 	foundPath = [self findExecutableWithName:executable atPaths:searchPaths];
 	if (foundPath) {
@@ -195,7 +206,7 @@ NSDictionary *statusCodes;
 	for (searchPath in paths) {
 		foundPath = [searchPath stringByAppendingPathComponent:executable];
 		if ([[NSFileManager defaultManager] isExecutableFileAtPath:foundPath]) {
-			return foundPath;
+			return [foundPath stringByStandardizingPath];
 		}
 	}
 	return nil;
@@ -641,8 +652,7 @@ NSDictionary *statusCodes;
 	NSPipe *outPipe = [NSPipe pipe];
 	NSTask *pinentryTask = [[NSTask new] autorelease];
 	
-	//TODO: Find pinentry-mac
-	pinentryTask.launchPath = @"/usr/local/MacGPG2/libexec/pinentry-mac.app/Contents/MacOS/pinentry-mac";
+	pinentryTask.launchPath = [[self class] findPinentry];
 	
 	pinentryTask.standardInput = inPipe;
 	pinentryTask.standardOutput = outPipe;
@@ -658,14 +668,14 @@ NSDictionary *statusCodes;
 	
 	NSString *description;
 	if ([keyID isEqualToString:mainKeyID]) {
-		description = [NSString stringWithFormat:NSLocalizedString(@"GetPassphraseDescription", nil), 
+		description = [NSString stringWithFormat:localizedString(@"GetPassphraseDescription"), 
 					   userID, getShortKeyID(keyID)];
 	} else {
-		description = [NSString stringWithFormat:NSLocalizedString(@"GetPassphraseDescription_Subkey", nil), 
+		description = [NSString stringWithFormat:localizedString(@"GetPassphraseDescription_Subkey"), 
 					   userID, getShortKeyID(keyID), getShortKeyID(mainKeyID)];
 	}
 	description = [description stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-	NSString *prompt = [NSLocalizedString(@"PassphraseLabel", nil) stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+	NSString *prompt = [localizedString(@"PassphraseLabel") stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
 	
 	NSString *inText = [NSString stringWithFormat:@"OPTION grab\n"
 						"OPTION cache-id=%@\n"
