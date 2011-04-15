@@ -85,6 +85,7 @@
 - (NSString *)importFromData:(NSData *)data fullImport:(BOOL)fullImport;
 - (NSData *)exportKeys:(id <EnumerationList>)keys allowSecret:(BOOL)allowSec fullExport:(BOOL)fullExport;
 - (NSData *)genRevokeCertificateForKey:(id <KeyFingerprint>)key reason:(int)reason description:(NSString *)description;
+- (void)revokeKey:(id <KeyFingerprint>)key reason:(int)reason description:(NSString *)description;
 - (void)signUserID:(NSString *)hashID ofKey:(id <KeyFingerprint>)key signKey:(id <KeyFingerprint>)signKey type:(NSInteger)type local:(BOOL)local daysToExpire:(NSInteger)daysToExpire;
 - (void)addSubkeyToKey:(id <KeyFingerprint>)key type:(NSInteger)type length:(NSInteger)length daysToExpire:(NSInteger)daysToExpire;
 - (void)addUserIDToKey:(id <KeyFingerprint>)key name:(NSString *)name email:(NSString *)email comment:(NSString *)comment;

@@ -493,6 +493,11 @@
 	return gpgTask.outData;
 }
 
+- (void)revokeKey:(id <KeyFingerprint>)key reason:(int)reason description:(NSString *)description {
+	NSData *revocationData = [self genRevokeCertificateForKey:key reason:reason description:description];
+	[self importFromData:revocationData fullImport:YES];
+}
+
 - (void)setExpirationDateForSubkey:(id <KeyFingerprint>)subkey fromKey:(id <KeyFingerprint>)key daysToExpire:(NSInteger)daysToExpire {
 	GPGTaskOrder *order = [GPGTaskOrder orderWithYesToAll];
 	
