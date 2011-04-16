@@ -203,6 +203,17 @@ NSString* getKeyID(NSString *fingerprint) {
 }
 
 
+NSString* bytesToHexString(const unsigned char *bytes, NSUInteger length) {
+	char table[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+	char hexString[length * 2 + 1];
+	hexString[length * 2] = 0;
+	
+	for (int i = 0; i < length; i++) {
+		hexString[i*2] = table[bytes[i] >> 4];
+		hexString[i*2+1] = table[bytes[i] & 0xF];
+	}
+	return [NSString stringWithUTF8String:hexString];
+}
 
 NSException* gpgTaskException(NSString *name, NSString *reason, int errorCode, GPGTask *gpgTask) {
 	if (gpgTask.exitcode == GPGErrorCancelled) {

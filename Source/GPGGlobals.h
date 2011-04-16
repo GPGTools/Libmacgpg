@@ -31,6 +31,7 @@ typedef enum {
     GPGErrorGeneralError = 1, 
     GPGErrorBadSignature = 8, 
     GPGErrorNoPublicKey = 9, 
+    GPGErrorInvalidPacket = 14, 
     GPGErrorPINEntryError = 86, 
     GPGErrorCertificateRevoked = 94, 
     GPGErrorCancelled = 99, 
@@ -412,6 +413,26 @@ typedef enum {
 	GPGDeletePublicAndSecretKey
 } GPGDeleteKeyMode;
 
+typedef enum {
+	GPGPublicKeyEncryptedSessionKeyPacket = 1,
+	GPGSignaturePacket = 2,
+	GPGSymmetricEncryptedSessionKeyPacket = 3,
+	GPGOnePassSignaturePacket = 4,
+	GPGSecretKeyPacket = 5,
+	GPGPublicKeyPacket = 6,
+	GPGSecretSubkeyPacket = 7,
+	GPGCompressedDataPacket = 8,
+	GPGSymmetricEncryptedDataPacket = 9,
+	GPGMarkerPacket = 10,
+	GPGLiteralDataPacket = 11,
+	GPGTrustPacket = 12,
+	GPGUserIDPacket = 13,
+	GPGPublicSubkeyPacket = 14,
+	GPGUserAttributePacket = 17,
+	GPGSymmetricEncryptedProtectedDataPacket = 18,
+	GPGModificationDetectionCodePacket = 19
+} GPGPacketType;
+
 enum gpgStatusCodes {
 	GPG_STATUS_NONE = 0, //No Status Code!
 	
@@ -498,6 +519,8 @@ enum gpgStatusCodes {
 };
 
 
+
+
 #define localizedString(key) [[NSBundle bundleWithIdentifier:@"org.gpgtools.Libmacgpg"] localizedStringForKey:(key) value:@"" table:@""]
 
 extern NSString *GPGTaskException;
@@ -522,6 +545,7 @@ int hexToByte (const char *text);
 NSString* unescapeString(NSString *string);
 NSString* getShortKeyID(NSString *keyID);
 NSString* getKeyID(NSString *fingerprint);
+NSString* bytesToHexString(const unsigned char *bytes, NSUInteger length);
 
 
 NSException* gpgTaskException(NSString *name, NSString *reason, int errorCode, GPGTask *gpgTask);
