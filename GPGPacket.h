@@ -1,4 +1,4 @@
-
+#import "GPGGlobals.h"
 
 @interface GPGPacket : NSObject {
 	GPGPacket *previousPacket;
@@ -29,7 +29,6 @@
 
 
 - (id)initWithData:(NSData *)data;
-- (id)initWithBytes:(const unsigned char *)bytes length:(NSUInteger)length previousPacket:(GPGPacket *)previousPacket;
 + (id)packetWithData:(NSData *)theData;
 
 @end

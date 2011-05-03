@@ -6,17 +6,17 @@
 	NSString *retString;
 	
 	// Löschen aller ungültigen Zeichen, damit die umwandlung nach UTF-8 funktioniert.
-	const unsigned char *inText = [self bytes];
+	const uint8_t *inText = [self bytes];
 	if (!inText) {
 		return nil;
 	}
 	
 	NSUInteger i = 0, c = [self length];
 	
-	unsigned char *outText = malloc(c + 1);
+	uint8_t *outText = malloc(c + 1);
 	if (outText) {
-		unsigned char *outPos = outText;
-		const unsigned char *startChar = nil;
+		uint8_t *outPos = outText;
+		const uint8_t *startChar = nil;
 		int multiByte = 0;
 		
 		for (; i < c; i++) {
@@ -203,7 +203,7 @@ NSString* getKeyID(NSString *fingerprint) {
 }
 
 
-NSString* bytesToHexString(const unsigned char *bytes, NSUInteger length) {
+NSString* bytesToHexString(const uint8_t *bytes, NSUInteger length) {
 	char table[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 	char hexString[length * 2 + 1];
 	hexString[length * 2] = 0;
@@ -218,7 +218,7 @@ NSString* bytesToHexString(const unsigned char *bytes, NSUInteger length) {
 NSException* gpgTaskException(NSString *name, NSString *reason, int errorCode, GPGTask *gpgTask) {
 	if (gpgTask.exitcode == GPGErrorCancelled) {
 		errorCode = GPGErrorCancelled;
-		reason = @"Operation canceled!";
+		reason = @"Operation cancelled!";
 	}
 	NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:gpgTask, @"gpgTask", [NSNumber numberWithInt:errorCode], @"errorCode", nil];
 	return [NSException exceptionWithName:name reason:localizedString(reason) userInfo:userInfo];

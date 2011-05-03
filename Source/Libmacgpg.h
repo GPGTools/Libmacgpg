@@ -11,3 +11,6 @@
 #import "GPGUserID.h"
 #import "GPGController.h"
 #import "GPGPacket.h"
+#import "GPGOptions.h"
+#import "GPGConf.h"
+#import "GPGConfLine.h"

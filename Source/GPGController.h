@@ -10,16 +10,21 @@
 
 - (void)gpgController:(GPGController *)gpgc operationDidFinishWithReturnValue:(id)value;
 - (void)gpgController:(GPGController *)gpgc operationDidFailWithException:(NSException *)e;
+- (void)gpgController:(GPGController *)gpgc keysDidChangedExernal:(NSObject <EnumerationList> *)keys;
+
 
 @end
 
+extern NSString *GPGKeysChangedNotification; 
 
 
 @interface GPGController : NSObject <GPGTaskDelegate> {
 	NSMutableArray *signerKeys;
 	NSMutableArray *comments;
+	NSMutableArray *signatures;
 	NSString *keyserver;
 	NSUInteger keyserverTimeout;
+	NSString *gpgHome;
 	NSDictionary *userInfo;
 	BOOL useArmor;
 	BOOL useTextMode;
@@ -30,10 +35,10 @@
 	
 	NSObject <GPGControllerDelegate> *delegate;
 	
-	NSMutableArray *signatures;
 	
 	
 	//Private
+	NSString *identifier;
 	id asyncProxy; //AsyncProxy
 	GPGSignature *lastSignature;
 	GPGTask *gpgTask;
@@ -46,6 +51,7 @@
 @property (readonly) NSArray *comments;
 @property (readonly) NSArray *signatures;
 @property (retain) NSString *keyserver;
+@property (retain) NSString *gpgHome;
 @property NSUInteger keyserverTimeout;
 @property (retain) NSDictionary *userInfo;
 @property BOOL async;
@@ -64,50 +70,50 @@
 
 + (void)colonListing:(NSString *)colonListing toArray:(NSArray **)array andFingerprints:(NSArray **)fingerprints;
 + (NSSet *)fingerprintsFromColonListing:(NSString *)colonListing;
-- (NSInteger)indexOfUserID:(NSString *)hashID fromKey:(id <KeyFingerprint>)key;
-- (NSInteger)indexOfSubkey:(id <KeyFingerprint>)subkey fromKey:(id <KeyFingerprint>)key;
+- (NSInteger)indexOfUserID:(NSString *)hashID fromKey:(NSObject <KeyFingerprint> *)key;
+- (NSInteger)indexOfSubkey:(NSObject <KeyFingerprint> *)subkey fromKey:(NSObject <KeyFingerprint> *)key;
 
 
 - (NSSet *)allKeys;
 - (NSSet *)keysForSearchPattern:(NSString *)searchPattern;
-- (NSSet *)keysForSearchPatterns:(id <EnumerationList>)searchPatterns;
-- (NSSet *)updateKeys:(id <EnumerationList>)keyList;
-- (NSSet *)updateKeys:(id <EnumerationList>)keyList withSigs:(BOOL)withSigs;
-- (NSSet *)updateKeys:(id <EnumerationList>)keyList searchFor:(id <EnumerationList>)serachList withSigs:(BOOL)withSigs;
+- (NSSet *)keysForSearchPatterns:(NSObject <EnumerationList> *)searchPatterns;
+- (NSSet *)updateKeys:(NSObject <EnumerationList> *)keyList;
+- (NSSet *)updateKeys:(NSObject <EnumerationList> *)keyList withSigs:(BOOL)withSigs;
+- (NSSet *)updateKeys:(NSObject <EnumerationList> *)keyList searchFor:(NSObject <EnumerationList> *)serachList withSigs:(BOOL)withSigs;
 
 - (void)cancel;
 
-- (void)cleanKey:(id <KeyFingerprint>)key;
-- (void)minimizeKey:(id <KeyFingerprint>)key;
-- (void)addPhotoFromPath:(NSString *)path toKey:(id <KeyFingerprint>)key;
-- (void)removeUserID:(NSString *)hashID fromKey:(id <KeyFingerprint>)key;
-- (void)revokeUserID:(NSString *)hashID fromKey:(id <KeyFingerprint>)key reason:(int)reason description:(NSString *)description;
+- (void)cleanKey:(NSObject <KeyFingerprint> *)key;
+- (void)minimizeKey:(NSObject <KeyFingerprint> *)key;
+- (void)addPhotoFromPath:(NSString *)path toKey:(NSObject <KeyFingerprint> *)key;
+- (void)removeUserID:(NSString *)hashID fromKey:(NSObject <KeyFingerprint> *)key;
+- (void)revokeUserID:(NSString *)hashID fromKey:(NSObject <KeyFingerprint> *)key reason:(int)reason description:(NSString *)description;
 - (NSString *)importFromData:(NSData *)data fullImport:(BOOL)fullImport;
-- (NSData *)exportKeys:(id <EnumerationList>)keys allowSecret:(BOOL)allowSec fullExport:(BOOL)fullExport;
-- (NSData *)genRevokeCertificateForKey:(id <KeyFingerprint>)key reason:(int)reason description:(NSString *)description;
-- (void)revokeKey:(id <KeyFingerprint>)key reason:(int)reason description:(NSString *)description;
-- (void)signUserID:(NSString *)hashID ofKey:(id <KeyFingerprint>)key signKey:(id <KeyFingerprint>)signKey type:(NSInteger)type local:(BOOL)local daysToExpire:(NSInteger)daysToExpire;
-- (void)addSubkeyToKey:(id <KeyFingerprint>)key type:(NSInteger)type length:(NSInteger)length daysToExpire:(NSInteger)daysToExpire;
-- (void)addUserIDToKey:(id <KeyFingerprint>)key name:(NSString *)name email:(NSString *)email comment:(NSString *)comment;
-- (void)setExpirationDateForSubkey:(id <KeyFingerprint>)subkey fromKey:(id <KeyFingerprint>)key daysToExpire:(NSInteger)daysToExpire;
-- (void)changePassphraseForKey:(id <KeyFingerprint>)key;
-- (NSString *)receiveKeysFromServer:(id <EnumerationList>)keys;
-- (void)removeSignature:(GPGKeySignature *)signature fromUserID:(GPGUserID *)userID ofKey:(id <KeyFingerprint>)key;
-- (void)removeSubkey:(id <KeyFingerprint>)subkey fromKey:(id <KeyFingerprint>)key;
-- (void)revokeSubkey:(id <KeyFingerprint>)subkey fromKey:(id <KeyFingerprint>)key reason:(int)reason description:(NSString *)description;
-- (void)setPrimaryUserID:(NSString *)hashID ofKey:(id <KeyFingerprint>)key;
+- (NSData *)exportKeys:(NSObject <EnumerationList> *)keys allowSecret:(BOOL)allowSec fullExport:(BOOL)fullExport;
+- (NSData *)genRevokeCertificateForKey:(NSObject <KeyFingerprint> *)key reason:(int)reason description:(NSString *)description;
+- (void)revokeKey:(NSObject <KeyFingerprint> *)key reason:(int)reason description:(NSString *)description;
+- (void)signUserID:(NSString *)hashID ofKey:(NSObject <KeyFingerprint> *)key signKey:(NSObject <KeyFingerprint> *)signKey type:(NSInteger)type local:(BOOL)local daysToExpire:(NSInteger)daysToExpire;
+- (void)addSubkeyToKey:(NSObject <KeyFingerprint> *)key type:(NSInteger)type length:(NSInteger)length daysToExpire:(NSInteger)daysToExpire;
+- (void)addUserIDToKey:(NSObject <KeyFingerprint> *)key name:(NSString *)name email:(NSString *)email comment:(NSString *)comment;
+- (void)setExpirationDateForSubkey:(NSObject <KeyFingerprint> *)subkey fromKey:(NSObject <KeyFingerprint> *)key daysToExpire:(NSInteger)daysToExpire;
+- (void)changePassphraseForKey:(NSObject <KeyFingerprint> *)key;
+- (NSString *)receiveKeysFromServer:(NSObject <EnumerationList> *)keys;
+- (void)removeSignature:(GPGKeySignature *)signature fromUserID:(GPGUserID *)userID ofKey:(NSObject <KeyFingerprint> *)key;
+- (void)removeSubkey:(NSObject <KeyFingerprint> *)subkey fromKey:(NSObject <KeyFingerprint> *)key;
+- (void)revokeSubkey:(NSObject <KeyFingerprint> *)subkey fromKey:(NSObject <KeyFingerprint> *)key reason:(int)reason description:(NSString *)description;
+- (void)setPrimaryUserID:(NSString *)hashID ofKey:(NSObject <KeyFingerprint> *)key;
 - (void)generateNewKeyWithName:(NSString *)name email:(NSString *)email comment:(NSString *)comment 
 					   keyType:(GPGPublicKeyAlgorithm)keyType keyLength:(NSInteger)keyLength subkeyType:(GPGPublicKeyAlgorithm)subkeyType subkeyLength:(NSInteger)subkeyLength 
 				  daysToExpire:(NSInteger)daysToExpire preferences:(NSString *)preferences passphrase:(NSString *)passphrase;
-- (void)deleteKeys:(id <EnumerationList>)keys withMode:(GPGDeleteKeyMode)mode;
-- (void)setAlgorithmPreferences:(NSString *)preferences forUserID:(NSString *)hashID ofKey:(id <KeyFingerprint>)key;
+- (void)deleteKeys:(NSObject <EnumerationList> *)keys withMode:(GPGDeleteKeyMode)mode;
+- (void)setAlgorithmPreferences:(NSString *)preferences forUserID:(NSString *)hashID ofKey:(NSObject <KeyFingerprint> *)key;
 - (NSArray *)searchKeysOnServer:(NSString *)pattern;
-- (void)revokeSignature:(GPGKeySignature *)signature fromUserID:(GPGUserID *)userID ofKey:(id <KeyFingerprint>)key reason:(int)reason description:(NSString *)description;
-- (void)key:(id <KeyFingerprint>)key setDisabled:(BOOL)disabled;
-- (void)key:(id <KeyFingerprint>)key setOwnerTrsut:(GPGValidity)trust;
+- (void)revokeSignature:(GPGKeySignature *)signature fromUserID:(GPGUserID *)userID ofKey:(NSObject <KeyFingerprint> *)key reason:(int)reason description:(NSString *)description;
+- (void)key:(NSObject <KeyFingerprint> *)key setDisabled:(BOOL)disabled;
+- (void)key:(NSObject <KeyFingerprint> *)key setOwnerTrsut:(GPGValidity)trust;
 
 - (NSData *)processData:(NSData *)data withEncryptSignMode:(GPGEncryptSignMode)encryptSignMode 
-			 recipients:(id <EnumerationList>)recipients hiddenRecipients:(id <EnumerationList>)hiddenRecipients;
+			 recipients:(NSObject <EnumerationList> *)recipients hiddenRecipients:(NSObject <EnumerationList> *)hiddenRecipients;
 - (NSData *)decryptData:(NSData *)data;
 - (NSArray *)verifySignature:(NSData *)signatureData originalData:(NSData *)originalData;
 

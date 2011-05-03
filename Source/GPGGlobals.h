@@ -433,6 +433,13 @@ typedef enum {
 	GPGModificationDetectionCodePacket = 19
 } GPGPacketType;
 
+typedef enum {
+	GPGContent_Message,
+	GPGContent_SignedMessage,
+	GPGContent_Signature,
+	GPGContent_Key
+} GPGContentType;
+
 enum gpgStatusCodes {
 	GPG_STATUS_NONE = 0, //No Status Code!
 	
@@ -545,7 +552,7 @@ int hexToByte (const char *text);
 NSString* unescapeString(NSString *string);
 NSString* getShortKeyID(NSString *keyID);
 NSString* getKeyID(NSString *fingerprint);
-NSString* bytesToHexString(const unsigned char *bytes, NSUInteger length);
+NSString* bytesToHexString(const uint8_t *bytes, NSUInteger length);
 
 
 NSException* gpgTaskException(NSString *name, NSString *reason, int errorCode, GPGTask *gpgTask);
