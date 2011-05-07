@@ -20,6 +20,67 @@
 //TODO
 
 
+
+- (id)valueForKey:(NSString *)key {
+	NSArray *options = [self enabledOptionsWithName:key];
+	NSUInteger count = [options count];
+	GPGConfLine *option;
+	NSObject *returnValue;
+	
+	
+	if (count == 0) {
+		returnValue = nil;
+	} else if (count == 1) {
+		option = [options objectAtIndex:0];
+		
+		if ([option subOptionsCount] > 0) {
+			returnValue = [option value];
+		} else {
+			returnValue = [NSNumber numberWithBool:![[option name] hasPrefix:@"no-"]];
+		}
+	} else {
+		NSMutableArray *returnArray = [NSMutableArray arrayWithCapacity:count];
+		for (option in options) {
+			NSString *value = [option value];
+			if ([value length] > 0) {
+				[returnArray addObject:value];
+			}
+		}
+		returnValue = returnArray;
+	}
+
+	return returnValue;
+}
+- (void)setValue:(id)value forKey:(NSString *)key {
+	//NSNumber: YES="key", NO="no-key"
+	//NSString: "key value"
+	//NSArray, NSSet: 'for suboption in value {"key suboption"}'
+	//nil: Remove the option.
+	
+	NSAssert([key length] > 0, @"invalid key");
+	
+	if (!value) {
+		[self removeOptionWithName:key];
+	} else if ([value isKindOfClass:[NSNumber class]]) {
+		if ([key hasPrefix:@"no-"]) {
+			NSAssert([key length] > 3, @"invalid key");
+			key = [key substringFromIndex:3];
+		}
+		if ([value boolValue] == NO) {
+			key = [@"no-" stringByAppendingString:key];
+		}
+		[self addOptionWithName:key];
+	} else if ([value isKindOfClass:[NSString class]]) {
+		[self setValue:value forOptionWithName:key];
+	} else if ([value isKindOfClass:[NSArray class]] || [value isKindOfClass:[NSSet class]]) {
+		//TODO
+	}
+}
+
+
+
+
+
 - (void)loadConfig {
 	NSStringEncoding fileEncoding;
 	NSError *error = nil;
@@ -87,9 +148,7 @@
 - (void)addOptionWithName:(NSString *)name { //For simple options without suboptions.
 	NSString *antiName;
 	if ([name hasPrefix:@"no-"]) {
-		if ([name length] < 4) {
-			return;
-		}
+		NSAssert([name length] > 3, @"invalid name");
 		antiName = [name substringFromIndex:3];
 	} else {
 		antiName = [@"no-" stringByAppendingString:name];
@@ -180,6 +239,55 @@
 	
 	return state;
 }
+
+
+
+- (void)setValue:(NSString *)value forOptionWithName:(NSString *)name { //For one-line options. (e.g. list-options)
+	GPGConfLine *line;
+	NSUInteger index, foundIndex = NSNotFound;
+	BOOL found = NO, enabled;
+	NSMutableIndexSet *indexSet = [NSMutableIndexSet indexSet];
+	NSUInteger count = [confLines count];
+	
+	NSRange range;
+	range.location = 0;
+	range.length = count;
+	
+	
+	while ((index = [confLines indexOfObject:name inRange:range]) != NSNotFound) {
+		enabled = [[confLines objectAtIndex:index] enabled];
+		
+		if (!found && (foundIndex == NSNotFound || enabled)) {
+			foundIndex = index;
+			found = enabled;
+		} else {
+			[indexSet addIndex:index];
+		}
+		
+		
+		range.location = index + 1;
+		if (range.location >= count) {
+			break;
+		}
+		range.length = count - range.location - 1;
+	}
+	
+	if (foundIndex != NSNotFound) {
+		line = [confLines objectAtIndex:index];
+		line.enabled = YES;
+		line.value = value;
+	} else {
+		line = [GPGConfLine confLine];
+		line.name = name;
+		line.value = value;
+		[confLines addObject:line];
+	}
+	[confLines removeObjectsAtIndexes:indexSet];
+	
+	[self autoSaveConfig];
+}
+
+
 
 
 - (void)addOptionWithName:(NSString *)name andValue:(NSString *)value { //For options with only one suboption.

@@ -73,7 +73,7 @@ NSString *GPGKeysChangedNotification = @"GPGKeysChangedNotification";
 	comments = [[NSMutableArray alloc] init];
 	signerKeys = [[NSMutableArray alloc] init];
 	signatures = [[NSMutableArray alloc] init];
-	keyserverTimeout = 15;
+	keyserverTimeout = 10;
 	asyncProxy = [AsyncProxy alloc];
 	[asyncProxy setRealObject:self];
 	

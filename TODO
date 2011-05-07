@@ -3,10 +3,11 @@ TODO: Consistent errorCodes and Exceptions.
 TODO: getPacketInfo: It should return informations over type of the data (Key, Signature, Message or anything) and the signer key and the recipients.
 TODO: Watch pubring.gpg and secring.gpg
 TODO: Add NSAssert (or similar).
+TODO: Add Proxy support. (http_proxy)
 
 
 GPGOptions: Add Notifications.
-GPGOptions: Add methods to edit options with suboptions.
+GPGConf: Add methods to edit options with suboptions.
 GPGController.m: Add posiblity for async to all methods.
 
 

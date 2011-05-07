@@ -23,4 +23,15 @@
 - (NSArray *)disabledOptionsWithName:(NSString *)name;
 - (NSArray *)optionsWithName:(NSString *)name state:(int)state;
 
+
+
+- (void)addOptionWithName:(NSString *)name;
+- (void)removeOptionWithName:(NSString *)name;
+- (int)stateOfOptionWithName:(NSString *)name;
+- (void)setValue:(NSString *)value forOptionWithName:(NSString *)name;
+- (void)addOptionWithName:(NSString *)name andValue:(NSString *)value;
+- (void)removeOptionWithName:(NSString *)name andValue:(NSString *)value;
+
+
+
 @end
