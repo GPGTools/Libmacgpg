@@ -31,7 +31,7 @@
 - (void)setValue:(NSString *)value forOptionWithName:(NSString *)name;
 - (void)addOptionWithName:(NSString *)name andValue:(NSString *)value;
 - (void)removeOptionWithName:(NSString *)name andValue:(NSString *)value;
-
+- (void)setAllOptionsWithName:(NSString *)name values:(NSArray *)values;
 
 
 @end

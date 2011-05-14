@@ -14,12 +14,16 @@
 }
 - (NSUInteger)hash {
 	if (edited || !hash) {
-		hash = [self.description hash];
+		hash = [self.name hash];
 	}
 	return hash;
 }
 - (BOOL)isEqual:(id)anObject {
-	return [self.description isEqualToString:[anObject description]];
+	if ([anObject isKindOfClass:[self class]]) {
+		return [self.description isEqualToString:[anObject description]];
+	} else {
+		return [self.name isEqualToString:[anObject description]];
+	}
 }
 
 

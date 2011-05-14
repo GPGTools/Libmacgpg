@@ -54,7 +54,7 @@
 - (void)setValue:(id)value forKey:(NSString *)key {
 	//NSNumber: YES="key", NO="no-key"
 	//NSString: "key value"
-	//NSArray, NSSet: 'for suboption in value {"key suboption"}'
+	//NSArray: 'for suboption in value {"key suboption"}'
 	//nil: Remove the option.
 	
 	NSAssert([key length] > 0, @"invalid key");
@@ -72,9 +72,12 @@
 		[self addOptionWithName:key];
 	} else if ([value isKindOfClass:[NSString class]]) {
 		[self setValue:value forOptionWithName:key];
-	} else if ([value isKindOfClass:[NSArray class]] || [value isKindOfClass:[NSSet class]]) {
-		//TODO
+	} else if ([value isKindOfClass:[NSArray class]]) {
+		[self setAllOptionsWithName:key values:value];
+	} else {
+		NSAssert1([key length] > 0, @"invalid value: %@", value);
 	}
+
 }
 
 
@@ -288,8 +291,6 @@
 }
 
 
-
-
 - (void)addOptionWithName:(NSString *)name andValue:(NSString *)value { //For options with only one suboption.
 	GPGConfLine *line, *disabledLine = nil;
 	NSUInteger index;
@@ -353,6 +354,60 @@
 	[confLines removeObjectsAtIndexes:indexSet];
 	[self autoSaveConfig];
 }
+
+
+- (void)setAllOptionsWithName:(NSString *)name values:(NSArray *)values {
+	NSMutableIndexSet *indexesToKeep = [NSMutableIndexSet indexSet];
+	NSMutableIndexSet *indexesToRemove = [NSMutableIndexSet indexSet];
+	NSMutableArray *linesToDo = [NSMutableArray arrayWithCapacity:[values count]];
+	NSUInteger index;
+	GPGConfLine *line;
+	NSRange range;
+	NSUInteger count = [confLines count];
+	
+	for (NSString *value in values) {
+		line = [GPGConfLine confLine];
+		line.name = name;
+		line.value = value;
+		
+		if ((index = [confLines indexOfObject:line]) != NSNotFound) {
+			[indexesToKeep addIndex:index];
+		} else {
+			[linesToDo addObject:line];
+		}
+	}
+	
+	
+	while ((index = [confLines indexOfObject:name inRange:range]) != NSNotFound) {
+		if (![indexesToKeep containsIndex:index]) {
+			[indexesToRemove addIndex:index];
+		}
+		
+		range.location = index + 1;
+		if (range.location >= count) {
+			break;
+		}
+		range.length = count - range.location - 1;
+	}
+	
+	
+	
+	for (line in linesToDo) {
+		if ((index = [indexesToRemove firstIndex]) != NSNotFound) {
+			[confLines replaceObjectAtIndex:index withObject:line];
+			[indexesToKeep addIndex:index];
+			[indexesToRemove removeIndex:index];
+		} else {
+			[confLines addObject:line];
+		}
+	}
+	
+	if ([indexesToRemove firstIndex] != NSNotFound) {
+		[confLines removeObjectsAtIndexes:indexesToRemove];
+	}
+}
+
+
 
 
 

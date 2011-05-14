@@ -7,7 +7,7 @@ TODO: Add Proxy support. (http_proxy)
 
 
 GPGOptions: Add Notifications.
-GPGConf: Add methods to edit options with suboptions.
+GPGConf: Add methods to work with disabled options.
 GPGController.m: Add posiblity for async to all methods.
 
 
