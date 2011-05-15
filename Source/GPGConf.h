@@ -13,7 +13,8 @@
 @property BOOL autoSave;
 
 
-- (id)initWithPath:(NSString *)aPath;
++ (id)confWithPath:(NSString *)path;
+- (id)initWithPath:(NSString *)path;
 - (void)loadConfig;
 - (void)saveConfig;
 

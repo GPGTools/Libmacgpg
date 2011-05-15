@@ -1,5 +1,5 @@
 
-
+@class GPGConf;
 
 typedef enum {
 	GPGDomain_standard,
@@ -15,7 +15,12 @@ typedef enum {
 	BOOL initialized;
 	NSMutableDictionary *environment;
 	NSMutableDictionary *commonDefaults;
+	GPGConf *gpgConf;
+	GPGConf *gpgAgentConf;
 }
+
+@property (readonly) GPGConf *gpgConf;
+@property (readonly) GPGConf *gpgAgentConf;
 
 + (id)sharedOptions;
 - (id)valueForKey:(NSString *)key;
@@ -41,6 +46,8 @@ typedef enum {
 
 
 - (GPGOptionsDomain)domainForKey:(NSString *)key;
+
+- (NSString *)gpgHome;
 
 
 @end

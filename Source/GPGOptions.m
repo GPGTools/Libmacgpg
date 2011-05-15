@@ -1,6 +1,6 @@
 /* Copyright © 2002-2006 Mac GPG Project. */
 #import "GPGOptions.h"
-
+#import "GPGConf.h"
 
 
 @interface GPGOptions (Private)
@@ -31,8 +31,10 @@ NSDictionary *domainKeys;
 	NSObject *value = nil;
 	switch (domain) {
 		case GPGDomain_gpgConf:
+			value = [self.gpgConf valueForKey:key];
 			break;
 		case GPGDomain_gpgAgentConf:
+			value = [self.gpgAgentConf valueForKey:key];
 			break;
 		case GPGDomain_environment:
 			value = [self valueInEnvironmentForKey:key];
@@ -54,8 +56,10 @@ NSDictionary *domainKeys;
 	
 	switch (domain) {
 		case GPGDomain_gpgConf:
+			[self.gpgConf setValue:value forKey:key];
 			break;
 		case GPGDomain_gpgAgentConf:
+			[self.gpgAgentConf setValue:value forKey:key];
 			break;
 		case GPGDomain_environment:
 			[self setValueInEnvironment:value forKey:key];
@@ -74,19 +78,27 @@ NSDictionary *domainKeys;
 }
 
 
+
+
+
 - (id)specialValueForKey:(NSString *)key {
 	if ([key isEqualToString:@"TrustAllKeys"]) {
-		//TODO
+		return [NSNumber numberWithBool:[[self.gpgConf valueForKey:@"trust-model"] isEqualToString:@"always"]];
 	} else if ([key isEqualToString:@"PassphraseCacheTime"]) {
-		//TODO
+		return [self.gpgAgentConf valueForKey:@"default-cache-ttl"];
 	}
 	return nil;
 }
 - (void)setSpecialValue:(id)value forKey:(NSString *)key {
 	if ([key isEqualToString:@"TrustAllKeys"]) {
-		//TODO
+		[self.gpgConf setValue:[value intValue] ? @"always" : nil forKey:@"trust-model"];
 	} else if ([key isEqualToString:@"PassphraseCacheTime"]) {
-		//TODO
+		int cacheTime = [value intValue];
+		
+		[self.gpgAgentConf setAutoSave:NO];
+		[self.gpgAgentConf setValue:[NSNumber numberWithInt:cacheTime] forKey:@"default-cache-ttl"];
+		[self.gpgAgentConf setValue:[NSNumber numberWithInt:cacheTime * 12] forKey:@"max-cache-ttl"];		
+		[self.gpgAgentConf setAutoSave:YES];
 	}
 }
 
@@ -167,6 +179,19 @@ NSDictionary *domainKeys;
 
 
 
+- (GPGConf *)gpgConf {
+	if (!gpgConf) {
+		gpgConf = [GPGConf confWithPath:[[self gpgHome] stringByAppendingPathComponent:@"gpg.conf"]];
+	}
+	return [[gpgConf retain] autorelease];
+}
+- (GPGConf *)gpgAgentConf {
+	if (!gpgAgentConf) {
+		gpgAgentConf = [GPGConf confWithPath:[[self gpgHome] stringByAppendingPathComponent:@"gpg-agent.conf"]];
+	}
+	return [[gpgAgentConf retain] autorelease];
+}
+
 
 
 - (GPGOptionsDomain)domainForKey:(NSString *)key {
@@ -179,6 +204,16 @@ NSDictionary *domainKeys;
 	}
 	return GPGDomain_standard;
 }
+
+
+- (NSString *)gpgHome {
+	NSString *path = [self valueInEnvironmentForKey:@"GNUPGHOME"];
+	if (!path) {
+		path = [NSHomeDirectory() stringByAppendingPathComponent:@".gnupg"];
+	}
+	return path;
+}
+
 
 
 

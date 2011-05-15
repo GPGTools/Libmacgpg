@@ -4,7 +4,22 @@
 
 
 @implementation GPGConf
-@synthesize path, encoding, autoSave;
+@synthesize path, encoding;
+
+
+- (BOOL)autoSave {
+	return autoSave;
+}
+- (void)setAutoSave:(BOOL)value {
+	if (value == YES && autoSave == NO) {
+		[self saveConfig];
+	}
+	autoSave = YES;
+}
+
++ (id)confWithPath:(NSString *)aPath {
+	return [[[[self class] alloc] initWithPath:aPath] autorelease];
+}
 
 - (id)initWithPath:(NSString *)aPath {
 	if ((self = [super init]) == nil) {
@@ -17,7 +32,7 @@
 	return self;
 }
 
-//TODO
+
 
 
 
