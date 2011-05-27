@@ -1,6 +1,7 @@
 /* Copyright © 2002-2006 Mac GPG Project. */
 #import "GPGOptions.h"
 #import "GPGConf.h"
+#import <SystemConfiguration/SystemConfiguration.h>
 
 
 @interface GPGOptions (Private)
@@ -46,6 +47,7 @@ NSDictionary *domainKeys;
 			value = [self valueInCommonDefaultsForKey:key];
 			break;
 		case GPGDomain_special:
+			value = [self specialValueForKey:key];
 			break;
 		default:
 			break;
@@ -71,6 +73,7 @@ NSDictionary *domainKeys;
 			[self setValueInCommonDefaults:value forKey:key];
 			break;
 		case GPGDomain_special:
+			[self setSpecialValue:value forKey:key];
 			break;
 		default:
 			break;
@@ -86,6 +89,8 @@ NSDictionary *domainKeys;
 		return [NSNumber numberWithBool:[[self.gpgConf valueForKey:@"trust-model"] isEqualToString:@"always"]];
 	} else if ([key isEqualToString:@"PassphraseCacheTime"]) {
 		return [self.gpgAgentConf valueForKey:@"default-cache-ttl"];
+	} else if ([key isEqualToString:@"httpProxy"]) {
+		return self.httpProxy;
 	}
 	return nil;
 }
@@ -216,6 +221,39 @@ NSDictionary *domainKeys;
 
 
 
+- (NSString *)httpProxy {
+	if (!httpProxy) {
+		NSDictionary *proxyConfig = (NSDictionary *)SCDynamicStoreCopyProxies(nil);
+		if ([[proxyConfig objectForKey:@"HTTPEnable"] intValue]) {
+			httpProxy = [[NSString alloc] initWithFormat:@"%@:%@", [proxyConfig objectForKey:@"HTTPProxy"], [proxyConfig objectForKey:@"HTTPPort"]];
+		} else {
+			httpProxy = @"";
+		}
+	}
+	return [[httpProxy retain] autorelease];
+}
+
+void SystemConfigurationDidChange(SCPreferencesRef prefs, SCPreferencesNotification notificationType, void *info) {
+	if (notificationType & kSCPreferencesNotificationApply) {
+		[((GPGOptions *)info)->httpProxy release];
+		((GPGOptions *)info)->httpProxy = nil;
+	}
+}
+
+
+- (void)initSystemConfigurationWatch {
+	SCPreferencesContext context = {0, self, nil, nil, nil};
+    SCPreferencesRef preferences = SCPreferencesCreate(nil, (CFStringRef)[[NSProcessInfo processInfo] processName], nil);
+    SCPreferencesSetCallback(preferences, SystemConfigurationDidChange, &context);
+    SCPreferencesScheduleWithRunLoop(preferences, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
+	CFRelease(preferences);
+}	
+
+
+
+
+
+
 
 + (void)initialize {
 	environmentPlistDir = [NSHomeDirectory() stringByAppendingPathComponent:@".MacOSX"];
@@ -249,9 +287,10 @@ NSDictionary *domainKeys;
 	"use-standard-socket|write-env-file|";
 	NSString *environmentKeys = @"|GNUPGHOME|";
 	NSString *commonKeys = @"|UseKeychain|ShowPassphrase|PathToGPG|";
-	NSString *specialKeys = @"|TrustAllKeys|PassphraseCacheTime|";
+	NSString *specialKeys = @"|TrustAllKeys|PassphraseCacheTime|httpProxy|";
 	
-	domainKeys = [NSDictionary dictionaryWithObjectsAndKeys:
+					
+	domainKeys = [[NSDictionary alloc] initWithObjectsAndKeys:
 				  gpgConfKeys, [NSNumber numberWithInt:GPGDomain_gpgConf], 
 				  gpgAgentConfKeys, [NSNumber numberWithInt:GPGDomain_gpgAgentConf],
 				  environmentKeys, [NSNumber numberWithInt:GPGDomain_environment],
@@ -267,6 +306,7 @@ NSDictionary *domainKeys;
 }
 - (id)init {
 	if (!initialized) {
+		[self initSystemConfigurationWatch];
 		initialized = YES;
 	}
 	return self;

@@ -35,7 +35,7 @@ extern NSString *GPGKeysChangedNotification;
 	
 	NSObject <GPGControllerDelegate> *delegate;
 	
-	
+
 	
 	//Private
 	NSString *identifier;

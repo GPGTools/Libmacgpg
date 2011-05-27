@@ -1438,6 +1438,8 @@ NSString *GPGKeysChangedNotification = @"GPGKeysChangedNotification";
 }
 
 
+
+
 - (void)cleanAfterOperation {
 	asyncStarted = NO;
 	canceled = NO;
@@ -1531,6 +1533,13 @@ NSString *GPGKeysChangedNotification = @"GPGKeysChangedNotification";
 	
 	[super dealloc];
 }
+
+
+
+
+
+
+
 
 @end
 

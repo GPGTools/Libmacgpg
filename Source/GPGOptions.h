@@ -17,17 +17,19 @@ typedef enum {
 	NSMutableDictionary *commonDefaults;
 	GPGConf *gpgConf;
 	GPGConf *gpgAgentConf;
+	NSString *httpProxy;
 }
 
 @property (readonly) GPGConf *gpgConf;
 @property (readonly) GPGConf *gpgAgentConf;
+@property (readonly) NSString *httpProxy;
+
 
 + (id)sharedOptions;
 - (id)valueForKey:(NSString *)key;
 - (void)setValue:(id)value forKey:(NSString *)key;
 - (id)valueForKey:(NSString *)key inDomain:(GPGOptionsDomain)domain;
 - (void)setValue:(id)value forKey:(NSString *)key inDomain:(GPGOptionsDomain)domain;
-
 
 
 - (id)valueInStandardDefaultsForKey:(NSString *)key;
@@ -43,6 +45,10 @@ typedef enum {
 - (void)setValueInEnvironment:(id)value forKey:(NSString *)key;
 - (void)saveEnvironment;
 - (void)loadEnvironment;
+
+- (id)specialValueForKey:(NSString *)key;
+- (void)setSpecialValue:(id)value forKey:(NSString *)key;
+
 
 
 - (GPGOptionsDomain)domainForKey:(NSString *)key;
