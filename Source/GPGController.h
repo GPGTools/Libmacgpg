@@ -11,6 +11,7 @@
 - (void)gpgController:(GPGController *)gpgc operationDidFinishWithReturnValue:(id)value;
 - (void)gpgController:(GPGController *)gpgc operationDidFailWithException:(NSException *)e;
 - (void)gpgController:(GPGController *)gpgc keysDidChangedExernal:(NSObject <EnumerationList> *)keys;
+- (void)gpgControllerOperationWillStart:(GPGController *)gpgc;
 
 
 @end
@@ -24,6 +25,7 @@ extern NSString *GPGKeysChangedNotification;
 	NSMutableArray *signatures;
 	NSString *keyserver;
 	NSUInteger keyserverTimeout;
+	NSString *proxyServer;
 	NSString *gpgHome;
 	NSDictionary *userInfo;
 	BOOL useArmor;
@@ -44,6 +46,7 @@ extern NSString *GPGKeysChangedNotification;
 	GPGTask *gpgTask;
 	BOOL asyncStarted;
 	BOOL canceled;
+	NSInteger runningOperations;
 }
 
 @property (assign) NSObject <GPGControllerDelegate> *delegate;
@@ -51,6 +54,7 @@ extern NSString *GPGKeysChangedNotification;
 @property (readonly) NSArray *comments;
 @property (readonly) NSArray *signatures;
 @property (retain) NSString *keyserver;
+@property (retain) NSString *proxyServer;
 @property (retain) NSString *gpgHome;
 @property NSUInteger keyserverTimeout;
 @property (retain) NSDictionary *userInfo;
