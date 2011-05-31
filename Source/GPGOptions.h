@@ -11,6 +11,7 @@ typedef enum {
 } GPGOptionsDomain;
 
 
+
 @interface GPGOptions : NSObject {
 	BOOL initialized;
 	NSMutableDictionary *environment;

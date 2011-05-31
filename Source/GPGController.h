@@ -16,7 +16,6 @@
 
 @end
 
-extern NSString *GPGKeysChangedNotification; 
 
 
 @interface GPGController : NSObject <GPGTaskDelegate> {

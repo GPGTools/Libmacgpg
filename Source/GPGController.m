@@ -10,7 +10,7 @@
 #define cancelCheck if (canceled) {@throw gpgException(GPGException, @"Operation cancelled", GPGErrorCancelled);}
 
 
-NSString *GPGKeysChangedNotification = @"GPGKeysChangedNotification";
+
 
 
 @interface GPGController ()
@@ -237,7 +237,6 @@ NSString *GPGKeysChangedNotification = @"GPGKeysChangedNotification";
 		[self addArgumentsForSignerKeys];
 		
 		
-		
 		if (mode & GPGPublicKeyEncrypt) {
 			[gpgTask addArgument:@"--encrypt"];
 			if ([recipients count] + [hiddenRecipients count] == 0) {
@@ -273,6 +272,9 @@ NSString *GPGKeysChangedNotification = @"GPGKeysChangedNotification";
 				[NSException raise:NSInvalidArgumentException format:@"Unknown sign mode: %i!", mode && GPGSignFlags];
 				break;
 		}
+
+		[gpgTask addInData:data];
+
 		
 		if ([gpgTask start] != 0) {
 			@throw gpgTaskException(GPGTaskException, @"Process data failed!", GPGErrorTaskException, gpgTask);

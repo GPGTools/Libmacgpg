@@ -107,6 +107,8 @@
 
 NSString *GPGTaskException = @"GPGTaskException";
 NSString *GPGException = @"GPGException";
+NSString *GPGKeysChangedNotification = @"GPGKeysChangedNotification";
+NSString *GPGOptionsChangedNotification = @"GPGOptionsChangedNotification";
 
 
 int hexToByte (const char *text) {

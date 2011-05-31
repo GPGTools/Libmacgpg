@@ -532,6 +532,10 @@ enum gpgStatusCodes {
 
 extern NSString *GPGTaskException;
 extern NSString *GPGException;
+extern NSString *GPGKeysChangedNotification;
+extern NSString *GPGOptionsChangedNotification;
+
+
 
 
 
