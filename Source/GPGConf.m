@@ -110,7 +110,7 @@
 	
 	self.encoding = fileEncoding;
 	NSArray *lines = [content componentsSeparatedByString:@"\n"];
-	confLines = [NSMutableArray arrayWithCapacity:lines.count];
+	confLines = [[NSMutableArray alloc] initWithCapacity:lines.count];
 	
 	for (NSString *line in lines) {
 		GPGConfLine *confLine = [GPGConfLine confLineWithLine:line];

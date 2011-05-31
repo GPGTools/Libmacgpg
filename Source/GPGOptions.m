@@ -186,13 +186,13 @@ NSDictionary *domainKeys;
 
 - (GPGConf *)gpgConf {
 	if (!gpgConf) {
-		gpgConf = [GPGConf confWithPath:[[self gpgHome] stringByAppendingPathComponent:@"gpg.conf"]];
+		gpgConf = [[GPGConf alloc] initWithPath:[[self gpgHome] stringByAppendingPathComponent:@"gpg.conf"]];
 	}
 	return [[gpgConf retain] autorelease];
 }
 - (GPGConf *)gpgAgentConf {
 	if (!gpgAgentConf) {
-		gpgAgentConf = [GPGConf confWithPath:[[self gpgHome] stringByAppendingPathComponent:@"gpg-agent.conf"]];
+		gpgAgentConf = [[GPGConf alloc] initWithPath:[[self gpgHome] stringByAppendingPathComponent:@"gpg-agent.conf"]];
 	}
 	return [[gpgAgentConf retain] autorelease];
 }
