@@ -65,6 +65,10 @@ NSString *GPGKeysChangedNotification = @"GPGKeysChangedNotification";
 
 #pragma mark Init
 
++ (id)gpgController {
+	return [[[[self class] alloc] init] autorelease];
+}
+
 - (id)init {
 	if ((self = [super init]) == nil) {
 		return nil;
@@ -76,8 +80,7 @@ NSString *GPGKeysChangedNotification = @"GPGKeysChangedNotification";
 	signerKeys = [[NSMutableArray alloc] init];
 	signatures = [[NSMutableArray alloc] init];
 	keyserverTimeout = 10;
-	asyncProxy = [AsyncProxy alloc];
-	[asyncProxy setRealObject:self];
+	asyncProxy = [[AsyncProxy alloc] initWithRealObject:self];
 	
 	[[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(keysHaveChanged:) name:GPGKeysChangedNotification object:nil];
 	

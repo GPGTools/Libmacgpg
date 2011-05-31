@@ -249,4 +249,23 @@ NSException* gpgExceptionWithUserInfo(NSString *name, NSString *reason, int erro
     [anInvocation setTarget:realObject];
 	[NSThread detachNewThreadSelector:@selector(invoke) toTarget:anInvocation withObject:nil];
 }
++ (id)proxyWithRealObject:(NSObject *)object {
+	return [[[[self class] alloc] initWithRealObject:object] autorelease];
+}
+- (id)initWithRealObject:(NSObject *)object {
+	realObject = object;
+	return self;
+}
+- (id)init {
+	return [self initWithRealObject:nil];
+}
 @end
+
+
+
+
+
+
+
+
+

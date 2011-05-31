@@ -586,6 +586,9 @@ NSException* gpgExceptionWithUserInfo(NSString *name, NSString *reason, int erro
 	NSObject *realObject;
 }
 @property (assign) NSObject *realObject;
++ (id)proxyWithRealObject:(NSObject *)object;
+- (id)initWithRealObject:(NSObject *)realObject;
+- (id)init;
 @end
 
 

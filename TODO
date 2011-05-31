@@ -1,9 +1,11 @@
 
+TODO: UnitTests!
 TODO: Consistent errorCodes and Exceptions.
 TODO: getPacketInfo: It should return informations over type of the data (Key, Signature, Message or anything) and the signer key and the recipients.
 TODO: Watch pubring.gpg and secring.gpg
 TODO: Add NSAssert (or similar).
 
+TODO: Möglichkeit um festzustellen, ob eine Passphrase gespeichert ist (im gpg-agent oder im Schlüsselbund).
 
 GPGOptions: Add Notifications.
 GPGConf: Add methods to work with disabled options.

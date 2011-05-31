@@ -71,7 +71,7 @@ extern NSString *GPGKeysChangedNotification;
 - (void)removeSignerKeyAtIndex:(NSUInteger)index;
 
 
-
++ (id)gpgController;
 + (void)colonListing:(NSString *)colonListing toArray:(NSArray **)array andFingerprints:(NSArray **)fingerprints;
 + (NSSet *)fingerprintsFromColonListing:(NSString *)colonListing;
 - (NSInteger)indexOfUserID:(NSString *)hashID fromKey:(NSObject <KeyFingerprint> *)key;
