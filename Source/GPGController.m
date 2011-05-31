@@ -839,9 +839,11 @@
 		}
 		
 		
-		gpgTask = [GPGTask gpgTaskWithArguments:arguments];
+		gpgTask = [GPGTask gpgTask];
 		[self addArgumentsForOptions];
 		[self addArgumentsForComments];
+		[gpgTask addArguments:arguments];
+		
 		
 		if ([gpgTask start] != 0) {
 			@throw gpgTaskException(GPGTaskException, @"Export failed!", GPGErrorTaskException, gpgTask);
@@ -851,9 +853,10 @@
 		
 		if (allowSec) {
 			[arguments replaceObjectAtIndex:0 withObject:@"--export-secret-keys"];
-			gpgTask = [GPGTask gpgTaskWithArguments:arguments];
+			gpgTask = [GPGTask gpgTask];
 			[self addArgumentsForOptions];
 			[self addArgumentsForComments];
+			[gpgTask addArguments:arguments];
 			
 			if ([gpgTask start] != 0) {
 				@throw gpgTaskException(GPGTaskException, @"Export failed!", GPGErrorTaskException, gpgTask);
