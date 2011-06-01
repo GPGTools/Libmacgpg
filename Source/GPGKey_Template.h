@@ -1,6 +1,6 @@
 
-#import "GPGGlobals.h"
-#import "GPGSuper_Template.h"
+#import <Libmacgpg/GPGGlobals.h>
+#import <Libmacgpg/GPGSuper_Template.h>
 
 
 @interface GPGKey_Template : GPGSuper_Template {

@@ -442,6 +442,7 @@
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				PRODUCT_NAME = Libmacgpg;
+				RUN_CLANG_STATIC_ANALYZER = NO;
 				WRAPPER_EXTENSION = framework;
 			};
 			name = Debug;

@@ -1,4 +1,4 @@
-#import "GPGGlobals.h"
+#import <Libmacgpg/GPGGlobals.h>
 
 @interface GPGPacket : NSObject {
 	GPGPacket *previousPacket;

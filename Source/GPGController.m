@@ -20,6 +20,7 @@
 - (void)addArgumentsForSignerKeys;
 - (void)addArgumentsForComments;
 - (void)addArgumentsForOptions;
+- (void)addArgumentsForOptionsForInput;
 - (void)operationWillStart;
 - (void)handleException:(NSException *)e;
 - (void)operationDidFinishWithReturnValue:(id)value;
@@ -303,7 +304,7 @@
 		
 		
 		gpgTask = [GPGTask gpgTask];
-		[self addArgumentsForOptions];
+		[self addArgumentsForOptionsForInput];
 		[gpgTask addInData:data];
 		
 		[gpgTask addArgument:@"--decrypt"];
@@ -1678,6 +1679,8 @@
 	}
 	gpgTask.delegate = self;
 }
+
+
 
 
 - (void)updateKeysWithDict:(NSDictionary *)aDict {

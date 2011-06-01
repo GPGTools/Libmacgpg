@@ -294,7 +294,6 @@
 		*commentPtr = [workText substringWithRange:range];
 		
 		workText = [workText substringToIndex:range.location - 2];
-		textLength -= (range.length + 3);
 	} else {
 		*commentPtr = nil;
 	}

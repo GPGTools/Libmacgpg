@@ -15,8 +15,8 @@
  Programm erhalten haben. Falls nicht, siehe <http://www.gnu.org/licenses/>.
 */
 
-#import "GPGGlobals.h"
-#import "GPGSuper_Template.h"
+#import <Libmacgpg/GPGGlobals.h>
+#import <Libmacgpg/GPGSuper_Template.h>
 
 @class GPGKey;
 

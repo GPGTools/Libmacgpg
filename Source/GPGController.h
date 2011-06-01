@@ -1,6 +1,6 @@
-#import "GPGGlobals.h"
-#import "GPGKey.h"
-#import "GPGTask.h"
+#import <Libmacgpg/GPGGlobals.h>
+#import <Libmacgpg/GPGKey.h>
+#import <Libmacgpg/GPGTask.h>
 
 @class GPGSignature;
 @class GPGController;

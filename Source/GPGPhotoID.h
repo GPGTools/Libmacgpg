@@ -15,9 +15,10 @@
  Programm erhalten haben. Falls nicht, siehe <http://www.gnu.org/licenses/>.
 */
 
-#import "GPGGlobals.h"
+//#import <Libmacgpg/GPGGlobals.h>
 
-@interface GPGPhotoID  : NSObject {
+
+@interface GPGPhotoID : NSObject {
 	NSImage *image;
 	NSString *hashID;
 	NSInteger status;
@@ -29,3 +30,4 @@
 - (id)initWithImage:(NSImage *)aImage hashID:(NSString *)aHashID status:(NSInteger)aStatus;
 
 @end
+

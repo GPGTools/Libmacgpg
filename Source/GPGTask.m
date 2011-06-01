@@ -383,6 +383,32 @@ NSDictionary *statusCodes;
 			argv[argPos++] = "--attribute-fd";
 			argv[argPos++] = "4";
 		}
+		
+		
+		
+		//Für Funktionen wie --decrypt oder --verify sollte "--no-armor" nicht gesetzt sein.
+		if ([arguments containsObject:@"--no-armor"] || [arguments containsObject:@"--no-armour"]) {
+			NSSet *inputParameters = [NSSet setWithObjects:@"--decrypt", @"--verify", @"--import", nil];
+			for (NSString *argument in arguments) {
+				if ([inputParameters containsObject:argument]) {
+					NSUInteger index = [arguments indexOfObject:@"--no-armor"];
+					if (index == NSNotFound) {
+						index = [arguments indexOfObject:@"--no-armour"];
+					}
+					[arguments replaceObjectAtIndex:index withObject:@"--armor"];
+					
+					while ((index = [arguments indexOfObject:@"--no-armor"]) != NSNotFound) {
+						[arguments removeObjectAtIndex:index];
+					}
+					while ((index = [arguments indexOfObject:@"--no-armour"]) != NSNotFound) {
+						[arguments removeObjectAtIndex:index];
+					}
+					break;
+				}
+			}
+		}
+		
+		
 		for (NSString *argument in arguments) {
 			argv[argPos++] = (char*)[argument cStringUsingEncoding:NSUTF8StringEncoding];
 		}
@@ -505,7 +531,9 @@ NSDictionary *statusCodes;
 	char *buffer = malloc(bufferSize + 1);
 	
 	if (!buffer) {
-		[NSException exceptionWithName:GPGTaskException reason:@"malloc failed!" userInfo:nil];
+		@throw [NSException exceptionWithName:GPGTaskException 
+									   reason:@"malloc failed!" 
+									 userInfo:nil];
 	}
 	
 	
@@ -520,7 +548,9 @@ NSDictionary *statusCodes;
 			buffer = realloc(buffer, bufferSize + 1);
 			NSLog(@"realloc %i", bufferSize);
 			if (!buffer) {
-				[NSException exceptionWithName:GPGTaskException reason:@"realloc failed!" userInfo:nil];
+				@throw [NSException exceptionWithName:GPGTaskException 
+											   reason:@"realloc failed!" 
+											 userInfo:nil];
 			}
 		}
 	}
@@ -528,7 +558,7 @@ NSDictionary *statusCodes;
 		readPos += dataRead;
 		if (isStatusFD) {
 			buffer[readPos] = 0;
-			processPos += [self processStatusData:buffer + processPos];
+			[self processStatusData:buffer + processPos];
 		}
 	}
 	*data = [[NSData alloc] initWithBytes:buffer length:readPos];

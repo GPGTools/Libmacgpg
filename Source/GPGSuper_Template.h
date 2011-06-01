@@ -1,5 +1,5 @@
 
-#import "GPGGlobals.h"
+#import <Libmacgpg/GPGGlobals.h>
 
 
 @interface GPGSuper_Template : NSObject {

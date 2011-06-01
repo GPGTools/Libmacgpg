@@ -15,12 +15,12 @@
  Programm erhalten haben. Falls nicht, siehe <http://www.gnu.org/licenses/>.
 */
 
-#import "GPGUserID.h"
-#import "GPGSubkey.h"
-#import "GPGKeySignature.h"
-#import "GPGPhotoID.h"
-#import "GPGGlobals.h"
-#import "GPGKey_Template.h"
+#import <Libmacgpg/GPGUserID.h>
+#import <Libmacgpg/GPGSubkey.h>
+#import <Libmacgpg/GPGKeySignature.h>
+#import <Libmacgpg/GPGPhotoID.h>
+#import <Libmacgpg/GPGGlobals.h>
+#import <Libmacgpg/GPGKey_Template.h>
 
 
 

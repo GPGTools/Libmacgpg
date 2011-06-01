@@ -15,7 +15,7 @@
  Programm erhalten haben. Falls nicht, siehe <http://www.gnu.org/licenses/>.
 */
 
-#import "GPGGlobals.h"
+#import <Libmacgpg/GPGGlobals.h>
 
 @interface GPGKeySignature : NSObject {
 	NSString *keyID;
