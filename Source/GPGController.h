@@ -73,6 +73,7 @@
 + (id)gpgController;
 + (void)colonListing:(NSString *)colonListing toArray:(NSArray **)array andFingerprints:(NSArray **)fingerprints;
 + (NSSet *)fingerprintsFromColonListing:(NSString *)colonListing;
+- (BOOL)isPassphraseForKeyInCache:(NSObject <KeyFingerprint> *)key;
 - (NSInteger)indexOfUserID:(NSString *)hashID fromKey:(NSObject <KeyFingerprint> *)key;
 - (NSInteger)indexOfSubkey:(NSObject <KeyFingerprint> *)subkey fromKey:(NSObject <KeyFingerprint> *)key;
 

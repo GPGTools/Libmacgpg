@@ -78,6 +78,7 @@
 	if (newOptions != subOptions) {
 		edited = YES;
 		[value release];
+		value = nil;
 		[subOptions removeAllObjects];
 		for (NSString *option in newOptions) {
 			if ([option length] > 0) {

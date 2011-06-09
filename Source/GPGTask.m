@@ -1,6 +1,7 @@
 
 #import "GPGTask.h"
 #import "GPGGlobals.h"
+#import "GPGOptions.h"
 
 
 @interface GPGTask (Private)
@@ -171,14 +172,36 @@ NSDictionary *statusCodes;
 }
 
 
-+ (NSString *)findPinentry {
-	NSString *executable = @"../libexec/pinentry-mac.app/Contents/MacOS/pinentry-mac";
-	NSString *foundPath;
++ (BOOL)isGPGAgentSocket:(NSString *)socketPath {
+	socketPath = [socketPath stringByResolvingSymlinksInPath];
+	NSDictionary *attributes = [[NSFileManager defaultManager] attributesOfItemAtPath:socketPath error:nil];
+	if ([[attributes fileType] isEqualToString:NSFileTypeSocket]) {
+		return YES;
+	}
+	return NO;
+}
 
-	//TODO: read "pinentry-path" from gpg-agent.conf
-	
-	foundPath = [self findExecutableWithName:executable];
-	
++ (NSString *)gpgAgentSocket {
+	NSString *socketPath = [[GPGOptions sharedOptions] valueForKey:@"GPG_AGENT_INFO" inDomain:GPGDomain_environment];
+	NSRange range;
+	if (socketPath && (range = [socketPath rangeOfString:@":"]).length > 0) {
+		socketPath = [socketPath substringToIndex:range.location - 1];
+		if ([self isGPGAgentSocket:socketPath]) {
+			return socketPath;
+		}
+	}
+	socketPath = [[[GPGOptions sharedOptions] gpgHome] stringByAppendingPathComponent:@"S.gpg-agent"];
+	if ([self isGPGAgentSocket:socketPath]) {
+		return socketPath;
+	}
+	return nil;
+}
++ (NSString *)pinentryPath {
+	NSString *foundPath = [[GPGOptions sharedOptions] valueForKey:@"pinentry-path" inDomain:GPGDomain_gpgAgentConf];
+	foundPath = [foundPath stringByStandardizingPath];
+	if (![[NSFileManager defaultManager] isExecutableFileAtPath:foundPath]) {
+		foundPath = [self findExecutableWithName:@"../libexec/pinentry-mac.app/Contents/MacOS/pinentry-mac"];
+	}
 	return foundPath;
 }
 + (NSString *)findExecutableWithName:(NSString *)executable {
@@ -337,7 +360,6 @@ NSDictionary *statusCodes;
 	//fork
 	pid_t pid = fork();
 	if (pid == 0) { //Child process
-		
 		//Close unused pipes.
 		if (close(outPipe[0]) || close(errPipe[0]) || close(statusPipe[0]) || close(cmdPipe[1]) || (getAttributeData && close(attributePipe[0]))) {
 			exit(101);			
@@ -458,16 +480,15 @@ NSDictionary *statusCodes;
 			}
 			
 			
-			
-			NSThread *t1 = [[NSThread alloc] initWithTarget:self selector:@selector(readDataFromFD:) object:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:outPipe[0]], @"fd", [NSValue valueWithPointer:&outData], @"data", [NSNumber numberWithInt:32000], @"bufferSize", nil]];
-			NSThread *t2 = [[NSThread alloc] initWithTarget:self selector:@selector(readDataFromFD:) object:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:errPipe[0]], @"fd", [NSValue valueWithPointer:&errData], @"data", nil]];
-			NSThread *t3 = [[NSThread alloc] initWithTarget:self selector:@selector(readDataFromFD:) object:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:statusPipe[0]], @"fd", [NSValue valueWithPointer:&statusData], @"data", [NSNumber numberWithBool:YES], @"isStatusFD", nil]];
+			NSThread *t1 = [[[NSThread alloc] initWithTarget:self selector:@selector(readDataFromFD:) object:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:outPipe[0]], @"fd", [NSValue valueWithPointer:&outData], @"data", [NSNumber numberWithInt:32000], @"bufferSize", nil]] autorelease];
+			NSThread *t2 = [[[NSThread alloc] initWithTarget:self selector:@selector(readDataFromFD:) object:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:errPipe[0]], @"fd", [NSValue valueWithPointer:&errData], @"data", nil]] autorelease];
+			NSThread *t3 = [[[NSThread alloc] initWithTarget:self selector:@selector(readDataFromFD:) object:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:statusPipe[0]], @"fd", [NSValue valueWithPointer:&statusData], @"data", [NSNumber numberWithBool:YES], @"isStatusFD", nil]] autorelease];
 			NSThread *t4 = nil;
 			[t1 start];
 			[t2 start];
 			[t3 start];
 			if (getAttributeData) {
-				t4 = [[NSThread alloc] initWithTarget:self selector:@selector(readDataFromFD:) object:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:attributePipe[0]], @"fd", [NSValue valueWithPointer:&attributeData], @"data", [NSNumber numberWithInt:32000], @"bufferSize", nil]];
+				t4 = [[[NSThread alloc] initWithTarget:self selector:@selector(readDataFromFD:) object:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:attributePipe[0]], @"fd", [NSValue valueWithPointer:&attributeData], @"data", [NSNumber numberWithInt:32000], @"bufferSize", nil]] autorelease];
 				[t4 start];
 			}
 			
@@ -546,7 +567,6 @@ NSDictionary *statusCodes;
 		if (readPos >= bufferSize) {
 			bufferSize *= 4;
 			buffer = realloc(buffer, bufferSize + 1);
-			NSLog(@"realloc %i", bufferSize);
 			if (!buffer) {
 				@throw [NSException exceptionWithName:GPGTaskException 
 											   reason:@"realloc failed!" 
@@ -605,12 +625,12 @@ NSDictionary *statusCodes;
 					NSRange range = [prompt rangeOfString:@" "];
 					NSString *keyID = [prompt substringToIndex:range.location];
 					NSString *userID = [prompt substringFromIndex:range.location + 1];
-					self.lastUserIDHint = [[NSDictionary alloc] initWithObjectsAndKeys:keyID, @"keyID", userID, @"userID", nil];
+					self.lastUserIDHint = [NSDictionary dictionaryWithObjectsAndKeys:keyID, @"keyID", userID, @"userID", nil];
 					passphraseStatus = 1;
 					break; }
 				case GPG_STATUS_NEED_PASSPHRASE: {
 					NSArray *components = [prompt componentsSeparatedByString:@" "];
-					self.lastNeedPassphrase = [[NSDictionary alloc] initWithObjectsAndKeys:
+					self.lastNeedPassphrase = [NSDictionary dictionaryWithObjectsAndKeys:
 										  [components objectAtIndex:0], @"mainKeyID", 
 										  [components objectAtIndex:1], @"keyID", 
 										  [components objectAtIndex:2], @"keyType", 
@@ -682,7 +702,7 @@ NSDictionary *statusCodes;
 	NSPipe *outPipe = [NSPipe pipe];
 	NSTask *pinentryTask = [[NSTask new] autorelease];
 	
-	pinentryTask.launchPath = [[self class] findPinentry];
+	pinentryTask.launchPath = [[self class] pinentryPath];
 	
 	pinentryTask.standardInput = inPipe;
 	pinentryTask.standardOutput = outPipe;

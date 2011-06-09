@@ -67,8 +67,8 @@
 @property (retain) NSDictionary *lastNeedPassphrase;
 
 
-
-+ (NSString *)findPinentry;
++ (NSString *)gpgAgentSocket;
++ (NSString *)pinentryPath;
 + (NSString *)findExecutableWithName:(NSString *)executable;
 + (NSString *)findExecutableWithName:(NSString *)executable atPaths:(NSArray *)paths;
 + (NSString *)nameOfStatusCode:(NSInteger)statusCode;

@@ -100,7 +100,7 @@
 				}
 				[userIDsToRemove removeObject:userIDChild];
 			} else {
-				userIDChild = [[GPGUserID alloc] initWithListing:splitedLine signatureListing:sigListing parentKey:self];
+				userIDChild = [[[GPGUserID alloc] initWithListing:splitedLine signatureListing:sigListing parentKey:self] autorelease];
 				
 				[self insertObject:userIDChild inUserIDsAtIndex:userIDIndex];
 				[self insertObject:userIDChild inChildrenAtIndex:userIDIndex];
@@ -123,7 +123,7 @@
 				}
 				[subkeysToRemove removeObject:subkeyChild];
 			} else {
-				subkeyChild = [[GPGSubkey alloc] initWithListing:splitedLine fingerprint:aFingerprint parentKey:self];
+				subkeyChild = [[[GPGSubkey alloc] initWithListing:splitedLine fingerprint:aFingerprint parentKey:self] autorelease];
 				
 				[self insertObject:subkeyChild inSubkeysAtIndex:subkeyIndex];
 				[self insertObject:subkeyChild inChildrenAtIndex:userIDs.count + subkeyIndex];

@@ -7,6 +7,15 @@
 #import "GPGOptions.h"
 
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/un.h>
+
+
 #define cancelCheck if (canceled) {@throw gpgException(GPGException, @"Operation cancelled", GPGErrorCancelled);}
 
 
@@ -20,7 +29,6 @@
 - (void)addArgumentsForSignerKeys;
 - (void)addArgumentsForComments;
 - (void)addArgumentsForOptions;
-- (void)addArgumentsForOptionsForInput;
 - (void)operationWillStart;
 - (void)handleException:(NSException *)e;
 - (void)operationDidFinishWithReturnValue:(id)value;
@@ -304,7 +312,7 @@
 		
 		
 		gpgTask = [GPGTask gpgTask];
-		[self addArgumentsForOptionsForInput];
+		[self addArgumentsForOptions];
 		[gpgTask addInData:data];
 		
 		[gpgTask addArgument:@"--decrypt"];
@@ -807,7 +815,7 @@
 		if ([statusText rangeOfString:@"[GNUPG:] IMPORT_OK "].length <= 0) {
 			@throw gpgTaskException(GPGTaskException, @"Import failed!", GPGErrorTaskException, gpgTask);
 		}
-		[self keysChanged:nil]; //TODO: Detect imported keys.
+		[self keysChanged:nil]; //TODO: Identify imported keys.
 	} @catch (NSException *e) {
 		[self handleException:e];
 	} @finally {
@@ -1338,6 +1346,64 @@
 
 
 #pragma mark Help methods
+
+- (BOOL)isPassphraseForKeyInCache:(NSObject <KeyFingerprint> *)key {
+	
+	//TODO: Check Mac OS X keychain.
+	
+	NSString *socketPath = [GPGTask gpgAgentSocket];
+	if (socketPath) {
+		int sock;
+		if ((sock = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
+			perror("socket");
+			return NO;
+		}
+
+		int length = [socketPath lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + 2;
+		char addressInfo[length];
+		addressInfo[0] = AF_UNIX;
+		addressInfo[1] = 0;
+		strcpy(addressInfo+2, [socketPath cStringUsingEncoding:NSUTF8StringEncoding]);
+				
+		
+		if (connect(sock, (const struct sockaddr *)addressInfo, length ) == -1) {
+			perror("connect");
+			goto closeSocket;
+		}
+		
+		
+		struct timeval timeout;
+		timeout.tv_usec = 0;
+		timeout.tv_sec = 2;
+		setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
+		
+		
+		char buffer[100];
+		if (recv(sock, buffer, 100, 0) > 2) {
+			if (strncmp(buffer, "OK", 2)) {
+				NSLog(@"No OK from gpg-agent.");
+				goto closeSocket;
+			}
+			NSString *ss = [NSString stringWithFormat:@"GET_PASSPHRASE --no-ask %@ . . .\n", key];
+			length = send(sock, [ss UTF8String], [ss length], 0);
+			
+			int pos = 0;
+			while ((length = recv(sock, buffer+pos, 100-pos, 0)) > 0) {
+				pos += length;
+				if (strnstr(buffer, "OK", pos)) {
+					return YES;
+				} else if (strnstr(buffer, "ERR", pos)) {
+					goto closeSocket;
+				}
+			}
+		} else {
+			return NO;
+		}
+	closeSocket:
+		close(sock);
+	}
+	return NO;
+}
 
 - (NSInteger)indexOfUserID:(NSString *)hashID fromKey:(NSObject <KeyFingerprint> *)key {
 	gpgTask = [GPGTask gpgTask];

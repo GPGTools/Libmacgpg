@@ -4,18 +4,8 @@
 
 
 @implementation GPGConf
-@synthesize path, encoding;
+@synthesize path, encoding, autoSave;
 
-
-- (BOOL)autoSave {
-	return autoSave;
-}
-- (void)setAutoSave:(BOOL)value {
-	if (value == YES && autoSave == NO) {
-		[self saveConfig];
-	}
-	autoSave = YES;
-}
 
 + (id)confWithPath:(NSString *)aPath {
 	return [[[[self class] alloc] initWithPath:aPath] autorelease];
@@ -291,7 +281,7 @@
 	}
 	
 	if (foundIndex != NSNotFound) {
-		line = [confLines objectAtIndex:index];
+		line = [confLines objectAtIndex:foundIndex];
 		line.enabled = YES;
 		line.value = value;
 	} else {

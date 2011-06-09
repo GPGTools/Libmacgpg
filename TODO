@@ -7,7 +7,6 @@ TODO: Add NSAssert (or similar).
 
 TODO: Möglichkeit um festzustellen, ob eine Passphrase gespeichert ist (im gpg-agent oder im Schlüsselbund).
 
-GPGOptions: Add Notifications.
 GPGConf: Add methods to work with disabled options.
 GPGController.m: Add posiblity for async to all methods.
 

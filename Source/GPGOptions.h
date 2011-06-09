@@ -16,14 +16,18 @@ typedef enum {
 	BOOL initialized;
 	NSMutableDictionary *environment;
 	NSMutableDictionary *commonDefaults;
+	NSString *httpProxy;
+	BOOL autoSave;
+	
+	
 	GPGConf *gpgConf;
 	GPGConf *gpgAgentConf;
-	NSString *httpProxy;
+	NSString *identifier;
+	NSUInteger updating;
 }
 
-@property (readonly) GPGConf *gpgConf;
-@property (readonly) GPGConf *gpgAgentConf;
 @property (readonly) NSString *httpProxy;
+@property BOOL autoSave;
 
 
 + (id)sharedOptions;
@@ -38,12 +42,14 @@ typedef enum {
 
 - (id)valueInCommonDefaultsForKey:(NSString *)key;
 - (void)setValueInCommonDefaults:(id)value forKey:(NSString *)key;
+- (void)autoSaveCommonDefaults;
 - (void)saveCommonDefaults;
 - (void)loadCommonDefaults;
 - (NSMutableDictionary *)commonDefaults;
 
 - (id)valueInEnvironmentForKey:(NSString *)key;
 - (void)setValueInEnvironment:(id)value forKey:(NSString *)key;
+- (void)autoSaveEnvironment;
 - (void)saveEnvironment;
 - (void)loadEnvironment;
 
@@ -51,7 +57,7 @@ typedef enum {
 - (void)setSpecialValue:(id)value forKey:(NSString *)key;
 
 
-
++ (NSString *)standardizedKey:(NSString *)key;
 - (GPGOptionsDomain)domainForKey:(NSString *)key;
 
 - (NSString *)gpgHome;

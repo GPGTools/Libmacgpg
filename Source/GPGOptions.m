@@ -2,29 +2,45 @@
 #import "GPGOptions.h"
 #import "GPGConf.h"
 #import <SystemConfiguration/SystemConfiguration.h>
+#import "GPGGlobals.h"
 
 
 @interface GPGOptions (Private)
 @property (readonly) NSMutableDictionary *environment;
 @property (readonly) NSMutableDictionary *commonDefaults;
+- (GPGConf *)gpgConf;
+- (GPGConf *)gpgAgentConf;
+- (void)valueChanged:(id)value forKey:(NSString *)key inDomain:(GPGOptionsDomain)domain;
+- (void)valueChangedNotification:(NSNotification *)notification;
 @end
 
 
 @implementation GPGOptions
-
 NSString *_sharedInstance = nil;
 NSString *environmentPlistPath;
 NSString *environmentPlistDir;
-NSString *commonDefaultsDomain = @"org.gpgtools.commmon";
+NSString *commonDefaultsDomain = @"org.gpgtools.common";
 NSDictionary *domainKeys;
 
 
 
+- (BOOL)autoSave {
+	return autoSave;
+}
+- (void)setAutoSave:(BOOL)value {
+	autoSave = value;
+	self.gpgConf.autoSave = value;
+	self.gpgAgentConf.autoSave = value;
+}
+
+
 
 - (id)valueForKey:(NSString *)key {
+	key = [[self class] standardizedKey:key];
 	return [self valueForKey:key inDomain:[self domainForKey:key]];
 }
 - (void)setValue:(id)value forKey:(NSString *)key {
+	key = [[self class] standardizedKey:key];
 	[self setValue:value forKey:key inDomain:[self domainForKey:key]];
 }
 
@@ -50,7 +66,7 @@ NSDictionary *domainKeys;
 			value = [self specialValueForKey:key];
 			break;
 		default:
-			break;
+			[NSException raise:NSInvalidArgumentException format:@"Illegal domain: %i", domain]; 
 	}
 	return value;
 }
@@ -59,9 +75,11 @@ NSDictionary *domainKeys;
 	switch (domain) {
 		case GPGDomain_gpgConf:
 			[self.gpgConf setValue:value forKey:key];
+			[self valueChanged:value forKey:key inDomain:GPGDomain_gpgConf];
 			break;
 		case GPGDomain_gpgAgentConf:
 			[self.gpgAgentConf setValue:value forKey:key];
+			[self valueChanged:value forKey:key inDomain:GPGDomain_gpgAgentConf];
 			break;
 		case GPGDomain_environment:
 			[self setValueInEnvironment:value forKey:key];
@@ -76,6 +94,7 @@ NSDictionary *domainKeys;
 			[self setSpecialValue:value forKey:key];
 			break;
 		default:
+			[NSException raise:NSInvalidArgumentException format:@"Illegal domain: %i", domain]; 
 			break;
 	}
 }
@@ -100,10 +119,17 @@ NSDictionary *domainKeys;
 	} else if ([key isEqualToString:@"PassphraseCacheTime"]) {
 		int cacheTime = [value intValue];
 		
+		BOOL oldAutoSave = self.gpgAgentConf.autoSave;
 		[self.gpgAgentConf setAutoSave:NO];
-		[self.gpgAgentConf setValue:[NSNumber numberWithInt:cacheTime] forKey:@"default-cache-ttl"];
-		[self.gpgAgentConf setValue:[NSNumber numberWithInt:cacheTime * 12] forKey:@"max-cache-ttl"];		
-		[self.gpgAgentConf setAutoSave:YES];
+		[self.gpgAgentConf setValue:[NSString stringWithFormat:@"%i", cacheTime] forKey:@"default-cache-ttl"];
+		[self.gpgAgentConf setValue:[NSString stringWithFormat:@"%i", cacheTime * 12] forKey:@"max-cache-ttl"];		
+		[self.gpgAgentConf setAutoSave:oldAutoSave];
+		if (oldAutoSave) {
+			[self.gpgAgentConf saveConfig];
+		}
+		
+		[self valueChanged:[NSString stringWithFormat:@"%i", cacheTime] forKey:@"default-cache-ttl" inDomain:GPGDomain_gpgAgentConf];
+		[self valueChanged:[NSString stringWithFormat:@"%i", cacheTime * 12] forKey:@"max-cache-ttl" inDomain:GPGDomain_gpgAgentConf];
 	}
 }
 
@@ -113,6 +139,7 @@ NSDictionary *domainKeys;
 }
 - (void)setValueInStandardDefaults:(id)value forKey:(NSString *)key {
 	[[NSUserDefaults standardUserDefaults] setObject:value forKey:key];
+	[self valueChanged:value forKey:key inDomain:GPGDomain_standard];
 }
 
 
@@ -123,6 +150,12 @@ NSDictionary *domainKeys;
     NSObject *oldValue = [self.commonDefaults objectForKey:key];
 	if(value != oldValue && ![value isEqual:oldValue]) {
 		[self.commonDefaults setObject:value forKey:key];
+		[self autoSaveCommonDefaults];
+		[self valueChanged:value forKey:key inDomain:GPGDomain_common];
+	}
+}
+- (void)autoSaveCommonDefaults {
+	if (autoSave) {
 		[self saveCommonDefaults];
 	}
 }
@@ -130,7 +163,7 @@ NSDictionary *domainKeys;
 	[[NSUserDefaults standardUserDefaults] setPersistentDomain:commonDefaults forName:commonDefaultsDomain];
 }
 - (void)loadCommonDefaults {
-	commonDefaults = [NSMutableDictionary dictionaryWithDictionary:[[NSUserDefaults standardUserDefaults] persistentDomainForName:commonDefaultsDomain]]; 
+	commonDefaults = [[NSMutableDictionary alloc] initWithDictionary:[[NSUserDefaults standardUserDefaults] persistentDomainForName:commonDefaultsDomain]]; 
 }
 - (NSMutableDictionary *)commonDefaults {
 	if (!commonDefaults) {
@@ -153,6 +186,12 @@ NSDictionary *domainKeys;
     NSObject *oldValue = [self.environment objectForKey:key];
 	if(value != oldValue && ![value isEqual:oldValue]) {
 		[self.environment setObject:value forKey:key];
+		[self autoSaveEnvironment];
+		[self valueChanged:value forKey:key inDomain:GPGDomain_environment];
+	}
+}
+- (void)autoSaveEnvironment {
+	if (autoSave) {
 		[self saveEnvironment];
 	}
 }
@@ -170,9 +209,9 @@ NSDictionary *domainKeys;
 	NSAssert1([self.environment writeToFile:environmentPlistPath atomically:YES], @"Unable to write file '%@'", environmentPlistPath);
 }
 - (void)loadEnvironment {
-	environment = [NSMutableDictionary dictionaryWithContentsOfFile:environmentPlistPath];
+	environment = [[NSMutableDictionary alloc] initWithContentsOfFile:environmentPlistPath];
 	if (!environment) {
-		environment = [NSMutableDictionary dictionary];
+		environment = [[NSMutableDictionary alloc] init];
 	}
 }
 - (NSMutableDictionary *)environment {
@@ -197,8 +236,6 @@ NSDictionary *domainKeys;
 	return [[gpgAgentConf retain] autorelease];
 }
 
-
-
 - (GPGOptionsDomain)domainForKey:(NSString *)key {
 	NSString *searchString = [NSString stringWithFormat:@"|%@|", key];
 	for (NSNumber *key in domainKeys) {
@@ -210,7 +247,6 @@ NSDictionary *domainKeys;
 	return GPGDomain_standard;
 }
 
-
 - (NSString *)gpgHome {
 	NSString *path = [self valueInEnvironmentForKey:@"GNUPGHOME"];
 	if (!path) {
@@ -218,7 +254,6 @@ NSDictionary *domainKeys;
 	}
 	return path;
 }
-
 
 
 - (NSString *)httpProxy {
@@ -239,8 +274,6 @@ void SystemConfigurationDidChange(SCPreferencesRef prefs, SCPreferencesNotificat
 		((GPGOptions *)info)->httpProxy = nil;
 	}
 }
-
-
 - (void)initSystemConfigurationWatch {
 	SCPreferencesContext context = {0, self, nil, nil, nil};
     SCPreferencesRef preferences = SCPreferencesCreate(nil, (CFStringRef)[[NSProcessInfo processInfo] processName], nil);
@@ -250,14 +283,65 @@ void SystemConfigurationDidChange(SCPreferencesRef prefs, SCPreferencesNotificat
 }	
 
 
+- (void)valueChanged:(id)value forKey:(NSString *)key inDomain:(GPGOptionsDomain)domain {
+	if (!updating) {
+		NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:key, @"key", value, @"value", [NSNumber numberWithInt:domain], @"domain", nil];
+		NSDistributedNotificationCenter *center = [NSDistributedNotificationCenter defaultCenter];
+		[center postNotificationName:GPGOptionsChangedNotification object:identifier userInfo:userInfo options:NSNotificationPostToAllSessions];		
+	}
+}
+- (void)valueChangedNotification:(NSNotification *)notification {
+	if (self != notification.object && ![identifier isEqualTo:notification.object]) {
+		NSDictionary *userInfo = notification.userInfo;
+		BOOL oldAutoSave = self.autoSave;
+		self.autoSave = NO;
+		updating++;
+		NSString *key = [userInfo objectForKey:@"key"];
+		[self willChangeValueForKey:key];
+		[self setValue:[userInfo objectForKey:@"value"] forKey:key inDomain:[[userInfo objectForKey:@"domain"] intValue]];
+		[self didChangeValueForKey:key];
+		updating--;
+		self.autoSave = oldAutoSave;
+	}
+}
+
+
++ (NSString *)standardizedKey:(NSString *)key {
+	if ([key rangeOfString:@"_"].length > 0) {
+		return [key stringByReplacingOccurrencesOfString:@"_" withString:@"-"];
+	}
+	return key;
+}
 
 
 
+
++ (NSSet *)keyPathsForValuesAffectingValueForKey:(NSString *)key {
+	NSString *affectingKey = nil;
+	if ([key rangeOfString:@"_"].length > 0) {
+		NSCharacterSet *set = [[NSCharacterSet characterSetWithCharactersInString:@"abcdefghijklmnopqrstuvwxyz_"] invertedSet];
+		if ([key rangeOfCharacterFromSet:set].length == 0) {
+			affectingKey = [self standardizedKey:key];
+		}
+	}
+	if (!affectingKey) {
+		if ([key isEqualToString:@"TrustAllKeys"]) {
+			affectingKey = @"trust-model";
+		} else if ([key isEqualToString:@"PassphraseCacheTime"]) {
+			affectingKey = @"default-cache-ttl";
+		}
+	}
+	if (affectingKey) {
+		return [NSSet setWithObject:affectingKey];
+	} else {
+		return [super keyPathsForValuesAffectingValueForKey:key];
+	}
+}
 
 
 + (void)initialize {
-	environmentPlistDir = [NSHomeDirectory() stringByAppendingPathComponent:@".MacOSX"];
-	environmentPlistPath = [environmentPlistDir stringByAppendingPathComponent:@"environment.plist"];
+	environmentPlistDir = [[NSHomeDirectory() stringByAppendingPathComponent:@".MacOSX"] retain];
+	environmentPlistPath = [[environmentPlistDir stringByAppendingPathComponent:@"environment.plist"] retain];
 
 	NSString *gpgConfKeys = @"|agent-program|allow-freeform-uid|allow-multiple-messages|allow-multisig-verification|allow-non-selfsigned-uid|allow-secret-key-import|always-trust|armor|"
 	"armour|ask-cert-expire|ask-cert-level|ask-sig-expire|attribute-fd|attribute-file|auto-check-trustdb|auto-key-locate|auto-key-retrieve|bzip2-compress-level|bzip2-decompress-lowmem|"
@@ -285,7 +369,7 @@ void SystemConfigurationDidChange(SCPreferencesRef prefs, SCPreferencesNotificat
 	"enable-passphrase-history|enable-ssh-support|enforce-passphrase-constraints|faked-system-time|ignore-cache-for-signing|keep-display|keep-tty|max-cache-ttl|max-cache-ttl-ssh|"
 	"max-passphrase-days|min-passphrase-len|min-passphrase-nonalpha|no-detach|no-grab|no-use-standard-socket|pinentry-program|pinentry-touch-file|scdaemon-program|server|sh|"
 	"use-standard-socket|write-env-file|";
-	NSString *environmentKeys = @"|GNUPGHOME|";
+	NSString *environmentKeys = @"|GNUPGHOME|GPG_AGENT_INFO|";
 	NSString *commonKeys = @"|UseKeychain|ShowPassphrase|PathToGPG|";
 	NSString *specialKeys = @"|TrustAllKeys|PassphraseCacheTime|httpProxy|";
 	
@@ -306,8 +390,11 @@ void SystemConfigurationDidChange(SCPreferencesRef prefs, SCPreferencesNotificat
 }
 - (id)init {
 	if (!initialized) {
-		[self initSystemConfigurationWatch];
 		initialized = YES;
+		autoSave = YES;
+		identifier = [[NSString alloc] initWithFormat:@"%i%p", [[NSProcessInfo processInfo] processIdentifier], self];
+		[[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(valueChangedNotification:) name:GPGOptionsChangedNotification object:nil];
+		[self initSystemConfigurationWatch];
 	}
 	return self;
 }
