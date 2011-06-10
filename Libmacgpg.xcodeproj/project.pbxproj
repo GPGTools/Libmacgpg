@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		300E6235133F592A00A7BD12 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 300E6234133F592A00A7BD12 /* Localizable.strings */; };
 		30247EF5135B2139003BA5E3 /* libcrypto.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 30247EF4135B2139003BA5E3 /* libcrypto.dylib */; };
+		3026F4AF13A203A000F3CA02 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3026F4AE13A203A000F3CA02 /* Security.framework */; };
 		302AA37A133606260022A371 /* GPGKey_Template.h in Headers */ = {isa = PBXBuildFile; fileRef = 302AA378133606260022A371 /* GPGKey_Template.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		302AA37B133606260022A371 /* GPGKey_Template.m in Sources */ = {isa = PBXBuildFile; fileRef = 302AA379133606260022A371 /* GPGKey_Template.m */; };
 		302AA3AE133608BE0022A371 /* GPGSuper_Template.h in Headers */ = {isa = PBXBuildFile; fileRef = 302AA3AC133608BE0022A371 /* GPGSuper_Template.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -67,6 +68,7 @@
 		1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		300E6234133F592A00A7BD12 /* Localizable.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = Localizable.strings; path = Resources/Localizable.strings; sourceTree = "<group>"; };
 		30247EF4135B2139003BA5E3 /* libcrypto.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcrypto.dylib; path = /usr/lib/libcrypto.dylib; sourceTree = "<absolute>"; };
+		3026F4AE13A203A000F3CA02 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		302AA378133606260022A371 /* GPGKey_Template.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGKey_Template.h; path = Source/GPGKey_Template.h; sourceTree = "<group>"; };
 		302AA379133606260022A371 /* GPGKey_Template.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GPGKey_Template.m; path = Source/GPGKey_Template.m; sourceTree = "<group>"; };
 		302AA3AC133608BE0022A371 /* GPGSuper_Template.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGSuper_Template.h; path = Source/GPGSuper_Template.h; sourceTree = "<group>"; };
@@ -131,6 +133,7 @@
 				8DC2EF570486A6940098B216 /* Cocoa.framework in Frameworks */,
 				30247EF5135B2139003BA5E3 /* libcrypto.dylib in Frameworks */,
 				30BA88F2138FE593005982D9 /* SystemConfiguration.framework in Frameworks */,
+				3026F4AF13A203A000F3CA02 /* Security.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -162,8 +165,9 @@
 			isa = PBXGroup;
 			children = (
 				1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */,
-				30247EF4135B2139003BA5E3 /* libcrypto.dylib */,
 				30BA88F1138FE593005982D9 /* SystemConfiguration.framework */,
+				3026F4AE13A203A000F3CA02 /* Security.framework */,
+				30247EF4135B2139003BA5E3 /* libcrypto.dylib */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";

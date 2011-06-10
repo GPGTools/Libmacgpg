@@ -1348,9 +1348,15 @@
 #pragma mark Help methods
 
 - (BOOL)isPassphraseForKeyInCache:(NSObject <KeyFingerprint> *)key {
-	
-	//TODO: Check Mac OS X keychain.
-	
+	return [self isPassphraseForKeyInGPGAgentCache:key] || [self isPassphraseForKeyInKeychain:key];
+}
+
+- (BOOL)isPassphraseForKeyInKeychain:(NSObject <KeyFingerprint> *)key {
+	NSString *fingerprint = [key description];
+	return SecKeychainFindGenericPassword (nil, strlen(GPG_SERVICE_NAME), GPG_SERVICE_NAME, [fingerprint UTF8Length], [fingerprint UTF8String], nil, nil, nil) == 0; 
+}
+
+- (BOOL)isPassphraseForKeyInGPGAgentCache:(NSObject <KeyFingerprint> *)key {
 	NSString *socketPath = [GPGTask gpgAgentSocket];
 	if (socketPath) {
 		int sock;
@@ -1359,11 +1365,11 @@
 			return NO;
 		}
 
-		int length = [socketPath lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + 2;
+		int length = [socketPath UTF8Length] + 2;
 		char addressInfo[length];
 		addressInfo[0] = AF_UNIX;
 		addressInfo[1] = 0;
-		strcpy(addressInfo+2, [socketPath cStringUsingEncoding:NSUTF8StringEncoding]);
+		strcpy(addressInfo+2, [socketPath UTF8String]);
 				
 		
 		if (connect(sock, (const struct sockaddr *)addressInfo, length ) == -1) {
@@ -1384,8 +1390,8 @@
 				NSLog(@"No OK from gpg-agent.");
 				goto closeSocket;
 			}
-			NSString *ss = [NSString stringWithFormat:@"GET_PASSPHRASE --no-ask %@ . . .\n", key];
-			length = send(sock, [ss UTF8String], [ss length], 0);
+			NSString *command = [NSString stringWithFormat:@"GET_PASSPHRASE --no-ask %@ . . .\n", key];
+			length = send(sock, [command UTF8String], [command UTF8Length], 0);
 			
 			int pos = 0;
 			while ((length = recv(sock, buffer+pos, 100-pos, 0)) > 0) {

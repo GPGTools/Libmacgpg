@@ -73,6 +73,9 @@
 - (NSData *)gpgData {
 	return [self dataUsingEncoding:NSUTF8StringEncoding];
 }
+- (NSUInteger)UTF8Length {
+	return [self lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
+}
 @end
 @implementation NSDate (GPGExtension)
 + (id)dateWithGPGString:(NSString *)string {
