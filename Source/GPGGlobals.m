@@ -224,6 +224,8 @@ NSException* gpgTaskException(NSString *name, NSString *reason, int errorCode, G
 	if (gpgTask.exitcode == GPGErrorCancelled) {
 		errorCode = GPGErrorCancelled;
 		reason = @"Operation cancelled!";
+	} else if (gpgTask.errorCode) {
+		errorCode = gpgTask.errorCode;
 	}
 	NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:gpgTask, @"gpgTask", [NSNumber numberWithInt:errorCode], @"errorCode", nil];
 	return [NSException exceptionWithName:name reason:localizedString(reason) userInfo:userInfo];

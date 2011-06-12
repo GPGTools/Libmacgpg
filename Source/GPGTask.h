@@ -21,6 +21,7 @@
 	NSObject <GPGTaskDelegate> *delegate;
 	NSDictionary *userInfo;
 	NSInteger exitcode;
+	int errorCode;
 	BOOL getAttributeData;
 	
 	NSMutableArray *inDatas;
@@ -34,6 +35,7 @@
 	NSString *outText;
 	NSString *errText;
 	NSString *statusText;
+	
 	
 	NSDictionary *lastUserIDHint;
 	NSDictionary *lastNeedPassphrase;
@@ -54,6 +56,7 @@
 @property (assign) NSObject <GPGTaskDelegate> *delegate;
 @property (retain) NSDictionary *userInfo;
 @property (readonly) NSInteger exitcode;
+@property (readonly) int errorCode;
 @property (retain) NSString *gpgPath;
 @property (readonly) NSData *outData;
 @property (readonly) NSData *errData;

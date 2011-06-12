@@ -20,21 +20,7 @@
 NSString *_gpgPath;
 NSDictionary *statusCodes;
 
-@synthesize isRunning;
-@synthesize batchMode;
-@synthesize getAttributeData;
-@synthesize delegate;
-@synthesize userInfo;
-@synthesize exitcode;
-@synthesize gpgPath;
-@synthesize outData;
-@synthesize errData;
-@synthesize statusData;
-@synthesize attributeData;
-@synthesize lastUserIDHint;
-@synthesize lastNeedPassphrase;
-@synthesize canceled;
-
+@synthesize isRunning, batchMode, getAttributeData, delegate, userInfo, exitcode, errorCode, gpgPath, outData, errData, statusData, attributeData, lastUserIDHint, lastNeedPassphrase, canceled;
 
 - (NSArray *)arguments {
 	return [[arguments copy] autorelease];
@@ -345,13 +331,9 @@ NSDictionary *statusCodes;
 		[inFileDescriptors addObject:[NSNumber numberWithInt:inPipes[i][1]]];
 	}
 		
-	
-	
 	if ([delegate respondsToSelector:@selector(gpgTaskWillStart:)]) {
 		[delegate gpgTaskWillStart:self];
 	}
-
-	
 	
 	if (canceled) {
 		return GPGErrorCancelled;
@@ -405,7 +387,6 @@ NSDictionary *statusCodes;
 			argv[argPos++] = "--attribute-fd";
 			argv[argPos++] = "4";
 		}
-		
 		
 		
 		//Für Funktionen wie --decrypt oder --verify sollte "--no-armor" nicht gesetzt sein.
@@ -468,7 +449,6 @@ NSDictionary *statusCodes;
 											 userInfo:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:errno] forKey:@"errno"]];
 			}
 			
-			
 			for (i = 0; i < inDatasCount; i++) {
 				if (close(inPipes[i][0])) {
 					@throw [NSException exceptionWithName:GPGTaskException
@@ -505,7 +485,7 @@ NSDictionary *statusCodes;
 				//TODO: Optimize sleep!
 				usleep(10000);
 			}
-			if (canceled || exitcode != 0 && passphraseStatus == 3) {
+			if (canceled || (exitcode != 0 && passphraseStatus == 3)) {
 				exitcode = GPGErrorCancelled;
 			}
 		} @catch (NSException * e) {
@@ -622,7 +602,7 @@ NSDictionary *statusCodes;
 			BOOL isPassphraseRequest = NO;
 			switch (statusCode) {
 				case GPG_STATUS_USERID_HINT: {
-					NSRange range = [prompt rangeOfString:@" "];
+					range = [prompt rangeOfString:@" "];
 					NSString *keyID = [prompt substringToIndex:range.location];
 					NSString *userID = [prompt substringFromIndex:range.location + 1];
 					self.lastUserIDHint = [NSDictionary dictionaryWithObjectsAndKeys:keyID, @"keyID", userID, @"userID", nil];
@@ -650,6 +630,12 @@ NSDictionary *statusCodes;
 				case GPG_STATUS_GET_HIDDEN:
 					if ([prompt isEqualToString:@"passphrase.enter"]) {
 						isPassphraseRequest = YES;
+					}
+					break;
+				case GPG_STATUS_ERROR:
+					range = [prompt rangeOfString:@" "];
+					if (range.length > 0) {
+						errorCode = [[prompt substringFromIndex:range.location + 1] intValue];
 					}
 					break;
 
@@ -764,8 +750,7 @@ NSDictionary *statusCodes;
 		if (spaceRange.length > 0) {
 			range.length = spaceRange.location - range.location;
 		}
-		NSInteger errorCode = [[outString substringWithRange:range] integerValue];
-		if (errorCode == 0x5000063) {
+		if ([[outString substringWithRange:range] integerValue] == 0x5000063) {
 			[self cancel];
 		} else {
 			@throw gpgException(GPGException, @"Pinentry error!", GPGErrorPINEntryError);

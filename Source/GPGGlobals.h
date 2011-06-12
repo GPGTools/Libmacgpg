@@ -26,7 +26,7 @@ typedef enum {
     GPG_ElgamalAlgorithm            = 20,
     GPG_DiffieHellmanAlgorithm      = 21
 } GPGPublicKeyAlgorithm;
-typedef enum {
+/*typedef enum {
     GPGErrorNoError = 0, 
     GPGErrorGeneralError = 1, 
     GPGErrorBadSignature = 8, 
@@ -41,8 +41,8 @@ typedef enum {
 	GPGErrorTaskException, 
 	GPGErrorSubkeyNotFound, 
 	GPGErrorUserIDNotFound
-} GPGErrorCode;
-/*typedef enum { 
+} GPGErrorCode;*/
+typedef enum { 
     GPGErrorNoError = 0, 
     GPGErrorGeneralError = 1, 
     GPGErrorUnknownPacket = 2, 
@@ -244,6 +244,8 @@ typedef enum {
     GPGErrorUser14 = 1037, 
     GPGErrorUser15 = 1038, 
     GPGErrorUser16 = 1039,  
+	GPGErrorTaskException, 
+	GPGErrorSubkeyNotFound, 
     GPGErrorMissingErrno = 16381, 
     GPGErrorUnknownErrno = 16382, 
     GPGErrorEOF = 16383,  
@@ -391,7 +393,7 @@ typedef enum {
     GPGError_EXFULL = 16524,  
     // This is one more than the largest allowed entry.  
     GPGError_CODE_DIM = 65536 
-} GPGErrorCode;  */
+} GPGErrorCode;
 typedef enum {
     GPGPublicKeyEncrypt = 1,
 	GPGSymetricEncrypt = 2,

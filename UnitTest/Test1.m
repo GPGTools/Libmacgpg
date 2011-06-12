@@ -45,6 +45,15 @@
 	
 	NSString *keyID = key.keyID;
 	
+	
+	NSData *input = [@"This is a test text." dataUsingEncoding:NSUTF8StringEncoding];
+	NSData *output = [gpgc processData:input withEncryptSignMode:GPGEnryptSign recipients:[NSSet setWithObject:keyID] hiddenRecipients:nil];
+	
+	STAssertNotNil(output, @"processData faild.");
+	
+	//[gpgc decryptData:<#(NSData *)data#>
+	
+	
 	//TODO: Add more tests.
 	
 	

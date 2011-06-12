@@ -694,7 +694,7 @@
 			NSInteger uid = [self indexOfUserID:hashID fromKey:key];
 			
 			if (uid <= 0) {
-				@throw gpgExceptionWithUserInfo(GPGException, @"UserID not found!", GPGErrorUserIDNotFound, [NSDictionary dictionaryWithObjectsAndKeys:hashID, @"hashID", key, @"key", nil]);
+				@throw gpgExceptionWithUserInfo(GPGException, @"UserID not found!", GPGErrorNoUserID, [NSDictionary dictionaryWithObjectsAndKeys:hashID, @"hashID", key, @"key", nil]);
 			}
 			[order addCmd:[NSString stringWithFormat:@"uid %i\n", uid] prompt:@"keyedit.prompt"];
 		}
@@ -887,170 +887,265 @@
 #pragma mark Working with Signatures
 
 - (void)signUserID:(NSString *)hashID ofKey:(NSObject <KeyFingerprint> *)key signKey:(NSObject <KeyFingerprint> *)signKey type:(NSInteger)type local:(BOOL)local daysToExpire:(NSInteger)daysToExpire {
-	NSString *uid;
-	if (!hashID) {
-		uid = @"uid *\n";
-	} else {
-		int uidIndex = [self indexOfUserID:hashID fromKey:key];
-		if (uidIndex > 0) {
-			uid = [NSString stringWithFormat:@"uid %i\n", uidIndex];
+	if (async && !asyncStarted) {
+		asyncStarted = YES;
+		[asyncProxy signUserID:hashID ofKey:key signKey:signKey type:type local:local daysToExpire:daysToExpire];
+		return;
+	}
+	@try {
+		NSString *uid;
+		if (!hashID) {
+			uid = @"uid *\n";
 		} else {
-			@throw gpgExceptionWithUserInfo(GPGException, @"UserID not found!", GPGErrorUserIDNotFound, [NSDictionary dictionaryWithObjectsAndKeys:hashID, @"hashID", key, @"key", nil]);
+			int uidIndex = [self indexOfUserID:hashID fromKey:key];
+			if (uidIndex > 0) {
+				uid = [NSString stringWithFormat:@"uid %i\n", uidIndex];
+			} else {
+				@throw gpgExceptionWithUserInfo(GPGException, @"UserID not found!", GPGErrorNoUserID, [NSDictionary dictionaryWithObjectsAndKeys:hashID, @"hashID", key, @"key", nil]);
+			}
 		}
+		
+		GPGTaskOrder *order = [GPGTaskOrder orderWithYesToAll];
+		[order addCmd:uid prompt:@"keyedit.prompt"];
+		[order addCmd:local ? @"lsign\n" : @"sign\n" prompt:@"keyedit.prompt"];
+		[order addCmd:[NSString stringWithFormat:@"%i\n", daysToExpire] prompt:@"siggen.valid" optional:YES];
+		[order addCmd:[NSString stringWithFormat:@"%i\n", type] prompt:@"sign_uid.class" optional:YES];
+		[order addCmd:@"save\n" prompt:@"keyedit.prompt"];
+		
+		
+		gpgTask = [GPGTask gpgTask];
+		[self addArgumentsForOptions];
+		gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"]; 
+		if (signKey) {
+			[gpgTask addArgument:@"-u"];
+			[gpgTask addArgument:[signKey description]];
+		}
+		[gpgTask addArgument:@"--ask-cert-expire"];
+		[gpgTask addArgument:@"--ask-cert-level"];
+		[gpgTask addArgument:@"--edit-key"];
+		[gpgTask addArgument:[key description]];
+		
+		if ([gpgTask start] != 0) {
+			@throw gpgTaskException(GPGTaskException, @"Sign userID failed!", GPGErrorTaskException, gpgTask);
+		}
+		[self keyChanged:key];
+	} @catch (NSException *e) {
+		[self handleException:e];
+	} @finally {
+		[self cleanAfterOperation];
 	}
 	
-	GPGTaskOrder *order = [GPGTaskOrder orderWithYesToAll];
-	[order addCmd:uid prompt:@"keyedit.prompt"];
-	[order addCmd:local ? @"lsign\n" : @"sign\n" prompt:@"keyedit.prompt"];
-	[order addCmd:[NSString stringWithFormat:@"%i\n", daysToExpire] prompt:@"siggen.valid" optional:YES];
-	[order addCmd:[NSString stringWithFormat:@"%i\n", type] prompt:@"sign_uid.class" optional:YES];
-	[order addCmd:@"save\n" prompt:@"keyedit.prompt"];
-	
-	
-	gpgTask = [GPGTask gpgTask];
-	[self addArgumentsForOptions];
-	gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"]; 
-	if (signKey) {
-		[gpgTask addArgument:@"-u"];
-		[gpgTask addArgument:[signKey description]];
-	}
-	[gpgTask addArgument:@"--ask-cert-expire"];
-	[gpgTask addArgument:@"--ask-cert-level"];
-	[gpgTask addArgument:@"--edit-key"];
-	[gpgTask addArgument:[key description]];
-	
-	if ([gpgTask start] != 0) {
-		@throw gpgTaskException(GPGTaskException, @"Sign userID failed!", GPGErrorTaskException, gpgTask);
-	}
-	[self keyChanged:key];
+	[self operationDidFinishWithReturnValue:nil];	
 }
 
 - (void)revokeSignature:(GPGKeySignature *)signature fromUserID:(GPGUserID *)userID ofKey:(NSObject <KeyFingerprint> *)key reason:(int)reason description:(NSString *)description { //Diese Funktion ist äusserst ineffizient, mir ist allerdings kein besserer Weg bekannt.
-	NSInteger uid = [self indexOfUserID:userID.hashID fromKey:key];
-	
-	if (uid > 0) {
-		GPGTaskOrder *order = [GPGTaskOrder orderWithNoToAll];
-		[order addCmd:[NSString stringWithFormat:@"uid %i\n", uid] prompt:@"keyedit.prompt"];
-		[order addCmd:@"revsig\n" prompt:@"keyedit.prompt"];
-		
-		NSArray *userIDsignatures = userID.signatures;
-		for (GPGKeySignature *aSignature in userIDsignatures) {
-			if (aSignature == signature) {
-				[order addCmd:@"y\n" prompt:@"ask_revoke_sig.one"];
-			} else {
-				[order addCmd:@"n\n" prompt:@"ask_revoke_sig.one"];
-			}
-		}
-		[order addCmd:@"y\n" prompt:@"ask_revoke_sig.okay" optional:YES];
-		[order addInt:reason prompt:@"ask_revocation_reason.code" optional:YES];
-		if (description) {
-			NSArray *lines = [description componentsSeparatedByString:@"\n"];
-			for (NSString *line in lines) {
-				[order addCmd:line prompt:@"ask_revocation_reason.text" optional:YES];
-			}
-		}
-		[order addCmd:@"\n" prompt:@"ask_revocation_reason.text" optional:YES];
-		[order addCmd:@"save\n" prompt:@"keyedit.prompt"];
-		
-		
-		gpgTask = [GPGTask gpgTask];
-		[self addArgumentsForOptions];
-		gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"]; 
-		[gpgTask addArgument:@"--edit-key"];
-		[gpgTask addArgument:[key description]];
-		
-		
-		if ([gpgTask start] != 0) {
-			@throw gpgTaskException(GPGTaskException, @"Revoke signature failed!", GPGErrorTaskException, gpgTask);
-		}
-		[self keyChanged:key];
-	} else {
-		@throw gpgExceptionWithUserInfo(GPGException, @"UserID not found!", GPGErrorUserIDNotFound, [NSDictionary dictionaryWithObjectsAndKeys:userID.hashID, @"hashID", key, @"key", nil]);
+	if (async && !asyncStarted) {
+		asyncStarted = YES;
+		[asyncProxy revokeSignature:signature fromUserID:userID ofKey:key reason:reason description:description];
+		return;
 	}
+	@try {
+		NSInteger uid = [self indexOfUserID:userID.hashID fromKey:key];
+		
+		if (uid > 0) {
+			GPGTaskOrder *order = [GPGTaskOrder orderWithNoToAll];
+			[order addCmd:[NSString stringWithFormat:@"uid %i\n", uid] prompt:@"keyedit.prompt"];
+			[order addCmd:@"revsig\n" prompt:@"keyedit.prompt"];
+			
+			NSArray *userIDsignatures = userID.signatures;
+			for (GPGKeySignature *aSignature in userIDsignatures) {
+				if (aSignature == signature) {
+					[order addCmd:@"y\n" prompt:@"ask_revoke_sig.one"];
+				} else {
+					[order addCmd:@"n\n" prompt:@"ask_revoke_sig.one"];
+				}
+			}
+			[order addCmd:@"y\n" prompt:@"ask_revoke_sig.okay" optional:YES];
+			[order addInt:reason prompt:@"ask_revocation_reason.code" optional:YES];
+			if (description) {
+				NSArray *lines = [description componentsSeparatedByString:@"\n"];
+				for (NSString *line in lines) {
+					[order addCmd:line prompt:@"ask_revocation_reason.text" optional:YES];
+				}
+			}
+			[order addCmd:@"\n" prompt:@"ask_revocation_reason.text" optional:YES];
+			[order addCmd:@"save\n" prompt:@"keyedit.prompt"];
+			
+			
+			gpgTask = [GPGTask gpgTask];
+			[self addArgumentsForOptions];
+			gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"]; 
+			[gpgTask addArgument:@"--edit-key"];
+			[gpgTask addArgument:[key description]];
+			
+			
+			if ([gpgTask start] != 0) {
+				@throw gpgTaskException(GPGTaskException, @"Revoke signature failed!", GPGErrorTaskException, gpgTask);
+			}
+			[self keyChanged:key];
+		} else {
+			@throw gpgExceptionWithUserInfo(GPGException, @"UserID not found!", GPGErrorNoUserID, [NSDictionary dictionaryWithObjectsAndKeys:userID.hashID, @"hashID", key, @"key", nil]);
+		}
+	} @catch (NSException *e) {
+		[self handleException:e];
+	} @finally {
+		[self cleanAfterOperation];
+	}
+	
+	[self operationDidFinishWithReturnValue:nil];	
 }
 
 - (void)removeSignature:(GPGKeySignature *)signature fromUserID:(GPGUserID *)userID ofKey:(NSObject <KeyFingerprint> *)key { //Diese Funktion ist äusserst ineffizient, mir ist allerdings kein besserer Weg bekannt.
-	NSInteger uid = [self indexOfUserID:userID.hashID fromKey:key];
-	
-	if (uid > 0) {
-		GPGTaskOrder *order = [GPGTaskOrder orderWithNoToAll];
-		[order addCmd:[NSString stringWithFormat:@"uid %i\n", uid] prompt:@"keyedit.prompt"];
-		[order addCmd:@"delsig\n" prompt:@"keyedit.prompt"];
-		
-		NSArray *userIDsignatures = userID.signatures;
-		for (GPGKeySignature *aSignature in userIDsignatures) {
-			if (aSignature == signature) {
-				[order addCmd:@"y\n" prompt:@"keyedit.delsig.valid"];
-				if ([[signature keyID] isEqualToString:getKeyID(key.description)]) {
-					[order addCmd:@"y\n" prompt:@"keyedit.delsig.selfsig"];
-				}
-			} else {
-				[order addCmd:@"n\n" prompt:@"keyedit.delsig.valid"];
-			}
-		}
-		
-		[order addCmd:@"save\n" prompt:@"keyedit.prompt"];
-		
-		
-		gpgTask = [GPGTask gpgTask];
-		[self addArgumentsForOptions];
-		gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"]; 
-		[gpgTask addArgument:@"--edit-key"];
-		[gpgTask addArgument:[key description]];
-		
-		
-		if ([gpgTask start] != 0) {
-			@throw gpgTaskException(GPGTaskException, @"Remove signature failed!", GPGErrorTaskException, gpgTask);
-		}
-		[self keyChanged:key];
-	} else {
-		@throw gpgExceptionWithUserInfo(GPGException, @"UserID not found!", GPGErrorUserIDNotFound, [NSDictionary dictionaryWithObjectsAndKeys:userID.hashID, @"hashID", key, @"key", nil]);
+	if (async && !asyncStarted) {
+		asyncStarted = YES;
+		[asyncProxy removeSignature:signature fromUserID:userID ofKey:key];
+		return;
 	}
+	@try {
+		NSInteger uid = [self indexOfUserID:userID.hashID fromKey:key];
+		
+		if (uid > 0) {
+			GPGTaskOrder *order = [GPGTaskOrder orderWithNoToAll];
+			[order addCmd:[NSString stringWithFormat:@"uid %i\n", uid] prompt:@"keyedit.prompt"];
+			[order addCmd:@"delsig\n" prompt:@"keyedit.prompt"];
+			
+			NSArray *userIDsignatures = userID.signatures;
+			for (GPGKeySignature *aSignature in userIDsignatures) {
+				if (aSignature == signature) {
+					[order addCmd:@"y\n" prompt:@"keyedit.delsig.valid"];
+					if ([[signature keyID] isEqualToString:getKeyID(key.description)]) {
+						[order addCmd:@"y\n" prompt:@"keyedit.delsig.selfsig"];
+					}
+				} else {
+					[order addCmd:@"n\n" prompt:@"keyedit.delsig.valid"];
+				}
+			}
+			
+			[order addCmd:@"save\n" prompt:@"keyedit.prompt"];
+			
+			
+			gpgTask = [GPGTask gpgTask];
+			[self addArgumentsForOptions];
+			gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"]; 
+			[gpgTask addArgument:@"--edit-key"];
+			[gpgTask addArgument:[key description]];
+			
+			
+			if ([gpgTask start] != 0) {
+				@throw gpgTaskException(GPGTaskException, @"Remove signature failed!", GPGErrorTaskException, gpgTask);
+			}
+			[self keyChanged:key];
+		} else {
+			@throw gpgExceptionWithUserInfo(GPGException, @"UserID not found!", GPGErrorNoUserID, [NSDictionary dictionaryWithObjectsAndKeys:userID.hashID, @"hashID", key, @"key", nil]);
+		}
+	} @catch (NSException *e) {
+		[self handleException:e];
+	} @finally {
+		[self cleanAfterOperation];
+	}
+	
+	[self operationDidFinishWithReturnValue:nil];	
 }
 
 
 #pragma mark Working with Subkeys
 
 - (void)removeSubkey:(NSObject <KeyFingerprint> *)subkey fromKey:(NSObject <KeyFingerprint> *)key {
-	NSInteger index = [self indexOfSubkey:subkey fromKey:key];
-	
-	if (index > 0) {
-		GPGTaskOrder *order = [GPGTaskOrder orderWithYesToAll];
-		[order addCmd:[NSString stringWithFormat:@"key %i\n", index] prompt:@"keyedit.prompt"];
-		[order addCmd:@"delkey\n" prompt:@"keyedit.prompt"];
-		[order addCmd:@"save\n" prompt:@"keyedit.prompt"];
-		
-		gpgTask = [GPGTask gpgTask];
-		[self addArgumentsForOptions];
-		gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"]; 
-		[gpgTask addArgument:@"--edit-key"];
-		[gpgTask addArgument:[key description]];
-		
-		if ([gpgTask start] != 0) {
-			@throw gpgTaskException(GPGTaskException, @"Remove subkey failed!", GPGErrorTaskException, gpgTask);
-		}
-		[self keyChanged:key];
-	} else {
-		@throw gpgExceptionWithUserInfo(GPGException, @"Subkey not found!", GPGErrorSubkeyNotFound, [NSDictionary dictionaryWithObjectsAndKeys:subkey, @"subkey", key, @"key", nil]);
+	if (async && !asyncStarted) {
+		asyncStarted = YES;
+		[asyncProxy removeSubkey:subkey fromKey:key];
+		return;
 	}
+	@try {
+		NSInteger index = [self indexOfSubkey:subkey fromKey:key];
+		
+		if (index > 0) {
+			GPGTaskOrder *order = [GPGTaskOrder orderWithYesToAll];
+			[order addCmd:[NSString stringWithFormat:@"key %i\n", index] prompt:@"keyedit.prompt"];
+			[order addCmd:@"delkey\n" prompt:@"keyedit.prompt"];
+			[order addCmd:@"save\n" prompt:@"keyedit.prompt"];
+			
+			gpgTask = [GPGTask gpgTask];
+			[self addArgumentsForOptions];
+			gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"]; 
+			[gpgTask addArgument:@"--edit-key"];
+			[gpgTask addArgument:[key description]];
+			
+			if ([gpgTask start] != 0) {
+				@throw gpgTaskException(GPGTaskException, @"Remove subkey failed!", GPGErrorTaskException, gpgTask);
+			}
+			[self keyChanged:key];
+		} else {
+			@throw gpgExceptionWithUserInfo(GPGException, @"Subkey not found!", GPGErrorSubkeyNotFound, [NSDictionary dictionaryWithObjectsAndKeys:subkey, @"subkey", key, @"key", nil]);
+		}
+	} @catch (NSException *e) {
+		[self handleException:e];
+	} @finally {
+		[self cleanAfterOperation];
+	}
+	
+	[self operationDidFinishWithReturnValue:nil];	
 }
 
 - (void)revokeSubkey:(NSObject <KeyFingerprint> *)subkey fromKey:(NSObject <KeyFingerprint> *)key reason:(int)reason description:(NSString *)description {
-	NSInteger index = [self indexOfSubkey:subkey fromKey:key];
-	
-	if (index > 0) {
-		GPGTaskOrder *order = [GPGTaskOrder orderWithYesToAll];
-		[order addCmd:[NSString stringWithFormat:@"key %i\n", index] prompt:@"keyedit.prompt"];
-		[order addCmd:@"revkey\n" prompt:@"keyedit.prompt"];
-		[order addInt:reason prompt:@"ask_revocation_reason.code" optional:YES];
-		if (description) {
-			NSArray *lines = [description componentsSeparatedByString:@"\n"];
-			for (NSString *line in lines) {
-				[order addCmd:line prompt:@"ask_revocation_reason.text" optional:YES];
+	if (async && !asyncStarted) {
+		asyncStarted = YES;
+		[asyncProxy revokeSubkey:subkey fromKey:key reason:reason description:description];
+		return;
+	}
+	@try {
+		NSInteger index = [self indexOfSubkey:subkey fromKey:key];
+		
+		if (index > 0) {
+			GPGTaskOrder *order = [GPGTaskOrder orderWithYesToAll];
+			[order addCmd:[NSString stringWithFormat:@"key %i\n", index] prompt:@"keyedit.prompt"];
+			[order addCmd:@"revkey\n" prompt:@"keyedit.prompt"];
+			[order addInt:reason prompt:@"ask_revocation_reason.code" optional:YES];
+			if (description) {
+				NSArray *lines = [description componentsSeparatedByString:@"\n"];
+				for (NSString *line in lines) {
+					[order addCmd:line prompt:@"ask_revocation_reason.text" optional:YES];
+				}
 			}
+			[order addCmd:@"\n" prompt:@"ask_revocation_reason.text" optional:YES];
+			[order addCmd:@"save\n" prompt:@"keyedit.prompt"];
+			
+			gpgTask = [GPGTask gpgTask];
+			[self addArgumentsForOptions];
+			gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"]; 
+			[gpgTask addArgument:@"--edit-key"];
+			[gpgTask addArgument:[key description]];
+			
+			if ([gpgTask start] != 0) {
+				@throw gpgTaskException(GPGTaskException, @"Revoke subkey failed!", GPGErrorTaskException, gpgTask);
+			}
+			[self keyChanged:key];
+		} else {
+			@throw gpgExceptionWithUserInfo(GPGException, @"Subkey not found!", GPGErrorSubkeyNotFound, [NSDictionary dictionaryWithObjectsAndKeys:subkey, @"subkey", key, @"key", nil]);
 		}
-		[order addCmd:@"\n" prompt:@"ask_revocation_reason.text" optional:YES];
+	} @catch (NSException *e) {
+		[self handleException:e];
+	} @finally {
+		[self cleanAfterOperation];
+	}
+	
+	[self operationDidFinishWithReturnValue:nil];	
+}
+
+- (void)addSubkeyToKey:(NSObject <KeyFingerprint> *)key type:(NSInteger)type length:(NSInteger)length daysToExpire:(NSInteger)daysToExpire {
+	if (async && !asyncStarted) {
+		asyncStarted = YES;
+		[asyncProxy addSubkeyToKey:key type:type length:length daysToExpire:daysToExpire];
+		return;
+	}
+	@try {
+		GPGTaskOrder *order = [GPGTaskOrder orderWithYesToAll];
+		[order addCmd:@"addkey\n" prompt:@"keyedit.prompt"];
+		[order addInt:type prompt:@"keygen.algo"];
+		[order addInt:length prompt:@"keygen.size"];
+		[order addInt:daysToExpire prompt:@"keygen.valid"];
 		[order addCmd:@"save\n" prompt:@"keyedit.prompt"];
+		
 		
 		gpgTask = [GPGTask gpgTask];
 		[self addArgumentsForOptions];
@@ -1059,154 +1154,202 @@
 		[gpgTask addArgument:[key description]];
 		
 		if ([gpgTask start] != 0) {
-			@throw gpgTaskException(GPGTaskException, @"Revoke subkey failed!", GPGErrorTaskException, gpgTask);
+			@throw gpgTaskException(GPGTaskException, @"Add subkey failed!", GPGErrorTaskException, gpgTask);
 		}
+		NSLog(@"\nOut: %@\nErr: %@", gpgTask.outText, gpgTask.errText);
 		[self keyChanged:key];
-	} else {
-		@throw gpgExceptionWithUserInfo(GPGException, @"Subkey not found!", GPGErrorSubkeyNotFound, [NSDictionary dictionaryWithObjectsAndKeys:subkey, @"subkey", key, @"key", nil]);
+	} @catch (NSException *e) {
+		[self handleException:e];
+	} @finally {
+		[self cleanAfterOperation];
 	}
-}
-
-- (void)addSubkeyToKey:(NSObject <KeyFingerprint> *)key type:(NSInteger)type length:(NSInteger)length daysToExpire:(NSInteger)daysToExpire {
-	GPGTaskOrder *order = [GPGTaskOrder orderWithYesToAll];
-	[order addCmd:@"addkey\n" prompt:@"keyedit.prompt"];
-	[order addInt:type prompt:@"keygen.algo"];
-	[order addInt:length prompt:@"keygen.size"];
-	[order addInt:daysToExpire prompt:@"keygen.valid"];
-	[order addCmd:@"save\n" prompt:@"keyedit.prompt"];
 	
-	
-	gpgTask = [GPGTask gpgTask];
-	[self addArgumentsForOptions];
-	gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"]; 
-	[gpgTask addArgument:@"--edit-key"];
-	[gpgTask addArgument:[key description]];
-	
-	if ([gpgTask start] != 0) {
-		@throw gpgTaskException(GPGTaskException, @"Add subkey failed!", GPGErrorTaskException, gpgTask);
-	}
-	NSLog(@"\nOut: %@\nErr: %@", gpgTask.outText, gpgTask.errText);
-	[self keyChanged:key];
+	[self operationDidFinishWithReturnValue:nil];	
 }
 
 
 #pragma mark Working with User IDs
 
 - (void)addUserIDToKey:(NSObject <KeyFingerprint> *)key name:(NSString *)name email:(NSString *)email comment:(NSString *)comment {
-	GPGTaskOrder *order = [GPGTaskOrder orderWithYesToAll];
-	[order addCmd:@"adduid\n" prompt:@"keyedit.prompt"];
-	[order addCmd:name prompt:@"keygen.name"];
-	[order addCmd:email prompt:@"keygen.email"];
-	[order addCmd:comment prompt:@"keygen.comment"];
-	[order addCmd:@"save\n" prompt:@"keyedit.prompt"];
-	
-	
-	gpgTask = [GPGTask gpgTask];
-	[self addArgumentsForOptions];
-	gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"]; 
-	[gpgTask addArgument:@"--edit-key"];
-	[gpgTask addArgument:[key description]];
-	
-	if ([gpgTask start] != 0) {
-		@throw gpgTaskException(GPGTaskException, @"Add userID failed!", GPGErrorTaskException, gpgTask);
+	if (async && !asyncStarted) {
+		asyncStarted = YES;
+		[asyncProxy addUserIDToKey:key name:name email:email comment:comment];
+		return;
 	}
-	[self keyChanged:key];
+	@try {
+		GPGTaskOrder *order = [GPGTaskOrder orderWithYesToAll];
+		[order addCmd:@"adduid\n" prompt:@"keyedit.prompt"];
+		[order addCmd:name prompt:@"keygen.name"];
+		[order addCmd:email prompt:@"keygen.email"];
+		[order addCmd:comment prompt:@"keygen.comment"];
+		[order addCmd:@"save\n" prompt:@"keyedit.prompt"];
+		
+		
+		gpgTask = [GPGTask gpgTask];
+		[self addArgumentsForOptions];
+		gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"]; 
+		[gpgTask addArgument:@"--edit-key"];
+		[gpgTask addArgument:[key description]];
+		
+		if ([gpgTask start] != 0) {
+			@throw gpgTaskException(GPGTaskException, @"Add userID failed!", GPGErrorTaskException, gpgTask);
+		}
+		[self keyChanged:key];
+	} @catch (NSException *e) {
+		[self handleException:e];
+	} @finally {
+		[self cleanAfterOperation];
+	}
+	
+	[self operationDidFinishWithReturnValue:nil];	
 }
 
 - (void)removeUserID:(NSString *)hashID fromKey:(NSObject <KeyFingerprint> *)key {
-	NSInteger uid = [self indexOfUserID:hashID fromKey:key];
-	
-	if (uid > 0) {
-		GPGTaskOrder *order = [GPGTaskOrder orderWithYesToAll];
-		[order addCmd:[NSString stringWithFormat:@"uid %i\n", uid] prompt:@"keyedit.prompt"];
-		[order addCmd:@"deluid\n" prompt:@"keyedit.prompt"];
-		[order addCmd:@"save\n" prompt:@"keyedit.prompt"];
-		
-		gpgTask = [GPGTask gpgTask];
-		[self addArgumentsForOptions];
-		gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"]; 
-		[gpgTask addArgument:@"--edit-key"];
-		[gpgTask addArgument:[key description]];
-		
-		if ([gpgTask start] != 0) {
-			@throw gpgTaskException(GPGTaskException, @"Remove userID failed!", GPGErrorTaskException, gpgTask);
-		}
-		[self keyChanged:key];
-	} else {
-		@throw gpgExceptionWithUserInfo(GPGException, @"UserID not found!", GPGErrorUserIDNotFound, [NSDictionary dictionaryWithObjectsAndKeys:hashID, @"hashID", key, @"key", nil]);
+	if (async && !asyncStarted) {
+		asyncStarted = YES;
+		[asyncProxy removeUserID:hashID fromKey:key];
+		return;
 	}
+	@try {
+		NSInteger uid = [self indexOfUserID:hashID fromKey:key];
+		
+		if (uid > 0) {
+			GPGTaskOrder *order = [GPGTaskOrder orderWithYesToAll];
+			[order addCmd:[NSString stringWithFormat:@"uid %i\n", uid] prompt:@"keyedit.prompt"];
+			[order addCmd:@"deluid\n" prompt:@"keyedit.prompt"];
+			[order addCmd:@"save\n" prompt:@"keyedit.prompt"];
+			
+			gpgTask = [GPGTask gpgTask];
+			[self addArgumentsForOptions];
+			gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"]; 
+			[gpgTask addArgument:@"--edit-key"];
+			[gpgTask addArgument:[key description]];
+			
+			if ([gpgTask start] != 0) {
+				@throw gpgTaskException(GPGTaskException, @"Remove userID failed!", GPGErrorTaskException, gpgTask);
+			}
+			[self keyChanged:key];
+		} else {
+			@throw gpgExceptionWithUserInfo(GPGException, @"UserID not found!", GPGErrorNoUserID, [NSDictionary dictionaryWithObjectsAndKeys:hashID, @"hashID", key, @"key", nil]);
+		}
+	} @catch (NSException *e) {
+		[self handleException:e];
+	} @finally {
+		[self cleanAfterOperation];
+	}
+	
+	[self operationDidFinishWithReturnValue:nil];	
 }
 
 - (void)revokeUserID:(NSString *)hashID fromKey:(NSObject <KeyFingerprint> *)key reason:(int)reason description:(NSString *)description {
-	NSInteger uid = [self indexOfUserID:hashID fromKey:key];
-	
-	if (uid > 0) {
-		GPGTaskOrder *order = [GPGTaskOrder orderWithYesToAll];
-		[order addCmd:[NSString stringWithFormat:@"uid %i\n", uid] prompt:@"keyedit.prompt"];
-		[order addCmd:@"revuid\n" prompt:@"keyedit.prompt"];
-		[order addInt:reason prompt:@"ask_revocation_reason.code" optional:YES];
-		if (description) {
-			NSArray *lines = [description componentsSeparatedByString:@"\n"];
-			for (NSString *line in lines) {
-				[order addCmd:line prompt:@"ask_revocation_reason.text" optional:YES];
+	if (async && !asyncStarted) {
+		asyncStarted = YES;
+		[asyncProxy revokeUserID:hashID fromKey:key reason:reason description:description];
+		return;
+	}
+	@try {
+		NSInteger uid = [self indexOfUserID:hashID fromKey:key];
+		
+		if (uid > 0) {
+			GPGTaskOrder *order = [GPGTaskOrder orderWithYesToAll];
+			[order addCmd:[NSString stringWithFormat:@"uid %i\n", uid] prompt:@"keyedit.prompt"];
+			[order addCmd:@"revuid\n" prompt:@"keyedit.prompt"];
+			[order addInt:reason prompt:@"ask_revocation_reason.code" optional:YES];
+			if (description) {
+				NSArray *lines = [description componentsSeparatedByString:@"\n"];
+				for (NSString *line in lines) {
+					[order addCmd:line prompt:@"ask_revocation_reason.text" optional:YES];
+				}
 			}
+			[order addCmd:@"\n" prompt:@"ask_revocation_reason.text" optional:YES];
+			[order addCmd:@"save\n" prompt:@"keyedit.prompt"];
+			
+			gpgTask = [GPGTask gpgTask];
+			[self addArgumentsForOptions];
+			gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"]; 
+			[gpgTask addArgument:@"--edit-key"];
+			[gpgTask addArgument:[key description]];
+			
+			if ([gpgTask start] != 0) {
+				@throw gpgTaskException(GPGTaskException, @"Revoke userID failed!", GPGErrorTaskException, gpgTask);
+			}
+			[self keyChanged:key];
+		} else {
+			@throw gpgExceptionWithUserInfo(GPGException, @"UserID not found!", GPGErrorNoUserID, [NSDictionary dictionaryWithObjectsAndKeys:hashID, @"hashID", key, @"key", nil]);
 		}
-		[order addCmd:@"\n" prompt:@"ask_revocation_reason.text" optional:YES];
-		[order addCmd:@"save\n" prompt:@"keyedit.prompt"];
+	} @catch (NSException *e) {
+		[self handleException:e];
+	} @finally {
+		[self cleanAfterOperation];
+	}
+	
+	[self operationDidFinishWithReturnValue:nil];	
+}
+
+- (void)setPrimaryUserID:(NSString *)hashID ofKey:(NSObject <KeyFingerprint> *)key {
+	if (async && !asyncStarted) {
+		asyncStarted = YES;
+		[asyncProxy setPrimaryUserID:hashID ofKey:key];
+		return;
+	}
+	@try {
+		NSInteger uid = [self indexOfUserID:hashID fromKey:key];
+		
+		if (uid > 0) {
+			gpgTask = [GPGTask gpgTask];
+			[self addArgumentsForOptions];
+			[gpgTask addArgument:@"--edit-key"];
+			[gpgTask addArgument:[key description]];
+			[gpgTask addArgument:[NSString stringWithFormat:@"%i", uid]];
+			[gpgTask addArgument:@"primary"];
+			[gpgTask addArgument:@"save"];
+			
+			if ([gpgTask start] != 0) {
+				@throw gpgTaskException(GPGTaskException, @"Set primary userID failed!", GPGErrorTaskException, gpgTask);
+			}
+			[self keyChanged:key];
+		} else {
+			@throw gpgExceptionWithUserInfo(GPGException, @"UserID not found!", GPGErrorNoUserID, [NSDictionary dictionaryWithObjectsAndKeys:hashID, @"hashID", key, @"key", nil]);
+		}
+	} @catch (NSException *e) {
+		[self handleException:e];
+	} @finally {
+		[self cleanAfterOperation];
+	}
+	
+	[self operationDidFinishWithReturnValue:nil];	
+}
+
+- (void)addPhotoFromPath:(NSString *)path toKey:(NSObject <KeyFingerprint> *)key {
+	if (async && !asyncStarted) {
+		asyncStarted = YES;
+		[asyncProxy addPhotoFromPath:path toKey:key];
+		return;
+	}
+	@try {
+		GPGTaskOrder *order = [GPGTaskOrder orderWithYesToAll];
+		
+		[order addCmd:path prompt:@"photoid.jpeg.add"];
 		
 		gpgTask = [GPGTask gpgTask];
 		[self addArgumentsForOptions];
 		gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"]; 
 		[gpgTask addArgument:@"--edit-key"];
 		[gpgTask addArgument:[key description]];
-		
-		if ([gpgTask start] != 0) {
-			@throw gpgTaskException(GPGTaskException, @"Revoke userID failed!", GPGErrorTaskException, gpgTask);
-		}
-		[self keyChanged:key];
-	} else {
-		@throw gpgExceptionWithUserInfo(GPGException, @"UserID not found!", GPGErrorUserIDNotFound, [NSDictionary dictionaryWithObjectsAndKeys:hashID, @"hashID", key, @"key", nil]);
-	}
-}
-
-- (void)setPrimaryUserID:(NSString *)hashID ofKey:(NSObject <KeyFingerprint> *)key {
-	NSInteger uid = [self indexOfUserID:hashID fromKey:key];
-	
-	if (uid > 0) {
-		gpgTask = [GPGTask gpgTask];
-		[self addArgumentsForOptions];
-		[gpgTask addArgument:@"--edit-key"];
-		[gpgTask addArgument:[key description]];
-		[gpgTask addArgument:[NSString stringWithFormat:@"%i", uid]];
-		[gpgTask addArgument:@"primary"];
+		[gpgTask addArgument:@"addphoto"];
 		[gpgTask addArgument:@"save"];
 		
 		if ([gpgTask start] != 0) {
-			@throw gpgTaskException(GPGTaskException, @"Set primary userID failed!", GPGErrorTaskException, gpgTask);
+			@throw gpgTaskException(GPGTaskException, @"Add photo failed!", GPGErrorTaskException, gpgTask);
 		}
 		[self keyChanged:key];
-	} else {
-		@throw gpgExceptionWithUserInfo(GPGException, @"UserID not found!", GPGErrorUserIDNotFound, [NSDictionary dictionaryWithObjectsAndKeys:hashID, @"hashID", key, @"key", nil]);
+	} @catch (NSException *e) {
+		[self handleException:e];
+	} @finally {
+		[self cleanAfterOperation];
 	}
-}
-
-- (void)addPhotoFromPath:(NSString *)path toKey:(NSObject <KeyFingerprint> *)key {
-	GPGTaskOrder *order = [GPGTaskOrder orderWithYesToAll];
 	
-	[order addCmd:path prompt:@"photoid.jpeg.add"];
-	
-	gpgTask = [GPGTask gpgTask];
-	[self addArgumentsForOptions];
-	gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"]; 
-	[gpgTask addArgument:@"--edit-key"];
-	[gpgTask addArgument:[key description]];
-	[gpgTask addArgument:@"addphoto"];
-	[gpgTask addArgument:@"save"];
-	
-	if ([gpgTask start] != 0) {
-		@throw gpgTaskException(GPGTaskException, @"Add photo failed!", GPGErrorTaskException, gpgTask);
-	}
-	[self keyChanged:key];
+	[self operationDidFinishWithReturnValue:nil];	
 }
 
 
