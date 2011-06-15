@@ -688,7 +688,9 @@ NSDictionary *statusCodes;
 	NSPipe *outPipe = [NSPipe pipe];
 	NSTask *pinentryTask = [[NSTask new] autorelease];
 	
-	pinentryTask.launchPath = [[self class] pinentryPath];
+	NSString *pinentryPath = [[self class] pinentryPath];
+	NSAssert(pinentryPath, @"pinentry-mac not found.");
+	pinentryTask.launchPath = pinentryPath;
 	
 	pinentryTask.standardInput = inPipe;
 	pinentryTask.standardOutput = outPipe;
