@@ -94,8 +94,12 @@
 	NSError *error = nil;
 	NSString *content = [NSString stringWithContentsOfFile:path usedEncoding:&fileEncoding error:&error];
 	if (!content) {
-		//TODO: Better exception handling.
-		@throw [NSException exceptionWithName:[error domain]  reason:[error localizedFailureReason] userInfo:[error userInfo]];
+		if ([error code] == 260) {
+			content = @"";
+			fileEncoding = NSUTF8StringEncoding;
+		} else {
+			@throw [NSException exceptionWithName:[error domain]  reason:[error localizedFailureReason] userInfo:[error userInfo]];
+		}
 	}
 	
 	self.encoding = fileEncoding;
