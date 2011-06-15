@@ -1,3 +1,4 @@
+#import <Cocoa/Cocoa.h>
 
 @interface GPGConfLine : NSObject {
 	NSString *name;

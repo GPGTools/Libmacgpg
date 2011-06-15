@@ -223,6 +223,20 @@ NSDictionary *domainKeys;
 
 
 
+- (id)valueInGPGConfForKey:(NSString *)key {
+	return [self.gpgConf valueForKey:key];
+}
+- (void)setValueInGPGConf:(id)value forKey:(NSString *)key {
+	[self.gpgConf setValue:value forKey:key];
+}
+- (id)valueInGPGAgentConfForKey:(NSString *)key {
+	return [self.gpgAgentConf valueForKey:key];
+}
+- (void)setValueInGPGAgentConf:(id)value forKey:(NSString *)key {
+	[self.gpgAgentConf setValue:value forKey:key];
+}
+
+
 - (GPGConf *)gpgConf {
 	if (!gpgConf) {
 		gpgConf = [[GPGConf alloc] initWithPath:[[self gpgHome] stringByAppendingPathComponent:@"gpg.conf"]];

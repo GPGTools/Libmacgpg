@@ -18,6 +18,14 @@
 
 #define cancelCheck if (canceled) {@throw gpgException(GPGException, @"Operation cancelled", GPGErrorCancelled);}
 
+#define setValueWithoutSetter(var, value) do { \
+		id temp = (value); \
+		if (temp != var) { \
+			[var release]; \
+			var = temp; \
+		} \
+	} while (0);
+
 
 
 
@@ -36,11 +44,51 @@
 - (void)cleanAfterOperation;
 - (void)keysChanged:(NSObject <EnumerationList> *)keys;
 - (void)keyChanged:(NSObject <KeyFingerprint> *)key;
++ (void)readGPGConfig;
 @end
 
 
 @implementation GPGController
 @synthesize delegate, keyserver, keyserverTimeout, proxyServer, async, userInfo, useArmor, useTextMode, printVersion, useDefaultComments, trustAllKeys, signatures, lastSignature, gpgHome;
+
+NSString *gpgVersion = nil;
+NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil, *compressAlgorithm = nil;
+
+
+
++ (NSString *)gpgVersion {
+	if (!gpgVersion) {
+		[self readGPGConfig];
+	}
+	return [[gpgVersion retain] autorelease];
+}
++ (NSSet *)publicKeyAlgorithm {
+	if (!publicKeyAlgorithm) {
+		[self readGPGConfig];
+	}
+	return [[publicKeyAlgorithm retain] autorelease];
+}
++ (NSSet *)cipherAlgorithm {
+	if (!cipherAlgorithm) {
+		[self readGPGConfig];
+	}
+	return [[cipherAlgorithm retain] autorelease];
+}
++ (NSSet *)digestAlgorithm {
+	if (!digestAlgorithm) {
+		[self readGPGConfig];
+	}
+	return [[digestAlgorithm retain] autorelease];
+}
++ (NSSet *)compressAlgorithm {
+	if (!compressAlgorithm) {
+		[self readGPGConfig];
+	}
+	return [[compressAlgorithm retain] autorelease];
+}
+
+
+
 
 
 - (NSArray *)comments {
@@ -1942,6 +1990,55 @@
 	[identifier release];
 	
 	[super dealloc];
+}
+
+
++ (NSSet *)algorithmSetFromString:(NSString *)string {
+	NSMutableSet *algorithm = [NSMutableSet set];
+	NSScanner *scanner = [NSScanner scannerWithString:string];
+	scanner.charactersToBeSkipped = [NSCharacterSet characterSetWithCharactersInString:@";"];
+	NSInteger value;
+	
+	while ([scanner scanInteger:&value]) {
+		[algorithm addObject:[NSNumber numberWithInteger:value]];
+	}
+	return [[algorithm copy] autorelease];
+}
+
++ (void)readGPGConfig {
+	GPGTask *gpgTask = [GPGTask gpgTask];
+	[gpgTask addArgument:@"--list-config"];
+	[gpgTask start];
+	NSString *outText = [gpgTask outText];
+	
+	if (!outText || outText.length < 10) {
+		NSLog(@"readGPGConfig faild");
+		return;
+	}
+	
+	NSArray *lines = [outText componentsSeparatedByString:@"\n"];
+	
+	for (NSString *line in lines) {
+		if ([line hasPrefix:@"cfg:"]) {
+			NSArray *parts = [line componentsSeparatedByString:@":"];
+			if ([parts count] > 2) {
+				NSString *name = [parts objectAtIndex:1];
+				NSString *value = [parts objectAtIndex:2];
+				
+				if ([name isEqualToString:@"version"]) {
+					setValueWithoutSetter(gpgVersion, value);
+				} else if ([name isEqualToString:@"pubkey"]) {
+					setValueWithoutSetter (publicKeyAlgorithm, [self algorithmSetFromString:value]);
+				} else if ([name isEqualToString:@"cipher"]) {
+					setValueWithoutSetter (cipherAlgorithm, [self algorithmSetFromString:value]);
+				} else if ([name isEqualToString:@"digest"]) {
+					setValueWithoutSetter (digestAlgorithm, [self algorithmSetFromString:value]);
+				} else if ([name isEqualToString:@"compress"]) {
+					setValueWithoutSetter (compressAlgorithm, [self algorithmSetFromString:value]);
+				}
+			}
+		}
+	}
 }
 
 

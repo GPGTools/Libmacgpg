@@ -1,4 +1,3 @@
-
 #import <Libmacgpg/GPGGlobals.h>
 #import <Libmacgpg/GPGSuper_Template.h>
 

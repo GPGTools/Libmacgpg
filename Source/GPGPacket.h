@@ -1,3 +1,4 @@
+#import <Cocoa/Cocoa.h>
 #import <Libmacgpg/GPGGlobals.h>
 
 @interface GPGPacket : NSObject {

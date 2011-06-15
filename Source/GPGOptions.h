@@ -1,3 +1,4 @@
+#import <Cocoa/Cocoa.h>
 
 @class GPGConf;
 
@@ -55,6 +56,11 @@ typedef enum {
 
 - (id)specialValueForKey:(NSString *)key;
 - (void)setSpecialValue:(id)value forKey:(NSString *)key;
+
+- (id)valueInGPGConfForKey:(NSString *)key;
+- (void)setValueInGPGConf:(id)value forKey:(NSString *)key;
+- (id)valueInGPGAgentConfForKey:(NSString *)key;
+- (void)setValueInGPGAgentConf:(id)value forKey:(NSString *)key;
 
 
 + (NSString *)standardizedKey:(NSString *)key;

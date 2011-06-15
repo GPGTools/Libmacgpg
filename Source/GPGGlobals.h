@@ -1,3 +1,4 @@
+#import <Cocoa/Cocoa.h>
 
 @class GPGTask;
 
@@ -26,22 +27,6 @@ typedef enum {
     GPG_ElgamalAlgorithm            = 20,
     GPG_DiffieHellmanAlgorithm      = 21
 } GPGPublicKeyAlgorithm;
-/*typedef enum {
-    GPGErrorNoError = 0, 
-    GPGErrorGeneralError = 1, 
-    GPGErrorBadSignature = 8, 
-    GPGErrorNoPublicKey = 9, 
-    GPGErrorInvalidPacket = 14, 
-    GPGErrorPINEntryError = 86, 
-    GPGErrorCertificateRevoked = 94, 
-    GPGErrorCancelled = 99, 
-    GPGErrorUnknownAlgorithm = 149, 
-    GPGErrorSignatureExpired = 154, 
-    GPGErrorKeyExpired = 153, 
-	GPGErrorTaskException, 
-	GPGErrorSubkeyNotFound, 
-	GPGErrorUserIDNotFound
-} GPGErrorCode;*/
 typedef enum { 
     GPGErrorNoError = 0, 
     GPGErrorGeneralError = 1, 

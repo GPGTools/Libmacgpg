@@ -1,3 +1,4 @@
+#import <Cocoa/Cocoa.h>
 #import <Libmacgpg/GPGGlobals.h>
 #import <Libmacgpg/GPGKey.h>
 #import <Libmacgpg/GPGTask.h>
@@ -64,6 +65,14 @@
 @property BOOL useDefaultComments;
 @property BOOL trustAllKeys;
 
+
++ (NSString *)gpgVersion;
++ (NSSet *)publicKeyAlgorithm;
++ (NSSet *)cipherAlgorithm;
++ (NSSet *)digestAlgorithm;
++ (NSSet *)compressAlgorithm;
+
+
 - (void)addComment:(NSString *)comment;
 - (void)removeCommentAtIndex:(NSUInteger)index;
 - (void)addSignerKey:(NSString *)signerKey;
@@ -122,6 +131,9 @@
 			 recipients:(NSObject <EnumerationList> *)recipients hiddenRecipients:(NSObject <EnumerationList> *)hiddenRecipients;
 - (NSData *)decryptData:(NSData *)data;
 - (NSArray *)verifySignature:(NSData *)signatureData originalData:(NSData *)originalData;
+
+
+
 
 
 
