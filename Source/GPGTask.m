@@ -1,8 +1,7 @@
-
 #import "GPGTask.h"
 #import "GPGGlobals.h"
 #import "GPGOptions.h"
-
+//#import <sys/shm.h>
 
 @interface GPGTask (Private)
 
@@ -78,6 +77,7 @@ NSDictionary *statusCodes;
 				   [NSNumber numberWithInteger:GPG_STATUS_ATTRIBUTE], @"ATTRIBUTE",
 				   [NSNumber numberWithInteger:GPG_STATUS_BACKUP_KEY_CREATED], @"BACKUP_KEY_CREATED",
 				   [NSNumber numberWithInteger:GPG_STATUS_BADARMOR], @"BADARMOR",
+				   [NSNumber numberWithInteger:GPG_STATUS_BADMDC], @"BADMDC",
 				   [NSNumber numberWithInteger:GPG_STATUS_BADSIG], @"BADSIG",
 				   [NSNumber numberWithInteger:GPG_STATUS_BAD_PASSPHRASE], @"BAD_PASSPHRASE",
 				   [NSNumber numberWithInteger:GPG_STATUS_BEGIN_DECRYPTION], @"BEGIN_DECRYPTION",
@@ -92,6 +92,7 @@ NSDictionary *statusCodes;
 				   [NSNumber numberWithInteger:GPG_STATUS_END_DECRYPTION], @"END_DECRYPTION",
 				   [NSNumber numberWithInteger:GPG_STATUS_END_ENCRYPTION], @"END_ENCRYPTION",
 				   [NSNumber numberWithInteger:GPG_STATUS_END_STREAM], @"END_STREAM",
+				   [NSNumber numberWithInteger:GPG_STATUS_ERRMDC], @"ERRMDC",
 				   [NSNumber numberWithInteger:GPG_STATUS_ERROR], @"ERROR",
 				   [NSNumber numberWithInteger:GPG_STATUS_ERRSIG], @"ERRSIG",
 				   [NSNumber numberWithInteger:GPG_STATUS_EXPKEYSIG], @"EXPKEYSIG",
@@ -100,6 +101,7 @@ NSDictionary *statusCodes;
 				   [NSNumber numberWithInteger:GPG_STATUS_GET_BOOL], @"GET_BOOL",
 				   [NSNumber numberWithInteger:GPG_STATUS_GET_HIDDEN], @"GET_HIDDEN",
 				   [NSNumber numberWithInteger:GPG_STATUS_GET_LINE], @"GET_LINE",
+				   [NSNumber numberWithInteger:GPG_STATUS_GOODMDC], @"GOODMDC",
 				   [NSNumber numberWithInteger:GPG_STATUS_GOODSIG], @"GOODSIG",
 				   [NSNumber numberWithInteger:GPG_STATUS_GOOD_PASSPHRASE], @"GOOD_PASSPHRASE",
 				   [NSNumber numberWithInteger:GPG_STATUS_GOT_IT], @"GOT_IT",
@@ -339,6 +341,23 @@ NSDictionary *statusCodes;
 		return GPGErrorCancelled;
 	}
 	
+	/*int shID = shmget(IPC_PRIVATE, 1, IPC_CREAT | 0666);
+	
+    if (shID < 0) {
+		@throw [NSException exceptionWithName:GPGTaskException
+									   reason:@"Can’t create shared memory!"
+									 userInfo:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:errno] forKey:@"errno"]];			
+	}
+	char *shMem = shmat(shID, 0, 0);
+	
+	if (shMem == (char *)-1) {
+		@throw [NSException exceptionWithName:GPGTaskException
+									   reason:@"Can’t attach shared memory!"
+									 userInfo:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:errno] forKey:@"errno"]];			
+	} 
+	shMem[0] = 0;*/
+	
+	
 	//fork
 	pid_t pid = fork();
 	if (pid == 0) { //Child process
@@ -420,12 +439,13 @@ NSDictionary *statusCodes;
 			if (close(inPipes[i][1])) {
 				exit(103);			
 			}
-			if (dup2(inPipes[i][0], i + 5) == -1) {
+			
+/*			if (dup2(inPipes[i][0], i + 5) == -1) {
 				exit(104);
-			}
+			}*/
 			char *arg;
-			asprintf(&arg, "/dev/fd/%i", i + 5);
-			argv[argPos++] = arg;			
+			asprintf(&arg, "/dev/fd/%i", inPipes[i][0]);
+			argv[argPos++] = arg;
 		}
 		
 		argv[argPos] = nil;
@@ -483,7 +503,7 @@ NSDictionary *statusCodes;
 			
 			while ([t1 isExecuting] || [t2 isExecuting] || [t3 isExecuting] || [t4 isExecuting]) {
 				//TODO: Optimize sleep!
-				usleep(10000);
+				usleep(5000);
 			}
 			if (canceled || (exitcode != 0 && passphraseStatus == 3)) {
 				exitcode = GPGErrorCancelled;
@@ -562,7 +582,6 @@ NSDictionary *statusCodes;
 		}
 	}
 	*data = [[NSData alloc] initWithBytes:buffer length:readPos];
-	
 	free(buffer);
 }
 
@@ -783,7 +802,13 @@ NSDictionary *statusCodes;
 - (void)writeDataToFD:(NSDictionary *)dict {
 	NSData *data = [dict objectForKey:@"data"];
 	int fd = [[dict objectForKey:@"fd"] intValue];
-	write(fd, [data bytes], [data length]);
+	const char *bytes = [data bytes];
+	long pos = 0, bytesWrite, length = [data length];
+	
+	usleep(50000);
+	
+	while ((bytesWrite = write(fd, bytes + pos, length - pos)) > -1 && (pos += bytesWrite) < length) {
+	}
 	close(fd);
 }
 

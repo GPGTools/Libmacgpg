@@ -90,11 +90,13 @@
 
 
 - (NSSet *)allKeys;
+- (NSSet *)allSecretKeys;
 - (NSSet *)keysForSearchPattern:(NSString *)searchPattern;
 - (NSSet *)keysForSearchPatterns:(NSObject <EnumerationList> *)searchPatterns;
 - (NSSet *)updateKeys:(NSObject <EnumerationList> *)keyList;
 - (NSSet *)updateKeys:(NSObject <EnumerationList> *)keyList withSigs:(BOOL)withSigs;
 - (NSSet *)updateKeys:(NSObject <EnumerationList> *)keyList searchFor:(NSObject <EnumerationList> *)serachList withSigs:(BOOL)withSigs;
+- (NSSet *)updateKeys:(NSObject <EnumerationList> *)keyList searchFor:(NSObject <EnumerationList> *)serachList withSigs:(BOOL)withSigs secretOnly:(BOOL)secretOnly;
 
 - (void)cancel;
 
@@ -131,7 +133,7 @@
 			 recipients:(NSObject <EnumerationList> *)recipients hiddenRecipients:(NSObject <EnumerationList> *)hiddenRecipients;
 - (NSData *)decryptData:(NSData *)data;
 - (NSArray *)verifySignature:(NSData *)signatureData originalData:(NSData *)originalData;
-
+- (NSArray *)verifySignedData:(NSData *)signedData;
 
 
 

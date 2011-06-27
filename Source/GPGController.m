@@ -158,22 +158,27 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 #pragma mark Search and update keys
 
 - (NSSet *)allKeys {
-	return [self updateKeys:nil searchFor:nil withSigs:NO];
+	return [self updateKeys:nil searchFor:nil withSigs:NO secretOnly:NO];
+}
+- (NSSet *)allSecretKeys {
+	return [self updateKeys:nil searchFor:nil withSigs:NO secretOnly:YES];
 }
 - (NSSet *)keysForSearchPattern:(NSString *)searchPattern {
-	return [self updateKeys:nil searchFor:[NSSet setWithObject:searchPattern] withSigs:NO];
+	return [self updateKeys:nil searchFor:[NSSet setWithObject:searchPattern] withSigs:NO secretOnly:NO];
 }
 - (NSSet *)keysForSearchPatterns:(NSObject <EnumerationList> *)searchPatterns {
-	return [self updateKeys:nil searchFor:searchPatterns withSigs:NO];
+	return [self updateKeys:nil searchFor:searchPatterns withSigs:NO secretOnly:NO];
 }
 - (NSSet *)updateKeys:(NSObject <EnumerationList> *)keyList {
-	return [self updateKeys:keyList searchFor:keyList withSigs:[keyList count] < 5];
+	return [self updateKeys:keyList searchFor:keyList withSigs:[keyList count] < 5 secretOnly:NO];
 }
 - (NSSet *)updateKeys:(NSObject <EnumerationList> *)keyList withSigs:(BOOL)withSigs {
-	return [self updateKeys:keyList searchFor:keyList withSigs:withSigs];
+	return [self updateKeys:keyList searchFor:keyList withSigs:withSigs secretOnly:NO];
 }
 - (NSSet *)updateKeys:(NSObject <EnumerationList> *)keyList searchFor:(NSObject <EnumerationList> *)serachList withSigs:(BOOL)withSigs {
-	NSString *pubColonListing, *secColonListing;
+	return [self updateKeys:keyList searchFor:serachList withSigs:withSigs secretOnly:NO];
+}
+- (NSSet *)updateKeys:(NSObject <EnumerationList> *)keyList searchFor:(NSObject <EnumerationList> *)serachList withSigs:(BOOL)withSigs secretOnly:(BOOL)secretOnly {
 	NSSet *secKeyFingerprints, *updatedKeys;
 	NSArray *fingerprints, *listings;
 	
@@ -204,26 +209,16 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 			searchStrings = [searchSet allObjects];
 		}
 		
+		//=========================================================================================
+		//=========================================================================================
+		//=========================================================================================
 		
-		gpgTask = [GPGTask gpgTask];
-		[self addArgumentsForOptions];
-		if (withSigs) {
-			[gpgTask addArgument:@"--list-sigs"];
-			[gpgTask addArgument:@"--list-options"];
-			[gpgTask addArgument:@"show-sig-subpackets=29"];
-		} else {
-			[gpgTask addArgument:@"--list-keys"];
-		}
 		
-		[gpgTask addArgument:withSigs ? @"--list-sigs" : @"--list-keys"];
-		[gpgTask addArgument:@"--with-fingerprint"];
-		[gpgTask addArgument:@"--with-fingerprint"];
-		[gpgTask addArguments:searchStrings];
 		
-		if ([gpgTask start] != 0) {
-			@throw gpgTaskException(GPGTaskException, @"List public keys failed!", GPGErrorTaskException, gpgTask);
-		}
-		pubColonListing = gpgTask.outText;
+		NSTimeInterval t[10];
+		int i = 0;
+		t[i++] = [NSDate timeIntervalSinceReferenceDate];
+		
 		
 		
 		gpgTask = [GPGTask gpgTask];
@@ -235,11 +230,33 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		if ([gpgTask start] != 0) {
 			@throw gpgTaskException(GPGTaskException, @"List secret keys failed!", GPGErrorTaskException, gpgTask);
 		}
-		secColonListing = gpgTask.outText;
+		secKeyFingerprints = [[self class] fingerprintsFromColonListing:gpgTask.outText];
+
 		
+		if (secretOnly) {
+			searchStrings = [secKeyFingerprints allObjects];
+		}
+
 		
-		[[self class] colonListing:pubColonListing toArray:&listings andFingerprints:&fingerprints];
-		secKeyFingerprints = [[self class] fingerprintsFromColonListing:secColonListing];
+		gpgTask = [GPGTask gpgTask];
+		[self addArgumentsForOptions];
+		if (withSigs) {
+			[gpgTask addArgument:@"--list-sigs"];
+			[gpgTask addArgument:@"--list-options"];
+			[gpgTask addArgument:@"show-sig-subpackets=29"];
+		} else {
+			[gpgTask addArgument:@"--list-keys"];
+		}
+		[gpgTask addArgument:@"--with-fingerprint"];
+		[gpgTask addArgument:@"--with-fingerprint"];
+		[gpgTask addArguments:searchStrings];
+		
+		t[i++] = [NSDate timeIntervalSinceReferenceDate];
+		if ([gpgTask start] != 0) {
+			@throw gpgTaskException(GPGTaskException, @"List public keys failed!", GPGErrorTaskException, gpgTask);
+		}
+		t[i++] = [NSDate timeIntervalSinceReferenceDate];
+		[[self class] colonListing:gpgTask.outText toArray:&listings andFingerprints:&fingerprints];
 		
 		
 		
@@ -253,7 +270,17 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		
 		cancelCheck;
 		
-		[self performSelectorOnMainThread:@selector(updateKeysWithDict:) withObject:argumentDictionary waitUntilDone:YES];
+		if ([NSThread isMainThread]) {
+			[self updateKeysWithDict:argumentDictionary];
+		} else {
+			[self performSelectorOnMainThread:@selector(updateKeysWithDict:) withObject:argumentDictionary waitUntilDone:YES];
+		}
+		
+		
+		t[i++] = [NSDate timeIntervalSinceReferenceDate];
+		for (int j = 0; j+1<i; j++) {
+			NSLog(@"Zeit%i-%i: %f", j, j+1, t[j+1] - t[j]);
+		}
 		
 	} @catch (NSException *e) {
 		[self handleException:e];
@@ -264,6 +291,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 	[self operationDidFinishWithReturnValue:updatedKeys];	
 	return updatedKeys;
 }
+
 
 
 #pragma mark Encrypt, decrypt, sign and verify
@@ -392,7 +420,9 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		gpgTask = [GPGTask gpgTask];
 		[self addArgumentsForOptions];
 		[gpgTask addInData:signatureData];
-		[gpgTask addInData:originalData];
+		if (originalData) {
+			[gpgTask addInData:originalData];
+		}
 		
 		[gpgTask addArgument:@"--verify"];
 		
@@ -411,6 +441,9 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 	return retVal;
 }
 
+- (NSArray *)verifySignedData:(NSData *)signedData {
+	return [self verifySignature:signedData originalData:nil];
+}
 
 
 
@@ -1809,7 +1842,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 	return nil;
 }
 
-- (void)gpgTaskWillStart:(GPGTask *)gpgTask {
+- (void)gpgTaskWillStart:(GPGTask *)task {
 	if ([signatures count] > 0) {
 		self.lastSignature = nil;
 		[signatures release];
