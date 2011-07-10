@@ -307,7 +307,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 	@try {
 		[self operationWillStart];
 		
-		if (mode & (GPGEncryptFlags | GPGSignFlags) == 0) {
+		if ((mode & (GPGEncryptFlags | GPGSignFlags)) == 0) {
 			[NSException raise:NSInvalidArgumentException format:@"Unknwon mode: %i!", mode];
 		}
 		
@@ -340,30 +340,38 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 			[gpgTask addArgument:@"--symmetric"];
 		}
 		
-		
-		switch (mode & GPGSignFlags) {
-			case GPGSign:
-				[gpgTask addArgument:@"--sign"];			
-				break;
-			case GPGClearSign:
-				[gpgTask addArgument:@"--clearsign"];			
-				break;
-			case GPGDetachedSign:
-				[gpgTask addArgument:@"--detach-sign"];			
-				break;
-			case 0:
-				break;
-			default:			
-				[NSException raise:NSInvalidArgumentException format:@"Unknown sign mode: %i!", mode && GPGSignFlags];
-				break;
+		if ((mode & GPGSeparateSign) && (mode & GPGEncryptFlags)) {
+			GPGTask *tempTask = gpgTask;
+			data = [self processData:data withEncryptSignMode:mode & ~(GPGEncryptFlags | GPGSeparateSign) recipients:nil hiddenRecipients:nil];
+			gpgTask = tempTask;
+		} else {
+			switch (mode & GPGSignFlags & ~GPGSeparateSign) {
+				case GPGSign:
+					[gpgTask addArgument:@"--sign"];
+					break;
+				case GPGClearSign:
+					[gpgTask addArgument:@"--clearsign"];
+					break;
+				case GPGDetachedSign:
+					[gpgTask addArgument:@"--detach-sign"];
+					break;
+				case 0:
+					if (mode & GPGSeparateSign) {
+						[gpgTask addArgument:@"--sign"];
+					}
+					break;
+				default:			
+					[NSException raise:NSInvalidArgumentException format:@"Unknown sign mode: %i!", mode && GPGSignFlags];
+					break;
+			}			
 		}
+
 
 		[gpgTask addInData:data];
 
-		
 		if ([gpgTask start] != 0) {
 			@throw gpgTaskException(GPGTaskException, @"Process data failed!", GPGErrorTaskException, gpgTask);
-		}
+		}		
 		
 	} @catch (NSException *e) {
 		[self handleException:e];

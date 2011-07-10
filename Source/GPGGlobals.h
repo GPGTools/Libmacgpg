@@ -383,15 +383,19 @@ typedef enum {
     GPGPublicKeyEncrypt = 1,
 	GPGSymetricEncrypt = 2,
 	
+	
 	//You can choose only one sign Mode.
-	GPGClearSign = 16,
-	GPGDetachedSign = 32,
-    GPGSign = 48,
+    GPGSign = 8,
+    GPGSeparateSign = 16,
+	GPGClearSign = GPGSign | 32,
+	GPGDetachedSign = GPGSign | 64,
 	
 	GPGEnryptSign = GPGPublicKeyEncrypt | GPGSign,
+	GPGEnryptSeparateSign = GPGPublicKeyEncrypt | GPGSeparateSign,
+	GPGEnryptSeparateClearSign = GPGPublicKeyEncrypt | GPGSeparateSign | GPGClearSign,
 	
 	GPGEncryptFlags = 3,
-	GPGSignFlags = 48
+	GPGSignFlags = 120
 } GPGEncryptSignMode;
 
 typedef enum {
