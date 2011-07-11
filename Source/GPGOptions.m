@@ -71,7 +71,6 @@ NSDictionary *domainKeys;
 	return value;
 }
 - (void)setValue:(id)value forKey:(NSString *)key inDomain:(GPGOptionsDomain)domain {
-	
 	switch (domain) {
 		case GPGDomain_gpgConf:
 			[self.gpgConf setValue:value forKey:key];

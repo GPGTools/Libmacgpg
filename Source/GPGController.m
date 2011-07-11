@@ -215,10 +215,10 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		
 		
 		
-		NSTimeInterval t[10];
+		/*NSTimeInterval t[10];
 		int i = 0;
 		t[i++] = [NSDate timeIntervalSinceReferenceDate];
-		
+		*/
 		
 		
 		gpgTask = [GPGTask gpgTask];
@@ -251,11 +251,11 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		[gpgTask addArgument:@"--with-fingerprint"];
 		[gpgTask addArguments:searchStrings];
 		
-		t[i++] = [NSDate timeIntervalSinceReferenceDate];
+		//t[i++] = [NSDate timeIntervalSinceReferenceDate];
 		if ([gpgTask start] != 0) {
 			@throw gpgTaskException(GPGTaskException, @"List public keys failed!", GPGErrorTaskException, gpgTask);
 		}
-		t[i++] = [NSDate timeIntervalSinceReferenceDate];
+		//t[i++] = [NSDate timeIntervalSinceReferenceDate];
 		[[self class] colonListing:gpgTask.outText toArray:&listings andFingerprints:&fingerprints];
 		
 		
@@ -277,10 +277,10 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		}
 		
 		
-		t[i++] = [NSDate timeIntervalSinceReferenceDate];
+		/*t[i++] = [NSDate timeIntervalSinceReferenceDate];
 		for (int j = 0; j+1<i; j++) {
 			NSLog(@"Zeit%i-%i: %f", j, j+1, t[j+1] - t[j]);
-		}
+		}*/
 		
 	} @catch (NSException *e) {
 		[self handleException:e];
