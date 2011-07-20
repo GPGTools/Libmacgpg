@@ -34,7 +34,6 @@
 	BOOL useDefaultComments;
 	BOOL trustAllKeys;
 	BOOL async;
-    BOOL verbose;
 	
 	NSObject <GPGControllerDelegate> *delegate;
 	
@@ -65,7 +64,6 @@
 @property BOOL printVersion;
 @property BOOL useDefaultComments;
 @property BOOL trustAllKeys;
-@property BOOL verbose;
 
 
 + (NSString *)gpgVersion;

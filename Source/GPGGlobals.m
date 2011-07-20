@@ -3,83 +3,70 @@
 
 @implementation NSData (GPGExtension)
 - (NSString *)gpgString {
-    NSString *retString;
-    
-    int encodings[4] = {NSUTF8StringEncoding, NSISOLatin1StringEncoding, NSISOLatin2StringEncoding,
-                        NSASCIIStringEncoding};
-    for(int i = 0; i < 4; i++) {
-        retString = [[NSString alloc] initWithData:self encoding:encodings[i]];
-        if([retString length] > 0)
-            return [retString autorelease];
-    }
-    
-    @throw [NSException exceptionWithName:@"GPGUnknownStringEncodingException" 
-                                   reason:@"It was not possible to recognize the string encoding." userInfo:nil];
-    
-//	NSString *retString;
-//	
-//	// Löschen aller ungültigen Zeichen, damit die umwandlung nach UTF-8 funktioniert.
-//	const uint8_t *inText = [self bytes];
-//	if (!inText) {
-//		return nil;
-//	}
-//	
-//	NSUInteger i = 0, c = [self length];
-//	
-//	uint8_t *outText = malloc(c + 1);
-//	if (outText) {
-//		uint8_t *outPos = outText;
-//		const uint8_t *startChar = nil;
-//		int multiByte = 0;
-//		
-//		for (; i < c; i++) {
-//			if (multiByte && (*inText & 0xC0) == 0x80) { // Fortsetzung eines Mehrbytezeichen
-//				multiByte--;
-//				if (multiByte == 0) {
-//					while (startChar <= inText) {
-//						*(outPos++) = *(startChar++);
-//					}
-//				}
-//			} else if ((*inText & 0x80) == 0) { // Normales ASCII Zeichen.
-//				*(outPos++) = *inText;
-//				multiByte = 0;
-//			} else if ((*inText & 0xC0) == 0xC0) { // Beginn eines Mehrbytezeichen.
-//				if (multiByte) {
-//					*(outPos++) = '?';
-//				}
-//				if (*inText <= 0xDF && *inText >= 0xC2) {
-//					multiByte = 1;
-//					startChar = inText;
-//				} else if (*inText <= 0xEF && *inText >= 0xE0) {
-//					multiByte = 2;
-//					startChar = inText;
-//				} else if (*inText <= 0xF4 && *inText >= 0xF0) {
-//					multiByte = 3;
-//					startChar = inText;
-//				} else {
-//					*(outPos++) = '?';
-//					multiByte = 0;
-//				}
-//			} else {
-//				*(outPos++) = '?';
-//			}
-//			
-//			inText++;
-//		}
-//		*outPos = 0;
-//		
-//		retString = [[NSString alloc] initWithUTF8String:(char*)outText];
-//		
-//		free(outText);
-//	} else {
-//		retString = [[NSString alloc] initWithData:self encoding:NSUTF8StringEncoding];
-//	}
-//	
-//	NSLog(@"RET STRING: %@", retString);
-//	if (retString == nil) {
-//		retString = [[NSString alloc] initWithData:self encoding:NSISOLatin1StringEncoding];
-//	}
-//	return [retString autorelease];
+	NSString *retString;
+	
+	// Löschen aller ungültigen Zeichen, damit die umwandlung nach UTF-8 funktioniert.
+	const uint8_t *inText = [self bytes];
+	if (!inText) {
+		return nil;
+	}
+	
+	NSUInteger i = 0, c = [self length];
+	
+	uint8_t *outText = malloc(c + 1);
+	if (outText) {
+		uint8_t *outPos = outText;
+		const uint8_t *startChar = nil;
+		int multiByte = 0;
+		
+		for (; i < c; i++) {
+			if (multiByte && (*inText & 0xC0) == 0x80) { // Fortsetzung eines Mehrbytezeichen
+				multiByte--;
+				if (multiByte == 0) {
+					while (startChar <= inText) {
+						*(outPos++) = *(startChar++);
+					}
+				}
+			} else if ((*inText & 0x80) == 0) { // Normales ASCII Zeichen.
+				*(outPos++) = *inText;
+				multiByte = 0;
+			} else if ((*inText & 0xC0) == 0xC0) { // Beginn eines Mehrbytezeichen.
+				if (multiByte) {
+					*(outPos++) = '?';
+				}
+				if (*inText <= 0xDF && *inText >= 0xC2) {
+					multiByte = 1;
+					startChar = inText;
+				} else if (*inText <= 0xEF && *inText >= 0xE0) {
+					multiByte = 2;
+					startChar = inText;
+				} else if (*inText <= 0xF4 && *inText >= 0xF0) {
+					multiByte = 3;
+					startChar = inText;
+				} else {
+					*(outPos++) = '?';
+					multiByte = 0;
+				}
+			} else {
+				*(outPos++) = '?';
+			}
+			
+			inText++;
+		}
+		*outPos = 0;
+		
+		retString = [[NSString alloc] initWithUTF8String:(char*)outText];
+		
+		free(outText);
+	} else {
+		retString = [[NSString alloc] initWithData:self encoding:NSUTF8StringEncoding];
+	}
+	
+	
+	if (retString == nil) {
+		retString = [[NSString alloc] initWithData:self encoding:NSISOLatin1StringEncoding];
+	}
+	return [retString autorelease];
 }
 @end
 @implementation NSString (GPGExtension)

@@ -1,5 +1,4 @@
 #import <Cocoa/Cocoa.h>
-#import "LPXTTask.h"
 
 @class GPGTask;
 
@@ -10,7 +9,7 @@
 
 
 - (void)gpgTaskWillStart:(GPGTask *)gpgTask;
-- (void)gpgTaskDidTerminate:(GPGTask *)gpgTask;
+- (void)gpgTaskDidTerminated:(GPGTask *)gpgTask;
 
 
 @end
@@ -26,9 +25,8 @@
 	int errorCode;
 	BOOL getAttributeData;
 	
-    LPXTTask *gpgTask;
-    
 	NSMutableArray *inDatas;
+	NSMutableArray *inFileDescriptors;
 	
 	NSData *outData;
 	NSData *errData;
@@ -38,20 +36,21 @@
 	NSString *outText;
 	NSString *errText;
 	NSString *statusText;
-	NSPipe *cmdPipe;
+	
     
 	NSDictionary *lastUserIDHint;
 	NSDictionary *lastNeedPassphrase;
 	
 	char passphraseStatus;
 	
+	int cmdFileDescriptor;
+	
 	pid_t childPID;
-	BOOL cancelled;
+	BOOL canceled;
 	BOOL isRunning;
-    BOOL verbose;
 }
 
-@property (readonly) BOOL cancelled;
+@property (readonly) BOOL canceled;
 @property (readonly) BOOL isRunning;
 @property BOOL batchMode;
 @property BOOL getAttributeData;
@@ -70,8 +69,6 @@
 @property (readonly) NSArray *arguments;
 @property (retain) NSDictionary *lastUserIDHint;
 @property (retain) NSDictionary *lastNeedPassphrase;
-@property (readonly) LPXTTask *gpgTask;
-@property (assign) BOOL verbose;
 
 
 + (NSString *)gpgAgentSocket;
@@ -103,7 +100,10 @@
 - (id)initWithArguments:(NSArray *)args;
 - (id)initWithArgument:(NSString *)arg;
 
-- (void)processStatusLine:(NSString *)line;
-- (void)logDataContent:(NSData *)data message:(NSString *)message;
+
+
 
 @end
+
+
+

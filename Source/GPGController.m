@@ -49,7 +49,7 @@
 
 
 @implementation GPGController
-@synthesize delegate, keyserver, keyserverTimeout, proxyServer, async, userInfo, useArmor, useTextMode, printVersion, useDefaultComments, trustAllKeys, signatures, lastSignature, gpgHome, verbose;
+@synthesize delegate, keyserver, keyserverTimeout, proxyServer, async, userInfo, useArmor, useTextMode, printVersion, useDefaultComments, trustAllKeys, signatures, lastSignature, gpgHome;
 
 NSString *gpgVersion = nil;
 NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil, *compressAlgorithm = nil;
@@ -316,8 +316,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		gpgTask = [GPGTask gpgTask];
 		[self addArgumentsForOptions];
 		gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"]; 
-		gpgTask.batchMode = YES;
-        gpgTask.verbose = self.verbose;
+		
 		
 		[self addArgumentsForComments];
 		[self addArgumentsForSignerKeys];
@@ -362,7 +361,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 					}
 					break;
 				default:			
-					[NSException raise:NSInvalidArgumentException format:@"Unknown sign mode: %i!", mode & GPGSignFlags];
+					[NSException raise:NSInvalidArgumentException format:@"Unknown sign mode: %i!", mode && GPGSignFlags];
 					break;
 			}			
 		}
@@ -392,13 +391,11 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		[asyncProxy decryptData:data];
 		return nil;
 	}
-    
 	@try {
 		[self operationWillStart];
 		
 		
 		gpgTask = [GPGTask gpgTask];
-        gpgTask.verbose = YES;
 		[self addArgumentsForOptions];
 		[gpgTask addInData:data];
 		
@@ -413,8 +410,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		[self cleanAfterOperation];
 	}
 
-    NSData *retVal = gpgTask.outData;
-    
+	NSData *retVal = gpgTask.outData;
 	[self operationDidFinishWithReturnValue:retVal];	
 	return retVal;
 }
