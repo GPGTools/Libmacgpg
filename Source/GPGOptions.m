@@ -203,7 +203,8 @@ NSDictionary *domainKeys;
 			NSAssert1(isDirectory, @"'%@' is not a directory.", environmentPlistDir);
 		}
 	} else {
-		NSAssert1([fileManager createDirectoryAtPath:environmentPlistDir attributes:nil], @"Unable to create directory '%@'", environmentPlistDir);
+		NSError *error;
+		NSAssert2([fileManager createDirectoryAtPath:environmentPlistDir withIntermediateDirectories:YES attributes:nil error:&error], @"Unable to create directory '%@'. Error: %@", environmentPlistDir, error);
 	}
 	NSAssert1([self.environment writeToFile:environmentPlistPath atomically:YES], @"Unable to write file '%@'", environmentPlistPath);
 }

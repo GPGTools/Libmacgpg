@@ -24,6 +24,11 @@ typedef void (^lpxt_task_t)(void);
     int _terminationStatus;
     
     lpxt_task_t _parentTask;
+
+@private
+    CFMutableArrayRef _inheritedPipes;
+    NSMutableDictionary *_inheritedPipesMap;
+	
 }
 
 - (void)launchAndWait;

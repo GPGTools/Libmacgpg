@@ -15,11 +15,7 @@ typedef struct {
     int dupfd;
 } lpxttask_fd;
 
-@interface LPXTTask () {
-@private
-    CFMutableArrayRef _inheritedPipes;
-    NSMutableDictionary *_inheritedPipesMap;
-}
+@interface LPXTTask ()
 
 - (void)inheritPipe:(NSPipe *)pipe mode:(int)mode dup:(int)dupfd name:(NSString *)name addIfExists:(BOOL)add;
 - (void)_performParentTask;
