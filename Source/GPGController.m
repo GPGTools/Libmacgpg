@@ -483,7 +483,10 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		}
 		
 		[cmdText appendFormat:@"Name-Real: %@\n", name];
-		[cmdText appendFormat:@"Name-Email: %@\n", email];
+		
+		if ([email length] > 0) {
+			[cmdText appendFormat:@"Name-Email: %@\n", email];
+		}
 		if ([comment length] > 0) {
 			[cmdText appendFormat:@"Name-Comment: %@\n", comment];
 		}
