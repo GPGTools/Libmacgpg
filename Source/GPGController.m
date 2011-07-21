@@ -409,7 +409,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 	} @finally {
 		[self cleanAfterOperation];
 	}
-	
+
 	NSData *retVal = gpgTask.outData;
 	[self operationDidFinishWithReturnValue:retVal];	
 	return retVal;

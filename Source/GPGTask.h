@@ -37,7 +37,7 @@
 	NSString *errText;
 	NSString *statusText;
 	
-	
+    
 	NSDictionary *lastUserIDHint;
 	NSDictionary *lastNeedPassphrase;
 	
