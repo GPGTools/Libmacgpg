@@ -23,13 +23,7 @@
 
 
 @implementation GPGUserID
-
-@synthesize index;
-@synthesize primaryKey;
-@synthesize hashID;
-@synthesize name;
-@synthesize email;
-@synthesize comment;
+@synthesize index, primaryKey, hashID, name, email, comment;
 
 
 - (id)children {return nil;}

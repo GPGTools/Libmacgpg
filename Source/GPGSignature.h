@@ -8,6 +8,9 @@
 	NSString *fingerprint;
 	NSString *primaryFingerprint;
 	NSString *userID;
+	NSString *name;
+	NSString *email;
+	NSString *comment;
 	
 	NSDate *creationDate;
 	NSDate *expirationDate;
@@ -25,6 +28,9 @@
 @property (retain) NSString *fingerprint;
 @property (retain) NSString *primaryFingerprint;
 @property (retain) NSString *userID;
+@property (retain) NSString *name;
+@property (retain) NSString *email;
+@property (retain) NSString *comment;
 @property (retain) NSDate *creationDate;
 @property (retain) NSDate *expirationDate;
 @property int version;

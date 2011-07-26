@@ -10,9 +10,9 @@
 @optional
 
 - (void)gpgController:(GPGController *)gpgc operationDidFinishWithReturnValue:(id)value;
-- (void)gpgController:(GPGController *)gpgc operationDidFailWithException:(NSException *)e;
+- (void)gpgController:(GPGController *)gpgc operationThrownException:(NSException *)e;
 - (void)gpgController:(GPGController *)gpgc keysDidChangedExernal:(NSObject <EnumerationList> *)keys;
-- (void)gpgControllerOperationWillStart:(GPGController *)gpgc;
+- (void)gpgControllerOperationDidStart:(GPGController *)gpgc;
 
 
 @end
@@ -37,7 +37,7 @@
     BOOL verbose;
 	
 	NSObject <GPGControllerDelegate> *delegate;
-	
+	NSException *error;
 
 	
 	//Private
@@ -54,6 +54,7 @@
 @property (readonly) NSArray *signerKeys;
 @property (readonly) NSArray *comments;
 @property (readonly) NSArray *signatures;
+@property (readonly) NSException *error;
 @property (retain) NSString *keyserver;
 @property (retain) NSString *proxyServer;
 @property (retain) NSString *gpgHome;

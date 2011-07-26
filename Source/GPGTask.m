@@ -64,7 +64,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 	} else {
 		_gpgPath = [self findExecutableWithName:@"gpg"];
 		if (!_gpgPath) {
-			@throw [NSException exceptionWithName:GPGTaskException reason:localizedString(@"GPG not found!") userInfo:nil];
+			@throw [NSException exceptionWithName:GPGTaskException reason:localizedLibmacgpgString(@"GPG not found!") userInfo:nil];
 		}
 	}
 	[_gpgPath retain];
@@ -663,14 +663,14 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 	
 	NSString *description;
 	if ([keyID isEqualToString:mainKeyID]) {
-		description = [NSString stringWithFormat:localizedString(@"GetPassphraseDescription"), 
+		description = [NSString stringWithFormat:localizedLibmacgpgString(@"GetPassphraseDescription"), 
 					   userID, getShortKeyID(keyID)];
 	} else {
-		description = [NSString stringWithFormat:localizedString(@"GetPassphraseDescription_Subkey"), 
+		description = [NSString stringWithFormat:localizedLibmacgpgString(@"GetPassphraseDescription_Subkey"), 
 					   userID, getShortKeyID(keyID), getShortKeyID(mainKeyID)];
 	}
 	description = [description stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-	NSString *prompt = [localizedString(@"PassphraseLabel") stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+	NSString *prompt = [localizedLibmacgpgString(@"PassphraseLabel") stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
 	
 	NSString *inText = [NSString stringWithFormat:@"OPTION grab\n"
 						"OPTION cache-id=%@\n"

@@ -241,18 +241,18 @@ NSException* gpgTaskException(NSString *name, NSString *reason, int errorCode, G
 		errorCode = gpgTask.errorCode;
 	}
 	NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:gpgTask, @"gpgTask", [NSNumber numberWithInt:errorCode], @"errorCode", nil];
-	return [NSException exceptionWithName:name reason:localizedString(reason) userInfo:userInfo];
+	return [NSException exceptionWithName:name reason:localizedLibmacgpgString(reason) userInfo:userInfo];
 }
 
 NSException* gpgException(NSString *name, NSString *reason, int errorCode) {
 	NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:errorCode], @"errorCode", nil];
-	return [NSException exceptionWithName:name reason:localizedString(reason) userInfo:userInfo];
+	return [NSException exceptionWithName:name reason:localizedLibmacgpgString(reason) userInfo:userInfo];
 }
 
 NSException* gpgExceptionWithUserInfo(NSString *name, NSString *reason, int errorCode, NSDictionary *userInfo) {
 	NSMutableDictionary *mutableUserInfo = [NSMutableDictionary dictionaryWithDictionary:userInfo];
 	[mutableUserInfo setObject:[NSNumber numberWithInt:errorCode] forKey:@"errorCode"];
-	return [NSException exceptionWithName:name reason:localizedString(reason) userInfo:mutableUserInfo];
+	return [NSException exceptionWithName:name reason:localizedLibmacgpgString(reason) userInfo:mutableUserInfo];
 }
 
 

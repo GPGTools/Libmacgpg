@@ -1,5 +1,5 @@
 #import "GPGSignature.h"
-
+#import "GPGKey.h"
 
 @interface GPGSignature (Private)
 
@@ -10,18 +10,7 @@
 
 
 @implementation GPGSignature
-@synthesize status;
-@synthesize fingerprint;
-@synthesize primaryFingerprint;
-@synthesize hasFilled;
-@synthesize trust;
-@synthesize userID;
-@synthesize creationDate;
-@synthesize expirationDate;
-@synthesize version;
-@synthesize publicKeyAlgorithm;
-@synthesize hashAlgorithm;
-@synthesize signatureClass;
+@synthesize status, fingerprint, primaryFingerprint, hasFilled, trust, creationDate, expirationDate, version, publicKeyAlgorithm, hashAlgorithm, signatureClass, name, email, comment;
 
 
 - (void)addInfoFromStatusCode:(NSInteger)statusCode andPrompt:(NSString *)prompt  {
@@ -112,7 +101,25 @@
 }
 
 
-- (id) init {
+- (NSString *)userID {
+	return [[userID retain] autorelease];
+}
+- (void)setUserID:(NSString *)value {
+	if (value != userID) {
+		[userID release];
+		userID = [value retain];
+		
+		NSString *tName, *tEmail, *tComment;
+		[GPGKey splitUserID:value intoName:&tName email:&tEmail comment:&tComment];
+		
+		self.name = tName;
+		self.email = tEmail;
+		self.comment = tComment;
+	}
+}
+
+
+- (id)init {
 	if (self = [super init]) {
 		status = GPGErrorGeneralError;
 	}

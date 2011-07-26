@@ -522,7 +522,7 @@ enum gpgStatusCodes {
 
 
 
-#define localizedString(key) [[NSBundle bundleWithIdentifier:@"org.gpgtools.Libmacgpg"] localizedStringForKey:(key) value:@"" table:@""]
+#define localizedLibmacgpgString(key) [[NSBundle bundleWithIdentifier:@"org.gpgtools.Libmacgpg"] localizedStringForKey:(key) value:@"" table:@""]
 #define GPG_SERVICE_NAME "GnuPG"
 
 extern NSString *GPGTaskException;
