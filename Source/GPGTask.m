@@ -361,7 +361,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 		return GPGErrorCancelled;
     
     gpgTask = [[LPXTTask alloc] init];
-    gpgTask.launchPath = @"/usr/local/bin/gpg";
+    gpgTask.launchPath = self.gpgPath;
     gpgTask.standardInput = [NSPipe pipe];
     gpgTask.standardOutput = [NSPipe pipe];
     gpgTask.standardError = [NSPipe pipe];
@@ -388,6 +388,8 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
     // the parent starts waiting for the child.
     NSMutableData *completeStatusData = [[NSMutableData alloc] initWithLength:0];
     
+    BOOL localVerbose = self.verbose;
+    NSLog(@"Local verbose is: %@", localVerbose ? @"YES" : @"NO");
     gpgTask.parentTask = ^{
         // Setup the dispatch queue.
         dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
@@ -521,6 +523,8 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
     NSString *keyword;
     NSString *value;
     line = [line stringByReplacingOccurrencesOfString:GPG_STATUS_PREFIX withString:@""];
+    if(self.verbose)
+        NSLog(@">> %@", line);
     NSMutableArray *parts = [[line componentsSeparatedByString:@" "] mutableCopy];
     keyword = [parts objectAtIndex:0];
     if([parts count] > 1) {
@@ -583,6 +587,10 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
             // Encrypt only takes one file, more files not supported,
             // so it's not important to check which file's data is required,
             // it's always the first.
+            [self _writeInputData];
+            break;
+        }
+        case GPG_STATUS_BEGIN_SIGNING: {
             [self _writeInputData];
             break;
         }

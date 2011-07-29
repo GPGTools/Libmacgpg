@@ -333,10 +333,12 @@ static char *__BDSKCopyFileSystemRepresentation(NSString *str)
 - (NSPipe *)inheritedPipeWithName:(NSString *)name {
     NSArray *pipeList = [self inheritedPipesWithName:name];
     // If there's no pipe registered for that name, raise an error.
-    if(![pipeList count] && pipeList != nil)
+    if(![pipeList count] && pipeList != nil) {
         @throw [NSException exceptionWithName:@"NoPipeRegisteredUnderNameException" 
                                        reason:[NSString stringWithFormat:@"There's no pipe registered for name: %@", name] 
                                      userInfo:nil];
+        
+    }
     return [pipeList objectAtIndex:0];
 }
 
@@ -347,7 +349,6 @@ static char *__BDSKCopyFileSystemRepresentation(NSString *str)
         NSNumber *idx = [pipeInfo objectForKey:@"pipeIdx"];
         CFArrayRemoveValueAtIndex(_inheritedPipes, [idx intValue]);
     }
-    [pipeList release];
     [_inheritedPipesMap setValue:nil forKey:name];
 }
 

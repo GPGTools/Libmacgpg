@@ -222,6 +222,8 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		
 		
 		gpgTask = [GPGTask gpgTask];
+        gpgTask.verbose = self.verbose;
+        gpgTask.batchMode = YES;
 		[self addArgumentsForOptions];
 		[gpgTask addArgument:@"--list-secret-keys"];
 		[gpgTask addArgument:@"--with-fingerprint"];
@@ -236,7 +238,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		if (secretOnly) {
 			searchStrings = [secKeyFingerprints allObjects];
 		}
-
+        gpgTask = nil;
 		
 		gpgTask = [GPGTask gpgTask];
 		[self addArgumentsForOptions];
@@ -315,9 +317,11 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		GPGTaskOrder *order = [GPGTaskOrder orderWithNoToAll];
 		gpgTask = [GPGTask gpgTask];
 		[self addArgumentsForOptions];
-		gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"]; 
-		gpgTask.batchMode = NO;
-        gpgTask.verbose = self.verbose;
+		gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"];
+		// Should be YES maybe, but detached sign doesn't ask for a passphrase
+        // so, basically, it's NO until further testing.
+        gpgTask.batchMode = NO;
+        gpgTask.verbose = YES;
 		
 		[self addArgumentsForComments];
 		[self addArgumentsForSignerKeys];
@@ -398,7 +402,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		
 		
 		gpgTask = [GPGTask gpgTask];
-        gpgTask.verbose = YES;
+        gpgTask.verbose = self.verbose;
 		[self addArgumentsForOptions];
 		[gpgTask addInData:data];
 		
