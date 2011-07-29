@@ -154,18 +154,23 @@
 
 
 - (void)updateFilterText { // Muss für den Schlüssel aufgerufen werden, bevor auf textForFilter zugegriffen werden kann!
-	NSMutableString *newText = [NSMutableString stringWithCapacity:200];
+	NSMutableString *newText = [[NSMutableString alloc] initWithCapacity:subkeys.count * 40 + userIDs.count * 60 + 40];
+	NSMutableString *fingerprints = [[NSMutableString alloc] initWithCapacity:subkeys.count * 40 + 40];
 	
 	[newText appendFormat:@"0x%@\n0x%@\n0x%@\n", [self fingerprint], [self keyID], [self shortKeyID]];
-	for (GPGSubkey *subkey in self.subkeys) {
+	[fingerprints appendFormat:@"%@\n", [self fingerprint]];
+	for (GPGSubkey *subkey in subkeys) {
 		[newText appendFormat:@"0x%@\n0x%@\n0x%@\n", [subkey fingerprint], [subkey keyID], [subkey shortKeyID]];
+		[fingerprints appendFormat:@"%@\n", [subkey fingerprint]];
 	}
-	for (GPGUserID *userID in self.userIDs) {
+	for (GPGUserID *userID in userIDs) {
 		[newText appendFormat:@"%@\n", [userID userID]];
 	}
 	
 	[textForFilter release];
-	textForFilter = [newText copy];
+	textForFilter = newText;
+	[allFingerprints release];
+	allFingerprints = fingerprints;
 }
 
 - (NSArray *)photos {
@@ -304,12 +309,7 @@
 
 
 
-@synthesize photos;
-@synthesize textForFilter;
-@synthesize fingerprint;
-@synthesize ownerTrust;
-@synthesize secret;
-@synthesize primaryUserID;
+@synthesize photos, textForFilter, fingerprint, ownerTrust, secret, primaryUserID, allFingerprints;
 
 
 - (GPGKey *)primaryKey { return self; }
@@ -467,7 +467,8 @@
 	self.subkeys = nil;
 	self.userIDs = nil;
 	self.photos = nil;
-	self.textForFilter = nil;;
+	self.textForFilter = nil;
+	self.allFingerprints = nil;
 	
 	self.fingerprint = nil;
 	

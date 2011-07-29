@@ -97,6 +97,14 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 - (NSArray *)signerKeys {
 	return [[signerKeys copy] autorelease];
 }
+- (void)setComment:(NSString *)comment {
+	[self willChangeValueForKey:@"comments"];
+	[comments removeAllObjects];
+	if (comment) {
+		[comments addObject:comment];
+	}
+	[self didChangeValueForKey:@"comments"];
+}
 - (void)addComment:(NSString *)comment {
 	[self willChangeValueForKey:@"comments"];
 	[comments addObject:comment];
@@ -106,6 +114,14 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 	[self willChangeValueForKey:@"comments"];
 	[comments removeObjectAtIndex:index];
 	[self didChangeValueForKey:@"comments"];
+}
+- (void)setSignerKey:(NSString *)signerKey {
+	[self willChangeValueForKey:@"signerKeys"];
+	[signerKeys removeAllObjects];
+	if (signerKey) {
+		[signerKeys addObject:signerKey];
+	}
+	[self didChangeValueForKey:@"signerKeys"];
 }
 - (void)addSignerKey:(NSString *)signerKey {
 	[self willChangeValueForKey:@"signerKeys"];

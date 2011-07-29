@@ -32,6 +32,7 @@
 	NSMutableArray *photos;
 	
 	NSString *textForFilter; //In diesem String stehen die verschiedenen Informationen über den Schlüssel, damit das Filtern schnell funktioniert.
+	NSString *allFingerprints;
 	
 	GPGUserID *primaryUserID;	
 	NSString *fingerprint;
@@ -57,9 +58,10 @@
 
 
 
-@property (retain) NSMutableArray *photos;
-@property (retain) NSString *textForFilter; //In diesem String stehen die verschiedenen Informationen über den Schlüssel, damit das Filtern schnell funktioniert.
-@property (retain) NSString *fingerprint;
+@property (retain) /*readOnly*/ NSMutableArray *photos;
+@property (retain) /*readOnly*/ NSString *textForFilter; //In diesem String stehen die verschiedenen Informationen über den Schlüssel, damit das Filtern schnell funktioniert.
+@property (retain) /*readOnly*/ NSString *allFingerprints;
+@property (retain) /*readOnly*/ NSString *fingerprint;
 @property GPGValidity ownerTrust;
 @property BOOL secret;
 @property (readonly) BOOL safe; //Gibt an ob der Schlüssel sicher ist. (Länge > 1024 Bit, kein MD5 oder SHA-1)

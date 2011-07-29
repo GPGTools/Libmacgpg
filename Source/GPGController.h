@@ -76,8 +76,10 @@
 + (NSSet *)compressAlgorithm;
 
 
+- (void)setComment:(NSString *)comment;
 - (void)addComment:(NSString *)comment;
 - (void)removeCommentAtIndex:(NSUInteger)index;
+- (void)setSignerKey:(NSString *)signerKey;
 - (void)addSignerKey:(NSString *)signerKey;
 - (void)removeSignerKeyAtIndex:(NSUInteger)index;
 
