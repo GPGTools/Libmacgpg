@@ -6,11 +6,6 @@
 
 #define BDSKSpecialPipeServiceRunLoopMode @"BDSKSpecialPipeServiceRunLoopMode"
 
-@interface Test1 () {
-@private
-    NSData *stdoutData;
-}
-@end
 
 @implementation Test1
 
@@ -50,7 +45,7 @@
     NSString *testKey_name = @"Test Key";
     NSString *testKey_email = @"nomail@example.com";
     NSString *testKey_comment = @"";
-    
+	
     [gpgc generateNewKeyWithName:testKey_name email:testKey_email comment:testKey_comment keyType:1 keyLength:1024 subkeyType:1 subkeyLength:1024 daysToExpire:5 preferences:nil passphrase:@""];
     keys = [gpgc allKeys];
     STAssertTrue([keys count] == 1, @"Can’t generate key.");
@@ -84,7 +79,7 @@
     
     // Encrypt the in data.
     NSData *arg1 = [NSData dataWithContentsOfFile:@"/Users/lukele/Desktop/in.data"];
-    [self logDataContent:arg1 message:@"IN-DATA"];
+   // [self logDataContent:arg1 message:@"IN-DATA"];
     gpgc.useTextMode = YES;
     // If use armor isn't used, the encrypted data cannot be turned into a string for display.
     // but is binary data.
@@ -93,7 +88,7 @@
     NSData *encryptedData = [gpgc processData:arg1 withEncryptSignMode:GPGPublicKeyEncrypt recipients:[NSSet setWithObject:@"608B00ABE1DAA3501C5FF91AE58271326F9F4937"] hiddenRecipients:nil];
     //[self logDataContent:encryptedData message:@"ENCRYPTED-DATA"];
     NSData *decryptedData = [gpgc decryptData:encryptedData];
-    [self logDataContent:decryptedData message:@"DECRYPTED-DATA"];
+   // [self logDataContent:decryptedData message:@"DECRYPTED-DATA"];
 }
 
 - (void)logDataContent:(NSData *)data message:(NSString *)message {

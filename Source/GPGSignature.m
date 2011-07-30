@@ -1,7 +1,42 @@
+/*
+ Copyright © Roman Zechmeister, 2011
+ 
+ Diese Datei ist Teil von Libmacgpg.
+ 
+ Libmacgpg ist freie Software. Sie können es unter den Bedingungen 
+ der GNU General Public License, wie von der Free Software Foundation 
+ veröffentlicht, weitergeben und/oder modifizieren, entweder gemäß 
+ Version 3 der Lizenz oder (nach Ihrer Option) jeder späteren Version.
+ 
+ Die Veröffentlichung von Libmacgpg erfolgt in der Hoffnung, daß es Ihnen 
+ von Nutzen sein wird, aber ohne irgendeine Garantie, sogar ohne die implizite 
+ Garantie der Marktreife oder der Verwendbarkeit für einen bestimmten Zweck. 
+ Details finden Sie in der GNU General Public License.
+ 
+ Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem 
+ Programm erhalten haben. Falls nicht, siehe <http://www.gnu.org/licenses/>.
+*/
+
 #import "GPGSignature.h"
 #import "GPGKey.h"
 
-@interface GPGSignature (Private)
+@interface GPGSignature () <GPGUserIDProtocol>
+
+@property GPGErrorCode status;
+@property GPGValidity trust;
+@property BOOL hasFilled;
+@property int version;
+@property int publicKeyAlgorithm;
+@property int hashAlgorithm;
+@property (retain) NSString *fingerprint;
+@property (retain) NSString *primaryFingerprint;
+@property (retain) NSString *userID;
+@property (retain) NSString *name;
+@property (retain) NSString *email;
+@property (retain) NSString *comment;
+@property (retain) NSDate *creationDate;
+@property (retain) NSDate *expirationDate;
+@property (retain) NSString *signatureClass;
 
 - (void)getKeyIDAndUserIDFromPrompt:(NSString *)prompt;
 
@@ -10,7 +45,7 @@
 
 
 @implementation GPGSignature
-@synthesize status, fingerprint, primaryFingerprint, hasFilled, trust, creationDate, expirationDate, version, publicKeyAlgorithm, hashAlgorithm, signatureClass, name, email, comment;
+@synthesize status, fingerprint, primaryFingerprint, hasFilled, trust, creationDate, expirationDate, version, publicKeyAlgorithm, hashAlgorithm, signatureClass, userID, name, email, comment;
 
 
 - (void)addInfoFromStatusCode:(NSInteger)statusCode andPrompt:(NSString *)prompt  {
@@ -76,19 +111,19 @@
 			
 			
 		case GPG_STATUS_TRUST_UNDEFINED:
-			trust = GPGValidityUndefined;
+			self.trust = GPGValidityUndefined;
 			break;
 		case GPG_STATUS_TRUST_NEVER:
-			trust = GPGValidityNever;
+			self.trust = GPGValidityNever;
 			break;
 		case GPG_STATUS_TRUST_MARGINAL:
-			trust = GPGValidityMarginal;
+			self.trust = GPGValidityMarginal;
 			break;
 		case GPG_STATUS_TRUST_FULLY:
-			trust = GPGValidityFull;
+			self.trust = GPGValidityFull;
 			break;
 		case GPG_STATUS_TRUST_ULTIMATE:
-			trust = GPGValidityUltimate;
+			self.trust = GPGValidityUltimate;
 			break;
 	}
 	self.hasFilled = YES;
@@ -101,20 +136,12 @@
 }
 
 
-- (NSString *)userID {
-	return [[userID retain] autorelease];
-}
 - (void)setUserID:(NSString *)value {
 	if (value != userID) {
 		[userID release];
 		userID = [value retain];
 		
-		NSString *tName, *tEmail, *tComment;
-		[GPGKey splitUserID:value intoName:&tName email:&tEmail comment:&tComment];
-		
-		self.name = tName;
-		self.email = tEmail;
-		self.comment = tComment;
+		[GPGKey setInfosWithUserID:userID toObject:self];
 	}
 }
 

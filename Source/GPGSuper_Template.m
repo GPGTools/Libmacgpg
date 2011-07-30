@@ -1,15 +1,39 @@
+/*
+ Copyright © Roman Zechmeister, 2011
+ 
+ Diese Datei ist Teil von Libmacgpg.
+ 
+ Libmacgpg ist freie Software. Sie können es unter den Bedingungen 
+ der GNU General Public License, wie von der Free Software Foundation 
+ veröffentlicht, weitergeben und/oder modifizieren, entweder gemäß 
+ Version 3 der Lizenz oder (nach Ihrer Option) jeder späteren Version.
+ 
+ Die Veröffentlichung von Libmacgpg erfolgt in der Hoffnung, daß es Ihnen 
+ von Nutzen sein wird, aber ohne irgendeine Garantie, sogar ohne die implizite 
+ Garantie der Marktreife oder der Verwendbarkeit für einen bestimmten Zweck. 
+ Details finden Sie in der GNU General Public License.
+ 
+ Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem 
+ Programm erhalten haben. Falls nicht, siehe <http://www.gnu.org/licenses/>.
+*/
+
 #import "GPGSuper_Template.h"
+
+@interface GPGSuper_Template ()
+
+@property GPGValidity validity;
+@property BOOL expired;
+@property BOOL disabled;
+@property BOOL invalid;
+@property BOOL revoked;
+@property (retain) NSDate *creationDate;
+@property (retain) NSDate *expirationDate;
+
+@end
 
 
 @implementation GPGSuper_Template
-
-@synthesize validity;
-@synthesize expired;
-@synthesize disabled;
-@synthesize invalid;
-@synthesize revoked;
-@synthesize creationDate;
-@synthesize expirationDate;
+@synthesize validity, expired, disabled, invalid, revoked, creationDate, expirationDate;
 
 
 - (void)updateWithLine:(NSArray *)line {

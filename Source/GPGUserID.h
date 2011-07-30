@@ -1,12 +1,14 @@
 /*
- Copyright © Roman Zechmeister, 2010
+ Copyright © Roman Zechmeister, 2011
  
- Dieses Programm ist freie Software. Sie können es unter den Bedingungen 
+ Diese Datei ist Teil von Libmacgpg.
+ 
+ Libmacgpg ist freie Software. Sie können es unter den Bedingungen 
  der GNU General Public License, wie von der Free Software Foundation 
  veröffentlicht, weitergeben und/oder modifizieren, entweder gemäß 
  Version 3 der Lizenz oder (nach Ihrer Option) jeder späteren Version.
  
- Die Veröffentlichung dieses Programms erfolgt in der Hoffnung, daß es Ihnen 
+ Die Veröffentlichung von Libmacgpg erfolgt in der Hoffnung, daß es Ihnen 
  von Nutzen sein wird, aber ohne irgendeine Garantie, sogar ohne die implizite 
  Garantie der Marktreife oder der Verwendbarkeit für einen bestimmten Zweck. 
  Details finden Sie in der GNU General Public License.
@@ -41,23 +43,25 @@
 }
 
 @property NSInteger index;
-@property (assign) GPGKey *primaryKey;
 @property (readonly) NSString *type;
-
 @property (readonly) NSArray *signatures;
 
-@property (readonly) NSArray *cipherPreferences;
-@property (readonly) NSArray *digestPreferences;
-@property (readonly) NSArray *compressPreferences;
-@property (readonly) NSArray *otherPreferences;
+@property (readonly, assign) GPGKey *primaryKey;
 
-@property (retain) NSString *hashID;
+@property (readonly, retain) NSArray *cipherPreferences;
+@property (readonly, retain) NSArray *digestPreferences;
+@property (readonly, retain) NSArray *compressPreferences;
+@property (readonly, retain) NSArray *otherPreferences;
 
-@property (retain) NSString *userID;
-@property (retain) NSString *name;
-@property (retain) NSString *email;
-@property (retain) NSString *comment;
+@property (readonly, retain) NSString *hashID;
 
+@property (readonly, retain) NSString *userID;
+@property (readonly, retain) NSString *name;
+@property (readonly, retain) NSString *email;
+@property (readonly, retain) NSString *comment;
+
+
+//Dummys
 @property (readonly) id children;
 @property (readonly) id keyID;
 @property (readonly) id shortKeyID;

@@ -1,12 +1,14 @@
 /*
- Copyright © Roman Zechmeister, 2010
+ Copyright © Roman Zechmeister, 2011
  
- Dieses Programm ist freie Software. Sie können es unter den Bedingungen 
+ Diese Datei ist Teil von Libmacgpg.
+ 
+ Libmacgpg ist freie Software. Sie können es unter den Bedingungen 
  der GNU General Public License, wie von der Free Software Foundation 
  veröffentlicht, weitergeben und/oder modifizieren, entweder gemäß 
  Version 3 der Lizenz oder (nach Ihrer Option) jeder späteren Version.
  
- Die Veröffentlichung dieses Programms erfolgt in der Hoffnung, daß es Ihnen 
+ Die Veröffentlichung von Libmacgpg erfolgt in der Hoffnung, daß es Ihnen 
  von Nutzen sein wird, aber ohne irgendeine Garantie, sogar ohne die implizite 
  Garantie der Marktreife oder der Verwendbarkeit für einen bestimmten Zweck. 
  Details finden Sie in der GNU General Public License.
@@ -18,23 +20,27 @@
 #import "GPGKeySignature.h"
 #import "GPGKey.h"
 
+@interface GPGKeySignature () <GPGUserIDProtocol>
+
+@property BOOL local;
+@property BOOL revocationSignature;
+@property int signatureClass;
+@property (copy) NSString *type;
+@property (retain) NSString *userID;
+@property (retain) NSString *name;
+@property (retain) NSString *email;
+@property (retain) NSString *comment;
+@property (retain) NSString *keyID;
+@property (retain) NSString *shortKeyID;
+@property (retain) NSString *description;
+@property GPGPublicKeyAlgorithm algorithm;
+@property (retain) NSDate *creationDate;
+@property (retain) NSDate *expirationDate;
+
+@end
 
 @implementation GPGKeySignature
-
-@synthesize type;
-@synthesize revocationSignature;
-@synthesize local;
-@synthesize signatureClass;
-@synthesize userID;
-@synthesize name;
-@synthesize email;
-@synthesize comment;
-@synthesize algorithm;
-@synthesize creationDate;
-@synthesize expirationDate;
-@synthesize keyID;
-@synthesize shortKeyID;
-@synthesize description;
+@synthesize type, revocationSignature, local, signatureClass, userID, name, email, comment, algorithm, creationDate, expirationDate, keyID, shortKeyID, description;
 
 
 + (NSArray *)signaturesWithListing:(NSArray *)listing {
@@ -76,9 +82,9 @@
 		recType = [splitedLine objectAtIndex:0];
 		
 		if ([recType isEqualToString:@"sig"] || [recType isEqualToString:@"rev"]) {
-			revocationSignature = [recType isEqualToString:@"rev"];
+			self.revocationSignature = [recType isEqualToString:@"rev"];
 			
-			algorithm = [[splitedLine objectAtIndex:3] intValue];
+			self.algorithm = [[splitedLine objectAtIndex:3] intValue];
 			self.keyID = [splitedLine objectAtIndex:4];
 			self.shortKeyID = getShortKeyID(keyID);
 			
@@ -87,8 +93,8 @@
 			self.userID = unescapeString([splitedLine objectAtIndex:9]);
 			
 			tempItem = [splitedLine objectAtIndex:10];
-			signatureClass = hexToByte([tempItem UTF8String]);
-			local = [tempItem hasSuffix:@"l"];
+			self.signatureClass = hexToByte([tempItem UTF8String]);
+			self.local = [tempItem hasSuffix:@"l"];
 			NSMutableString *sigType = [NSMutableString stringWithString:revocationSignature ? @"rev" : @"sig"];
 			if (signatureClass & 3) {
 				[sigType appendFormat:@" %i", signatureClass & 3];
@@ -113,20 +119,12 @@
 }
 
 
-- (NSString *)userID {
-	return [[userID retain] autorelease];
-}
 - (void)setUserID:(NSString *)value {
 	if (value != userID) {
 		[userID release];
 		userID = [value retain];
 		
-		NSString *tName, *tEmail, *tComment;
-		[GPGKey splitUserID:value intoName:&tName email:&tEmail comment:&tComment];
-		
-		self.name = tName;
-		self.email = tEmail;
-		self.comment = tComment;
+		[GPGKey setInfosWithUserID:userID toObject:self];
 	}
 }
 
