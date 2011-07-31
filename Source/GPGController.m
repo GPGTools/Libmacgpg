@@ -1,3 +1,22 @@
+/*
+ Copyright © Roman Zechmeister, 2011
+ 
+ Diese Datei ist Teil von Libmacgpg.
+ 
+ Libmacgpg ist freie Software. Sie können es unter den Bedingungen 
+ der GNU General Public License, wie von der Free Software Foundation 
+ veröffentlicht, weitergeben und/oder modifizieren, entweder gemäß 
+ Version 3 der Lizenz oder (nach Ihrer Option) jeder späteren Version.
+ 
+ Die Veröffentlichung von Libmacgpg erfolgt in der Hoffnung, daß es Ihnen 
+ von Nutzen sein wird, aber ohne irgendeine Garantie, sogar ohne die implizite 
+ Garantie der Marktreife oder der Verwendbarkeit für einen bestimmten Zweck. 
+ Details finden Sie in der GNU General Public License.
+ 
+ Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem 
+ Programm erhalten haben. Falls nicht, siehe <http://www.gnu.org/licenses/>.
+*/
+
 #import "GPGController.h"
 #import "GPGKey.h"
 #import "GPGTaskOrder.h"
@@ -37,7 +56,7 @@
 - (void)addArgumentsForSignerKeys;
 - (void)addArgumentsForComments;
 - (void)addArgumentsForOptions;
-- (void)operationWillStart;
+- (void)operationDidStart;
 - (void)handleException:(NSException *)e;
 - (void)operationDidFinishWithReturnValue:(id)value;
 - (void)keysHaveChanged:(NSNotification *)notification;
@@ -50,7 +69,7 @@
 
 
 @implementation GPGController
-@synthesize delegate, keyserver, keyserverTimeout, proxyServer, async, userInfo, useArmor, useTextMode, printVersion, useDefaultComments, trustAllKeys, signatures, lastSignature, gpgHome, verbose, lastReturnValue;
+@synthesize delegate, keyserver, keyserverTimeout, proxyServer, async, userInfo, useArmor, useTextMode, printVersion, useDefaultComments, trustAllKeys, signatures, lastSignature, gpgHome, verbose, lastReturnValue, error;
 
 NSString *gpgVersion = nil;
 NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil, *compressAlgorithm = nil;
@@ -98,6 +117,14 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 - (NSArray *)signerKeys {
 	return [[signerKeys copy] autorelease];
 }
+- (void)setComment:(NSString *)comment {
+	[self willChangeValueForKey:@"comments"];
+	[comments removeAllObjects];
+	if (comment) {
+		[comments addObject:comment];
+	}
+	[self didChangeValueForKey:@"comments"];
+}
 - (void)addComment:(NSString *)comment {
 	[self willChangeValueForKey:@"comments"];
 	[comments addObject:comment];
@@ -107,6 +134,14 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 	[self willChangeValueForKey:@"comments"];
 	[comments removeObjectAtIndex:index];
 	[self didChangeValueForKey:@"comments"];
+}
+- (void)setSignerKey:(NSString *)signerKey {
+	[self willChangeValueForKey:@"signerKeys"];
+	[signerKeys removeAllObjects];
+	if (signerKey) {
+		[signerKeys addObject:signerKey];
+	}
+	[self didChangeValueForKey:@"signerKeys"];
 }
 - (void)addSignerKey:(NSString *)signerKey {
 	[self willChangeValueForKey:@"signerKeys"];
@@ -189,7 +224,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		return nil;
 	}
 	@try {
-		[self operationWillStart];
+		[self operationDidStart];
 		
 		if (!keyList) {
 			keyList = [NSSet set];
@@ -306,7 +341,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		return nil;
 	}
 	@try {
-		[self operationWillStart];
+		[self operationDidStart];
 		
 		if ((mode & (GPGEncryptFlags | GPGSignFlags)) == 0) {
 			[NSException raise:NSInvalidArgumentException format:@"Unknwon mode: %i!", mode];
@@ -317,7 +352,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		gpgTask = [GPGTask gpgTask];
 		[self addArgumentsForOptions];
 		gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"]; 
-		gpgTask.batchMode = YES;
+		gpgTask.batchMode = NO;
         gpgTask.verbose = self.verbose;
 		
 		[self addArgumentsForComments];
@@ -396,7 +431,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
     NSData *retVal;
     
 	@try {
-		[self operationWillStart];
+		[self operationDidStart];
 		
 		
 		gpgTask = [GPGTask gpgTask];
@@ -428,7 +463,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 	}
     NSArray *retVal;
 	@try {
-		[self operationWillStart];
+		[self operationDidStart];
 		
 		
 		gpgTask = [GPGTask gpgTask];
@@ -475,7 +510,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		return;
 	}
 	@try {
-		[self operationWillStart];
+		[self operationDidStart];
 		
 		NSMutableString *cmdText = [NSMutableString string];
 		
@@ -539,7 +574,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		return;
 	}
 	@try {
-		[self operationWillStart];
+		[self operationDidStart];
 		
 		if ([keys count] == 0) {
 			[NSException raise:NSInvalidArgumentException format:@"Empty key list!"];
@@ -584,7 +619,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		return;
 	}
 	@try {
-		[self operationWillStart];
+		[self operationDidStart];
 		
 		gpgTask = [GPGTask gpgTask];
 		[self addArgumentsForOptions];
@@ -613,7 +648,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		return;
 	}
 	@try {
-		[self operationWillStart];
+		[self operationDidStart];
 		
 		gpgTask = [GPGTask gpgTask];
 		[self addArgumentsForOptions];
@@ -642,7 +677,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		return nil;
 	}
 	@try {
-		[self operationWillStart];
+		[self operationDidStart];
 		
 		GPGTaskOrder *order = [GPGTaskOrder orderWithYesToAll];
 		[order addInt:reason prompt:@"ask_revocation_reason.code" optional:YES];
@@ -683,7 +718,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		return;
 	}
 	@try {
-		[self operationWillStart];
+		[self operationDidStart];
 		
 		NSData *revocationData = [self genRevokeCertificateForKey:key reason:reason description:description];
 		[self importFromData:revocationData fullImport:YES];
@@ -704,7 +739,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		return;
 	}
 	@try {
-		[self operationWillStart];
+		[self operationDidStart];
 		
 		GPGTaskOrder *order = [GPGTaskOrder orderWithYesToAll];
 		
@@ -748,7 +783,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		return;
 	}
 	@try {
-		[self operationWillStart];
+		[self operationDidStart];
 		
 		GPGTaskOrder *order = [GPGTaskOrder orderWithYesToAll];
 		[order addCmd:@"passwd\n" prompt:@"keyedit.prompt"];
@@ -781,7 +816,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		return;
 	}
 	@try {
-		[self operationWillStart];
+		[self operationDidStart];
 		
 		GPGTaskOrder *order = [GPGTaskOrder orderWithYesToAll];
 		
@@ -822,7 +857,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		return;
 	}
 	@try {
-		[self operationWillStart];
+		[self operationDidStart];
 		
 		gpgTask = [GPGTask gpgTask];
 		[self addArgumentsForOptions];
@@ -851,7 +886,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		return;
 	}
 	@try {
-		[self operationWillStart];
+		[self operationDidStart];
 		
 		GPGTaskOrder *order = [GPGTaskOrder orderWithYesToAll];
 		[order addCmd:@"trust\n" prompt:@"keyedit.prompt"];
@@ -890,7 +925,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		return nil;
 	}
 	@try {
-		[self operationWillStart];
+		[self operationDidStart];
 		
 		gpgTask = [GPGTask gpgTask];
 		[self addArgumentsForOptions];
@@ -929,7 +964,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		return nil;
 	}
 	@try {
-		[self operationWillStart];
+		[self operationDidStart];
 		
 		NSMutableArray *arguments = [NSMutableArray arrayWithCapacity:5];
 		[arguments addObject:@"--export"];
@@ -1457,7 +1492,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		return nil;
 	}
 	@try {
-		[self operationWillStart];
+		[self operationDidStart];
 		
 		gpgTask = [GPGTask gpgTask];
 		[self addArgumentsForOptions];
@@ -1489,7 +1524,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		return nil;
 	}
 	@try {
-		[self operationWillStart];
+		[self operationDidStart];
 		
 		if ([keys count] == 0) {
 			[NSException raise:NSInvalidArgumentException format:@"Empty key list!"];
@@ -1524,7 +1559,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		return;
 	}
 	@try {
-		[self operationWillStart];
+		[self operationDidStart];
 		
 		if ([keys count] == 0) {
 			[NSException raise:NSInvalidArgumentException format:@"Empty key list!"];
@@ -1556,7 +1591,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		return nil;
 	}
 	@try {
-		[self operationWillStart];
+		[self operationDidStart];
 		
 		gpgTask = [GPGTask gpgTask];
 		[self addArgumentsForOptions];
@@ -1856,7 +1891,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 	return nil;
 }
 
-- (void)gpgTaskWillStart:(GPGTask *)task {
+- (void)gpgTaskDidStart:(GPGTask *)task {
 	if ([signatures count] > 0) {
 		self.lastSignature = nil;
 		[signatures release];
@@ -1870,21 +1905,20 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 
 
 - (void)handleException:(NSException *)e {
-	if (asyncStarted && runningOperations == 1) {
-		if ([delegate respondsToSelector:@selector(gpgController:operationDidFailWithException:)]) {
-			[delegate gpgController:self operationDidFailWithException:e];
-		} else {
-			@throw e;
-		}
-	} else {
-		@throw e;
+	if (asyncStarted && runningOperations == 1 && [delegate respondsToSelector:@selector(gpgController:operationThrownException:)]) {
+		[delegate gpgController:self operationThrownException:e];
 	}
+	[e retain];
+	[error release];
+	error = e;
 }
 
-- (void)operationWillStart {
+- (void)operationDidStart {
 	if (runningOperations == 0) {
-		if ([delegate respondsToSelector:@selector(gpgControllerOperationWillStart:)]) {
-			[delegate gpgControllerOperationWillStart:self];
+		[error release];
+		error = nil;
+		if ([delegate respondsToSelector:@selector(gpgControllerOperationDidStart:)]) {
+			[delegate gpgControllerOperationDidStart:self];
 		}		
 	}
 	runningOperations++;

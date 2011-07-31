@@ -19,6 +19,8 @@
 		30691AA4136AECC4004AA469 /* GPGOptions.h in Headers */ = {isa = PBXBuildFile; fileRef = 30691AA2136AECC4004AA469 /* GPGOptions.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		30691AA5136AECC4004AA469 /* GPGOptions.m in Sources */ = {isa = PBXBuildFile; fileRef = 30691AA3136AECC4004AA469 /* GPGOptions.m */; };
 		307D79111340B71A005C9C32 /* TODO in Resources */ = {isa = PBXBuildFile; fileRef = 307D79101340B71A005C9C32 /* TODO */; };
+		309A18D013E3812E0069DC0F /* GPGTransformer.h in Headers */ = {isa = PBXBuildFile; fileRef = 309A18CE13E3812E0069DC0F /* GPGTransformer.h */; };
+		309A18D113E3812E0069DC0F /* GPGTransformer.m in Sources */ = {isa = PBXBuildFile; fileRef = 309A18CF13E3812E0069DC0F /* GPGTransformer.m */; };
 		309A20FB13587D5B0041E0AA /* GPGPacket.h in Headers */ = {isa = PBXBuildFile; fileRef = 309A20F913587D5B0041E0AA /* GPGPacket.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		309A20FC13587D5B0041E0AA /* GPGPacket.m in Sources */ = {isa = PBXBuildFile; fileRef = 309A20FA13587D5B0041E0AA /* GPGPacket.m */; };
 		30BA88F2138FE593005982D9 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 30BA88F1138FE593005982D9 /* SystemConfiguration.framework */; };
@@ -80,6 +82,8 @@
 		30691AA2136AECC4004AA469 /* GPGOptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGOptions.h; path = Source/GPGOptions.h; sourceTree = "<group>"; };
 		30691AA3136AECC4004AA469 /* GPGOptions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GPGOptions.m; path = Source/GPGOptions.m; sourceTree = "<group>"; };
 		307D79101340B71A005C9C32 /* TODO */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TODO; sourceTree = "<group>"; };
+		309A18CE13E3812E0069DC0F /* GPGTransformer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGTransformer.h; path = Source/GPGTransformer.h; sourceTree = "<group>"; };
+		309A18CF13E3812E0069DC0F /* GPGTransformer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GPGTransformer.m; path = Source/GPGTransformer.m; sourceTree = "<group>"; };
 		309A20F913587D5B0041E0AA /* GPGPacket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGPacket.h; path = Source/GPGPacket.h; sourceTree = "<group>"; };
 		309A20FA13587D5B0041E0AA /* GPGPacket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GPGPacket.m; path = Source/GPGPacket.m; sourceTree = "<group>"; };
 		30BA88F1138FE593005982D9 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
@@ -207,6 +211,8 @@
 				30FF413212FAC6CD00F39832 /* GPGTask.m */,
 				30FF413312FAC6CD00F39832 /* GPGTaskOrder.h */,
 				30FF413412FAC6CD00F39832 /* GPGTaskOrder.m */,
+				309A18CE13E3812E0069DC0F /* GPGTransformer.h */,
+				309A18CF13E3812E0069DC0F /* GPGTransformer.m */,
 				1BC7A4FE13D300A600AE57BA /* LPXTTask.h */,
 				1BC7A4FF13D300A600AE57BA /* LPXTTask.m */,
 			);
@@ -295,6 +301,7 @@
 				30D259DC136DC13100274D9F /* GPGConf.h in Headers */,
 				30D259E0136DC13E00274D9F /* GPGConfLine.h in Headers */,
 				1BC7A50013D300A600AE57BA /* LPXTTask.h in Headers */,
+				309A18D013E3812E0069DC0F /* GPGTransformer.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -435,6 +442,7 @@
 				30D259DD136DC13100274D9F /* GPGConf.m in Sources */,
 				30D259E1136DC13E00274D9F /* GPGConfLine.m in Sources */,
 				1BC7A50113D300A600AE57BA /* LPXTTask.m in Sources */,
+				309A18D113E3812E0069DC0F /* GPGTransformer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

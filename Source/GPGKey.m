@@ -1,12 +1,14 @@
 /*
- Copyright © Roman Zechmeister, 2010
+ Copyright © Roman Zechmeister, 2011
  
- Dieses Programm ist freie Software. Sie können es unter den Bedingungen 
+ Diese Datei ist Teil von Libmacgpg.
+ 
+ Libmacgpg ist freie Software. Sie können es unter den Bedingungen 
  der GNU General Public License, wie von der Free Software Foundation 
  veröffentlicht, weitergeben und/oder modifizieren, entweder gemäß 
  Version 3 der Lizenz oder (nach Ihrer Option) jeder späteren Version.
  
- Die Veröffentlichung dieses Programms erfolgt in der Hoffnung, daß es Ihnen 
+ Die Veröffentlichung von Libmacgpg erfolgt in der Hoffnung, daß es Ihnen 
  von Nutzen sein wird, aber ohne irgendeine Garantie, sogar ohne die implizite 
  Garantie der Marktreife oder der Verwendbarkeit für einen bestimmten Zweck. 
  Details finden Sie in der GNU General Public License.
@@ -18,8 +20,25 @@
 #import "GPGKey.h"
 #import "GPGTask.h"
 
+@interface GPGKey ()
+
+@property (retain) NSMutableArray *photos;
+@property (retain) NSString *textForFilter;
+@property (retain) NSString *allFingerprints;
+@property (retain) NSString *fingerprint;
+@property GPGValidity ownerTrust;
+@property BOOL secret;
+
+
+- (void)updateFilterText;
+- (void)updatePhotos;
+
+@end
+
+
 
 @implementation GPGKey
+@synthesize photos, textForFilter, fingerprint, ownerTrust, secret, primaryUserID, allFingerprints;
 
 + (id)keyWithListing:(NSArray *)listing fingerprint:(NSString *)aFingerprint isSecret:(BOOL)isSec withSigs:(BOOL)withSigs {
 	return [[[[self class] alloc] initWithListing:listing fingerprint:aFingerprint isSecret:isSec  withSigs:withSigs] autorelease];
@@ -45,7 +64,7 @@
 	GPGUserID *userIDChild;
 	NSUInteger subkeyIndex = 0, userIDIndex = 0;
 	
-	secret = isSec;
+	self.secret = isSec;
 	
 	
 	NSUInteger i = 1, c = [listing count];
@@ -53,7 +72,7 @@
 	
 	[self updateWithLine:splitedLine];
 
-	ownerTrust = [[self class] validityFromLetter:[splitedLine objectAtIndex:8]];
+	self.ownerTrust = [[self class] validityFromLetter:[splitedLine objectAtIndex:8]];
 	
 	
 	tempItem = [splitedLine objectAtIndex:11];
@@ -154,18 +173,23 @@
 
 
 - (void)updateFilterText { // Muss für den Schlüssel aufgerufen werden, bevor auf textForFilter zugegriffen werden kann!
-	NSMutableString *newText = [NSMutableString stringWithCapacity:200];
+	NSMutableString *newText = [[NSMutableString alloc] initWithCapacity:subkeys.count * 40 + userIDs.count * 60 + 40];
+	NSMutableString *fingerprints = [[NSMutableString alloc] initWithCapacity:subkeys.count * 40 + 40];
 	
 	[newText appendFormat:@"0x%@\n0x%@\n0x%@\n", [self fingerprint], [self keyID], [self shortKeyID]];
-	for (GPGSubkey *subkey in self.subkeys) {
+	[fingerprints appendFormat:@"%@\n", [self fingerprint]];
+	for (GPGSubkey *subkey in subkeys) {
 		[newText appendFormat:@"0x%@\n0x%@\n0x%@\n", [subkey fingerprint], [subkey keyID], [subkey shortKeyID]];
+		[fingerprints appendFormat:@"%@\n", [subkey fingerprint]];
 	}
-	for (GPGUserID *userID in self.userIDs) {
+	for (GPGUserID *userID in userIDs) {
 		[newText appendFormat:@"%@\n", [userID userID]];
 	}
 	
 	[textForFilter release];
-	textForFilter = [newText copy];
+	textForFilter = newText;
+	[allFingerprints release];
+	allFingerprints = fingerprints;
 }
 
 - (NSArray *)photos {
@@ -262,15 +286,13 @@
 
 
 
-
-
-+ (void)splitUserID:(NSString *)aUserID intoName:(NSString **)namePtr email:(NSString **)emailPtr comment:(NSString **)commentPtr {
++ (void)setInfosWithUserID:(NSString *)aUserID toObject:(NSObject <GPGUserIDProtocol> *)object {
 	if (!aUserID) {
-		*namePtr = nil;
-		*emailPtr = nil;
-		*commentPtr = nil;
-		return;
+		object.name = nil;
+		object.email = nil;
+		object.comment = nil;
 	}
+	
 	NSString *workText = aUserID;
 	NSUInteger textLength = [workText length];
 	NSRange range;
@@ -279,37 +301,30 @@
 	if ([workText hasSuffix:@">"] && range.length > 0) {
 		range.location += 2;
 		range.length = textLength - range.location - 1;
-		*emailPtr = [workText substringWithRange:range];
+		object.email = [workText substringWithRange:range];
 		
 		workText = [workText substringToIndex:range.location - 2];
 		textLength -= (range.length + 3);
 	} else {
-		*emailPtr = nil;
+		object.email = nil;
 	}
 	
 	range = [workText rangeOfString:@" (" options:NSBackwardsSearch];
 	if ([workText hasSuffix:@")"] && range.length > 0 && range.location > 0) {
 		range.location += 2;
 		range.length = textLength - range.location - 1;
-		*commentPtr = [workText substringWithRange:range];
+		object.comment = [workText substringWithRange:range];
 		
 		workText = [workText substringToIndex:range.location - 2];
 	} else {
-		*commentPtr = nil;
+		object.comment = nil;
 	}
 	
-	*namePtr = workText;
+	object.name = workText;
 }
 
 
 
-
-@synthesize photos;
-@synthesize textForFilter;
-@synthesize fingerprint;
-@synthesize ownerTrust;
-@synthesize secret;
-@synthesize primaryUserID;
 
 
 - (GPGKey *)primaryKey { return self; }
@@ -467,7 +482,8 @@
 	self.subkeys = nil;
 	self.userIDs = nil;
 	self.photos = nil;
-	self.textForFilter = nil;;
+	self.textForFilter = nil;
+	self.allFingerprints = nil;
 	
 	self.fingerprint = nil;
 	

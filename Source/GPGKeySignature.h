@@ -1,12 +1,14 @@
 /*
- Copyright © Roman Zechmeister, 2010
+ Copyright © Roman Zechmeister, 2011
  
- Dieses Programm ist freie Software. Sie können es unter den Bedingungen 
+ Diese Datei ist Teil von Libmacgpg.
+ 
+ Libmacgpg ist freie Software. Sie können es unter den Bedingungen 
  der GNU General Public License, wie von der Free Software Foundation 
  veröffentlicht, weitergeben und/oder modifizieren, entweder gemäß 
  Version 3 der Lizenz oder (nach Ihrer Option) jeder späteren Version.
  
- Die Veröffentlichung dieses Programms erfolgt in der Hoffnung, daß es Ihnen 
+ Die Veröffentlichung von Libmacgpg erfolgt in der Hoffnung, daß es Ihnen 
  von Nutzen sein wird, aber ohne irgendeine Garantie, sogar ohne die implizite 
  Garantie der Marktreife oder der Verwendbarkeit für einen bestimmten Zweck. 
  Details finden Sie in der GNU General Public License.
@@ -41,20 +43,20 @@
 	BOOL local;
 }
 
-@property BOOL local;
-@property BOOL revocationSignature;
-@property int signatureClass;
-@property (copy) NSString *type;
-@property (retain) NSString *userID;
-@property (retain) NSString *name;
-@property (retain) NSString *email;
-@property (retain) NSString *comment;
-@property (retain) NSString *keyID;
-@property (retain) NSString *shortKeyID;
-@property (retain) NSString *description;
-@property GPGPublicKeyAlgorithm algorithm;
-@property (retain) NSDate *creationDate;
-@property (retain) NSDate *expirationDate;
+@property (readonly) BOOL local;
+@property (readonly) BOOL revocationSignature;
+@property (readonly) GPGPublicKeyAlgorithm algorithm;
+@property (readonly) int signatureClass;
+@property (readonly, copy) NSString *type;
+@property (readonly, retain) NSString *userID;
+@property (readonly, retain) NSString *name;
+@property (readonly, retain) NSString *email;
+@property (readonly, retain) NSString *comment;
+@property (readonly, retain) NSString *keyID;
+@property (readonly, retain) NSString *shortKeyID;
+@property (readonly, retain) NSString *description;
+@property (readonly, retain) NSDate *creationDate;
+@property (readonly, retain) NSDate *expirationDate;
 
 
 + (NSArray *)signaturesWithListing:(NSArray *)listing;

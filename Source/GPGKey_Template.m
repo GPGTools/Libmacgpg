@@ -1,23 +1,50 @@
+/*
+ Copyright © Roman Zechmeister, 2011
+ 
+ Diese Datei ist Teil von Libmacgpg.
+ 
+ Libmacgpg ist freie Software. Sie können es unter den Bedingungen 
+ der GNU General Public License, wie von der Free Software Foundation 
+ veröffentlicht, weitergeben und/oder modifizieren, entweder gemäß 
+ Version 3 der Lizenz oder (nach Ihrer Option) jeder späteren Version.
+ 
+ Die Veröffentlichung von Libmacgpg erfolgt in der Hoffnung, daß es Ihnen 
+ von Nutzen sein wird, aber ohne irgendeine Garantie, sogar ohne die implizite 
+ Garantie der Marktreife oder der Verwendbarkeit für einen bestimmten Zweck. 
+ Details finden Sie in der GNU General Public License.
+ 
+ Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem 
+ Programm erhalten haben. Falls nicht, siehe <http://www.gnu.org/licenses/>.
+*/
+
 #import "GPGKey_Template.h"
 
 
-@implementation GPGKey_Template
+@interface GPGKey_Template ()
 
-@synthesize keyID;
-@synthesize shortKeyID;
-@synthesize algorithm;
-@synthesize length;
-@synthesize canEncrypt;
-@synthesize canSign;
-@synthesize canCertify;
-@synthesize canAuthenticate;
+@property (retain) NSString *keyID;
+@property (retain) NSString *shortKeyID;
+@property GPGPublicKeyAlgorithm algorithm;
+@property unsigned int length;
+@property BOOL canEncrypt;
+@property BOOL canSign;
+@property BOOL canCertify;
+@property BOOL canAuthenticate;
+@property BOOL disabled;
+
+@end
+
+
+@implementation GPGKey_Template
+@synthesize keyID, shortKeyID, algorithm, length, canEncrypt, canSign, canCertify, canAuthenticate;
+@dynamic disabled;
 
 
 - (void)updateWithLine:(NSArray *)line {
 	[super updateWithLine:line];
 	
-	length = [[line objectAtIndex:2] intValue];
-	algorithm = [[line objectAtIndex:3] intValue];
+	self.length = [[line objectAtIndex:2] intValue];
+	self.algorithm = [[line objectAtIndex:3] intValue];
 	self.keyID = [line objectAtIndex:4];
 	self.shortKeyID = getShortKeyID(keyID);
 	

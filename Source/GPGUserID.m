@@ -1,12 +1,14 @@
 /*
- Copyright © Roman Zechmeister, 2010
+ Copyright © Roman Zechmeister, 2011
  
- Dieses Programm ist freie Software. Sie können es unter den Bedingungen 
+ Diese Datei ist Teil von Libmacgpg.
+ 
+ Libmacgpg ist freie Software. Sie können es unter den Bedingungen 
  der GNU General Public License, wie von der Free Software Foundation 
  veröffentlicht, weitergeben und/oder modifizieren, entweder gemäß 
  Version 3 der Lizenz oder (nach Ihrer Option) jeder späteren Version.
  
- Die Veröffentlichung dieses Programms erfolgt in der Hoffnung, daß es Ihnen 
+ Die Veröffentlichung von Libmacgpg erfolgt in der Hoffnung, daß es Ihnen 
  von Nutzen sein wird, aber ohne irgendeine Garantie, sogar ohne die implizite 
  Garantie der Marktreife oder der Verwendbarkeit für einen bestimmten Zweck. 
  Details finden Sie in der GNU General Public License.
@@ -20,16 +22,20 @@
 #import "GPGController.h"
 #import "GPGTask.h"
 
+@interface GPGUserID () <GPGUserIDProtocol>
+
+@property (assign) GPGKey *primaryKey;
+@property (retain) NSString *hashID;
+@property (retain) NSString *userID;
+@property (retain) NSString *name;
+@property (retain) NSString *email;
+@property (retain) NSString *comment;
+
+@end
 
 
 @implementation GPGUserID
-
-@synthesize index;
-@synthesize primaryKey;
-@synthesize hashID;
-@synthesize name;
-@synthesize email;
-@synthesize comment;
+@synthesize index, primaryKey, hashID, userID, name, email, comment;
 
 
 - (id)children {return nil;}
@@ -52,33 +58,22 @@
 }
 
 
-- (NSString *)userID {
-	return [[userID retain] autorelease];
-}
 - (void)setUserID:(NSString *)value {
 	if (value != userID) {
 		[userID release];
 		userID = [value retain];
 		
-		NSString *tName, *tEmail, *tComment;
-		[GPGKey splitUserID:value intoName:&tName email:&tEmail comment:&tComment];
-		
-		self.name = tName;
-		self.email = tEmail;
-		self.comment = tComment;
+		[GPGKey setInfosWithUserID:userID toObject:self];
 	}
 }
 
 
 
 - (id)initWithListing:(NSArray *)listing signatureListing:(NSArray *)sigListing parentKey:(GPGKey *)key {
-	[self init];
-	primaryKey = key;
-	signatures = nil;
-	cipherPreferences = nil;
-	digestPreferences = nil;
-	compressPreferences = nil;
-	otherPreferences = nil;
+	if (!(self = [super init])) {
+		return nil;
+	}
+	self.primaryKey = key;
 	
 	
 	[self updateWithListing:listing signatureListing:sigListing];
@@ -118,27 +113,28 @@
 }
 
 - (NSArray *)signatures {
-	//TODO: lock
-	if (!signatures) {
-		GPGTask *gpgTask = [GPGTask gpgTask];
-		[gpgTask addArgument:@"--list-sigs"];
-		[gpgTask addArgument:@"--with-fingerprint"];
-		[gpgTask addArgument:@"--with-fingerprint"];
-		[gpgTask addArgument:[primaryKey fingerprint]];
-		
-		if ([gpgTask start] != 0) {
-			@throw gpgTaskException(GPGTaskException, @"List signatures failed!", GPGErrorTaskException, gpgTask);
-		}
-		
-		NSArray *listings, *fingerprints;
-		[GPGController colonListing:gpgTask.outText toArray:&listings andFingerprints:&fingerprints];
-		
-		NSUInteger aIndex = [fingerprints indexOfObject:[primaryKey fingerprint]];
-		
-		if (aIndex != NSNotFound) {
-			[primaryKey updateWithListing:[listings objectAtIndex:aIndex] isSecret:[primaryKey secret] withSigs:YES];
-		} else {
-			signatures = [[NSArray array] retain];
+	@synchronized (self) {
+		if (!signatures) {
+			GPGTask *gpgTask = [GPGTask gpgTask];
+			[gpgTask addArgument:@"--list-sigs"];
+			[gpgTask addArgument:@"--with-fingerprint"];
+			[gpgTask addArgument:@"--with-fingerprint"];
+			[gpgTask addArgument:[primaryKey fingerprint]];
+			
+			if ([gpgTask start] != 0) {
+				@throw gpgTaskException(GPGTaskException, @"List signatures failed!", GPGErrorTaskException, gpgTask);
+			}
+			
+			NSArray *listings, *fingerprints;
+			[GPGController colonListing:gpgTask.outText toArray:&listings andFingerprints:&fingerprints];
+			
+			NSUInteger aIndex = [fingerprints indexOfObject:[primaryKey fingerprint]];
+			
+			if (aIndex != NSNotFound) {
+				[primaryKey updateWithListing:[listings objectAtIndex:aIndex] isSecret:[primaryKey secret] withSigs:YES];
+			} else {
+				signatures = [[NSArray array] retain];
+			}
 		}
 	}
 	return signatures;

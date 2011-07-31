@@ -1,3 +1,22 @@
+/*
+ Copyright © Roman Zechmeister, 2011
+ 
+ Diese Datei ist Teil von Libmacgpg.
+ 
+ Libmacgpg ist freie Software. Sie können es unter den Bedingungen 
+ der GNU General Public License, wie von der Free Software Foundation 
+ veröffentlicht, weitergeben und/oder modifizieren, entweder gemäß 
+ Version 3 der Lizenz oder (nach Ihrer Option) jeder späteren Version.
+ 
+ Die Veröffentlichung von Libmacgpg erfolgt in der Hoffnung, daß es Ihnen 
+ von Nutzen sein wird, aber ohne irgendeine Garantie, sogar ohne die implizite 
+ Garantie der Marktreife oder der Verwendbarkeit für einen bestimmten Zweck. 
+ Details finden Sie in der GNU General Public License.
+ 
+ Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem 
+ Programm erhalten haben. Falls nicht, siehe <http://www.gnu.org/licenses/>.
+*/
+
 #import <Cocoa/Cocoa.h>
 #import <Libmacgpg/GPGGlobals.h>
 #import <Libmacgpg/GPGKey.h>
@@ -10,9 +29,9 @@
 @optional
 
 - (void)gpgController:(GPGController *)gpgc operationDidFinishWithReturnValue:(id)value;
-- (void)gpgController:(GPGController *)gpgc operationDidFailWithException:(NSException *)e;
+- (void)gpgController:(GPGController *)gpgc operationThrownException:(NSException *)e;
 - (void)gpgController:(GPGController *)gpgc keysDidChangedExernal:(NSObject <EnumerationList> *)keys;
-- (void)gpgControllerOperationWillStart:(GPGController *)gpgc;
+- (void)gpgControllerOperationDidStart:(GPGController *)gpgc;
 
 
 @end
@@ -38,7 +57,7 @@
     id lastReturnValue;
 	
 	NSObject <GPGControllerDelegate> *delegate;
-	
+	NSException *error;
 
 	
 	//Private
@@ -56,6 +75,7 @@
 @property (readonly) NSArray *comments;
 @property (readonly) NSArray *signatures;
 @property (readonly) id lastReturnValue;
+@property (readonly) NSException *error;
 @property (retain) NSString *keyserver;
 @property (retain) NSString *proxyServer;
 @property (retain) NSString *gpgHome;
@@ -77,8 +97,10 @@
 + (NSSet *)compressAlgorithm;
 
 
+- (void)setComment:(NSString *)comment;
 - (void)addComment:(NSString *)comment;
 - (void)removeCommentAtIndex:(NSUInteger)index;
+- (void)setSignerKey:(NSString *)signerKey;
 - (void)addSignerKey:(NSString *)signerKey;
 - (void)removeSignerKeyAtIndex:(NSUInteger)index;
 
