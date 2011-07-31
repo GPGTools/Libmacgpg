@@ -35,6 +35,7 @@
 	BOOL trustAllKeys;
 	BOOL async;
     BOOL verbose;
+    id lastReturnValue;
 	
 	NSObject <GPGControllerDelegate> *delegate;
 	
@@ -54,6 +55,7 @@
 @property (readonly) NSArray *signerKeys;
 @property (readonly) NSArray *comments;
 @property (readonly) NSArray *signatures;
+@property (readonly) id lastReturnValue;
 @property (retain) NSString *keyserver;
 @property (retain) NSString *proxyServer;
 @property (retain) NSString *gpgHome;

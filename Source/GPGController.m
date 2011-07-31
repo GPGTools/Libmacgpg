@@ -45,11 +45,12 @@
 - (void)keysChanged:(NSObject <EnumerationList> *)keys;
 - (void)keyChanged:(NSObject <KeyFingerprint> *)key;
 + (void)readGPGConfig;
+- (void)setLastReturnValue:(id)value;
 @end
 
 
 @implementation GPGController
-@synthesize delegate, keyserver, keyserverTimeout, proxyServer, async, userInfo, useArmor, useTextMode, printVersion, useDefaultComments, trustAllKeys, signatures, lastSignature, gpgHome, verbose;
+@synthesize delegate, keyserver, keyserverTimeout, proxyServer, async, userInfo, useArmor, useTextMode, printVersion, useDefaultComments, trustAllKeys, signatures, lastSignature, gpgHome, verbose, lastReturnValue;
 
 NSString *gpgVersion = nil;
 NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil, *compressAlgorithm = nil;
@@ -392,6 +393,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		[asyncProxy decryptData:data];
 		return nil;
 	}
+    NSData *retVal;
     
 	@try {
 		[self operationWillStart];
@@ -410,12 +412,11 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 	} @catch (NSException *e) {
 		[self handleException:e];
 	} @finally {
+        retVal = gpgTask.outData;
 		[self cleanAfterOperation];
+        [self operationDidFinishWithReturnValue:retVal];	
 	}
-
-    NSData *retVal = gpgTask.outData;
     
-	[self operationDidFinishWithReturnValue:retVal];	
 	return retVal;
 }
 
@@ -425,6 +426,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		[asyncProxy verifySignature:signatureData originalData:originalData];
 		return nil;
 	}
+    NSArray *retVal;
 	@try {
 		[self operationWillStart];
 		
@@ -445,11 +447,11 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 	} @catch (NSException *e) {
 		[self handleException:e];
 	} @finally {
+        retVal = self.signatures;
 		[self cleanAfterOperation];
+        [self operationDidFinishWithReturnValue:retVal];	
 	}
 	
-	NSArray *retVal = self.signatures;
-	[self operationDidFinishWithReturnValue:retVal];	
 	return retVal;
 }
 
@@ -1889,6 +1891,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 }
 - (void)operationDidFinishWithReturnValue:(id)value {
 	if (runningOperations == 0) {
+        lastReturnValue = value;
 		if ([delegate respondsToSelector:@selector(gpgController:operationDidFinishWithReturnValue:)]) {
 			[delegate gpgController:self operationDidFinishWithReturnValue:value];
 		}		
@@ -2087,7 +2090,12 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 }
 
 
-
+- (void)setLastReturnValue:(id)value {
+    if (value != lastReturnValue) {
+        [lastReturnValue release];
+        lastReturnValue = [value retain];
+    }
+}
 
 
 
