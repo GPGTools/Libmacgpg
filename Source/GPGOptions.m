@@ -243,12 +243,29 @@ NSDictionary *domainKeys;
 }
 
 
-
+- (NSArray *)allValuesInGPGConfForKey:(NSString *)key {
+    NSArray *lines = [self.gpgConf optionsWithName:key];
+    NSMutableArray *values = [NSMutableArray arrayWithCapacity:[lines count]];
+    
+    [lines enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        [values addObject:[obj value]];
+    }];
+    return values;
+}
 - (id)valueInGPGConfForKey:(NSString *)key {
 	return [self.gpgConf valueForKey:key];
 }
 - (void)setValueInGPGConf:(id)value forKey:(NSString *)key {
 	[self.gpgConf setValue:value forKey:key];
+}
+- (NSArray *)allValuesInGPGAgentConfForKey:(NSString *)key {
+    NSArray *lines = [self.gpgAgentConf optionsWithName:key];
+    NSMutableArray *values = [NSMutableArray arrayWithCapacity:[lines count]];
+    
+    [lines enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        [values addObject:[obj value]];
+    }];
+    return values;
 }
 - (id)valueInGPGAgentConfForKey:(NSString *)key {
 	return [self.gpgAgentConf valueForKey:key];

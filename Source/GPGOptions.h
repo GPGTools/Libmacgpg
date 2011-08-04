@@ -76,8 +76,10 @@ typedef enum {
 - (id)specialValueForKey:(NSString *)key;
 - (void)setSpecialValue:(id)value forKey:(NSString *)key;
 
+- (NSArray *)allValuesInGPGConfForKey:(NSString *)key;
 - (id)valueInGPGConfForKey:(NSString *)key;
 - (void)setValueInGPGConf:(id)value forKey:(NSString *)key;
+- (NSArray *)allValuesInGPGAgentConfForKey:(NSString *)key;
 - (id)valueInGPGAgentConfForKey:(NSString *)key;
 - (void)setValueInGPGAgentConf:(id)value forKey:(NSString *)key;
 
