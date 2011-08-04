@@ -49,7 +49,7 @@
 - (void)addOptionWithName:(NSString *)name;
 - (void)removeOptionWithName:(NSString *)name;
 - (int)stateOfOptionWithName:(NSString *)name;
-- (void)setValue:(NSString *)value forOptionWithName:(NSString *)name;
+- (void)setValue:(NSString *)value ofOptionWithName:(NSString *)name useDisabled:(BOOL)useDisabled;
 - (void)addOptionWithName:(NSString *)name andValue:(NSString *)value;
 - (void)removeOptionWithName:(NSString *)name andValue:(NSString *)value;
 - (void)setAllOptionsWithName:(NSString *)name values:(NSArray *)values;

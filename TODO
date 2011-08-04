@@ -5,6 +5,4 @@ TODO: getPacketInfo: It should return informations over type of the data (Key, S
 TODO: Watch pubring.gpg and secring.gpg
 TODO: Add NSAssert (or similar).
 
-GPGConf: Add methods to work with disabled options.
-
 
