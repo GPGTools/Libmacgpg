@@ -54,6 +54,7 @@
 	BOOL trustAllKeys;
 	BOOL async;
     BOOL verbose;
+    id lastReturnValue;
 	
 	NSObject <GPGControllerDelegate> *delegate;
 	NSException *error;
@@ -73,6 +74,7 @@
 @property (readonly) NSArray *signerKeys;
 @property (readonly) NSArray *comments;
 @property (readonly) NSArray *signatures;
+@property (readonly) id lastReturnValue;
 @property (readonly) NSException *error;
 @property (retain) NSString *keyserver;
 @property (retain) NSString *proxyServer;
