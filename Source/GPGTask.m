@@ -422,7 +422,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
         // when data is DECRYPTED, gpg stalls till it received the data to decrypt.
         // So in that case, the data actually has to be written as the very first thing.
         // Beats me I tell you...
-        if([gpgTask.arguments containsObject:@"--decrypt"]) {
+        if([gpgTask.arguments containsObject:@"--decrypt"] || [gpgTask.arguments containsObject:@"--verify"]) {
             dispatch_group_async(collectorGroup, queue, ^{
                 // Encrypt only takes one file, more files not supported,
                 // so it's not important to check which file's data is required,
@@ -630,8 +630,14 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
     }
     
     // Write the return value to the command pipe.
-    if(!cmdPipe)
-        cmdPipe = [gpgTask inheritedPipeWithName:@"stdin"];
+    if(!cmdPipe) {
+        @try {
+            cmdPipe = [gpgTask inheritedPipeWithName:@"stdin"];
+        }
+        @catch (NSException *e) {
+            cmdPipe = nil;
+        }
+    }
     // Try to write
     if(cmdPipe != nil) {
         if(returnValue) {
