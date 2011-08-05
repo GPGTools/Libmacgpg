@@ -1,3 +1,22 @@
+/*
+ Copyright © Roman Zechmeister, 2011
+ 
+ Diese Datei ist Teil von Libmacgpg.
+ 
+ Libmacgpg ist freie Software. Sie können es unter den Bedingungen 
+ der GNU General Public License, wie von der Free Software Foundation 
+ veröffentlicht, weitergeben und/oder modifizieren, entweder gemäß 
+ Version 3 der Lizenz oder (nach Ihrer Option) jeder späteren Version.
+ 
+ Die Veröffentlichung von Libmacgpg erfolgt in der Hoffnung, daß es Ihnen 
+ von Nutzen sein wird, aber ohne irgendeine Garantie, sogar ohne die implizite 
+ Garantie der Marktreife oder der Verwendbarkeit für einen bestimmten Zweck. 
+ Details finden Sie in der GNU General Public License.
+ 
+ Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem 
+ Programm erhalten haben. Falls nicht, siehe <http://www.gnu.org/licenses/>.
+*/
+
 #import "GPGConf.h"
 #import "GPGConfLine.h"
 #import "GPGGlobals.h"
@@ -76,7 +95,7 @@
 		}
 		[self addOptionWithName:key];
 	} else if ([value isKindOfClass:[NSString class]]) {
-		[self setValue:value forOptionWithName:key];
+		[self setValue:value ofOptionWithName:key useDisabled:YES];
 	} else if ([value isKindOfClass:[NSArray class]]) {
 		[self setAllOptionsWithName:key values:value];
 	} else {
@@ -176,6 +195,7 @@
 	range.length = count;
 	
 	
+    //Remove reverse options;
 	while ((index = [confLines indexOfObject:antiName inRange:range]) != NSNotFound) {
 		if ([[confLines objectAtIndex:index] enabled]) {
 			[indexSet addIndex:index];
@@ -254,83 +274,122 @@
 
 
 
-- (void)setValue:(NSString *)value forOptionWithName:(NSString *)name { //For one-line options. (e.g. list-options)
-	GPGConfLine *line;
+- (void)setValue:(NSString *)value ofOptionWithName:(NSString *)name useDisabled:(BOOL)useDisabled { //For one-line options. (e.g. list-options)
+    GPGConfLine *line;
+    
+    NSIndexSet *indexesOfEqualLines = [confLines indexesOfObjectsPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
+        return [obj isEqual:name];
+    }];
+    
+    
+    NSUInteger index = [indexesOfEqualLines firstIndex];
+    while (index != NSNotFound) {
+        line = [confLines objectAtIndex:index];
+        if ([line.value isEqualToString:value]) {
+            line.enabled = YES;
+            indexesOfEqualLines = [indexesOfEqualLines mutableCopy];
+            [(NSMutableIndexSet *)indexesOfEqualLines removeIndex:index];
+            break;
+        }
+        index = [indexesOfEqualLines indexGreaterThanIndex:index];
+    }
+   
+    
+    if ([indexesOfEqualLines count] > 0) {
+        if (useDisabled) {
+            [[confLines objectsAtIndexes:indexesOfEqualLines] makeObjectsPerformSelector:@selector(setEnabled:) withObject:NO];
+        } else {
+            [confLines removeObjectsAtIndexes:indexesOfEqualLines];
+        }
+    }
+    
+    if (index == NSNotFound) {
+        line= [GPGConfLine confLine];
+        line.name = name;
+        line.value = value;
+        
+        index = [indexesOfEqualLines firstIndex];
+        if (index != NSNotFound) {
+            [confLines insertObject:line atIndex:index];
+        } else {
+            [confLines addObject:line];            
+        }
+    }
+
+
+    
+    // 1. Fall: Noch nicht gefunden
+    // 2. Fall: Deaktiviert gefunden
+    // 3. Fall: Aktiviert gefunden
+    // 4. Fall: Deaktiviert mit Value gefunden
+    // 5. Fall: Aktiviert mit Value gefunden
+    
+    
+    
+    /*
+    GPGConfLine *line;
 	NSUInteger index, foundIndex = NSNotFound;
-	BOOL found = NO, enabled;
-	NSMutableIndexSet *indexSet = [NSMutableIndexSet indexSet];
-	NSUInteger count = [confLines count];
-	
-	NSRange range;
-	range.location = 0;
-	range.length = count;
-	
-	
-	while ((index = [confLines indexOfObject:name inRange:range]) != NSNotFound) {
-		enabled = [[confLines objectAtIndex:index] enabled];
-		
-		if (!found && (foundIndex == NSNotFound || enabled)) {
-			foundIndex = index;
-			found = enabled;
-		} else {
-			[indexSet addIndex:index];
-		}
-		
-		
-		range.location = index + 1;
-		if (range.location >= count) {
-			break;
-		}
-		range.length = count - range.location - 1;
-	}
-	
+	BOOL enabled;
+	NSIndexSet *linesToRemove, *indexesOfEqualLines;
+    
+    indexesOfEqualLines = [confLines indexesOfObjectsPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
+        return [obj isEqual:name];
+    }];
+    
+    index = [indexesOfEqualLines firstIndex];
+    while (index != NSNotFound) {
+        enabled = [[confLines objectAtIndex:index] enabled];
+        
+        if (foundIndex == NSNotFound || enabled) {
+            foundIndex = index;
+            if (enabled) {
+                break;
+            }
+        }
+        
+        index = [indexesOfEqualLines indexGreaterThanIndex:index];
+    }
+    
+
+
 	if (foundIndex != NSNotFound) {
 		line = [confLines objectAtIndex:foundIndex];
 		line.enabled = YES;
 		line.value = value;
+        
+        linesToRemove = [[[NSMutableIndexSet alloc] initWithIndexSet:indexesOfEqualLines] autorelease];
+        [(NSMutableIndexSet *)linesToRemove removeIndex:foundIndex];
 	} else {
 		line = [GPGConfLine confLine];
 		line.name = name;
 		line.value = value;
 		[confLines addObject:line];
+        
+        linesToRemove = indexesOfEqualLines;
 	}
-	[confLines removeObjectsAtIndexes:indexSet];
-	
+	[confLines removeObjectsAtIndexes:linesToRemove];
+	*/
 	[self autoSaveConfig];
 }
 
 
+
 - (void)addOptionWithName:(NSString *)name andValue:(NSString *)value { //For options with only one suboption.
-	GPGConfLine *line, *disabledLine = nil;
-	NSUInteger index;
-	NSUInteger count = [confLines count];
-	
-	NSRange range;
-	range.location = 0;
-	range.length = count;
-	
-	
-	while ((index = [confLines indexOfObject:name inRange:range]) != NSNotFound) {
-		line = [confLines objectAtIndex:index];
-		
-		if (line.subOptionsCount == 1 && [value isEqualToString:[line.subOptions objectAtIndex:0]]) {
-			if (line.enabled) {
-				return;
-			} else {
-				disabledLine = line;
-				break;
-			}
-		}
-		
-		range.location = index + 1;
-		if (range.location >= count) {
-			break;
-		}
-		range.length = count - range.location - 1;
-	}
-	
-	if (disabledLine) {
-		disabledLine.enabled = YES;
+	GPGConfLine *line;
+    
+    for (line in confLines) {
+        if ([line.name isEqualToString:name] && line.subOptionsCount == 1 && [value isEqual:[line.subOptions objectAtIndex:0]]) {
+            if (line.enabled) {
+                return;
+            } else {
+                break;
+            }
+        }
+    }
+    
+    
+	if (line) {
+		line.enabled = YES;
 	} else {
 		line = [GPGConfLine confLine];
 		line.name = name;
@@ -340,28 +399,18 @@
 	[self autoSaveConfig];
 }
 - (void)removeOptionWithName:(NSString *)name andValue:(NSString *)value { //For options with only one suboption.
-	GPGConfLine *line;
-	NSUInteger index;
-	NSMutableIndexSet *indexSet = [NSMutableIndexSet indexSet];
-	NSUInteger count = [confLines count];
-	
-	NSRange range;
-	range.location = 0;
-	range.length = count;
-	
-	while ((index = [confLines indexOfObject:name inRange:range]) != NSNotFound) {
-		line = [confLines objectAtIndex:index];
-		if (line.enabled && line.subOptionsCount == 1 && [value isEqualToString:[line.subOptions objectAtIndex:0]]) {
-			[indexSet addIndex:index];
-		}
-		range.location = index + 1;
-		if (range.location >= count) {
-			break;
-		}
-		range.length = count - range.location - 1;
-	}
-	[confLines removeObjectsAtIndexes:indexSet];
-	[self autoSaveConfig];
+    NSIndexSet *linesToRemove = [confLines indexesOfObjectsPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
+        GPGConfLine *line = obj;
+        if ([line.name isEqualToString:name] && line.enabled && line.subOptionsCount == 1 && [value isEqual:[line.subOptions objectAtIndex:0]]) {
+            return YES;
+        }
+        return NO;
+    }];
+    
+    if ([linesToRemove count] > 0) {
+        [confLines removeObjectsAtIndexes:linesToRemove];
+        [self autoSaveConfig];
+    }
 }
 
 
@@ -371,8 +420,6 @@
 	NSMutableArray *linesToDo = [NSMutableArray arrayWithCapacity:[values count]];
 	NSUInteger index;
 	GPGConfLine *line;
-	NSRange range;
-	NSUInteger count = [confLines count];
 	
 	for (NSString *value in values) {
 		line = [GPGConfLine confLine];
@@ -386,19 +433,14 @@
 		}
 	}
 	
-	
-	while ((index = [confLines indexOfObject:name inRange:range]) != NSNotFound) {
-		if (![indexesToKeep containsIndex:index]) {
-			[indexesToRemove addIndex:index];
-		}
-		
-		range.location = index + 1;
-		if (range.location >= count) {
-			break;
-		}
-		range.length = count - range.location - 1;
-	}
-	
+    indexesToRemove = [[confLines indexesOfObjectsPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
+        GPGConfLine *line = obj;
+        if (![indexesToKeep containsIndex:idx] && [line.name isEqualToString:name]) {
+            return YES;
+        }
+        return NO;
+    }] mutableCopy];
+
 	
 	
 	for (line in linesToDo) {
@@ -411,9 +453,10 @@
 		}
 	}
 	
-	if ([indexesToRemove firstIndex] != NSNotFound) {
+	if ([indexesToRemove count] > 0) {
 		[confLines removeObjectsAtIndexes:indexesToRemove];
 	}
+    [self autoSaveConfig];
 }
 
 

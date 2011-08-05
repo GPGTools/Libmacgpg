@@ -7,17 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1B04A0D613DF2E14003B7616 /* SignatureView.h in Headers */ = {isa = PBXBuildFile; fileRef = 1B04A0D313DF2E14003B7616 /* SignatureView.h */; };
-		1B04A0D713DF2E14003B7616 /* SignatureView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B04A0D413DF2E14003B7616 /* SignatureView.m */; };
-		1B04A0D813DF2E14003B7616 /* SignatureView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1B04A0D513DF2E14003B7616 /* SignatureView.xib */; };
-		1B04A0DF13DF2EF1003B7616 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
-		1B04A0E913DF2EF1003B7616 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 1B04A0E713DF2EF1003B7616 /* InfoPlist.strings */; };
-		1B04A0EB13DF2EF1003B7616 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B04A0EA13DF2EF1003B7616 /* main.m */; };
-		1B04A0EF13DF2EF1003B7616 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 1B04A0ED13DF2EF1003B7616 /* Credits.rtf */; };
-		1B04A0F213DF2EF1003B7616 /* SignatureViewAppAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B04A0F113DF2EF1003B7616 /* SignatureViewAppAppDelegate.m */; };
-		1B04A0F513DF2EF1003B7616 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1B04A0F313DF2EF1003B7616 /* MainMenu.xib */; };
-		1B04A0F913DF2FCD003B7616 /* Libmacgpg.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DC2EF5B0486A6940098B216 /* Libmacgpg.framework */; };
-		1B04A0FA13DF3001003B7616 /* SignatureView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1B04A0D513DF2E14003B7616 /* SignatureView.xib */; };
 		1BB3C68A13D77B6E007BFB33 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 1BB3C68813D77B6E007BFB33 /* Localizable.strings */; };
 		1BC7A50013D300A600AE57BA /* LPXTTask.h in Headers */ = {isa = PBXBuildFile; fileRef = 1BC7A4FE13D300A600AE57BA /* LPXTTask.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1BC7A50113D300A600AE57BA /* LPXTTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 1BC7A4FF13D300A600AE57BA /* LPXTTask.m */; };
@@ -30,6 +19,8 @@
 		30691AA4136AECC4004AA469 /* GPGOptions.h in Headers */ = {isa = PBXBuildFile; fileRef = 30691AA2136AECC4004AA469 /* GPGOptions.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		30691AA5136AECC4004AA469 /* GPGOptions.m in Sources */ = {isa = PBXBuildFile; fileRef = 30691AA3136AECC4004AA469 /* GPGOptions.m */; };
 		307D79111340B71A005C9C32 /* TODO in Resources */ = {isa = PBXBuildFile; fileRef = 307D79101340B71A005C9C32 /* TODO */; };
+		309A18D013E3812E0069DC0F /* GPGTransformer.h in Headers */ = {isa = PBXBuildFile; fileRef = 309A18CE13E3812E0069DC0F /* GPGTransformer.h */; };
+		309A18D113E3812E0069DC0F /* GPGTransformer.m in Sources */ = {isa = PBXBuildFile; fileRef = 309A18CF13E3812E0069DC0F /* GPGTransformer.m */; };
 		309A20FB13587D5B0041E0AA /* GPGPacket.h in Headers */ = {isa = PBXBuildFile; fileRef = 309A20F913587D5B0041E0AA /* GPGPacket.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		309A20FC13587D5B0041E0AA /* GPGPacket.m in Sources */ = {isa = PBXBuildFile; fileRef = 309A20FA13587D5B0041E0AA /* GPGPacket.m */; };
 		30BA88F2138FE593005982D9 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 30BA88F1138FE593005982D9 /* SystemConfiguration.framework */; };
@@ -79,21 +70,6 @@
 
 /* Begin PBXFileReference section */
 		1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
-		1B04A0D313DF2E14003B7616 /* SignatureView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SignatureView.h; path = ../SignatureView.h; sourceTree = "<group>"; };
-		1B04A0D413DF2E14003B7616 /* SignatureView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SignatureView.m; path = ../SignatureView.m; sourceTree = "<group>"; };
-		1B04A0D513DF2E14003B7616 /* SignatureView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = SignatureView.xib; path = ../SignatureView.xib; sourceTree = "<group>"; };
-		1B04A0DD13DF2EF1003B7616 /* SignatureViewApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SignatureViewApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		1B04A0E113DF2EF1003B7616 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
-		1B04A0E213DF2EF1003B7616 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
-		1B04A0E313DF2EF1003B7616 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		1B04A0E613DF2EF1003B7616 /* SignatureViewApp-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "SignatureViewApp-Info.plist"; sourceTree = "<group>"; };
-		1B04A0E813DF2EF1003B7616 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		1B04A0EA13DF2EF1003B7616 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		1B04A0EC13DF2EF1003B7616 /* SignatureViewApp-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SignatureViewApp-Prefix.pch"; sourceTree = "<group>"; };
-		1B04A0EE13DF2EF1003B7616 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
-		1B04A0F013DF2EF1003B7616 /* SignatureViewAppAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SignatureViewAppAppDelegate.h; sourceTree = "<group>"; };
-		1B04A0F113DF2EF1003B7616 /* SignatureViewAppAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SignatureViewAppAppDelegate.m; sourceTree = "<group>"; };
-		1B04A0F413DF2EF1003B7616 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		1BB3C68913D77B6E007BFB33 /* English */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = English; path = Localizable.strings; sourceTree = "<group>"; };
 		1BC7A4FE13D300A600AE57BA /* LPXTTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LPXTTask.h; path = Source/LPXTTask.h; sourceTree = "<group>"; };
 		1BC7A4FF13D300A600AE57BA /* LPXTTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = LPXTTask.m; path = Source/LPXTTask.m; sourceTree = "<group>"; };
@@ -106,6 +82,8 @@
 		30691AA2136AECC4004AA469 /* GPGOptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGOptions.h; path = Source/GPGOptions.h; sourceTree = "<group>"; };
 		30691AA3136AECC4004AA469 /* GPGOptions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GPGOptions.m; path = Source/GPGOptions.m; sourceTree = "<group>"; };
 		307D79101340B71A005C9C32 /* TODO */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TODO; sourceTree = "<group>"; };
+		309A18CE13E3812E0069DC0F /* GPGTransformer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGTransformer.h; path = Source/GPGTransformer.h; sourceTree = "<group>"; };
+		309A18CF13E3812E0069DC0F /* GPGTransformer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GPGTransformer.m; path = Source/GPGTransformer.m; sourceTree = "<group>"; };
 		309A20F913587D5B0041E0AA /* GPGPacket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGPacket.h; path = Source/GPGPacket.h; sourceTree = "<group>"; };
 		309A20FA13587D5B0041E0AA /* GPGPacket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GPGPacket.m; path = Source/GPGPacket.m; sourceTree = "<group>"; };
 		30BA88F1138FE593005982D9 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
@@ -148,15 +126,6 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		1B04A0DA13DF2EF1003B7616 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				1B04A0F913DF2FCD003B7616 /* Libmacgpg.framework in Frameworks */,
-				1B04A0DF13DF2EF1003B7616 /* Cocoa.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		30C8B38B139503A800F49AA1 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -183,7 +152,6 @@
 			isa = PBXGroup;
 			children = (
 				8DC2EF5B0486A6940098B216 /* Libmacgpg.framework */,
-				1B04A0DD13DF2EF1003B7616 /* SignatureViewApp.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -195,7 +163,6 @@
 				08FB77AEFE84172EC02AAC07 /* Classes */,
 				32C88DFF0371C24200C91783 /* Other Sources */,
 				089C1665FE841158C02AAC07 /* Resources */,
-				1B04A0E413DF2EF1003B7616 /* SignatureViewApp */,
 				0867D69AFE84028FC02AAC07 /* Frameworks */,
 				034768DFFF38A50411DB9C8B /* Products */,
 				30C8B399139504DC00F49AA1 /* UnitTest */,
@@ -210,7 +177,6 @@
 				30BA88F1138FE593005982D9 /* SystemConfiguration.framework */,
 				3026F4AE13A203A000F3CA02 /* Security.framework */,
 				30247EF4135B2139003BA5E3 /* libcrypto.dylib */,
-				1B04A0E013DF2EF1003B7616 /* Other Frameworks */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -245,46 +211,12 @@
 				30FF413212FAC6CD00F39832 /* GPGTask.m */,
 				30FF413312FAC6CD00F39832 /* GPGTaskOrder.h */,
 				30FF413412FAC6CD00F39832 /* GPGTaskOrder.m */,
+				309A18CE13E3812E0069DC0F /* GPGTransformer.h */,
+				309A18CF13E3812E0069DC0F /* GPGTransformer.m */,
 				1BC7A4FE13D300A600AE57BA /* LPXTTask.h */,
 				1BC7A4FF13D300A600AE57BA /* LPXTTask.m */,
 			);
 			name = Classes;
-			sourceTree = "<group>";
-		};
-		1B04A0E013DF2EF1003B7616 /* Other Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				1B04A0E113DF2EF1003B7616 /* AppKit.framework */,
-				1B04A0E213DF2EF1003B7616 /* CoreData.framework */,
-				1B04A0E313DF2EF1003B7616 /* Foundation.framework */,
-			);
-			name = "Other Frameworks";
-			sourceTree = "<group>";
-		};
-		1B04A0E413DF2EF1003B7616 /* SignatureViewApp */ = {
-			isa = PBXGroup;
-			children = (
-				1B04A0D313DF2E14003B7616 /* SignatureView.h */,
-				1B04A0D413DF2E14003B7616 /* SignatureView.m */,
-				1B04A0D513DF2E14003B7616 /* SignatureView.xib */,
-				1B04A0F013DF2EF1003B7616 /* SignatureViewAppAppDelegate.h */,
-				1B04A0F113DF2EF1003B7616 /* SignatureViewAppAppDelegate.m */,
-				1B04A0F313DF2EF1003B7616 /* MainMenu.xib */,
-				1B04A0E513DF2EF1003B7616 /* Supporting Files */,
-			);
-			path = SignatureViewApp;
-			sourceTree = "<group>";
-		};
-		1B04A0E513DF2EF1003B7616 /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				1B04A0E613DF2EF1003B7616 /* SignatureViewApp-Info.plist */,
-				1B04A0E713DF2EF1003B7616 /* InfoPlist.strings */,
-				1B04A0EA13DF2EF1003B7616 /* main.m */,
-				1B04A0EC13DF2EF1003B7616 /* SignatureViewApp-Prefix.pch */,
-				1B04A0ED13DF2EF1003B7616 /* Credits.rtf */,
-			);
-			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
 		1BB3C68713D77B6E007BFB33 /* English.lproj */ = {
@@ -369,30 +301,13 @@
 				30D259DC136DC13100274D9F /* GPGConf.h in Headers */,
 				30D259E0136DC13E00274D9F /* GPGConfLine.h in Headers */,
 				1BC7A50013D300A600AE57BA /* LPXTTask.h in Headers */,
-				1B04A0D613DF2E14003B7616 /* SignatureView.h in Headers */,
+				309A18D013E3812E0069DC0F /* GPGTransformer.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		1B04A0DC13DF2EF1003B7616 /* SignatureViewApp */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 1B04A0F613DF2EF1003B7616 /* Build configuration list for PBXNativeTarget "SignatureViewApp" */;
-			buildPhases = (
-				1B04A0D913DF2EF1003B7616 /* Sources */,
-				1B04A0DA13DF2EF1003B7616 /* Frameworks */,
-				1B04A0DB13DF2EF1003B7616 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = SignatureViewApp;
-			productName = SignatureViewApp;
-			productReference = 1B04A0DD13DF2EF1003B7616 /* SignatureViewApp.app */;
-			productType = "com.apple.product-type.application";
-		};
 		30C8B38D139503A800F49AA1 /* UnitTest */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 30C8B392139503A900F49AA1 /* Build configuration list for PBXNativeTarget "UnitTest" */;
@@ -448,7 +363,6 @@
 				Japanese,
 				French,
 				German,
-				en,
 			);
 			mainGroup = 0867D691FE84028FC02AAC07 /* Libmacgpg */;
 			productRefGroup = 034768DFFF38A50411DB9C8B /* Products */;
@@ -457,23 +371,11 @@
 			targets = (
 				8DC2EF4F0486A6940098B216 /* Libmacgpg */,
 				30C8B38D139503A800F49AA1 /* UnitTest */,
-				1B04A0DC13DF2EF1003B7616 /* SignatureViewApp */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		1B04A0DB13DF2EF1003B7616 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				1B04A0FA13DF3001003B7616 /* SignatureView.xib in Resources */,
-				1B04A0E913DF2EF1003B7616 /* InfoPlist.strings in Resources */,
-				1B04A0EF13DF2EF1003B7616 /* Credits.rtf in Resources */,
-				1B04A0F513DF2EF1003B7616 /* MainMenu.xib in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		30C8B389139503A800F49AA1 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -487,7 +389,6 @@
 			files = (
 				307D79111340B71A005C9C32 /* TODO in Resources */,
 				1BB3C68A13D77B6E007BFB33 /* Localizable.strings in Resources */,
-				1B04A0D813DF2E14003B7616 /* SignatureView.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -510,15 +411,6 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		1B04A0D913DF2EF1003B7616 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				1B04A0EB13DF2EF1003B7616 /* main.m in Sources */,
-				1B04A0F213DF2EF1003B7616 /* SignatureViewAppAppDelegate.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		30C8B38A139503A800F49AA1 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -550,7 +442,7 @@
 				30D259DD136DC13100274D9F /* GPGConf.m in Sources */,
 				30D259E1136DC13E00274D9F /* GPGConfLine.m in Sources */,
 				1BC7A50113D300A600AE57BA /* LPXTTask.m in Sources */,
-				1B04A0D713DF2E14003B7616 /* SignatureView.m in Sources */,
+				309A18D113E3812E0069DC0F /* GPGTransformer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -565,30 +457,6 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		1B04A0E713DF2EF1003B7616 /* InfoPlist.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				1B04A0E813DF2EF1003B7616 /* en */,
-			);
-			name = InfoPlist.strings;
-			sourceTree = "<group>";
-		};
-		1B04A0ED13DF2EF1003B7616 /* Credits.rtf */ = {
-			isa = PBXVariantGroup;
-			children = (
-				1B04A0EE13DF2EF1003B7616 /* en */,
-			);
-			name = Credits.rtf;
-			sourceTree = "<group>";
-		};
-		1B04A0F313DF2EF1003B7616 /* MainMenu.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				1B04A0F413DF2EF1003B7616 /* en */,
-			);
-			name = MainMenu.xib;
-			sourceTree = "<group>";
-		};
 		1BB3C68813D77B6E007BFB33 /* Localizable.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -600,51 +468,6 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
-		1B04A0F713DF2EF1003B7616 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
-				CLANG_ENABLE_OBJC_ARC = NO;
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "SignatureViewApp/SignatureViewApp-Prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
-				INFOPLIST_FILE = "SignatureViewApp/SignatureViewApp-Info.plist";
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				WRAPPER_EXTENSION = app;
-			};
-			name = Debug;
-		};
-		1B04A0F813DF2EF1003B7616 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
-				CLANG_ENABLE_OBJC_ARC = NO;
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "SignatureViewApp/SignatureViewApp-Prefix.pch";
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
-				INFOPLIST_FILE = "SignatureViewApp/SignatureViewApp-Info.plist";
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				WRAPPER_EXTENSION = app;
-			};
-			name = Release;
-		};
 		1DEB91AE08733DA50010E9CD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -765,14 +588,6 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		1B04A0F613DF2EF1003B7616 /* Build configuration list for PBXNativeTarget "SignatureViewApp" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				1B04A0F713DF2EF1003B7616 /* Debug */,
-				1B04A0F813DF2EF1003B7616 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-		};
 		1DEB91AD08733DA50010E9CD /* Build configuration list for PBXNativeTarget "Libmacgpg" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

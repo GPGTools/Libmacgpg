@@ -1,19 +1,21 @@
 /*
- Copyright © Roman Zechmeister, 2010
+ Copyright © Roman Zechmeister, 2011
  
- Dieses Programm ist freie Software. Sie können es unter den Bedingungen 
+ Diese Datei ist Teil von Libmacgpg.
+ 
+ Libmacgpg ist freie Software. Sie können es unter den Bedingungen 
  der GNU General Public License, wie von der Free Software Foundation 
  veröffentlicht, weitergeben und/oder modifizieren, entweder gemäß 
  Version 3 der Lizenz oder (nach Ihrer Option) jeder späteren Version.
  
- Die Veröffentlichung dieses Programms erfolgt in der Hoffnung, daß es Ihnen 
+ Die Veröffentlichung von Libmacgpg erfolgt in der Hoffnung, daß es Ihnen 
  von Nutzen sein wird, aber ohne irgendeine Garantie, sogar ohne die implizite 
  Garantie der Marktreife oder der Verwendbarkeit für einen bestimmten Zweck. 
  Details finden Sie in der GNU General Public License.
  
  Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem 
  Programm erhalten haben. Falls nicht, siehe <http://www.gnu.org/licenses/>.
-*/
+ */
 
 #import <Libmacgpg/GPGGlobals.h>
 #import <Libmacgpg/GPGUserID.h>
@@ -32,52 +34,29 @@
 	NSMutableArray *photos;
 	
 	NSString *textForFilter; //In diesem String stehen die verschiedenen Informationen über den Schlüssel, damit das Filtern schnell funktioniert.
+	NSString *allFingerprints;
 	
-	GPGUserID *primaryUserID;	
+	GPGUserID *primaryUserID;
 	NSString *fingerprint;
 	GPGValidity ownerTrust;
 	BOOL secret;
 }
 
-+ (void)splitUserID:(NSString *)aUserID intoName:(NSString **)name email:(NSString **)email comment:(NSString **)comment;
-
-
-+ (id)keyWithListing:(NSArray *)listing fingerprint:(NSString *)aFingerprint isSecret:(BOOL)isSec withSigs:(BOOL)withSigs;
-- (id)initWithListing:(NSArray *)listing fingerprint:(NSString *)aFingerprint isSecret:(BOOL)isSec withSigs:(BOOL)withSigs;
-- (void)updateWithListing:(NSArray *)listing isSecret:(BOOL)isSec withSigs:(BOOL)withSigs;
-
-- (void)updateFilterText;
-
-
-- (void)updatePhotos;
-- (void)updatePreferences;
-
-
-
-
-
-
-@property (retain) NSMutableArray *photos;
-@property (retain) NSString *textForFilter; //In diesem String stehen die verschiedenen Informationen über den Schlüssel, damit das Filtern schnell funktioniert.
-@property (retain) NSString *fingerprint;
-@property GPGValidity ownerTrust;
-@property BOOL secret;
+@property (readonly, retain) NSMutableArray *photos;
+@property (readonly, retain) NSString *textForFilter; //In diesem String stehen die verschiedenen Informationen über den Schlüssel, damit das Filtern schnell funktioniert.
+@property (readonly, retain) NSString *allFingerprints;
+@property (readonly, retain) NSString *fingerprint;
+@property (readonly) GPGValidity ownerTrust;
+@property (readonly) BOOL secret;
 @property (readonly) BOOL safe; //Gibt an ob der Schlüssel sicher ist. (Länge > 1024 Bit, kein MD5 oder SHA-1)
-
-
 @property (readonly) GPGUserID *primaryUserID;
-
 @property (readonly) GPGKey *primaryKey;
 @property (readonly) NSString *type;
 @property (readonly) NSInteger index;
-
 @property (readonly) NSString *userID;
 @property (readonly) NSString *name;
 @property (readonly) NSString *email;
 @property (readonly) NSString *comment;
-
-
-
 
 - (void)setChildren:(NSMutableArray *)value;
 - (NSArray *)children;
@@ -108,5 +87,16 @@
 - (void)removeObjectFromUserIDsAtIndex:(unsigned)theIndex;
 - (void)replaceObjectInUserIDsAtIndex:(unsigned)theIndex withObject:(id)obj;
 - (void)removeObjectsFromUserIDsIdenticalTo:(id <NSFastEnumeration>)objects;
+
+
+
++ (void)setInfosWithUserID:(NSString *)aUserID toObject:(NSObject <GPGUserIDProtocol> *)object;
+
++ (id)keyWithListing:(NSArray *)listing fingerprint:(NSString *)aFingerprint isSecret:(BOOL)isSec withSigs:(BOOL)withSigs;
+- (id)initWithListing:(NSArray *)listing fingerprint:(NSString *)aFingerprint isSecret:(BOOL)isSec withSigs:(BOOL)withSigs;
+- (void)updateWithListing:(NSArray *)listing isSecret:(BOOL)isSec withSigs:(BOOL)withSigs;
+
+- (void)updatePreferences;
+
 
 @end

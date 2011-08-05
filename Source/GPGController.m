@@ -1,3 +1,22 @@
+/*
+ Copyright © Roman Zechmeister, 2011
+ 
+ Diese Datei ist Teil von Libmacgpg.
+ 
+ Libmacgpg ist freie Software. Sie können es unter den Bedingungen 
+ der GNU General Public License, wie von der Free Software Foundation 
+ veröffentlicht, weitergeben und/oder modifizieren, entweder gemäß 
+ Version 3 der Lizenz oder (nach Ihrer Option) jeder späteren Version.
+ 
+ Die Veröffentlichung von Libmacgpg erfolgt in der Hoffnung, daß es Ihnen 
+ von Nutzen sein wird, aber ohne irgendeine Garantie, sogar ohne die implizite 
+ Garantie der Marktreife oder der Verwendbarkeit für einen bestimmten Zweck. 
+ Details finden Sie in der GNU General Public License.
+ 
+ Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem 
+ Programm erhalten haben. Falls nicht, siehe <http://www.gnu.org/licenses/>.
+*/
+
 #import "GPGController.h"
 #import "GPGKey.h"
 #import "GPGTaskOrder.h"
@@ -45,11 +64,12 @@
 - (void)keysChanged:(NSObject <EnumerationList> *)keys;
 - (void)keyChanged:(NSObject <KeyFingerprint> *)key;
 + (void)readGPGConfig;
+- (void)setLastReturnValue:(id)value;
 @end
 
 
 @implementation GPGController
-@synthesize delegate, keyserver, keyserverTimeout, proxyServer, async, userInfo, useArmor, useTextMode, printVersion, useDefaultComments, trustAllKeys, signatures, lastSignature, gpgHome, verbose, error;
+@synthesize delegate, keyserver, keyserverTimeout, proxyServer, async, userInfo, useArmor, useTextMode, printVersion, useDefaultComments, trustAllKeys, signatures, lastSignature, gpgHome, verbose, lastReturnValue, error;
 
 NSString *gpgVersion = nil;
 NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil, *compressAlgorithm = nil;
@@ -97,6 +117,14 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 - (NSArray *)signerKeys {
 	return [[signerKeys copy] autorelease];
 }
+- (void)setComment:(NSString *)comment {
+	[self willChangeValueForKey:@"comments"];
+	[comments removeAllObjects];
+	if (comment) {
+		[comments addObject:comment];
+	}
+	[self didChangeValueForKey:@"comments"];
+}
 - (void)addComment:(NSString *)comment {
 	[self willChangeValueForKey:@"comments"];
 	[comments addObject:comment];
@@ -106,6 +134,14 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 	[self willChangeValueForKey:@"comments"];
 	[comments removeObjectAtIndex:index];
 	[self didChangeValueForKey:@"comments"];
+}
+- (void)setSignerKey:(NSString *)signerKey {
+	[self willChangeValueForKey:@"signerKeys"];
+	[signerKeys removeAllObjects];
+	if (signerKey) {
+		[signerKeys addObject:signerKey];
+	}
+	[self didChangeValueForKey:@"signerKeys"];
 }
 - (void)addSignerKey:(NSString *)signerKey {
 	[self willChangeValueForKey:@"signerKeys"];
@@ -396,6 +432,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		[asyncProxy decryptData:data];
 		return nil;
 	}
+    NSData *retVal;
     
 	@try {
 		[self operationDidStart];
@@ -414,12 +451,11 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 	} @catch (NSException *e) {
 		[self handleException:e];
 	} @finally {
+        retVal = gpgTask.outData;
 		[self cleanAfterOperation];
+        [self operationDidFinishWithReturnValue:retVal];	
 	}
-
-    NSData *retVal = gpgTask.outData;
     
-	[self operationDidFinishWithReturnValue:retVal];	
 	return retVal;
 }
 
@@ -429,6 +465,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		[asyncProxy verifySignature:signatureData originalData:originalData];
 		return nil;
 	}
+    NSArray *retVal;
 	@try {
 		[self operationDidStart];
 		
@@ -449,11 +486,11 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 	} @catch (NSException *e) {
 		[self handleException:e];
 	} @finally {
+        retVal = self.signatures;
 		[self cleanAfterOperation];
+        [self operationDidFinishWithReturnValue:retVal];	
 	}
 	
-	NSArray *retVal = self.signatures;
-	[self operationDidFinishWithReturnValue:retVal];	
 	return retVal;
 }
 
@@ -1892,6 +1929,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 }
 - (void)operationDidFinishWithReturnValue:(id)value {
 	if (runningOperations == 0) {
+        lastReturnValue = value;
 		if ([delegate respondsToSelector:@selector(gpgController:operationDidFinishWithReturnValue:)]) {
 			[delegate gpgController:self operationDidFinishWithReturnValue:value];
 		}		
@@ -2090,7 +2128,12 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 }
 
 
-
+- (void)setLastReturnValue:(id)value {
+    if (value != lastReturnValue) {
+        [lastReturnValue release];
+        lastReturnValue = [value retain];
+    }
+}
 
 
 

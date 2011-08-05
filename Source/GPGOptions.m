@@ -1,4 +1,25 @@
-/* Copyright © 2002-2006 Mac GPG Project. */
+/*
+ Copyright © Roman Zechmeister, 2011
+ 
+ Diese Datei ist Teil von Libmacgpg.
+ 
+ Libmacgpg ist freie Software. Sie können es unter den Bedingungen 
+ der GNU General Public License, wie von der Free Software Foundation 
+ veröffentlicht, weitergeben und/oder modifizieren, entweder gemäß 
+ Version 3 der Lizenz oder (nach Ihrer Option) jeder späteren Version.
+ 
+ Die Veröffentlichung von Libmacgpg erfolgt in der Hoffnung, daß es Ihnen 
+ von Nutzen sein wird, aber ohne irgendeine Garantie, sogar ohne die implizite 
+ Garantie der Marktreife oder der Verwendbarkeit für einen bestimmten Zweck. 
+ Details finden Sie in der GNU General Public License.
+ 
+ Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem 
+ Programm erhalten haben. Falls nicht, siehe <http://www.gnu.org/licenses/>.
+ 
+ Diese Datei basiert auf GPGOptions.m von MacGPGME.
+*/
+
+
 #import "GPGOptions.h"
 #import "GPGConf.h"
 #import <SystemConfiguration/SystemConfiguration.h>
@@ -222,12 +243,29 @@ NSDictionary *domainKeys;
 }
 
 
-
+- (NSArray *)allValuesInGPGConfForKey:(NSString *)key {
+    NSArray *lines = [self.gpgConf optionsWithName:key];
+    NSMutableArray *values = [NSMutableArray arrayWithCapacity:[lines count]];
+    
+    [lines enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        [values addObject:[obj value]];
+    }];
+    return values;
+}
 - (id)valueInGPGConfForKey:(NSString *)key {
 	return [self.gpgConf valueForKey:key];
 }
 - (void)setValueInGPGConf:(id)value forKey:(NSString *)key {
 	[self.gpgConf setValue:value forKey:key];
+}
+- (NSArray *)allValuesInGPGAgentConfForKey:(NSString *)key {
+    NSArray *lines = [self.gpgAgentConf optionsWithName:key];
+    NSMutableArray *values = [NSMutableArray arrayWithCapacity:[lines count]];
+    
+    [lines enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        [values addObject:[obj value]];
+    }];
+    return values;
 }
 - (id)valueInGPGAgentConfForKey:(NSString *)key {
 	return [self.gpgAgentConf valueForKey:key];

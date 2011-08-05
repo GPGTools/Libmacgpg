@@ -20,24 +20,14 @@
 #import <Cocoa/Cocoa.h>
 
 
-@interface GPGRemoteUserID : NSObject {
-	NSString *userID;
-	NSString *name;
-	NSString *email;
-	NSString *comment;
-	NSDate *creationDate;
-	NSDate *expirationDate;
+@interface GPGKeyAlgorithmNameTransformer : NSValueTransformer {}
+@end
+
+@interface GPGKeyStatusDescriptionTransformer : NSValueTransformer {}
+@end
+
+@interface SplitFormatter : NSFormatter {
+	NSInteger blockSize;
 }
-
-@property (readonly, retain) NSString *userID;
-@property (readonly, retain) NSString *name;
-@property (readonly, retain) NSString *email;
-@property (readonly, retain) NSString *comment;
-@property (readonly, retain) NSDate *creationDate;
-@property (readonly, retain) NSDate *expirationDate;
-
-
-+ (id)userIDWithListing:(NSString *)listing;
-- (id)initWithListing:(NSString *)listing;
-
+@property NSInteger blockSize;
 @end
