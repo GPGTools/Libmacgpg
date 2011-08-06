@@ -24,6 +24,10 @@
 - (NSString *)gpgString {
     NSString *retString;
     
+	if ([self length] == 0) {
+		return @"";
+	}
+	
     int encodings[4] = {NSUTF8StringEncoding, NSISOLatin1StringEncoding, NSISOLatin2StringEncoding,
                         NSASCIIStringEncoding};
     for(int i = 0; i < 4; i++) {
