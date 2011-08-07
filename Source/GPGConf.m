@@ -20,6 +20,7 @@
 #import "GPGConf.h"
 #import "GPGConfLine.h"
 #import "GPGGlobals.h"
+#import "GPGException.h"
 
 
 @implementation GPGConf
@@ -130,7 +131,7 @@
 		if (confLine) {
 			[confLines addObject:confLine];
 		} else {
-			@throw gpgException(GPGException, @"Can not load the config", GPGErrorGeneralError);
+			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Can not load the config") errorCode:GPGErrorGeneralError];
 		}
 	}
 }

@@ -144,8 +144,8 @@
 }
 @end
 
-NSString *GPGTaskException = @"GPGTaskException";
-NSString *GPGException = @"GPGException";
+//NSString *GPGTaskException = @"GPGTaskException";
+//NSString *GPGException = @"GPGException";
 NSString *GPGKeysChangedNotification = @"GPGKeysChangedNotification";
 NSString *GPGOptionsChangedNotification = @"GPGOptionsChangedNotification";
 
@@ -256,7 +256,7 @@ NSString* bytesToHexString(const uint8_t *bytes, NSUInteger length) {
 	return [NSString stringWithUTF8String:hexString];
 }
 
-NSException* gpgTaskException(NSString *name, NSString *reason, int errorCode, GPGTask *gpgTask) {
+/*NSException* gpgTaskException(NSString *name, NSString *reason, int errorCode, GPGTask *gpgTask) {
 	if (gpgTask.exitcode == GPGErrorCancelled) {
 		errorCode = GPGErrorCancelled;
 		reason = @"Operation cancelled!";
@@ -277,7 +277,7 @@ NSException* gpgExceptionWithUserInfo(NSString *name, NSString *reason, int erro
 	[mutableUserInfo setObject:[NSNumber numberWithInt:errorCode] forKey:@"errorCode"];
 	return [NSException exceptionWithName:name reason:localizedLibmacgpgString(reason) userInfo:mutableUserInfo];
 }
-
+*/
 
 
 

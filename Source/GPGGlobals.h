@@ -394,9 +394,7 @@ typedef enum {
     GPGError_EUSERS = 16521, 
     GPGError_EWOULDBLOCK = 16522, 
     GPGError_EXDEV = 16523, 
-    GPGError_EXFULL = 16524,  
-    // This is one more than the largest allowed entry.  
-    GPGError_CODE_DIM = 65536 
+    GPGError_EXFULL = 16524
 } GPGErrorCode;
 typedef enum {
     GPGPublicKeyEncrypt = 1,
@@ -544,8 +542,8 @@ enum gpgStatusCodes {
 #define localizedLibmacgpgString(key) [[NSBundle bundleWithIdentifier:@"org.gpgtools.Libmacgpg"] localizedStringForKey:(key) value:@"" table:@""]
 #define GPG_SERVICE_NAME "GnuPG"
 
-extern NSString *GPGTaskException;
-extern NSString *GPGException;
+//extern NSString *GPGTaskException;
+//extern NSString *GPGException;
 extern NSString *GPGKeysChangedNotification;
 extern NSString *GPGOptionsChangedNotification;
 
@@ -574,9 +572,10 @@ NSString* getKeyID(NSString *fingerprint);
 NSString* bytesToHexString(const uint8_t *bytes, NSUInteger length);
 
 
-NSException* gpgTaskException(NSString *name, NSString *reason, int errorCode, GPGTask *gpgTask);
+/*NSException* gpgTaskException(NSString *name, NSString *reason, int errorCode, GPGTask *gpgTask);
 NSException* gpgException(NSString *name, NSString *reason, int errorCode);
 NSException* gpgExceptionWithUserInfo(NSString *name, NSString *reason, int errorCode, NSDictionary *userInfo);
+*/
 
 
 @protocol GPGUserIDProtocol

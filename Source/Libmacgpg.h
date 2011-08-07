@@ -33,3 +33,5 @@
 #import <Libmacgpg/GPGConf.h>
 #import <Libmacgpg/GPGConfLine.h>
 #import <Libmacgpg/GPGPhotoID.h>
+#import <Libmacgpg/GPGException.h>
+#import <Libmacgpg/GPGTransformer.h>

@@ -160,7 +160,7 @@
 - (NSData *)decryptData:(NSData *)data;
 - (NSArray *)verifySignature:(NSData *)signatureData originalData:(NSData *)originalData;
 - (NSArray *)verifySignedData:(NSData *)signedData;
-
+- (GPGErrorCode)testGPG;
 
 
 

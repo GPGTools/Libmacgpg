@@ -21,6 +21,7 @@
 #import "GPGGlobals.h"
 #import "GPGOptions.h"
 #import "LPXTTask.h"
+#import "GPGException.h"
 //#import <sys/shm.h>
 
 @interface GPGTask (Private)
@@ -82,7 +83,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 	} else {
 		_gpgPath = [self findExecutableWithName:@"gpg"];
 		if (!_gpgPath) {
-			@throw [NSException exceptionWithName:GPGTaskException reason:localizedLibmacgpgString(@"GPG not found!") userInfo:nil];
+			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"GPG not found!") errorCode:GPGErrorNotFound];
 		}
 	}
 	[_gpgPath retain];
@@ -725,7 +726,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 	[pinentryTask waitUntilExit];
 	
 	if (!output) {
-		@throw gpgException(GPGException, @"Pinentry error!", GPGErrorPINEntryError);
+		@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Pinentry error!") errorCode:GPGErrorPINEntryError];
 	}
 	NSString *outString = [output gpgString];
 	
@@ -744,7 +745,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 		if ([[outString substringWithRange:range] integerValue] == 0x5000063) {
 			[self cancel];
 		} else {
-			@throw gpgException(GPGException, @"Pinentry error!", GPGErrorPINEntryError);
+			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Pinentry error!") errorCode:GPGErrorPINEntryError];
 		}
 		return nil;
 	}
