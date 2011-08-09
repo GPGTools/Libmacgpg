@@ -1,7 +1,6 @@
-#import <Foundation/Foundation.h>
 #import <Libmacgpg/GPGGlobals.h>
+#import <Libmacgpg/GPGTask.h>
 
-@class GPGTask;
 
 @interface GPGException : NSException {
 	GPGTask *gpgTask;
