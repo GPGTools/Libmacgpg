@@ -83,6 +83,7 @@ typedef enum {
 - (id)valueInGPGAgentConfForKey:(NSString *)key;
 - (void)setValueInGPGAgentConf:(id)value forKey:(NSString *)key;
 
+- (void)gpgAgentFlush;
 
 + (NSString *)standardizedKey:(NSString *)key;
 - (GPGOptionsDomain)domainForKey:(NSString *)key;

@@ -96,7 +96,10 @@
 		}
 		[self addOptionWithName:key];
 	} else if ([value isKindOfClass:[NSString class]]) {
-		[self setValue:value ofOptionWithName:key useDisabled:YES];
+		if (!optionsWhichUseDisabling) {
+			optionsWhichUseDisabling = [NSSet setWithObjects:@"keyserver", nil];
+		}
+		[self setValue:value ofOptionWithName:key useDisabled:[optionsWhichUseDisabling containsObject:key]];
 	} else if ([value isKindOfClass:[NSArray class]]) {
 		[self setAllOptionsWithName:key values:value];
 	} else {
@@ -472,6 +475,7 @@
 - (void)dealloc {
 	self.path = nil;
 	[confLines release];
+	[optionsWhichUseDisabling release];
 	[super dealloc];
 }
 

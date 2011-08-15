@@ -26,6 +26,7 @@
 	NSStringEncoding encoding;
 	NSMutableArray *confLines;
 	BOOL autoSave;
+	NSSet *optionsWhichUseDisabling;
 }
 
 @property (retain) NSString *path;

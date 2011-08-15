@@ -69,10 +69,10 @@ NSDictionary *domainKeys;
 	NSObject *value = nil;
 	switch (domain) {
 		case GPGDomain_gpgConf:
-			value = [self.gpgConf valueForKey:key];
+			value = [self valueInGPGConfForKey:key];
 			break;
 		case GPGDomain_gpgAgentConf:
-			value = [self.gpgAgentConf valueForKey:key];
+			value = [self valueInGPGAgentConfForKey:key];
 			break;
 		case GPGDomain_environment:
 			value = [self valueInEnvironmentForKey:key];
@@ -94,12 +94,10 @@ NSDictionary *domainKeys;
 - (void)setValue:(id)value forKey:(NSString *)key inDomain:(GPGOptionsDomain)domain {
 	switch (domain) {
 		case GPGDomain_gpgConf:
-			[self.gpgConf setValue:value forKey:key];
-			[self valueChanged:value forKey:key inDomain:GPGDomain_gpgConf];
+			[self setValueInGPGConf:value forKey:key];
 			break;
 		case GPGDomain_gpgAgentConf:
-			[self.gpgAgentConf setValue:value forKey:key];
-			[self valueChanged:value forKey:key inDomain:GPGDomain_gpgAgentConf];
+			[self setValueInGPGAgentConf:value forKey:key];
 			break;
 		case GPGDomain_environment:
 			[self setValueInEnvironment:value forKey:key];
@@ -127,7 +125,7 @@ NSDictionary *domainKeys;
 	if ([key isEqualToString:@"TrustAllKeys"]) {
 		return [NSNumber numberWithBool:[[self.gpgConf valueForKey:@"trust-model"] isEqualToString:@"always"]];
 	} else if ([key isEqualToString:@"PassphraseCacheTime"]) {
-		return [self.gpgAgentConf valueForKey:@"default-cache-ttl"];
+		return [self valueInGPGAgentConfForKey:@"default-cache-ttl"];
 	} else if ([key isEqualToString:@"httpProxy"]) {
 		return self.httpProxy;
 	}
@@ -141,15 +139,9 @@ NSDictionary *domainKeys;
 		
 		BOOL oldAutoSave = self.gpgAgentConf.autoSave;
 		[self.gpgAgentConf setAutoSave:NO];
-		[self.gpgAgentConf setValue:[NSString stringWithFormat:@"%i", cacheTime] forKey:@"default-cache-ttl"];
-		[self.gpgAgentConf setValue:[NSString stringWithFormat:@"%i", cacheTime * 12] forKey:@"max-cache-ttl"];		
+		[self setValueInGPGAgentConf:[NSString stringWithFormat:@"%i", cacheTime] forKey:@"default-cache-ttl"];
 		[self.gpgAgentConf setAutoSave:oldAutoSave];
-		if (oldAutoSave) {
-			[self.gpgAgentConf saveConfig];
-		}
-		
-		[self valueChanged:[NSString stringWithFormat:@"%i", cacheTime] forKey:@"default-cache-ttl" inDomain:GPGDomain_gpgAgentConf];
-		[self valueChanged:[NSString stringWithFormat:@"%i", cacheTime * 12] forKey:@"max-cache-ttl" inDomain:GPGDomain_gpgAgentConf];
+		[self setValueInGPGAgentConf:[NSString stringWithFormat:@"%i", cacheTime * 12] forKey:@"max-cache-ttl"];
 	}
 }
 
@@ -257,7 +249,9 @@ NSDictionary *domainKeys;
 }
 - (void)setValueInGPGConf:(id)value forKey:(NSString *)key {
 	[self.gpgConf setValue:value forKey:key];
+	[self valueChanged:value forKey:key inDomain:GPGDomain_gpgConf];
 }
+
 - (NSArray *)allValuesInGPGAgentConfForKey:(NSString *)key {
     NSArray *lines = [self.gpgAgentConf optionsWithName:key];
     NSMutableArray *values = [NSMutableArray arrayWithCapacity:[lines count]];
@@ -272,6 +266,10 @@ NSDictionary *domainKeys;
 }
 - (void)setValueInGPGAgentConf:(id)value forKey:(NSString *)key {
 	[self.gpgAgentConf setValue:value forKey:key];
+	[self valueChanged:value forKey:key inDomain:GPGDomain_gpgAgentConf];
+	if (self.gpgAgentConf.autoSave) {
+		[self gpgAgentFlush];
+	}
 }
 
 
@@ -365,6 +363,9 @@ void SystemConfigurationDidChange(SCPreferencesRef prefs, SCPreferencesNotificat
 	return key;
 }
 
+- (void)gpgAgentFlush {
+	system("killall -HUP gpg-agent");
+}
 
 
 
