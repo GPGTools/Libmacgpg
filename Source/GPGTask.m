@@ -409,6 +409,9 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
     
     BOOL localVerbose = self.verbose;
     NSLog(@"Local verbose is: %@", localVerbose ? @"YES" : @"NO");
+
+	__block NSException *blockException = nil;
+
     gpgTask.parentTask = ^{
         // Setup the dispatch queue.
         dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
@@ -450,51 +453,59 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
                 [attributeData retain];
             });
         }
+				
         // Handle the status data. This is an important one.
         dispatch_group_async(collectorGroup, queue, ^{
-            NSPipe *statusPipe = [gpgTask inheritedPipeWithName:@"status"];
-            NSFileHandle *statusPipeReadingFH = [statusPipe fileHandleForReading];
-            NSData *currentData;
-            NSMutableString *line = [[NSMutableString alloc] init];
-            NSString *linePart;
-            NSArray *tmpLines;
-            while((currentData = [statusPipeReadingFH availableData]) && [currentData length]) {
-                // Add the received data for later use.
-                [completeStatusData appendData:currentData];
-                // Convert the data to a string, to better work with it.
-                linePart = [[NSString alloc] initWithData:currentData encoding:NSUTF8StringEncoding];
-                // Line part might acutally be already multiple lines, in that case, well...
-                // the fucker is split up and processKeyword:value: called for each line.
-                tmpLines = [linePart componentsSeparatedByString:@"\n"];
-                [linePart release];
-                int i = 0;
-                for(id tmpLine in tmpLines) {
-                    // If multiple lines are found, the last line will be used,
-                    // to restart a new line.
-                    if(i == 0)
-                        tmpLine = [line stringByAppendingString:tmpLine]; 
-                    if(i == [tmpLines count] - 1) {
-                        [line setString:[tmpLines objectAtIndex:[tmpLines count]-1]];
-                        break;
-                    }
-                    [self processStatusLine:tmpLine];
-                    i++;
-                }
-                // Unfortunately we never know if enough data has come in yet to parse.
-                // So, until a \n character is found, we're appending the data.
-                //[line appendString:linePart];
-                if(((NSRange)[line rangeOfString:@"\n"]).location == NSNotFound)
-                    continue;
-                [line replaceCharactersInRange:[line rangeOfString:@"\n"] withString:@""];
-                // Skip the lines that don't begin with [GNUPG:].
-                if(((NSRange)[line rangeOfString:GPG_STATUS_PREFIX]).location == NSNotFound)
-                    continue;
-                // Parse the keyword and value, and process.
-                [self processStatusLine:line];
-                // Reset line.
-                [line setString:@""];
-            }
-            [line release];
+			NSMutableString *line = [[NSMutableString alloc] init];
+			@try {
+				NSPipe *statusPipe = [gpgTask inheritedPipeWithName:@"status"];
+				NSFileHandle *statusPipeReadingFH = [statusPipe fileHandleForReading];
+				NSData *currentData;
+				NSString *linePart;
+				NSArray *tmpLines;
+				while((currentData = [statusPipeReadingFH availableData]) && [currentData length]) {
+					// Add the received data for later use.
+					[completeStatusData appendData:currentData];
+					// Convert the data to a string, to better work with it.
+					linePart = [[NSString alloc] initWithData:currentData encoding:NSUTF8StringEncoding];
+					// Line part might acutally be already multiple lines, in that case, well...
+					// the fucker is split up and processKeyword:value: called for each line.
+					tmpLines = [linePart componentsSeparatedByString:@"\n"];
+					[linePart release];
+					int i = 0;
+					for(id tmpLine in tmpLines) {
+						// If multiple lines are found, the last line will be used,
+						// to restart a new line.
+						if(i == 0)
+							tmpLine = [line stringByAppendingString:tmpLine]; 
+						if(i == [tmpLines count] - 1) {
+							[line setString:[tmpLines objectAtIndex:[tmpLines count]-1]];
+							break;
+						}
+						[self processStatusLine:tmpLine];
+						i++;
+					}
+					// Unfortunately we never know if enough data has come in yet to parse.
+					// So, until a \n character is found, we're appending the data.
+					//[line appendString:linePart];
+					if(((NSRange)[line rangeOfString:@"\n"]).location == NSNotFound)
+						continue;
+					[line replaceCharactersInRange:[line rangeOfString:@"\n"] withString:@""];
+					// Skip the lines that don't begin with [GNUPG:].
+					if(((NSRange)[line rangeOfString:GPG_STATUS_PREFIX]).location == NSNotFound)
+						continue;
+					// Parse the keyword and value, and process.
+					[self processStatusLine:line];
+					// Reset line.
+					[line setString:@""];
+				}
+
+			} @catch (NSException *exception) {
+				blockException = [exception retain];
+				[gpgTask cancel];
+			} @finally {
+				[line release];
+			}
         });
         
         // Wait for the jobs to finish.
@@ -509,6 +520,10 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
     // AAAAAAAAND NOW! Let's run the task and wait for it to complete.
     [gpgTask launchAndWait];
     
+	if (blockException) {
+		@throw [blockException autorelease];
+	}
+	
     exitcode = gpgTask.terminationStatus;
     
     // For some wicked reason gpg exits with status > 0 if a signature
@@ -522,6 +537,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
     // Add some error handling here...
     // Close all open pipes by releasing the gpgTask.
     [gpgTask release];
+	gpgTask = nil;
     
     if([delegate respondsToSelector:@selector(gpgTaskDidTerminate:)])
         [delegate gpgTaskDidTerminate:self];
@@ -668,8 +684,8 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 
 - (void)cancel {
 	cancelled = YES;
-	if (childPID) {
-		kill(childPID, SIGTERM);
+	if (gpgTask) {
+		[gpgTask cancel];
 	}
 }
 
@@ -679,9 +695,11 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 	NSTask *pinentryTask = [[NSTask new] autorelease];
 	
 	NSString *pinentryPath = [[self class] pinentryPath];
-	NSAssert(pinentryPath, @"pinentry-mac not found.");
-	pinentryTask.launchPath = pinentryPath;
+	if ([pinentryPath length] == 0) {
+		@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Pinentry not found!") errorCode:GPGErrorNoPINEntry];
+	}
 	
+	pinentryTask.launchPath = pinentryPath;
 	pinentryTask.standardInput = inPipe;
 	pinentryTask.standardOutput = outPipe;
 

@@ -30,6 +30,7 @@ typedef struct {
 
 - (void)inheritPipe:(NSPipe *)pipe mode:(int)mode dup:(int)dupfd name:(NSString *)name addIfExists:(BOOL)add;
 - (void)_performParentTask;
+@property BOOL cancelled;
 
 @end
 
@@ -38,7 +39,8 @@ typedef struct {
             environment=_environment, launchPath=_launchPath, 
             processIdentifier=_processIdentifier, standardError=_standardError,
             standardInput=_standardInput, standardOutput=_standardOutput,
-            terminationStatus=_terminationStatus, parentTask=_parentTask;
+            terminationStatus=_terminationStatus, parentTask=_parentTask,
+			cancelled=_cancelled;
 
 - (id)init
 {
@@ -374,6 +376,13 @@ static char *__BDSKCopyFileSystemRepresentation(NSString *str)
     CFRelease(_inheritedPipes);
     [_inheritedPipesMap release];
     [super dealloc];
+}
+
+- (void)cancel {
+	self.cancelled = YES;
+	if (self.processIdentifier > 0) {
+		kill(self.processIdentifier, SIGTERM);
+	}
 }
 
 @end

@@ -35,6 +35,8 @@ typedef void (^lpxt_task_t)(void);
     int _terminationStatus;
     
     lpxt_task_t _parentTask;
+	
+	BOOL _cancelled;
 
 @private
     CFMutableArrayRef _inheritedPipes;
@@ -59,7 +61,9 @@ typedef void (^lpxt_task_t)(void);
 @property (readonly) int processIdentifier;
 @property (readonly) int terminationStatus;
 @property (retain) lpxt_task_t parentTask;
+@property (readonly) BOOL cancelled;
 
+- (void)cancel;
 //- (void)terminate;
 //- (void)suspend;
 //- (void)resume;
