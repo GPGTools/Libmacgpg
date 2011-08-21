@@ -111,9 +111,9 @@ NSMutableDictionary *defaults = nil;
 
 - (id)valueForKey:(NSString *)key {
 	key = [[self class] standardizedKey:key];
-	id value = [defaults objectForKey:key];
+	id value = [self valueForKey:key inDomain:[self domainForKey:key]];
 	if (!value) {
-		value = [self valueForKey:key inDomain:[self domainForKey:key]];
+		value = [defaults objectForKey:key];
 	}
 	return value;
 }
