@@ -35,9 +35,11 @@ typedef enum {
 @interface GPGOptions : NSObject {
 	BOOL initialized;
 	NSMutableDictionary *environment;
+	NSMutableDictionary *standardDefaults;
 	NSMutableDictionary *commonDefaults;
 	NSString *httpProxy;
 	BOOL autoSave;
+	NSString *standardDomain;
 	
 	
 	GPGConf *gpgConf;
@@ -48,30 +50,41 @@ typedef enum {
 
 @property (readonly) NSString *httpProxy;
 @property BOOL autoSave;
+@property (retain) NSString *standardDomain;
 
 
 + (id)sharedOptions;
 - (id)valueForKey:(NSString *)key;
 - (void)setValue:(id)value forKey:(NSString *)key;
+- (void)removeValueForKey:(NSString *)key;
 - (id)valueForKey:(NSString *)key inDomain:(GPGOptionsDomain)domain;
 - (void)setValue:(id)value forKey:(NSString *)key inDomain:(GPGOptionsDomain)domain;
 
 
+- (void)setInteger:(NSInteger) value forKey:(NSString *)key;
+- (NSInteger)integerForKey:(NSString *)key;
+- (void)setBool:(BOOL) value forKey:(NSString *)key;
+- (BOOL)boolForKey:(NSString *)key;
+- (void)setFloat:(float)value forKey:(NSString *)key;
+- (float)floatForKey:(NSString *)key;
+- (NSString *)stringForKey:(NSString *)key;
+- (NSArray *)arrayForKey:(NSString *)key;
+
+
 - (id)valueInStandardDefaultsForKey:(NSString *)key;
 - (void)setValueInStandardDefaults:(id)value forKey:(NSString *)key;
+- (void)autoSaveStandardDefaults;
+- (void)saveStandardDefaults;
 
 - (id)valueInCommonDefaultsForKey:(NSString *)key;
 - (void)setValueInCommonDefaults:(id)value forKey:(NSString *)key;
 - (void)autoSaveCommonDefaults;
 - (void)saveCommonDefaults;
-- (void)loadCommonDefaults;
-- (NSMutableDictionary *)commonDefaults;
 
 - (id)valueInEnvironmentForKey:(NSString *)key;
 - (void)setValueInEnvironment:(id)value forKey:(NSString *)key;
 - (void)autoSaveEnvironment;
 - (void)saveEnvironment;
-- (void)loadEnvironment;
 
 - (id)specialValueForKey:(NSString *)key;
 - (void)setSpecialValue:(id)value forKey:(NSString *)key;

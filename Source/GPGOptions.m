@@ -26,9 +26,10 @@
 #import "GPGGlobals.h"
 
 
-@interface GPGOptions (Private)
+@interface GPGOptions ()
 @property (readonly) NSMutableDictionary *environment;
 @property (readonly) NSMutableDictionary *commonDefaults;
+@property (readonly) NSMutableDictionary *standardDefaults;
 - (GPGConf *)gpgConf;
 - (GPGConf *)gpgAgentConf;
 - (void)valueChanged:(id)value forKey:(NSString *)key inDomain:(GPGOptionsDomain)domain;
@@ -37,12 +38,12 @@
 
 
 @implementation GPGOptions
-NSString *_sharedInstance = nil;
+GPGOptions *_sharedInstance = nil;
 NSString *environmentPlistPath;
 NSString *environmentPlistDir;
 NSString *commonDefaultsDomain = @"org.gpgtools.common";
 NSDictionary *domainKeys;
-
+NSMutableDictionary *defaults = nil;
 
 
 - (BOOL)autoSave {
@@ -54,15 +55,74 @@ NSDictionary *domainKeys;
 	self.gpgAgentConf.autoSave = value;
 }
 
+- (NSString *)standardDomain {
+	return [[standardDomain retain] autorelease];
+}
+- (void)setStandardDomain:(NSString *)value {
+	if (value != standardDomain) {
+		[standardDefaults release];
+		standardDefaults = nil;
+		[standardDomain release];
+		standardDomain = [value retain];
+	}
+}
+
+
+
+- (void)setInteger:(NSInteger)value forKey:(NSString *)key {
+	[self setValue:[NSNumber numberWithInteger:value] forKey:key];
+}
+- (NSInteger)integerForKey:(NSString *)key {
+	return [[self valueForKey:key] integerValue];
+}
+
+- (void)setBool:(BOOL)value forKey:(NSString *)key {
+	[self setValue:[NSNumber numberWithBool:value] forKey:key];
+}
+- (BOOL)boolForKey:(NSString *)key {
+	return [[self valueForKey:key] boolValue];
+}
+
+- (void)setFloat:(float)value forKey:(NSString *)key {
+	[self setValue:[NSNumber numberWithFloat:value] forKey:key];
+}
+- (float)floatForKey:(NSString *)key {
+	return [[self valueForKey:key] floatValue];
+}
+
+- (NSString *)stringForKey:(NSString *)key {
+	NSString *obj = [self valueForKey:key];
+	if (obj && [obj isKindOfClass:[NSString class]]) {
+		return obj;
+	}
+	return nil;
+}
+
+- (NSArray *)arrayForKey:(NSString *)key {
+	NSArray *obj = [self valueForKey:key];
+	if (obj && [obj isKindOfClass:[NSArray class]]) {
+		return obj;
+	}
+	return nil;
+}
+
+
 
 
 - (id)valueForKey:(NSString *)key {
 	key = [[self class] standardizedKey:key];
-	return [self valueForKey:key inDomain:[self domainForKey:key]];
+	id value = [defaults objectForKey:key];
+	if (!value) {
+		value = [self valueForKey:key inDomain:[self domainForKey:key]];
+	}
+	return value;
 }
 - (void)setValue:(id)value forKey:(NSString *)key {
 	key = [[self class] standardizedKey:key];
 	[self setValue:value forKey:key inDomain:[self domainForKey:key]];
+}
+- (void)removeValueForKey:(NSString *)key {
+	[self setValue:nil forKey:key];
 }
 
 - (id)valueForKey:(NSString *)key inDomain:(GPGOptionsDomain)domain {
@@ -121,6 +181,10 @@ NSDictionary *domainKeys;
 
 
 
+
+
+
+
 - (id)specialValueForKey:(NSString *)key {
 	if ([key isEqualToString:@"TrustAllKeys"]) {
 		return [NSNumber numberWithBool:[[self.gpgConf valueForKey:@"trust-model"] isEqualToString:@"always"]];
@@ -135,23 +199,67 @@ NSDictionary *domainKeys;
 	if ([key isEqualToString:@"TrustAllKeys"]) {
 		[self.gpgConf setValue:[value intValue] ? @"always" : nil forKey:@"trust-model"];
 	} else if ([key isEqualToString:@"PassphraseCacheTime"]) {
-		int cacheTime = [value intValue];
+		NSString *defaultCacheTtl = nil, *maxCacheTtl = nil;
+		if (value) {
+			int cacheTime = [value intValue];
+			defaultCacheTtl = [NSString stringWithFormat:@"%i", cacheTime];
+			maxCacheTtl = [NSString stringWithFormat:@"%i", cacheTime * 12];
+		}
 		
 		BOOL oldAutoSave = self.gpgAgentConf.autoSave;
 		[self.gpgAgentConf setAutoSave:NO];
-		[self setValueInGPGAgentConf:[NSString stringWithFormat:@"%i", cacheTime] forKey:@"default-cache-ttl"];
+		[self setValueInGPGAgentConf:defaultCacheTtl forKey:@"default-cache-ttl"];
 		[self.gpgAgentConf setAutoSave:oldAutoSave];
-		[self setValueInGPGAgentConf:[NSString stringWithFormat:@"%i", cacheTime * 12] forKey:@"max-cache-ttl"];
+		[self setValueInGPGAgentConf:maxCacheTtl forKey:@"max-cache-ttl"];
 	}
 }
 
 
+
 - (id)valueInStandardDefaultsForKey:(NSString *)key {
-	return [[NSUserDefaults standardUserDefaults] objectForKey:key];
+	if (self.standardDefaults) {
+		return [self.standardDefaults objectForKey:key];
+	} else {
+		return [[NSUserDefaults standardUserDefaults] objectForKey:key];
+	}
 }
 - (void)setValueInStandardDefaults:(id)value forKey:(NSString *)key {
-	[[NSUserDefaults standardUserDefaults] setObject:value forKey:key];
-	[self valueChanged:value forKey:key inDomain:GPGDomain_standard];
+	if (self.standardDefaults) {
+		NSObject *oldValue = [self.standardDefaults objectForKey:key];
+		if(value != oldValue && ![value isEqual:oldValue]) {
+			if (!value) {
+				[self.standardDefaults removeObjectForKey:key];
+			} else {
+				[self.standardDefaults setObject:value forKey:key];
+			}
+			[self autoSaveStandardDefaults];
+			[self valueChanged:value forKey:key inDomain:GPGDomain_standard];
+		}
+	} else {
+		[[NSUserDefaults standardUserDefaults] setObject:value forKey:key];
+		[self valueChanged:value forKey:key inDomain:GPGDomain_standard];
+	}
+}
+- (void)autoSaveStandardDefaults {
+	if (autoSave) {
+		[self saveStandardDefaults];
+	}
+}
+- (void)saveStandardDefaults {
+	if (self.standardDefaults) {
+		[[NSUserDefaults standardUserDefaults] setPersistentDomain:self.standardDefaults forName:standardDomain];
+	} else {
+		[[NSUserDefaults standardUserDefaults] synchronize];
+	}
+}
+- (NSMutableDictionary *)standardDefaults {
+	if (standardDomain) {
+		if (!standardDefaults) {
+			standardDefaults = [[NSMutableDictionary alloc] initWithDictionary:[[NSUserDefaults standardUserDefaults] persistentDomainForName:standardDomain]];
+		}
+		return [[standardDefaults retain] autorelease];
+	}
+	return nil;
 }
 
 
@@ -161,7 +269,11 @@ NSDictionary *domainKeys;
 - (void)setValueInCommonDefaults:(id)value forKey:(NSString *)key {
     NSObject *oldValue = [self.commonDefaults objectForKey:key];
 	if(value != oldValue && ![value isEqual:oldValue]) {
-		[self.commonDefaults setObject:value forKey:key];
+		if (!value) {
+			[self.commonDefaults removeObjectForKey:key];
+		} else {
+			[self.commonDefaults setObject:value forKey:key];
+		}
 		[self autoSaveCommonDefaults];
 		[self valueChanged:value forKey:key inDomain:GPGDomain_common];
 	}
@@ -174,12 +286,9 @@ NSDictionary *domainKeys;
 - (void)saveCommonDefaults {
 	[[NSUserDefaults standardUserDefaults] setPersistentDomain:commonDefaults forName:commonDefaultsDomain];
 }
-- (void)loadCommonDefaults {
-	commonDefaults = [[NSMutableDictionary alloc] initWithDictionary:[[NSUserDefaults standardUserDefaults] persistentDomainForName:commonDefaultsDomain]]; 
-}
 - (NSMutableDictionary *)commonDefaults {
 	if (!commonDefaults) {
-		[self loadCommonDefaults];
+		commonDefaults = [[NSMutableDictionary alloc] initWithDictionary:[[NSUserDefaults standardUserDefaults] persistentDomainForName:commonDefaultsDomain]];
 	}
 	return [[commonDefaults retain] autorelease];
 }
@@ -193,11 +302,19 @@ NSDictionary *domainKeys;
 	return value;
 }
 - (void)setValueInEnvironment:(id)value forKey:(NSString *)key {
-	setenv([key UTF8String], [[value description] UTF8String], YES);
+	if (!value) {
+		unsetenv([key UTF8String]);
+	} else {
+		setenv([key UTF8String], [[value description] UTF8String], YES);
+	}
 	
     NSObject *oldValue = [self.environment objectForKey:key];
 	if(value != oldValue && ![value isEqual:oldValue]) {
-		[self.environment setObject:value forKey:key];
+		if (!value) {
+			[self.environment removeObjectForKey:key];
+		} else {
+			[self.environment setObject:value forKey:key];
+		}
 		[self autoSaveEnvironment];
 		[self valueChanged:value forKey:key inDomain:GPGDomain_environment];
 	}
@@ -221,15 +338,12 @@ NSDictionary *domainKeys;
 	}
 	NSAssert1([self.environment writeToFile:environmentPlistPath atomically:YES], @"Unable to write file '%@'", environmentPlistPath);
 }
-- (void)loadEnvironment {
-	environment = [[NSMutableDictionary alloc] initWithContentsOfFile:environmentPlistPath];
-	if (!environment) {
-		environment = [[NSMutableDictionary alloc] init];
-	}
-}
 - (NSMutableDictionary *)environment {
 	if (!environment) {
-		[self loadEnvironment];
+		environment = [[NSMutableDictionary alloc] initWithContentsOfFile:environmentPlistPath];
+		if (!environment) {
+			environment = [[NSMutableDictionary alloc] init];
+		}
 	}
 	return [[environment retain] autorelease];
 }
@@ -269,6 +383,17 @@ NSDictionary *domainKeys;
 	[self valueChanged:value forKey:key inDomain:GPGDomain_gpgAgentConf];
 	if (self.gpgAgentConf.autoSave) {
 		[self gpgAgentFlush];
+	}
+}
+
+
+- (void)registerDefaults:(NSDictionary *)dictionary {
+	if (!defaults) {
+		defaults = [[NSMutableDictionary alloc] initWithDictionary:dictionary];
+	} else {
+		for (NSString *key in dictionary) {
+			[defaults setObject:[dictionary objectForKey:key] forKey:key];
+		}
 	}
 }
 
@@ -335,7 +460,7 @@ void SystemConfigurationDidChange(SCPreferencesRef prefs, SCPreferencesNotificat
 
 - (void)valueChanged:(id)value forKey:(NSString *)key inDomain:(GPGOptionsDomain)domain {
 	if (!updating) {
-		NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:key, @"key", value, @"value", [NSNumber numberWithInt:domain], @"domain", nil];
+		NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:key, @"key", value, @"value", [NSNumber numberWithInt:domain], @"domain", (domain == GPGDomain_standard && standardDomain) ? standardDomain : nil, @"domainName", nil];
 		NSDistributedNotificationCenter *center = [NSDistributedNotificationCenter defaultCenter];
 		[center postNotificationName:GPGOptionsChangedNotification object:identifier userInfo:userInfo options:NSNotificationPostToAllSessions];		
 	}
@@ -343,12 +468,23 @@ void SystemConfigurationDidChange(SCPreferencesRef prefs, SCPreferencesNotificat
 - (void)valueChangedNotification:(NSNotification *)notification {
 	if (self != notification.object && ![identifier isEqualTo:notification.object]) {
 		NSDictionary *userInfo = notification.userInfo;
+		NSString *key = [userInfo objectForKey:@"key"];
+		GPGOptionsDomain domain = [[userInfo objectForKey:@"domain"] intValue];
+		
+		if (domain == GPGDomain_standard && (!standardDomain || ![[userInfo objectForKey:@"domainName"] isEqualToString:standardDomain])) {
+			if (![userInfo objectForKey:@"domainName"] && !standardDomain) {
+				// Hack for [NSUserDefaults standardUserDefaults]
+				[self willChangeValueForKey:key];
+				[self didChangeValueForKey:key];
+			}
+			return;
+		}
+		
 		BOOL oldAutoSave = self.autoSave;
 		self.autoSave = NO;
 		updating++;
-		NSString *key = [userInfo objectForKey:@"key"];
 		[self willChangeValueForKey:key];
-		[self setValue:[userInfo objectForKey:@"value"] forKey:key inDomain:[[userInfo objectForKey:@"domain"] intValue]];
+		[self setValue:[userInfo objectForKey:@"value"] forKey:key inDomain:domain];
 		[self didChangeValueForKey:key];
 		updating--;
 		self.autoSave = oldAutoSave;
@@ -464,7 +600,7 @@ void SystemConfigurationDidChange(SCPreferencesRef prefs, SCPreferencesNotificat
 - (NSUInteger)retainCount {
     return NSUIntegerMax;
 }
-- (void)release {
+- (oneway void)release {
 }
 - (id)autorelease {
     return self;
