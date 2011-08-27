@@ -408,8 +408,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
     NSMutableData *completeStatusData = [[NSMutableData alloc] initWithLength:0];
     
     BOOL localVerbose = self.verbose;
-    NSLog(@"Local verbose is: %@", localVerbose ? @"YES" : @"NO");
-
+    
 	__block NSException *blockException = nil;
 
     gpgTask.parentTask = ^{
