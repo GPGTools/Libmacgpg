@@ -525,11 +525,6 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 	
     exitcode = gpgTask.terminationStatus;
     
-    // For some wicked reason gpg exits with status > 0 if a signature
-    // fails to validate.
-    if(exitcode != 0 && passphraseStatus == 4 && !cancelled)
-        return 0;
-    
     if(cancelled)
         exitcode = GPGErrorCancelled;
     
