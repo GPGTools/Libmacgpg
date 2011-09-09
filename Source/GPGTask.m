@@ -24,7 +24,13 @@
 #import "GPGException.h"
 //#import <sys/shm.h>
 
-@interface GPGTask (Private)
+@interface GPGTask ()
+
+@property (retain) NSData *outData;
+@property (retain) NSData *errData;
+@property (retain) NSData *statusData;
+@property (retain) NSData *attributeData;
+
 
 + (void)initializeStatusCodes;
 - (NSString *)getPassphraseFromPinentry;
@@ -343,7 +349,6 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
         [defaultArguments addObjectsFromArray:[NSArray arrayWithObjects:@"--attribute-fd", @"4", nil]];
     // TODO: Optimize and make more generic.
     //Für Funktionen wie --decrypt oder --verify sollte "--no-armor" nicht gesetzt sein.
-    // Last before launching, create the inPipes and add the fd nums to the arguments.
     if ([arguments containsObject:@"--no-armor"] || [arguments containsObject:@"--no-armour"]) {
         NSSet *inputParameters = [NSSet setWithObjects:@"--decrypt", @"--verify", @"--import", nil];
         for (NSString *argument in arguments) {
@@ -352,14 +357,15 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
                 if (index == NSNotFound) {
                     index = [arguments indexOfObject:@"--no-armour"];
                 }
-                [arguments replaceObjectAtIndex:index withObject:@"--armor"];
-                
-                while ((index = [arguments indexOfObject:@"--no-armor"]) != NSNotFound) {
-                    [arguments removeObjectAtIndex:index];
-                }
-                while ((index = [arguments indexOfObject:@"--no-armour"]) != NSNotFound) {
-                    [arguments removeObjectAtIndex:index];
-                }
+				if (index != NSNotFound) {
+					[arguments replaceObjectAtIndex:index withObject:@"--armor"];
+					while ((index = [arguments indexOfObject:@"--no-armor"]) != NSNotFound) {
+						[arguments removeObjectAtIndex:index];
+					}
+					while ((index = [arguments indexOfObject:@"--no-armour"]) != NSNotFound) {
+						[arguments removeObjectAtIndex:index];
+					}
+				}
                 break;
             }
         }
@@ -379,6 +385,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
     if (cancelled)
 		return GPGErrorCancelled;
     
+    // Last before launching, create the inPipes and add the fd nums to the arguments.
     gpgTask = [[LPXTTask alloc] init];
     gpgTask.launchPath = self.gpgPath;
     gpgTask.standardInput = [NSPipe pipe];
@@ -407,7 +414,6 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
     // the parent starts waiting for the child.
     NSMutableData *completeStatusData = [[NSMutableData alloc] initWithLength:0];
     
-    BOOL localVerbose = self.verbose;
     
 	__block NSException *blockException = nil;
 
@@ -418,38 +424,33 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
         // the parent process starts waiting for the child.
         dispatch_group_t collectorGroup = dispatch_group_create();
         // The data is written to the pipe as soon as gpg issues the status
-        // BEGIN_ENCRYPTION. See processStatus.
-        // Added: Actually, there seems to be more to it.
-        // When data is ENCRYPTED, the data can't be written before the BEGIN_ENCRYPTION
-        // status was issued, BUT
-        // when data is DECRYPTED, gpg stalls till it received the data to decrypt.
+        // BEGIN_ENCRYPTION or BEGIN_SIGNING. See processStatus.
+        // When we want to encrypt or sign, the data can't be written before the 
+		// BEGIN_ENCRYPTION or BEGIN_SIGNING status was issued, BUT
+        // in every other case, gpg stalls till it received the data to decrypt.
         // So in that case, the data actually has to be written as the very first thing.
-        // Beats me I tell you...
-        if([gpgTask.arguments containsObject:@"--decrypt"] || [gpgTask.arguments containsObject:@"--verify"]) {
+		
+		NSArray *options = [NSArray arrayWithObjects:@"--encrypt", @"--sign", @"--clearsign", @"--detach-sign", @"--symmetric", @"-e", @"-s", @"-b", @"-c", nil];
+		
+        if([gpgTask.arguments firstObjectCommonWithArray:options] == nil) {
             dispatch_group_async(collectorGroup, queue, ^{
-                // Encrypt only takes one file, more files not supported,
-                // so it's not important to check which file's data is required,
-                // it's always the first.
                 [self _writeInputData];
             });
         }
         // Add each job to the collector group.
         dispatch_group_async(collectorGroup, queue, ^{
-            outData = [[[gpgTask inheritedPipeWithName:@"stdout"] fileHandleForReading] readDataToEndOfFile];
-            [outData retain];
+            self.outData = [[[gpgTask inheritedPipeWithName:@"stdout"] fileHandleForReading] readDataToEndOfFile];
             if(self.verbose)
                 [self logDataContent:outData message:@"[STDOUT]"];
         });
         dispatch_group_async(collectorGroup, queue, ^{
-            errData = [[[gpgTask inheritedPipeWithName:@"stderr"] fileHandleForReading] readDataToEndOfFile];
-            [errData retain];
+            self.errData = [[[gpgTask inheritedPipeWithName:@"stderr"] fileHandleForReading] readDataToEndOfFile];
             if(self.verbose)
                 [self logDataContent:errData message:@"[STDERR]"];
         });
         if(getAttributeData) {
             dispatch_group_async(collectorGroup, queue, ^{
-                attributeData = [[[gpgTask inheritedPipeWithName:@"attribute"] fileHandleForReading] readDataToEndOfFile];
-                [attributeData retain];
+                self.attributeData = [[[gpgTask inheritedPipeWithName:@"attribute"] fileHandleForReading] readDataToEndOfFile];
             });
         }
 				
@@ -503,6 +504,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 				blockException = [exception retain];
 				[gpgTask cancel];
 			} @finally {
+				self.statusData = completeStatusData;
 				[line release];
 			}
         });
@@ -518,6 +520,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
         
     // AAAAAAAAND NOW! Let's run the task and wait for it to complete.
     [gpgTask launchAndWait];
+	
     
 	if (blockException) {
 		@throw [blockException autorelease];

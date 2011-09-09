@@ -506,7 +506,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 
 #pragma mark Edit keys
 
-- (void)generateNewKeyWithName:(NSString *)name email:(NSString *)email comment:(NSString *)comment 
+- (NSString *)generateNewKeyWithName:(NSString *)name email:(NSString *)email comment:(NSString *)comment 
 					   keyType:(GPGPublicKeyAlgorithm)keyType keyLength:(NSInteger)keyLength subkeyType:(GPGPublicKeyAlgorithm)subkeyType subkeyLength:(NSInteger)subkeyLength 
 				  daysToExpire:(NSInteger)daysToExpire preferences:(NSString *)preferences passphrase:(NSString *)passphrase {
 	if (async && !asyncStarted) {
@@ -514,8 +514,9 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		[asyncProxy generateNewKeyWithName:name email:email comment:comment 
 								   keyType:keyType keyLength:keyLength subkeyType:subkeyType subkeyLength:subkeyLength 
 							  daysToExpire:daysToExpire preferences:preferences passphrase:passphrase];
-		return;
+		return nil;
 	}
+	NSString *fingerprint = nil;
 	@try {
 		[self operationDidStart];
 		
@@ -553,8 +554,6 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		
 		[cmdText appendString:@"%commit\n"];
 		
-		
-		
 		gpgTask = [GPGTask gpgTaskWithArgument:@"--gen-key"];
 		[self addArgumentsForOptions];
 		gpgTask.batchMode = YES;
@@ -564,14 +563,24 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		if ([gpgTask start] != 0) {
 			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Generate new key failed!") gpgTask:gpgTask];
 		}
-		[self keysChanged:nil];
+		NSString *statusText = gpgTask.statusText;
+
+		NSRange range = [statusText rangeOfString:@"[GNUPG:] KEY_CREATED "];
+		if (range.length > 0) {
+			range = [statusText lineRangeForRange:range];
+			range.length--;
+			fingerprint = [[[statusText substringWithRange:range] componentsSeparatedByString:@" "] objectAtIndex:3];
+			[self keyChanged:fingerprint];
+		}
+		
 	} @catch (NSException *e) {
 		[self handleException:e];
 	} @finally {
 		[self cleanAfterOperation];
 	}
 	
-	[self operationDidFinishWithReturnValue:nil];	
+	[self operationDidFinishWithReturnValue:fingerprint];
+	return fingerprint;
 }
 
 - (void)deleteKeys:(NSObject <EnumerationList> *)keys withMode:(GPGDeleteKeyMode)mode {
@@ -680,10 +689,10 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 	[self operationDidFinishWithReturnValue:nil];	
 }
 
-- (NSData *)genRevokeCertificateForKey:(NSObject <KeyFingerprint> *)key reason:(int)reason description:(NSString *)description {
+- (NSData *)generateRevokeCertificateForKey:(NSObject <KeyFingerprint> *)key reason:(int)reason description:(NSString *)description {
 	if (async && !asyncStarted) {
 		asyncStarted = YES;
-		[asyncProxy genRevokeCertificateForKey:key reason:reason description:description];
+		[asyncProxy generateRevokeCertificateForKey:key reason:reason description:description];
 		return nil;
 	}
 	@try {
@@ -731,7 +740,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 	@try {
 		[self operationDidStart];
 		
-		NSData *revocationData = [self genRevokeCertificateForKey:key reason:reason description:description];
+		NSData *revocationData = [self generateRevokeCertificateForKey:key reason:reason description:description];
 		[self importFromData:revocationData fullImport:YES];
 		
 	} @catch (NSException *e) {

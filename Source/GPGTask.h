@@ -79,10 +79,10 @@
 @property (readonly) NSInteger exitcode;
 @property (readonly) int errorCode;
 @property (retain) NSString *gpgPath;
-@property (readonly) NSData *outData;
-@property (readonly) NSData *errData;
-@property (readonly) NSData *statusData;
-@property (readonly) NSData *attributeData;
+@property (readonly, retain) NSData *outData;
+@property (readonly, retain) NSData *errData;
+@property (readonly, retain) NSData *statusData;
+@property (readonly, retain) NSData *attributeData;
 @property (readonly) NSString *outText;
 @property (readonly) NSString *errText;
 @property (readonly) NSString *statusText;
