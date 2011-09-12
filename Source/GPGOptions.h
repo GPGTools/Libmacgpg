@@ -27,7 +27,7 @@ typedef enum {
 	GPGDomain_environment,
 	GPGDomain_gpgConf,
 	GPGDomain_gpgAgentConf,
-	GPGDomain_special //special is not a domain.
+	GPGDomain_special //special is not a real domain.
 } GPGOptionsDomain;
 
 
@@ -49,6 +49,8 @@ typedef enum {
 }
 
 @property (readonly) NSString *httpProxy;
+@property (readonly) NSString *gpgHome;
+@property (readonly) NSArray *keyservers;
 @property BOOL autoSave;
 @property (retain) NSString *standardDomain;
 
@@ -96,12 +98,12 @@ typedef enum {
 - (id)valueInGPGAgentConfForKey:(NSString *)key;
 - (void)setValueInGPGAgentConf:(id)value forKey:(NSString *)key;
 
+
 - (void)gpgAgentFlush;
 
 + (NSString *)standardizedKey:(NSString *)key;
 - (GPGOptionsDomain)domainForKey:(NSString *)key;
 
-- (NSString *)gpgHome;
 
 
 @end

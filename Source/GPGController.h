@@ -30,7 +30,7 @@
 
 - (void)gpgController:(GPGController *)gpgc operationDidFinishWithReturnValue:(id)value;
 - (void)gpgController:(GPGController *)gpgc operationThrownException:(NSException *)e;
-- (void)gpgController:(GPGController *)gpgc keysDidChangedExernal:(NSObject <EnumerationList> *)keys;
+- (void)gpgController:(GPGController *)gpgc keysDidChanged:(NSObject <EnumerationList> *)keys external:(BOOL)external;
 - (void)gpgControllerOperationDidStart:(GPGController *)gpgc;
 
 

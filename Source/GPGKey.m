@@ -338,7 +338,7 @@
 - (NSString *)comment { return primaryUserID.comment; }
 
 
-- (BOOL)safe {
+/*- (BOOL)safe {
 	if (length < 1536) { //Länge des Hauptschlüssels.
 		return NO;
 	}
@@ -360,7 +360,7 @@
 	}
 	
 	return YES;
-}
+}*/
 
 
 - (void)setChildren:(NSMutableArray *)value {

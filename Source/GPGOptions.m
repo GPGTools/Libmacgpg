@@ -46,6 +46,7 @@ NSDictionary *domainKeys;
 NSMutableDictionary *defaults = nil;
 
 
+// Methods to configure GPGOptions.
 - (BOOL)autoSave {
 	return autoSave;
 }
@@ -67,8 +68,19 @@ NSMutableDictionary *defaults = nil;
 	}
 }
 
+- (void)registerDefaults:(NSDictionary *)dictionary {
+	if (!defaults) {
+		defaults = [[NSMutableDictionary alloc] initWithDictionary:dictionary];
+	} else {
+		for (NSString *key in dictionary) {
+			[defaults setObject:[dictionary objectForKey:key] forKey:key];
+		}
+	}
+}
 
 
+
+// Methods to get and set values.
 - (void)setInteger:(NSInteger)value forKey:(NSString *)key {
 	[self setValue:[NSNumber numberWithInteger:value] forKey:key];
 }
@@ -105,8 +117,6 @@ NSMutableDictionary *defaults = nil;
 	}
 	return nil;
 }
-
-
 
 
 - (id)valueForKey:(NSString *)key {
@@ -178,13 +188,6 @@ NSMutableDictionary *defaults = nil;
 }
 
 
-
-
-
-
-
-
-
 - (id)specialValueForKey:(NSString *)key {
 	if ([key isEqualToString:@"TrustAllKeys"]) {
 		return [NSNumber numberWithBool:[[self.gpgConf valueForKey:@"trust-model"] isEqualToString:@"always"]];
@@ -192,6 +195,8 @@ NSMutableDictionary *defaults = nil;
 		return [self valueInGPGAgentConfForKey:@"default-cache-ttl"];
 	} else if ([key isEqualToString:@"httpProxy"]) {
 		return self.httpProxy;
+	} else if ([key isEqualToString:@"keyservers"]) {
+		return self.keyservers;
 	}
 	return nil;
 }
@@ -213,7 +218,6 @@ NSMutableDictionary *defaults = nil;
 		[self setValueInGPGAgentConf:maxCacheTtl forKey:@"max-cache-ttl"];
 	}
 }
-
 
 
 - (id)valueInStandardDefaultsForKey:(NSString *)key {
@@ -387,17 +391,9 @@ NSMutableDictionary *defaults = nil;
 }
 
 
-- (void)registerDefaults:(NSDictionary *)dictionary {
-	if (!defaults) {
-		defaults = [[NSMutableDictionary alloc] initWithDictionary:dictionary];
-	} else {
-		for (NSString *key in dictionary) {
-			[defaults setObject:[dictionary objectForKey:key] forKey:key];
-		}
-	}
-}
 
 
+// Propertys.
 - (GPGConf *)gpgConf {
 	if (!gpgConf) {
 		gpgConf = [[GPGConf alloc] initWithPath:[[self gpgHome] stringByAppendingPathComponent:@"gpg.conf"]];
@@ -411,17 +407,6 @@ NSMutableDictionary *defaults = nil;
 	return [[gpgAgentConf retain] autorelease];
 }
 
-- (GPGOptionsDomain)domainForKey:(NSString *)key {
-	NSString *searchString = [NSString stringWithFormat:@"|%@|", key];
-	for (NSNumber *key in domainKeys) {
-		NSString *keys = [domainKeys objectForKey:key];
-		if ([keys rangeOfString:searchString].length > 0) {
-			return [key intValue];
-		}
-	}
-	return GPGDomain_standard;
-}
-
 - (NSString *)gpgHome {
 	NSString *path = [self valueInEnvironmentForKey:@"GNUPGHOME"];
 	if (!path) {
@@ -430,6 +415,14 @@ NSMutableDictionary *defaults = nil;
 	return path;
 }
 
+- (NSArray *)keyservers { // Returns a list of possible keyservers.
+    GPGOptions *options = [GPGOptions sharedOptions];
+    
+    NSURL *keyserversPlistURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"Keyservers" withExtension:@"plist"];
+    NSMutableSet *keyservers = [NSMutableSet setWithArray:[NSArray arrayWithContentsOfURL:keyserversPlistURL]];
+    [keyservers addObjectsFromArray:[options allValuesInGPGConfForKey:@"keyserver"]];
+    return [keyservers allObjects];
+}
 
 - (NSString *)httpProxy {
 	if (!httpProxy) {
@@ -443,6 +436,34 @@ NSMutableDictionary *defaults = nil;
 	return [[httpProxy retain] autorelease];
 }
 
+
+
+// Helper methods.
+- (GPGOptionsDomain)domainForKey:(NSString *)key {
+	NSString *searchString = [NSString stringWithFormat:@"|%@|", key];
+	for (NSNumber *key in domainKeys) {
+		NSString *keys = [domainKeys objectForKey:key];
+		if ([keys rangeOfString:searchString].length > 0) {
+			return [key intValue];
+		}
+	}
+	return GPGDomain_standard;
+}
+
++ (NSString *)standardizedKey:(NSString *)key {
+	if ([key rangeOfString:@"_"].length > 0) {
+		return [key stringByReplacingOccurrencesOfString:@"_" withString:@"-"];
+	}
+	return key;
+}
+
+- (void)gpgAgentFlush {
+	system("killall -HUP gpg-agent");
+}
+
+
+
+// Notification handling.
 void SystemConfigurationDidChange(SCPreferencesRef prefs, SCPreferencesNotification notificationType, void *info) {
 	if (notificationType & kSCPreferencesNotificationApply) {
 		[((GPGOptions *)info)->httpProxy release];
@@ -456,7 +477,6 @@ void SystemConfigurationDidChange(SCPreferencesRef prefs, SCPreferencesNotificat
     SCPreferencesScheduleWithRunLoop(preferences, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
 	CFRelease(preferences);
 }	
-
 
 - (void)valueChanged:(id)value forKey:(NSString *)key inDomain:(GPGOptionsDomain)domain {
 	if (!updating) {
@@ -494,19 +514,8 @@ void SystemConfigurationDidChange(SCPreferencesRef prefs, SCPreferencesNotificat
 }
 
 
-+ (NSString *)standardizedKey:(NSString *)key {
-	if ([key rangeOfString:@"_"].length > 0) {
-		return [key stringByReplacingOccurrencesOfString:@"_" withString:@"-"];
-	}
-	return key;
-}
 
-- (void)gpgAgentFlush {
-	system("killall -HUP gpg-agent");
-}
-
-
-
+// Whatever…
 + (NSSet *)keyPathsForValuesAffectingValueForKey:(NSString *)key {
 	NSString *affectingKey = nil;
 	if ([key rangeOfString:@"_"].length > 0) {
@@ -530,6 +539,8 @@ void SystemConfigurationDidChange(SCPreferencesRef prefs, SCPreferencesNotificat
 }
 
 
+
+// Alloc, init etc.
 + (void)initialize {
 	environmentPlistDir = [[NSHomeDirectory() stringByAppendingPathComponent:@".MacOSX"] retain];
 	environmentPlistPath = [[environmentPlistDir stringByAppendingPathComponent:@"environment.plist"] retain];
@@ -562,7 +573,7 @@ void SystemConfigurationDidChange(SCPreferencesRef prefs, SCPreferencesNotificat
 	"use-standard-socket|write-env-file|";
 	NSString *environmentKeys = @"|GNUPGHOME|GPG_AGENT_INFO|";
 	NSString *commonKeys = @"|UseKeychain|ShowPassphrase|PathToGPG|";
-	NSString *specialKeys = @"|TrustAllKeys|PassphraseCacheTime|httpProxy|";
+	NSString *specialKeys = @"|TrustAllKeys|PassphraseCacheTime|httpProxy|keyservers|";
 	
 					
 	domainKeys = [[NSDictionary alloc] initWithObjectsAndKeys:

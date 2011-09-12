@@ -52,14 +52,14 @@
 		NSString *line = [listing objectAtIndex:i];
 		if ([line hasPrefix:@"sig:"] || [line hasPrefix:@"rev:"]) {
 			if (range.location != NSNotFound) {
-				range.length = i - range.location - 1;
+				range.length = i - range.location;
 				[signatures addObject:[self signatureWithListing:[listing subarrayWithRange:range]]];
 			}
 			range.location = i;
 		}
 	}
 	if (range.location != NSNotFound) {
-		range.length = i - range.location - 1;
+		range.length = i - range.location;
 		[signatures addObject:[self signatureWithListing:[listing subarrayWithRange:range]]];
 	}
 	return signatures;

@@ -246,17 +246,6 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 			searchStrings = [searchSet allObjects];
 		}
 		
-		//=========================================================================================
-		//=========================================================================================
-		//=========================================================================================
-		
-		
-		
-		/*NSTimeInterval t[10];
-		int i = 0;
-		t[i++] = [NSDate timeIntervalSinceReferenceDate];
-		*/
-		
 		
 		gpgTask = [GPGTask gpgTask];
         gpgTask.verbose = self.verbose;
@@ -291,13 +280,12 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		[gpgTask addArgument:@"--with-fingerprint"];
 		[gpgTask addArguments:searchStrings];
 		
-		//t[i++] = [NSDate timeIntervalSinceReferenceDate];
 		if ([gpgTask start] != 0) {
 			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"List public keys failed!") gpgTask:gpgTask];
 		}
-		//t[i++] = [NSDate timeIntervalSinceReferenceDate];
-		[[self class] colonListing:gpgTask.outText toArray:&listings andFingerprints:&fingerprints];
+
 		
+		[[self class] colonListing:gpgTask.outText toArray:&listings andFingerprints:&fingerprints];
 		
 		
 		NSDictionary *argumentDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -307,7 +295,6 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 											keyList, @"keysToUpdate",
 											[NSValue valueWithPointer:&updatedKeys], @"updatedKeys",
 											[NSNumber numberWithBool:withSigs], @"withSigs", nil];
-		
 		cancelCheck;
 		
 		if ([NSThread isMainThread]) {
@@ -315,13 +302,8 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		} else {
 			[self performSelectorOnMainThread:@selector(updateKeysWithDict:) withObject:argumentDictionary waitUntilDone:YES];
 		}
-		
-		
-		/*t[i++] = [NSDate timeIntervalSinceReferenceDate];
-		for (int j = 0; j+1<i; j++) {
-			NSLog(@"Zeit%i-%i: %f", j, j+1, t[j+1] - t[j]);
-		}*/
-		
+		[updatedKeys autorelease];
+
 	} @catch (NSException *e) {
 		[self handleException:e];
 	} @finally {
@@ -617,7 +599,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		}
 		
 		if ([gpgTask start] != 0) {
-			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Set primary userID failed!") gpgTask:gpgTask];
+			@throw [GPGException exceptionWithReason:[NSString stringWithFormat:localizedLibmacgpgString(@"Delete keys (%@) failed!"), keys] gpgTask:gpgTask];
 		}
 		[self keysChanged:keys];
 	} @catch (NSException *e) {
@@ -1998,11 +1980,12 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 }
 
 - (void)keysHaveChanged:(NSNotification *)notification {
-	if (self != notification.object && ![identifier isEqualTo:notification.object] && [delegate respondsToSelector:@selector(gpgController:keysDidChangedExernal:)]) {
+	if (self != notification.object && ![identifier isEqualTo:notification.object] && [delegate respondsToSelector:@selector(gpgController:keysDidChanged:external:)]) {
 		NSDictionary *dictionary = notification.userInfo;
-		NSObject <EnumerationList> *keys = [dictionary objectForKey:@"keys"];		
+		NSObject <EnumerationList> *keys = [dictionary objectForKey:@"keys"];
+		
 		if ([keys conformsToProtocol:@protocol(EnumerationList)]) {
-			[delegate gpgController:self keysDidChangedExernal:keys];
+			[delegate gpgController:self keysDidChanged:keys external:YES];
 		}
 	}
 }
@@ -2020,6 +2003,9 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 			[fingerprints addObject:[key description]];
 		}
 		dictionary = [NSDictionary dictionaryWithObjectsAndKeys:fingerprints, @"keys", nil];
+	}
+	if ([delegate respondsToSelector:@selector(gpgController:keysDidChanged:external:)]) {
+		[delegate gpgController:self keysDidChanged:keys external:NO];
 	}
 	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:GPGKeysChangedNotification object:identifier userInfo:dictionary options:NSNotificationPostToAllSessions];
 }
@@ -2120,7 +2106,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		[updatedKeysSet addObject:key];
 	}
 	
-	*updatedKeys = [[updatedKeysSet copy] autorelease];
+	*updatedKeys = [updatedKeysSet copy]; // copy without autorelease!
 }
 
 - (void)dealloc {

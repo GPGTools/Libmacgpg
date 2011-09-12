@@ -48,7 +48,7 @@
 @property (readonly, retain) NSString *fingerprint;
 @property (readonly) GPGValidity ownerTrust;
 @property (readonly) BOOL secret;
-@property (readonly) BOOL safe; //Gibt an ob der Schlüssel sicher ist. (Länge > 1024 Bit, kein MD5 oder SHA-1)
+//@property (readonly) BOOL safe; //Gibt an ob der Schlüssel sicher ist. (Länge > 1024 Bit, kein MD5 oder SHA-1)
 @property (readonly) GPGUserID *primaryUserID;
 @property (readonly) GPGKey *primaryKey;
 @property (readonly) NSString *type;
