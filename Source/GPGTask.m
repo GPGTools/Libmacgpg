@@ -347,7 +347,8 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
     // If the attribute data is required, add the attribute-fd.
     if(getAttributeData)
         [defaultArguments addObjectsFromArray:[NSArray arrayWithObjects:@"--attribute-fd", @"4", nil]];
-    // TODO: Optimize and make more generic.
+ 
+	// TODO: Optimize and make more generic.
     //Für Funktionen wie --decrypt oder --verify sollte "--no-armor" nicht gesetzt sein.
     if ([arguments containsObject:@"--no-armor"] || [arguments containsObject:@"--no-armour"]) {
         NSSet *inputParameters = [NSSet setWithObjects:@"--decrypt", @"--verify", @"--import", nil];
@@ -371,6 +372,8 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
         }
     }
     [defaultArguments addObjectsFromArray:arguments];
+	
+	
     // Last but not least, add the fd's used to read the in-data from.
     int i = 5;
     for(NSData *data in inDatas) {

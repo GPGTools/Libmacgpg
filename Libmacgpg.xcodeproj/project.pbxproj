@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1BB3C68A13D77B6E007BFB33 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 1BB3C68813D77B6E007BFB33 /* Localizable.strings */; };
 		1BC7A50013D300A600AE57BA /* LPXTTask.h in Headers */ = {isa = PBXBuildFile; fileRef = 1BC7A4FE13D300A600AE57BA /* LPXTTask.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1BC7A50113D300A600AE57BA /* LPXTTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 1BC7A4FF13D300A600AE57BA /* LPXTTask.m */; };
 		30247EF5135B2139003BA5E3 /* libcrypto.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 30247EF4135B2139003BA5E3 /* libcrypto.dylib */; };
@@ -16,9 +15,9 @@
 		302AA37B133606260022A371 /* GPGKey_Template.m in Sources */ = {isa = PBXBuildFile; fileRef = 302AA379133606260022A371 /* GPGKey_Template.m */; };
 		302AA3AE133608BE0022A371 /* GPGSuper_Template.h in Headers */ = {isa = PBXBuildFile; fileRef = 302AA3AC133608BE0022A371 /* GPGSuper_Template.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		302AA3AF133608BE0022A371 /* GPGSuper_Template.m in Sources */ = {isa = PBXBuildFile; fileRef = 302AA3AD133608BE0022A371 /* GPGSuper_Template.m */; };
+		30516558142281270038AAF0 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 30516556142281270038AAF0 /* Localizable.strings */; };
 		30691AA4136AECC4004AA469 /* GPGOptions.h in Headers */ = {isa = PBXBuildFile; fileRef = 30691AA2136AECC4004AA469 /* GPGOptions.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		30691AA5136AECC4004AA469 /* GPGOptions.m in Sources */ = {isa = PBXBuildFile; fileRef = 30691AA3136AECC4004AA469 /* GPGOptions.m */; };
-		307B321F141E06060026F5F6 /* Keyservers.plist in Resources */ = {isa = PBXBuildFile; fileRef = 307B321E141E06060026F5F6 /* Keyservers.plist */; };
 		307D79111340B71A005C9C32 /* TODO in Resources */ = {isa = PBXBuildFile; fileRef = 307D79101340B71A005C9C32 /* TODO */; };
 		309A18D013E3812E0069DC0F /* GPGTransformer.h in Headers */ = {isa = PBXBuildFile; fileRef = 309A18CE13E3812E0069DC0F /* GPGTransformer.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		309A18D113E3812E0069DC0F /* GPGTransformer.m in Sources */ = {isa = PBXBuildFile; fileRef = 309A18CF13E3812E0069DC0F /* GPGTransformer.m */; };
@@ -26,6 +25,7 @@
 		309A20FC13587D5B0041E0AA /* GPGPacket.m in Sources */ = {isa = PBXBuildFile; fileRef = 309A20FA13587D5B0041E0AA /* GPGPacket.m */; };
 		30A70EE513EF328000EE9CD9 /* GPGException.h in Headers */ = {isa = PBXBuildFile; fileRef = 30A70EE313EF328000EE9CD9 /* GPGException.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		30A70EE613EF328000EE9CD9 /* GPGException.m in Sources */ = {isa = PBXBuildFile; fileRef = 30A70EE413EF328000EE9CD9 /* GPGException.m */; };
+		30B586F5141E255C000373F1 /* Keyservers.plist in Resources */ = {isa = PBXBuildFile; fileRef = 30B586F4141E255C000373F1 /* Keyservers.plist */; };
 		30BA88F2138FE593005982D9 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 30BA88F1138FE593005982D9 /* SystemConfiguration.framework */; };
 		30C60EEF12FF3321006BB8DA /* Libmacgpg.h in Headers */ = {isa = PBXBuildFile; fileRef = 30C60EEE12FF3321006BB8DA /* Libmacgpg.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		30C8B39C1395052D00F49AA1 /* Test1.m in Sources */ = {isa = PBXBuildFile; fileRef = 30C8B39B1395052D00F49AA1 /* Test1.m */; };
@@ -73,7 +73,6 @@
 
 /* Begin PBXFileReference section */
 		1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
-		1BB3C68913D77B6E007BFB33 /* English */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = English; path = Localizable.strings; sourceTree = "<group>"; };
 		1BC7A4FE13D300A600AE57BA /* LPXTTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LPXTTask.h; path = Source/LPXTTask.h; sourceTree = "<group>"; };
 		1BC7A4FF13D300A600AE57BA /* LPXTTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = LPXTTask.m; path = Source/LPXTTask.m; sourceTree = "<group>"; };
 		30247EF4135B2139003BA5E3 /* libcrypto.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcrypto.dylib; path = /usr/lib/libcrypto.dylib; sourceTree = "<absolute>"; };
@@ -82,9 +81,10 @@
 		302AA379133606260022A371 /* GPGKey_Template.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GPGKey_Template.m; path = Source/GPGKey_Template.m; sourceTree = "<group>"; };
 		302AA3AC133608BE0022A371 /* GPGSuper_Template.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGSuper_Template.h; path = Source/GPGSuper_Template.h; sourceTree = "<group>"; };
 		302AA3AD133608BE0022A371 /* GPGSuper_Template.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GPGSuper_Template.m; path = Source/GPGSuper_Template.m; sourceTree = "<group>"; };
+		30516557142281270038AAF0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = ../../../../Libmacgpg/Resources/en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		305165591422812B0038AAF0 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
 		30691AA2136AECC4004AA469 /* GPGOptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGOptions.h; path = Source/GPGOptions.h; sourceTree = "<group>"; };
 		30691AA3136AECC4004AA469 /* GPGOptions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GPGOptions.m; path = Source/GPGOptions.m; sourceTree = "<group>"; };
-		307B321E141E06060026F5F6 /* Keyservers.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Keyservers.plist; path = ../../../../../../Desktop/Keyservers.plist; sourceTree = "<group>"; };
 		307D79101340B71A005C9C32 /* TODO */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TODO; sourceTree = "<group>"; };
 		309A18CE13E3812E0069DC0F /* GPGTransformer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGTransformer.h; path = Source/GPGTransformer.h; sourceTree = "<group>"; };
 		309A18CF13E3812E0069DC0F /* GPGTransformer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GPGTransformer.m; path = Source/GPGTransformer.m; sourceTree = "<group>"; };
@@ -92,6 +92,7 @@
 		309A20FA13587D5B0041E0AA /* GPGPacket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GPGPacket.m; path = Source/GPGPacket.m; sourceTree = "<group>"; };
 		30A70EE313EF328000EE9CD9 /* GPGException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGException.h; path = Source/GPGException.h; sourceTree = "<group>"; };
 		30A70EE413EF328000EE9CD9 /* GPGException.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GPGException.m; path = Source/GPGException.m; sourceTree = "<group>"; };
+		30B586F4141E255C000373F1 /* Keyservers.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Keyservers.plist; sourceTree = "<group>"; };
 		30BA88F1138FE593005982D9 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		30C60EEE12FF3321006BB8DA /* Libmacgpg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Libmacgpg.h; path = Source/Libmacgpg.h; sourceTree = "<group>"; };
 		30C8B38E139503A800F49AA1 /* UnitTest.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = UnitTest.octest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -190,11 +191,11 @@
 		089C1665FE841158C02AAC07 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				1BB3C68713D77B6E007BFB33 /* English.lproj */,
-				307B321E141E06060026F5F6 /* Keyservers.plist */,
+				30516556142281270038AAF0 /* Localizable.strings */,
+				30B586F4141E255C000373F1 /* Keyservers.plist */,
 				8DC2EF5A0486A6940098B216 /* Info.plist */,
 			);
-			name = Resources;
+			path = Resources;
 			sourceTree = "<group>";
 		};
 		08FB77AEFE84172EC02AAC07 /* Classes */ = {
@@ -221,15 +222,6 @@
 				1BC7A4FF13D300A600AE57BA /* LPXTTask.m */,
 			);
 			name = Classes;
-			sourceTree = "<group>";
-		};
-		1BB3C68713D77B6E007BFB33 /* English.lproj */ = {
-			isa = PBXGroup;
-			children = (
-				1BB3C68813D77B6E007BFB33 /* Localizable.strings */,
-			);
-			name = English.lproj;
-			path = Resources/English.lproj;
 			sourceTree = "<group>";
 		};
 		302AA377133605FE0022A371 /* GPGKey */ = {
@@ -381,6 +373,8 @@
 				Japanese,
 				French,
 				German,
+				en,
+				de,
 			);
 			mainGroup = 0867D691FE84028FC02AAC07 /* Libmacgpg */;
 			productRefGroup = 034768DFFF38A50411DB9C8B /* Products */;
@@ -406,8 +400,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				307D79111340B71A005C9C32 /* TODO in Resources */,
-				1BB3C68A13D77B6E007BFB33 /* Localizable.strings in Resources */,
-				307B321F141E06060026F5F6 /* Keyservers.plist in Resources */,
+				30B586F5141E255C000373F1 /* Keyservers.plist in Resources */,
+				30516558142281270038AAF0 /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -477,10 +471,11 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		1BB3C68813D77B6E007BFB33 /* Localizable.strings */ = {
+		30516556142281270038AAF0 /* Localizable.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
-				1BB3C68913D77B6E007BFB33 /* English */,
+				30516557142281270038AAF0 /* en */,
+				305165591422812B0038AAF0 /* de */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -501,7 +496,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Source/Libmacgpg_Prefix.pch;
-				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_FILE = Resources/Info.plist;
 				INSTALL_PATH = "@loader_path/../Frameworks";
 				PRODUCT_NAME = Libmacgpg;
 				RUN_CLANG_STATIC_ANALYZER = NO;
@@ -520,7 +515,7 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Source/Libmacgpg_Prefix.pch;
-				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_FILE = Resources/Info.plist;
 				INSTALL_PATH = "@loader_path/../Frameworks";
 				PRODUCT_NAME = Libmacgpg;
 				WRAPPER_EXTENSION = framework;

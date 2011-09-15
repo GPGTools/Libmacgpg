@@ -514,7 +514,9 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		}
 		
 		[cmdText appendFormat:@"Name-Real: %@\n", name];
-		[cmdText appendFormat:@"Name-Email: %@\n", email];
+		if ([comment length] > 0) {
+			[cmdText appendFormat:@"Name-Email: %@\n", email];
+		}
 		if ([comment length] > 0) {
 			[cmdText appendFormat:@"Name-Comment: %@\n", comment];
 		}
@@ -577,9 +579,12 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		if ([keys count] == 0) {
 			[NSException raise:NSInvalidArgumentException format:@"Empty key list!"];
 		}
+		
+		
 		gpgTask = [GPGTask gpgTask];
         gpgTask.verbose = self.verbose;
 		[self addArgumentsForOptions];
+		gpgTask.userInfo = [NSDictionary dictionaryWithObject:[GPGTaskOrder orderWithYesToAll] forKey:@"order"]; 
 		
 		switch (mode) {
 			case GPGDeleteSecretKey:
