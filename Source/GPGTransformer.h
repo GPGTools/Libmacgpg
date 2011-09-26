@@ -21,6 +21,7 @@
 
 
 @interface GPGKeyAlgorithmNameTransformer : NSValueTransformer {}
+- (id)transformedIntegerValue:(NSInteger)value;
 @end
 
 @interface GPGKeyStatusDescriptionTransformer : NSValueTransformer {}

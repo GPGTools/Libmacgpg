@@ -37,28 +37,28 @@
 
 
 - (void)updateWithLine:(NSArray *)line {
-	NSString *letter = [line objectAtIndex:8];
-	BOOL invalidVal = NO, revokedVal = NO, expiredVal = NO;
+	NSString *letter = [line objectAtIndex:1];
+	BOOL isInvalid = NO, isRevoked = NO, isExpired = NO;
 	GPGValidity validityVal = [[self class] validityFromLetter:letter];
 	
-	if (validityVal != 0 && [letter length] !=0) {
+	if ([letter length] > 0) {
 		switch ([letter characterAtIndex:0]) {
 			case 'i':
-				invalidVal = YES;
+				isInvalid = YES;
 				break;
 			case 'r':
-				revokedVal = YES;
+				isRevoked = YES;
 				break;
 			case 'e':
-				expiredVal = YES;
+				isExpired = YES;
 				break;
 		}		
 	}
 	
 	self.validity = validityVal;
-	self.invalid = invalidVal;
-	self.revoked = revokedVal;
-	self.expired = expiredVal;
+	self.invalid = isInvalid;
+	self.revoked = isRevoked;
+	self.expired = isExpired;
 
 	
 	self.creationDate = [NSDate dateWithGPGString:[line objectAtIndex:5]];

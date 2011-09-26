@@ -25,7 +25,7 @@
 #import "GPGGlobals.h"
 #import "GPGOptions.h"
 #import "GPGException.h"
-
+#import "GPGPacket.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -66,11 +66,14 @@
 - (void)keyChanged:(NSObject <KeyFingerprint> *)key;
 + (void)readGPGConfig;
 - (void)setLastReturnValue:(id)value;
+- (void)restoreKeys:(NSObject <EnumerationList> *)keys withData:(NSData *)data;
+- (void)registerUndoForKeys:(NSObject <EnumerationList> *)keys withName:(NSString *)actionName;
+- (void)registerUndoForKey:(NSObject <KeyFingerprint> *)key withName:(NSString *)actionName;
 @end
 
 
 @implementation GPGController
-@synthesize delegate, keyserver, keyserverTimeout, proxyServer, async, userInfo, useArmor, useTextMode, printVersion, useDefaultComments, trustAllKeys, signatures, lastSignature, gpgHome, verbose, lastReturnValue, error;
+@synthesize delegate, keyserver, keyserverTimeout, proxyServer, async, userInfo, useArmor, useTextMode, printVersion, useDefaultComments, trustAllKeys, signatures, lastSignature, gpgHome, verbose, lastReturnValue, error, undoManager;
 
 NSString *gpgVersion = nil;
 NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil, *compressAlgorithm = nil;
@@ -256,7 +259,9 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		[gpgTask addArguments:searchStrings];
 		
 		if ([gpgTask start] != 0) {
-			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"List secret keys failed!") gpgTask:gpgTask];
+			if ([keyList count] == 0) { //TODO: Bessere Lösung um Probleme zu vermeiden, wenn ein nicht (mehr) vorhandener Schlüssel gelistet werden soll.
+				@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"List secret keys failed!") gpgTask:gpgTask];
+			}
 		}
 		secKeyFingerprints = [[self class] fingerprintsFromColonListing:gpgTask.outText];
 
@@ -281,7 +286,9 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		[gpgTask addArguments:searchStrings];
 		
 		if ([gpgTask start] != 0) {
-			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"List public keys failed!") gpgTask:gpgTask];
+			if ([keyList count] == 0) { //TODO: Bessere Lösung um Probleme zu vermeiden, wenn ein nicht (mehr) vorhandener Schlüssel gelistet werden soll.
+				@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"List public keys failed!") gpgTask:gpgTask];
+			}
 		}
 
 		
@@ -554,6 +561,12 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 			range = [statusText lineRangeForRange:range];
 			range.length--;
 			fingerprint = [[[statusText substringWithRange:range] componentsSeparatedByString:@" "] objectAtIndex:3];
+			
+			if ([undoManager isUndoRegistrationEnabled]) {
+				[[undoManager prepareWithInvocationTarget:self] deleteKeys:[NSSet setWithObject:fingerprint] withMode:GPGDeletePublicAndSecretKey];
+				[undoManager setActionName:localizedLibmacgpgString(@"Undo_NewKey")];
+			}
+			
 			[self keyChanged:fingerprint];
 		}
 		
@@ -574,11 +587,12 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		return;
 	}
 	@try {
-		[self operationDidStart];
-		
 		if ([keys count] == 0) {
 			[NSException raise:NSInvalidArgumentException format:@"Empty key list!"];
 		}
+		
+		[self operationDidStart];
+		[self registerUndoForKeys:keys withName:@"Undo_Delete"];
 		
 		
 		gpgTask = [GPGTask gpgTask];
@@ -624,6 +638,8 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 	}
 	@try {
 		[self operationDidStart];
+		[self registerUndoForKey:key withName:@"Undo_CleanKey"];
+		
 		
 		gpgTask = [GPGTask gpgTask];
         gpgTask.verbose = self.verbose;
@@ -654,6 +670,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 	}
 	@try {
 		[self operationDidStart];
+		[self registerUndoForKey:key withName:@"Undo_MinimizeKey"];
 		
 		gpgTask = [GPGTask gpgTask];
         gpgTask.verbose = self.verbose;
@@ -726,6 +743,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 	}
 	@try {
 		[self operationDidStart];
+		[self registerUndoForKey:key withName:@"Undo_RevokeKey"];
 		
 		NSData *revocationData = [self generateRevokeCertificateForKey:key reason:reason description:description];
 		[self importFromData:revocationData fullImport:YES];
@@ -747,6 +765,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 	}
 	@try {
 		[self operationDidStart];
+		[self registerUndoForKey:key withName:@"Undo_ChangeExpirationDate"];
 		
 		GPGTaskOrder *order = [GPGTaskOrder orderWithYesToAll];
 		
@@ -792,6 +811,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 	}
 	@try {
 		[self operationDidStart];
+		[self registerUndoForKey:key withName:@"Undo_ChangePassphrase"];
 		
 		GPGTaskOrder *order = [GPGTaskOrder orderWithYesToAll];
 		[order addCmd:@"passwd\n" prompt:@"keyedit.prompt"];
@@ -826,6 +846,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 	}
 	@try {
 		[self operationDidStart];
+		[self registerUndoForKey:key withName:@"Undo_AlgorithmPreferences"];
 		
 		GPGTaskOrder *order = [GPGTaskOrder orderWithYesToAll];
 		
@@ -868,6 +889,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 	}
 	@try {
 		[self operationDidStart];
+		//No undo for this operation.
 		
 		gpgTask = [GPGTask gpgTask];
         gpgTask.verbose = self.verbose;
@@ -898,6 +920,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 	}
 	@try {
 		[self operationDidStart];
+		//No undo for this operation.
 		
 		GPGTaskOrder *order = [GPGTaskOrder orderWithYesToAll];
 		[order addCmd:@"trust\n" prompt:@"keyedit.prompt"];
@@ -937,8 +960,15 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		return nil;
 	}
 	@try {
-		[self operationDidStart];
+		NSSet *keys = [self keysInExportedData:data];
+		if ([keys count] == 0) {
+			[NSException raise:NSInvalidArgumentException format:@"No keys to import!"];
+		}
 		
+		[self operationDidStart];
+		[self registerUndoForKeys:keys withName:@"Undo_Import"];
+		
+
 		gpgTask = [GPGTask gpgTask];
         gpgTask.verbose = self.verbose;
 		[self addArgumentsForOptions];
@@ -958,7 +988,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		if ([statusText rangeOfString:@"[GNUPG:] IMPORT_OK "].length <= 0) {
 			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Import failed!") gpgTask:gpgTask];
 		}
-		[self keysChanged:nil]; //TODO: Identify imported keys.
+		[self keysChanged:keys];
 	} @catch (NSException *e) {
 		[self handleException:e];
 	} @finally {
@@ -1038,6 +1068,9 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		return;
 	}
 	@try {
+		[self operationDidStart];
+		[self registerUndoForKey:key withName:@"Undo_AddSignature"];
+
 		NSString *uid;
 		if (!hashID) {
 			uid = @"uid *\n";
@@ -1091,6 +1124,9 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		return;
 	}
 	@try {
+		[self operationDidStart];
+		[self registerUndoForKey:key withName:@"Undo_RevokeSignature"];
+
 		NSInteger uid = [self indexOfUserID:userID.hashID fromKey:key];
 		
 		if (uid > 0) {
@@ -1149,6 +1185,9 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		return;
 	}
 	@try {
+		[self operationDidStart];
+		[self registerUndoForKey:key withName:@"Undo_RemoveSignature"];
+
 		NSInteger uid = [self indexOfUserID:userID.hashID fromKey:key];
 		
 		if (uid > 0) {
@@ -1205,6 +1244,9 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		return;
 	}
 	@try {
+		[self operationDidStart];
+		[self registerUndoForKey:key withName:@"Undo_RemoveSubkey"];
+
 		NSInteger index = [self indexOfSubkey:subkey fromKey:key];
 		
 		if (index > 0) {
@@ -1243,6 +1285,9 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		return;
 	}
 	@try {
+		[self operationDidStart];
+		[self registerUndoForKey:key withName:@"Undo_RevokeSubkey"];
+
 		NSInteger index = [self indexOfSubkey:subkey fromKey:key];
 		
 		if (index > 0) {
@@ -1289,6 +1334,9 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		return;
 	}
 	@try {
+		[self operationDidStart];
+		[self registerUndoForKey:key withName:@"Undo_AddSubkey"];
+		
 		GPGTaskOrder *order = [GPGTaskOrder orderWithYesToAll];
 		[order addCmd:@"addkey\n" prompt:@"keyedit.prompt"];
 		[order addInt:type prompt:@"keygen.algo"];
@@ -1328,6 +1376,9 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		return;
 	}
 	@try {
+		[self operationDidStart];
+		[self registerUndoForKey:key withName:@"Undo_AddUserID"];
+		
 		GPGTaskOrder *order = [GPGTaskOrder orderWithYesToAll];
 		[order addCmd:@"adduid\n" prompt:@"keyedit.prompt"];
 		[order addCmd:name prompt:@"keygen.name"];
@@ -1363,6 +1414,9 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		return;
 	}
 	@try {
+		[self operationDidStart];
+		[self registerUndoForKey:key withName:@"Undo_RemoveUserID"];
+		
 		NSInteger uid = [self indexOfUserID:hashID fromKey:key];
 		
 		if (uid > 0) {
@@ -1401,6 +1455,9 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		return;
 	}
 	@try {
+		[self operationDidStart];
+		[self registerUndoForKey:key withName:@"Undo_RevokeUserID"];
+		
 		NSInteger uid = [self indexOfUserID:hashID fromKey:key];
 		
 		if (uid > 0) {
@@ -1447,6 +1504,9 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		return;
 	}
 	@try {
+		[self operationDidStart];
+		[self registerUndoForKey:key withName:@"Undo_PrimaryUserID"];
+		
 		NSInteger uid = [self indexOfUserID:hashID fromKey:key];
 		
 		if (uid > 0) {
@@ -1482,6 +1542,9 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		return;
 	}
 	@try {
+		[self operationDidStart];
+		[self registerUndoForKey:key withName:@"Undo_AddPhoto"];
+		
 		GPGTaskOrder *order = [GPGTaskOrder orderWithYesToAll];
 		
 		[order addCmd:path prompt:@"photoid.jpeg.add"];
@@ -1519,6 +1582,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 	}
 	@try {
 		[self operationDidStart];
+		[self registerUndoForKeys:keys withName:@"Undo_RefreshFromServer"];
 		
 		gpgTask = [GPGTask gpgTask];
 		gpgTask.verbose = self.verbose;
@@ -1545,6 +1609,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 }
 
 - (NSString *)receiveKeysFromServer:(NSObject <EnumerationList> *)keys {
+	//TODO: Undo
 	if (async && !asyncStarted) {
 		asyncStarted = YES;
 		[asyncProxy receiveKeysFromServer:keys];
@@ -1896,6 +1961,19 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 	return GPGErrorNoError;
 }
 
+- (NSSet *)keysInExportedData:(NSData *)data {
+	NSMutableSet *keys = [NSMutableSet set];
+	GPGPacket *packet = [GPGPacket packetWithData:data];
+	
+	while (packet) {
+		if (packet.type == GPGPublicKeyPacket || packet.type == GPGSecretKeyPacket) {
+			[keys addObject:packet.fingerprint];
+		}
+		packet = packet.nextPacket;
+	}
+	
+	return keys;
+}
 
 
 
@@ -2001,18 +2079,20 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 
 
 - (void)keysChanged:(NSObject <EnumerationList> *)keys {
-	NSDictionary *dictionary = nil;
-	if (keys) {
-		NSMutableArray *fingerprints = [NSMutableArray arrayWithCapacity:[keys count]];
-		for (NSObject *key in keys) {
-			[fingerprints addObject:[key description]];
+	if (groupedKeyChange == 0) {
+		NSDictionary *dictionary = nil;
+		if (keys) {
+			NSMutableArray *fingerprints = [NSMutableArray arrayWithCapacity:[keys count]];
+			for (NSObject *key in keys) {
+				[fingerprints addObject:[key description]];
+			}
+			dictionary = [NSDictionary dictionaryWithObjectsAndKeys:fingerprints, @"keys", nil];
 		}
-		dictionary = [NSDictionary dictionaryWithObjectsAndKeys:fingerprints, @"keys", nil];
+		if ([delegate respondsToSelector:@selector(gpgController:keysDidChanged:external:)]) {
+			[delegate gpgController:self keysDidChanged:keys external:NO];
+		}
+		[[NSDistributedNotificationCenter defaultCenter] postNotificationName:GPGKeysChangedNotification object:identifier userInfo:dictionary options:NSNotificationPostToAllSessions];
 	}
-	if ([delegate respondsToSelector:@selector(gpgController:keysDidChanged:external:)]) {
-		[delegate gpgController:self keysDidChanged:keys external:NO];
-	}
-	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:GPGKeysChangedNotification object:identifier userInfo:dictionary options:NSNotificationPostToAllSessions];
 }
 - (void)keyChanged:(NSObject <KeyFingerprint> *)key {
 	if (key) {
@@ -2020,6 +2100,46 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 	} else {
 		[self keysChanged:nil];
 	}
+}
+
+
+- (void)restoreKeys:(NSObject <EnumerationList> *)keys withData:(NSData *)data { //Löscht die übergebenen Schlüssel und importiert data.
+	[self registerUndoForKeys:keys withName:nil];
+	
+	[undoManager disableUndoRegistration];
+	groupedKeyChange++;
+	
+	@try {
+		[self deleteKeys:keys withMode:GPGDeletePublicAndSecretKey];
+	} @catch (NSException *exception) {
+	} 
+	
+	if ([data length] > 0) {
+		@try {
+			[self importFromData:data fullImport:YES];
+		} @catch (NSException *exception) {
+		} 
+	}
+	
+	groupedKeyChange--;
+	[self keysChanged:keys];
+	[undoManager enableUndoRegistration];
+}
+
+- (void)registerUndoForKeys:(NSObject <EnumerationList> *)keys withName:(NSString *)actionName {
+	if ([undoManager isUndoRegistrationEnabled]) {
+		BOOL oldAsny = self.async;
+		self.async = NO;
+		[[undoManager prepareWithInvocationTarget:self] restoreKeys:keys withData:[self exportKeys:keys allowSecret:YES fullExport:YES]];
+		self.async = oldAsny;
+		
+		if (actionName && ![undoManager isUndoing] && ![undoManager isRedoing]) {
+			[undoManager setActionName:localizedLibmacgpgString(actionName)];
+		}
+	}
+}
+- (void)registerUndoForKey:(NSObject <KeyFingerprint> *)key withName:(NSString *)actionName {
+	[self registerUndoForKeys:[NSSet setWithObject:key] withName:actionName];
 }
 
 

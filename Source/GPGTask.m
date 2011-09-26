@@ -614,7 +614,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
             break;
         case GPG_STATUS_ERROR: {
             NSRange range = [value rangeOfString:@" "];
-            if(range.length > 0)
+            if(range.length > 0 && errorCode == 0)
                 errorCode = [[value substringFromIndex:range.location + 1] intValue];
             break;
         }

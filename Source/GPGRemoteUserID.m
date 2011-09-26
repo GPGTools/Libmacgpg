@@ -51,7 +51,8 @@
 		}
 		
 		
-		self.userID = unescapeString([splitedLine objectAtIndex:1]);
+		//self.userID = unescapeString([splitedLine objectAtIndex:1]);
+		self.userID = [[splitedLine objectAtIndex:1] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
 		
 		self.creationDate = [NSDate dateWithGPGString:[splitedLine objectAtIndex:2]];
 		self.expirationDate = [NSDate dateWithGPGString:[splitedLine objectAtIndex:3]];

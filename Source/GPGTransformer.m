@@ -24,7 +24,10 @@
 + (Class)transformedValueClass { return [NSString class]; }
 + (BOOL)allowsReverseTransformation { return NO; }
 - (id)transformedValue:(id)value {
-	switch ([value integerValue]) {
+	return [self transformedIntegerValue:[value integerValue]];
+}
+- (id)transformedIntegerValue:(NSInteger)value {
+	switch (value) {
 		case GPG_RSAAlgorithm:
 			return localizedLibmacgpgString(@"GPG_RSAAlgorithm");
 		case GPG_RSAEncryptOnlyAlgorithm:

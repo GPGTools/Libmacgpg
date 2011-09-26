@@ -47,6 +47,7 @@
 	NSString *proxyServer;
 	NSString *gpgHome;
 	NSDictionary *userInfo;
+	NSUndoManager *undoManager;
 	BOOL useArmor;
 	BOOL useTextMode;
 	BOOL printVersion;
@@ -68,6 +69,7 @@
 	BOOL asyncStarted;
 	BOOL canceled;
 	NSInteger runningOperations;
+	NSUInteger groupedKeyChange;
 }
 
 @property (assign) NSObject <GPGControllerDelegate> *delegate;
@@ -81,6 +83,7 @@
 @property (retain) NSString *gpgHome;
 @property NSUInteger keyserverTimeout;
 @property (retain) NSDictionary *userInfo;
+@property (retain) NSUndoManager *undoManager;
 @property BOOL async;
 @property BOOL useArmor;
 @property BOOL useTextMode;
@@ -163,7 +166,7 @@
 - (NSArray *)verifySignature:(NSData *)signatureData originalData:(NSData *)originalData;
 - (NSArray *)verifySignedData:(NSData *)signedData;
 - (GPGErrorCode)testGPG;
-
+- (NSSet *)keysInExportedData:(NSData *)data;
 
 
 

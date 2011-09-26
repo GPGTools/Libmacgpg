@@ -407,9 +407,9 @@ typedef enum {
 	GPGClearSign = GPGSign | 32,
 	GPGDetachedSign = GPGSign | 64,
 	
-	GPGEnryptSign = GPGPublicKeyEncrypt | GPGSign,
-	GPGEnryptSeparateSign = GPGPublicKeyEncrypt | GPGSeparateSign,
-	GPGEnryptSeparateClearSign = GPGPublicKeyEncrypt | GPGSeparateSign | GPGClearSign,
+	GPGEncryptSign = GPGPublicKeyEncrypt | GPGSign,
+	GPGEncryptSeparateSign = GPGPublicKeyEncrypt | GPGSeparateSign,
+	GPGEncryptSeparateClearSign = GPGPublicKeyEncrypt | GPGSeparateSign | GPGClearSign,
 	
 	GPGEncryptFlags = 3,
 	GPGSignFlags = 120

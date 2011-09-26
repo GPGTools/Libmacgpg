@@ -24,7 +24,7 @@
 	GPGPacket *previousPacket;
 	GPGPacket *nextPacket;
 
-	int type;
+	GPGPacketType type;
 	NSData *data;
 	NSString *keyID;
 	NSString *fingerprint;
@@ -37,7 +37,7 @@
 @property (readonly) GPGPacket *previousPacket;
 @property (readonly) GPGPacket *nextPacket;
 
-@property (readonly) int type;
+@property (readonly) GPGPacketType type;
 @property (readonly) NSData *data;
 @property (readonly) NSString *keyID;
 @property (readonly) NSString *fingerprint;
