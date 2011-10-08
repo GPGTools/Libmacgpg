@@ -86,7 +86,7 @@
 
 	
 	self.hashID = [listing objectAtIndex:7];
-	self.userID = unescapeString([listing objectAtIndex:9]);
+	self.userID = [[listing objectAtIndex:9] unescapedString];
 	
 	
 	if (sigListing) {

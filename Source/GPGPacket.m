@@ -332,7 +332,7 @@ endOfBuffer:
 			uint8_t fingerprintBytes[20];
 			CC_SHA1(bytesForSHA1, length + 3, fingerprintBytes);
 			fingerprint = [bytesToHexString(fingerprintBytes, 20) retain];
-			keyID = [getKeyID(fingerprint) retain];
+			keyID = [[fingerprint keyID] retain];
 			
 			break; }
 		case GPGCompressedDataPacket:

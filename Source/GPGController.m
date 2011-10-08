@@ -38,15 +38,6 @@
 
 #define cancelCheck if (canceled) {@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Operation cancelled") errorCode:GPGErrorCancelled];}
 
-#define setValueWithoutSetter(var, value) do { \
-		id temp = (value); \
-		if (temp != var) { \
-			[var release]; \
-			var = temp; \
-		} \
-	} while (0);
-
-
 
 
 
@@ -75,39 +66,30 @@
 @implementation GPGController
 @synthesize delegate, keyserver, keyserverTimeout, proxyServer, async, userInfo, useArmor, useTextMode, printVersion, useDefaultComments, trustAllKeys, signatures, lastSignature, gpgHome, verbose, lastReturnValue, error, undoManager;
 
+BOOL configReaded = NO;
 NSString *gpgVersion = nil;
 NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil, *compressAlgorithm = nil;
 
 
 
 + (NSString *)gpgVersion {
-	if (!gpgVersion) {
-		[self readGPGConfig];
-	}
+	[self readGPGConfig];
 	return [[gpgVersion retain] autorelease];
 }
 + (NSSet *)publicKeyAlgorithm {
-	if (!publicKeyAlgorithm) {
-		[self readGPGConfig];
-	}
+	[self readGPGConfig];
 	return [[publicKeyAlgorithm retain] autorelease];
 }
 + (NSSet *)cipherAlgorithm {
-	if (!cipherAlgorithm) {
-		[self readGPGConfig];
-	}
+	[self readGPGConfig];
 	return [[cipherAlgorithm retain] autorelease];
 }
 + (NSSet *)digestAlgorithm {
-	if (!digestAlgorithm) {
-		[self readGPGConfig];
-	}
+	[self readGPGConfig];
 	return [[digestAlgorithm retain] autorelease];
 }
 + (NSSet *)compressAlgorithm {
-	if (!compressAlgorithm) {
-		[self readGPGConfig];
-	}
+	[self readGPGConfig];
 	return [[compressAlgorithm retain] autorelease];
 }
 
@@ -521,7 +503,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		}
 		
 		[cmdText appendFormat:@"Name-Real: %@\n", name];
-		if ([comment length] > 0) {
+		if ([email length] > 0) {
 			[cmdText appendFormat:@"Name-Email: %@\n", email];
 		}
 		if ([comment length] > 0) {
@@ -620,7 +602,8 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		if ([gpgTask start] != 0) {
 			@throw [GPGException exceptionWithReason:[NSString stringWithFormat:localizedLibmacgpgString(@"Delete keys (%@) failed!"), keys] gpgTask:gpgTask];
 		}
-		[self keysChanged:keys];
+		
+		[self keysChanged:nil]; //TODO: Probleme verhindern, wenn die gelöschten Schlüssel angegeben werden.
 	} @catch (NSException *e) {
 		[self handleException:e];
 	} @finally {
@@ -1199,7 +1182,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 			for (GPGKeySignature *aSignature in userIDsignatures) {
 				if (aSignature == signature) {
 					[order addCmd:@"y\n" prompt:@"keyedit.delsig.valid"];
-					if ([[signature keyID] isEqualToString:getKeyID(key.description)]) {
+					if ([[signature keyID] isEqualToString:[key.description keyID]]) {
 						[order addCmd:@"y\n" prompt:@"keyedit.delsig.selfsig"];
 					}
 				} else {
@@ -1939,28 +1922,6 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 	return fingerprints;
 }
 
-- (GPGErrorCode)testGPG {
-	@try {
-		gpgTask = [GPGTask gpgTask];
-		[gpgTask addArgument:@"--gpgconf-test"];
-		
-		if ([gpgTask start] != 0) {
-			return GPGErrorConfigurationError;
-		}
-	}
-	@catch (GPGException *exception) {
-		if (exception.errorCode) {
-			return exception.errorCode;
-		} else {
-			return GPGErrorGeneralError;
-		}
-	}
-	@catch (NSException *exception) {
-		return GPGErrorGeneralError;
-	}
-	return GPGErrorNoError;
-}
-
 - (NSSet *)keysInExportedData:(NSData *)data {
 	NSMutableSet *keys = [NSMutableSet set];
 	GPGPacket *packet = [GPGPacket packetWithData:data];
@@ -2130,7 +2091,8 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 	if ([undoManager isUndoRegistrationEnabled]) {
 		BOOL oldAsny = self.async;
 		self.async = NO;
-		[[undoManager prepareWithInvocationTarget:self] restoreKeys:keys withData:[self exportKeys:keys allowSecret:YES fullExport:YES]];
+		//TODO: Make thread safe.
+		//[[undoManager prepareWithInvocationTarget:self] restoreKeys:keys withData:[self exportKeys:keys allowSecret:YES fullExport:YES]];
 		self.async = oldAsny;
 		
 		if (actionName && ![undoManager isUndoing] && ![undoManager isRedoing]) {
@@ -2264,6 +2226,10 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 }
 
 + (void)readGPGConfig {
+	if (configReaded) {
+		return;
+	}
+	configReaded = YES;
 	GPGTask *gpgTask = [GPGTask gpgTask];
 	[gpgTask addArgument:@"--list-config"];
 	[gpgTask start];
@@ -2284,15 +2250,15 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 				NSString *value = [parts objectAtIndex:2];
 				
 				if ([name isEqualToString:@"version"]) {
-					setValueWithoutSetter(gpgVersion, value);
+					gpgVersion = [value retain];
 				} else if ([name isEqualToString:@"pubkey"]) {
-					setValueWithoutSetter (publicKeyAlgorithm, [self algorithmSetFromString:value]);
+					publicKeyAlgorithm = [[self algorithmSetFromString:value] retain];
 				} else if ([name isEqualToString:@"cipher"]) {
-					setValueWithoutSetter (cipherAlgorithm, [self algorithmSetFromString:value]);
+					cipherAlgorithm = [[self algorithmSetFromString:value] retain];
 				} else if ([name isEqualToString:@"digest"]) {
-					setValueWithoutSetter (digestAlgorithm, [self algorithmSetFromString:value]);
+					digestAlgorithm = [[self algorithmSetFromString:value] retain];
 				} else if ([name isEqualToString:@"compress"]) {
-					setValueWithoutSetter (compressAlgorithm, [self algorithmSetFromString:value]);
+					compressAlgorithm = [[self algorithmSetFromString:value] retain];
 				}
 			}
 		}

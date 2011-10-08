@@ -105,75 +105,24 @@
 //	return [retString autorelease];
 }
 @end
+
 @implementation NSString (GPGExtension)
-- (NSData *)gpgData {
+- (NSData *)UTF8Data {
 	return [self dataUsingEncoding:NSUTF8StringEncoding];
 }
 - (NSUInteger)UTF8Length {
 	return [self lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
 }
-@end
-@implementation NSDate (GPGExtension)
-+ (id)dateWithGPGString:(NSString *)string {
-	if ([string integerValue] == 0) {
-		return nil;
-	} else if ([string characterAtIndex:8] == 'T') {
-		NSString *year = [string substringWithRange:NSMakeRange(0, 4)];
-		NSString *month = [string substringWithRange:NSMakeRange(4, 2)];
-		NSString *day = [string substringWithRange:NSMakeRange(6, 2)];
-		NSString *hour = [string substringWithRange:NSMakeRange(9, 2)];
-		NSString *minute = [string substringWithRange:NSMakeRange(11, 2)];
-		NSString *second = [string substringWithRange:NSMakeRange(13, 2)];
-		
-		return [NSDate dateWithString:[NSString stringWithFormat:@"%@-%@-%@ %@:%@:%@ +0000", year, month, day, hour, minute, second]];
-	} else {
-		return [self dateWithTimeIntervalSince1970:[string integerValue]];
-	}
+- (NSString *)shortKeyID {
+	return [self substringFromIndex:[self length] - 8];
 }
-@end
-@implementation NSArray (IndexInfo)
-- (NSIndexSet *)indexesOfIdenticalObjects:(id <NSFastEnumeration>)objects {
-	NSMutableIndexSet *indexes = [NSMutableIndexSet indexSet];
-	for (id object in objects) {
-		NSUInteger aIndex = [self indexOfObjectIdenticalTo:object];
-		if (aIndex != NSNotFound) {
-			[indexes addIndex:aIndex];
-		}
-	}
-	return indexes;
+- (NSString *)keyID {
+	return [self substringFromIndex:[self length] - 16];
 }
-@end
-
-NSString *GPGKeysChangedNotification = @"GPGKeysChangedNotification";
-NSString *GPGOptionsChangedNotification = @"GPGOptionsChangedNotification";
-
-
-int hexToByte (const char *text) {
-	int retVal = 0;
-	int i;
+- (NSString *)unescapedString {
+	//Wandelt "\\t" -> "\t", "\\x3a" -> ":" usw.
 	
-	for (i = 0; i < 2; i++) {
-		if (*text >= '0' && *text <= '9') {
-			retVal += *text - '0';
-		} else if (*text >= 'A' && *text <= 'F') {
-			retVal += 10 + *text - 'A';
-		} else if (*text >= 'a' && *text <= 'f') {
-			retVal += 10 + *text - 'a';
-		} else {
-			return -1;
-		}
-		
-		if (i == 0) {
-			retVal *= 16;
-		}
-		text++;
-    }
-	return retVal;
-}
-
-//Wandelt "\\t" -> "\t", "\\x3a" -> ":" usw.
-NSString *unescapeString(NSString *string) {
-	const char *escapedText = [string UTF8String];
+	const char *escapedText = [self UTF8String];
 	char *unescapedText = malloc(strlen(escapedText) + 1);
 	if (!unescapedText) {
 		return nil;
@@ -234,12 +183,71 @@ break;
 	return retString;
 }
 
-NSString* getShortKeyID(NSString *keyID) {
-	return [keyID substringFromIndex:[keyID length] - 8];
+
+@end
+
+@implementation NSDate (GPGExtension)
++ (id)dateWithGPGString:(NSString *)string {
+	if ([string integerValue] == 0) {
+		return nil;
+	} else if ([string characterAtIndex:8] == 'T') {
+		NSString *year = [string substringWithRange:NSMakeRange(0, 4)];
+		NSString *month = [string substringWithRange:NSMakeRange(4, 2)];
+		NSString *day = [string substringWithRange:NSMakeRange(6, 2)];
+		NSString *hour = [string substringWithRange:NSMakeRange(9, 2)];
+		NSString *minute = [string substringWithRange:NSMakeRange(11, 2)];
+		NSString *second = [string substringWithRange:NSMakeRange(13, 2)];
+		
+		return [NSDate dateWithString:[NSString stringWithFormat:@"%@-%@-%@ %@:%@:%@ +0000", year, month, day, hour, minute, second]];
+	} else {
+		return [self dateWithTimeIntervalSince1970:[string integerValue]];
+	}
 }
-NSString* getKeyID(NSString *fingerprint) {
-	return [fingerprint substringFromIndex:[fingerprint length] - 16];
+@end
+
+@implementation NSArray (IndexInfo)
+- (NSIndexSet *)indexesOfIdenticalObjects:(id <NSFastEnumeration>)objects {
+	NSMutableIndexSet *indexes = [NSMutableIndexSet indexSet];
+	for (id object in objects) {
+		NSUInteger aIndex = [self indexOfObjectIdenticalTo:object];
+		if (aIndex != NSNotFound) {
+			[indexes addIndex:aIndex];
+		}
+	}
+	return indexes;
 }
+@end
+
+
+
+NSString *GPGKeysChangedNotification = @"GPGKeysChangedNotification";
+NSString *GPGOptionsChangedNotification = @"GPGOptionsChangedNotification";
+
+
+int hexToByte (const char *text) {
+	int retVal = 0;
+	int i;
+	
+	for (i = 0; i < 2; i++) {
+		if (*text >= '0' && *text <= '9') {
+			retVal += *text - '0';
+		} else if (*text >= 'A' && *text <= 'F') {
+			retVal += 10 + *text - 'A';
+		} else if (*text >= 'a' && *text <= 'f') {
+			retVal += 10 + *text - 'a';
+		} else {
+			return -1;
+		}
+		
+		if (i == 0) {
+			retVal *= 16;
+		}
+		text++;
+    }
+	return retVal;
+}
+
+
 
 
 NSString* bytesToHexString(const uint8_t *bytes, NSUInteger length) {
@@ -254,28 +262,6 @@ NSString* bytesToHexString(const uint8_t *bytes, NSUInteger length) {
 	return [NSString stringWithUTF8String:hexString];
 }
 
-/*NSException* gpgTaskException(NSString *name, NSString *reason, int errorCode, GPGTask *gpgTask) {
-	if (gpgTask.exitcode == GPGErrorCancelled) {
-		errorCode = GPGErrorCancelled;
-		reason = @"Operation cancelled!";
-	} else if (gpgTask.errorCode) {
-		errorCode = gpgTask.errorCode;
-	}
-	NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:gpgTask, @"gpgTask", [NSNumber numberWithInt:errorCode], @"errorCode", nil];
-	return [NSException exceptionWithName:name reason:localizedLibmacgpgString(reason) userInfo:userInfo];
-}
-
-NSException* gpgException(NSString *name, NSString *reason, int errorCode) {
-	NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:errorCode], @"errorCode", nil];
-	return [NSException exceptionWithName:name reason:localizedLibmacgpgString(reason) userInfo:userInfo];
-}
-
-NSException* gpgExceptionWithUserInfo(NSString *name, NSString *reason, int errorCode, NSDictionary *userInfo) {
-	NSMutableDictionary *mutableUserInfo = [NSMutableDictionary dictionaryWithDictionary:userInfo];
-	[mutableUserInfo setObject:[NSNumber numberWithInt:errorCode] forKey:@"errorCode"];
-	return [NSException exceptionWithName:name reason:localizedLibmacgpgString(reason) userInfo:mutableUserInfo];
-}
-*/
 
 
 

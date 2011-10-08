@@ -132,7 +132,7 @@
 - (void)getKeyIDAndUserIDFromPrompt:(NSString *)prompt {
 	NSRange range = [prompt rangeOfString:@" "];
 	self.fingerprint = [prompt substringToIndex:range.location];
-	self.userID = unescapeString([prompt substringFromIndex:range.location + 1]);
+	self.userID = [[prompt substringFromIndex:range.location + 1] unescapedString];
 }
 
 

@@ -46,7 +46,7 @@
 	self.length = [[line objectAtIndex:2] intValue];
 	self.algorithm = [[line objectAtIndex:3] intValue];
 	self.keyID = [line objectAtIndex:4];
-	self.shortKeyID = getShortKeyID(keyID);
+	self.shortKeyID = [keyID shortKeyID];
 	
 	
 	const char *capabilities = [[line objectAtIndex:11] cStringUsingEncoding:NSASCIIStringEncoding];

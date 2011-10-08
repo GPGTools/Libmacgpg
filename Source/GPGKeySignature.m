@@ -86,11 +86,11 @@
 			
 			self.algorithm = [[splitedLine objectAtIndex:3] intValue];
 			self.keyID = [splitedLine objectAtIndex:4];
-			self.shortKeyID = getShortKeyID(keyID);
+			self.shortKeyID = [keyID shortKeyID];
 			
 			self.creationDate = [NSDate dateWithGPGString:[splitedLine objectAtIndex:5]];
 			self.expirationDate = [NSDate dateWithGPGString:[splitedLine objectAtIndex:6]];
-			self.userID = unescapeString([splitedLine objectAtIndex:9]);
+			self.userID = [[splitedLine objectAtIndex:9] unescapedString];
 			
 			tempItem = [splitedLine objectAtIndex:10];
 			self.signatureClass = hexToByte([tempItem UTF8String]);
@@ -106,7 +106,7 @@
 		} else if ([recType isEqualToString:@"spk"]) {
 			switch ([[splitedLine objectAtIndex:1] integerValue]) {
 				case 29:
-					self.description = unescapeString([splitedLine objectAtIndex:1]);
+					self.description = [[splitedLine objectAtIndex:1] unescapedString];
 					break;
 			}
 		}

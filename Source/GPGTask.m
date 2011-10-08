@@ -60,7 +60,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 	[inDatas addObject:data];
 }
 - (void)addInText:(NSString *)string {
-	[self addInData:[string gpgData]];
+	[self addInData:[string UTF8Data]];
 }
 
 - (NSString *)outText {
@@ -607,6 +607,9 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
             self.lastUserIDHint = nil;
             self.lastNeedPassphrase = nil;
             passphraseStatus = 3;
+			if (errorCode == 0) {
+				errorCode = GPGErrorCancelled;
+			}
             break;
         case GPG_STATUS_GET_HIDDEN:
             if([value isEqualToString:@"passphrase.enter"])
@@ -715,10 +718,10 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 	NSString *description;
 	if ([keyID isEqualToString:mainKeyID]) {
 		description = [NSString stringWithFormat:localizedLibmacgpgString(@"GetPassphraseDescription"), 
-					   userID, getShortKeyID(keyID)];
+					   userID, [keyID shortKeyID]];
 	} else {
 		description = [NSString stringWithFormat:localizedLibmacgpgString(@"GetPassphraseDescription_Subkey"), 
-					   userID, getShortKeyID(keyID), getShortKeyID(mainKeyID)];
+					   userID, [keyID shortKeyID], [mainKeyID keyID]];
 	}
 	description = [description stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
 	NSString *prompt = [localizedLibmacgpgString(@"PassphraseLabel") stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
@@ -733,7 +736,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 						description, 
 						prompt];
 	
-	NSData *inData = [inText gpgData];
+	NSData *inData = [inText UTF8Data];
 	[[inPipe fileHandleForWriting] writeData:inData];
 	
 	

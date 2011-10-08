@@ -554,8 +554,11 @@ extern NSString *GPGOptionsChangedNotification;
 @end
 
 @interface NSString (GPGExtension)
-- (NSData *)gpgData;
+- (NSData *)UTF8Data;
 - (NSUInteger)UTF8Length;
+- (NSString *)shortKeyID;
+- (NSString *)keyID;
+- (NSString *)unescapedString;
 @end
 
 @interface NSDate (GPGExtension)
@@ -564,16 +567,9 @@ extern NSString *GPGOptionsChangedNotification;
 
 
 int hexToByte (const char *text);
-NSString* unescapeString(NSString *string);
-NSString* getShortKeyID(NSString *keyID);
-NSString* getKeyID(NSString *fingerprint);
 NSString* bytesToHexString(const uint8_t *bytes, NSUInteger length);
 
 
-/*NSException* gpgTaskException(NSString *name, NSString *reason, int errorCode, GPGTask *gpgTask);
-NSException* gpgException(NSString *name, NSString *reason, int errorCode);
-NSException* gpgExceptionWithUserInfo(NSString *name, NSString *reason, int errorCode, NSDictionary *userInfo);
-*/
 
 
 @protocol GPGUserIDProtocol
@@ -581,14 +577,6 @@ NSException* gpgExceptionWithUserInfo(NSString *name, NSString *reason, int erro
 @property (retain) NSString *name;
 @property (retain) NSString *email;
 @property (retain) NSString *comment;
-/*- (NSString *)userID;
-- (void)setUserID:(NSString *)value;
-- (NSString *)name;
-- (void)setName:(NSString *)value;
-- (NSString *)email;
-- (void)setEmail:(NSString *)value;
-- (NSString *)comment;
-- (void)setComment:(NSString *)value;*/
 @end
 
 
