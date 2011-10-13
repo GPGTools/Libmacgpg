@@ -568,7 +568,7 @@ extern NSString *GPGOptionsChangedNotification;
 
 int hexToByte (const char *text);
 NSString* bytesToHexString(const uint8_t *bytes, NSUInteger length);
-
+NSSet *fingerprintsFromStatusText(NSString *statusText);
 
 
 

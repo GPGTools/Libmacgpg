@@ -97,7 +97,7 @@
 		[self addOptionWithName:key];
 	} else if ([value isKindOfClass:[NSString class]]) {
 		if (!optionsWhichUseDisabling) {
-			optionsWhichUseDisabling = [NSSet setWithObjects:@"keyserver", nil];
+			optionsWhichUseDisabling = [[NSSet alloc] initWithObjects:@"keyserver", nil];
 		}
 		[self setValue:value ofOptionWithName:key useDisabled:[optionsWhichUseDisabling containsObject:key]];
 	} else if ([value isKindOfClass:[NSArray class]]) {

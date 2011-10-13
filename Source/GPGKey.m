@@ -462,6 +462,9 @@
 }
 - (void)removeObjectsFromUserIDsIdenticalTo:(id <NSFastEnumeration>)objects {
 	NSIndexSet *indexes = [userIDs indexesOfIdenticalObjects:objects];
+	if ([indexes count] == 0) {
+		return;
+	}
 	[self willChange:NSKeyValueChangeRemoval valuesAtIndexes:indexes forKey:@"userIDs"];
 	[userIDs removeObjectsAtIndexes:indexes];
 	[self didChange:NSKeyValueChangeRemoval valuesAtIndexes:indexes forKey:@"userIDs"];

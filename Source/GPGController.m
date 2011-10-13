@@ -1616,7 +1616,9 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		if ([gpgTask start] != 0) {
 			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Receive keys failed!") gpgTask:gpgTask];
 		}
-		[self keysChanged:keys];
+		
+		NSSet *changedKeys = fingerprintsFromStatusText(gpgTask.statusText);
+		[self keysChanged:changedKeys];
 	} @catch (NSException *e) {
 		[self handleException:e];
 	} @finally {

@@ -246,10 +246,6 @@ int hexToByte (const char *text) {
     }
 	return retVal;
 }
-
-
-
-
 NSString* bytesToHexString(const uint8_t *bytes, NSUInteger length) {
 	char table[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 	char hexString[length * 2 + 1];
@@ -263,6 +259,20 @@ NSString* bytesToHexString(const uint8_t *bytes, NSUInteger length) {
 }
 
 
+NSSet *fingerprintsFromStatusText(NSString *statusText) {
+	NSArray *lines = [statusText componentsSeparatedByString:@"\n"];
+	NSMutableSet *fingerprints = [NSMutableSet setWithCapacity:[lines count]];
+	
+	for (NSString *line in lines) {
+		if (![line hasPrefix:@"[GNUPG:] IMPORT_OK "]) {
+			continue;
+		}
+		NSString *fingerprint = [[line componentsSeparatedByString:@" "] objectAtIndex:3];
+		[fingerprints addObject:fingerprint];
+	}
+	return [fingerprints count] ? fingerprints : nil;
+}
+
 
 
 
@@ -273,6 +283,7 @@ NSString* bytesToHexString(const uint8_t *bytes, NSUInteger length) {
     return [realObject methodSignatureForSelector:aSelector];
 }
 - (void)forwardInvocation:(NSInvocation *)anInvocation {
+	[anInvocation retainArguments];
     [anInvocation setTarget:realObject];
 	[NSThread detachNewThreadSelector:@selector(invoke) toTarget:anInvocation withObject:nil];
 }
