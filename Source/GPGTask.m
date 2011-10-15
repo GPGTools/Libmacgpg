@@ -351,7 +351,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 	// TODO: Optimize and make more generic.
     //Für Funktionen wie --decrypt oder --verify sollte "--no-armor" nicht gesetzt sein.
     if ([arguments containsObject:@"--no-armor"] || [arguments containsObject:@"--no-armour"]) {
-        NSSet *inputParameters = [NSSet setWithObjects:@"--decrypt", @"--verify", @"--import", @"--recv-keys", nil];
+        NSSet *inputParameters = [NSSet setWithObjects:@"--decrypt", @"--verify", @"--import", @"--recv-keys", @"--refresh-keys", nil];
         for (NSString *argument in arguments) {
             if ([inputParameters containsObject:argument]) {
                 NSUInteger index = [arguments indexOfObject:@"--no-armor"];

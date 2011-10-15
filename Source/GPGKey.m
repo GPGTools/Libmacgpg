@@ -67,7 +67,6 @@
 	
 	self.secret = isSec;
 	
-	
 	NSUInteger i = 1, c = [listing count];
 	splitedLine = [[listing objectAtIndex:0] componentsSeparatedByString:@":"];
 	
