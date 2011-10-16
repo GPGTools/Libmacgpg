@@ -1,5 +1,4 @@
 all: compile
-
 update-me:
 	@git pull
 
