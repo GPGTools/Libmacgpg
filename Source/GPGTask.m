@@ -633,7 +633,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
             break;
         }
     }
-    id returnValue;
+    id returnValue = nil;
     if([delegate respondsToSelector:@selector(gpgTask:statusCode:prompt:)]) {
         returnValue = [delegate gpgTask:self statusCode:statusCode prompt:value];
     }
