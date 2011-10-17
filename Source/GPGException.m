@@ -1,5 +1,6 @@
 #import "GPGException.h"
 #import "GPGTask.h"
+#import "/usr/include/dlfcn.h"
 
 @interface GPGException ()
 @property (retain) GPGTask *gpgTask;
@@ -48,6 +49,55 @@ NSString *GPGExceptionName = @"GPGException";
 + (GPGException *)exceptionWithReason:(NSString *)aReason errorCode:(GPGErrorCode)aErrorCode {
 	return [[[self alloc] initWithName:GPGExceptionName reason:aReason userInfo:nil errorCode:aErrorCode gpgTask:nil] autorelease];
 }
+
+
+- (NSString *)description {
+	void *libgpgError = dlopen("/usr/local/MacGPG2/lib/libgpg-error.dylib", RTLD_LOCAL | RTLD_LAZY);
+    if (!libgpgError) {
+		NSLog(@"[%s] %s", __FILE__, dlerror());
+        goto noLibgpgError;
+    }
+	
+	unsigned int (*gpg_err_init)() = dlsym(libgpgError, "gpg_err_init");
+	if (!gpg_err_init) {
+		NSLog(@"[%s] %s", __FILE__, dlerror());
+        goto noLibgpgError;
+	}
+	
+	const char *(*gpg_strerror)(unsigned int) = dlsym(libgpgError, "gpg_strerror");
+	if (!gpg_strerror) {
+		NSLog(@"[%s] %s", __FILE__, dlerror());
+        goto noLibgpgError;
+	}
+	
+	if (gpg_err_init()) {
+		NSLog(@"[%s] gpg_err_init() failed!", __FILE__);
+        goto noLibgpgError;
+	}
+	
+	GPGErrorCode code = self.errorCode;
+	if (!code && self.gpgTask) {
+		code = self.gpgTask.errorCode;
+	}
+	
+	if (!code) {
+		goto noLibgpgError;
+	}
+	
+	const char *decription = gpg_strerror(2 << 24 | code);
+	if (!decription) {
+		goto noLibgpgError;
+	}
+	
+	
+	dlclose(libgpgError);
+	return [NSString stringWithFormat:@"%@ (%@)\nCode = %i", self.reason, [NSString stringWithUTF8String:decription], code];
+	
+noLibgpgError:
+	dlclose(libgpgError);
+	return self.reason;
+}
+
 
 @end
 
