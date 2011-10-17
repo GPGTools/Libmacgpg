@@ -9,3 +9,8 @@ compile:
 
 clean:
 	xcodebuild -project Libmacgpg.xcodeproj -target "Libmacgpg" -configuration Release clean
+
+dmg:
+	@echo "No installer"
+
+
