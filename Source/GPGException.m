@@ -52,19 +52,19 @@ NSString *GPGExceptionName = @"GPGException";
 
 
 - (NSString *)description {
-	void *libgpgError = dlopen("/usr/local/MacGPG2/lib/libgpg-error.dylib", RTLD_LOCAL | RTLD_LAZY);
-    if (!libgpgError) {
+	void *libHandle = dlopen("/usr/local/MacGPG2/lib/libgpg-error.dylib", RTLD_LOCAL | RTLD_LAZY);
+    if (!libHandle) {
 		NSLog(@"[%s] %s", __FILE__, dlerror());
         goto noLibgpgError;
     }
 	
-	unsigned int (*gpg_err_init)() = dlsym(libgpgError, "gpg_err_init");
+	unsigned int (*gpg_err_init)() = dlsym(libHandle, "gpg_err_init");
 	if (!gpg_err_init) {
 		NSLog(@"[%s] %s", __FILE__, dlerror());
         goto noLibgpgError;
 	}
 	
-	const char *(*gpg_strerror)(unsigned int) = dlsym(libgpgError, "gpg_strerror");
+	const char *(*gpg_strerror)(unsigned int) = dlsym(libHandle, "gpg_strerror");
 	if (!gpg_strerror) {
 		NSLog(@"[%s] %s", __FILE__, dlerror());
         goto noLibgpgError;
@@ -90,11 +90,11 @@ NSString *GPGExceptionName = @"GPGException";
 	}
 	
 	
-	dlclose(libgpgError);
+	dlclose(libHandle);
 	return [NSString stringWithFormat:@"%@ (%@)\nCode = %i", self.reason, [NSString stringWithUTF8String:decription], code];
 	
 noLibgpgError:
-	dlclose(libgpgError);
+	dlclose(libHandle);
 	return self.reason;
 }
 
