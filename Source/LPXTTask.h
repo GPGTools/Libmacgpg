@@ -60,7 +60,7 @@ typedef void (^lpxt_task_t)(void);
 @property (copy) NSString *currentDirectoryPath;
 @property (readonly) int processIdentifier;
 @property (readonly) int terminationStatus;
-@property (retain) lpxt_task_t parentTask;
+@property (copy) lpxt_task_t parentTask;
 @property (readonly) BOOL cancelled;
 
 - (void)cancel;

@@ -201,7 +201,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 	return [self updateKeys:keyList searchFor:serachList withSigs:withSigs secretOnly:NO];
 }
 - (NSSet *)updateKeys:(NSObject <EnumerationList> *)keyList searchFor:(NSObject <EnumerationList> *)serachList withSigs:(BOOL)withSigs secretOnly:(BOOL)secretOnly {
-	NSSet *secKeyFingerprints, *updatedKeys;
+	NSSet *secKeyFingerprints, *updatedKeys = nil;
 	NSArray *fingerprints, *listings;
 	
 	if (async && !asyncStarted) {
@@ -251,7 +251,6 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		if (secretOnly) {
 			searchStrings = [secKeyFingerprints allObjects];
 		}
-        gpgTask = nil;
 		
 		gpgTask = [GPGTask gpgTask];
         gpgTask.verbose = self.verbose;
@@ -936,7 +935,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 #pragma mark Import and export
 
 - (NSString *)importFromData:(NSData *)data fullImport:(BOOL)fullImport {
-	NSString *statusText;
+	NSString *statusText = nil;
 	if (async && !asyncStarted) {
 		asyncStarted = YES;
 		[asyncProxy importFromData:data fullImport:fullImport];
@@ -983,7 +982,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 }
 
 - (NSData *)exportKeys:(NSObject <EnumerationList> *)keys allowSecret:(BOOL)allowSec fullExport:(BOOL)fullExport {
-	NSData *exportedData;
+	NSData *exportedData = nil;
 	if (async && !asyncStarted) {
 		asyncStarted = YES;
 		[asyncProxy exportKeys:keys allowSecret:allowSec fullExport:fullExport];
@@ -1663,7 +1662,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 }
 
 - (NSArray *)searchKeysOnServer:(NSString *)pattern {
-	NSArray *keys;
+	NSArray *keys = nil;
 	if (async && !asyncStarted) {
 		asyncStarted = YES;
 		[asyncProxy searchKeysOnServer:pattern];
@@ -1692,7 +1691,8 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		[self cleanAfterOperation];
 	}
 	
-	[self operationDidFinishWithReturnValue:keys];	
+	[self operationDidFinishWithReturnValue:keys];
+	
 	return keys;
 }
 
@@ -2008,6 +2008,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 
 - (void)operationDidStart {
 	if (runningOperations == 0) {
+		gpgTask = nil;
 		[error release];
 		error = nil;
 		if ([delegate respondsToSelector:@selector(gpgControllerOperationDidStart:)]) {
