@@ -98,6 +98,7 @@
 + (NSSet *)cipherAlgorithm;
 + (NSSet *)digestAlgorithm;
 + (NSSet *)compressAlgorithm;
++ (GPGErrorCode)testGPG;
 
 
 - (void)setComment:(NSString *)comment;

@@ -55,7 +55,7 @@
 - (void)cleanAfterOperation;
 - (void)keysChanged:(NSObject <EnumerationList> *)keys;
 - (void)keyChanged:(NSObject <KeyFingerprint> *)key;
-+ (void)readGPGConfig;
++ (GPGErrorCode)readGPGConfig;
 - (void)setLastReturnValue:(id)value;
 - (void)restoreKeys:(NSObject <EnumerationList> *)keys withData:(NSData *)data;
 - (void)registerUndoForKeys:(NSObject <EnumerationList> *)keys withName:(NSString *)actionName;
@@ -66,7 +66,6 @@
 @implementation GPGController
 @synthesize delegate, keyserver, keyserverTimeout, proxyServer, async, userInfo, useArmor, useTextMode, printVersion, useDefaultComments, trustAllKeys, signatures, lastSignature, gpgHome, verbose, lastReturnValue, error, undoManager;
 
-BOOL configReaded = NO;
 NSString *gpgVersion = nil;
 NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil, *compressAlgorithm = nil;
 
@@ -2227,44 +2226,66 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 	return [[algorithm copy] autorelease];
 }
 
-+ (void)readGPGConfig {
+
++ (GPGErrorCode)testGPG {
+	return [self readGPGConfig];
+}
+
++ (GPGErrorCode)readGPGConfig {
+	static BOOL configReaded = NO;
 	if (configReaded) {
-		return;
-	}
-	configReaded = YES;
-	GPGTask *gpgTask = [GPGTask gpgTask];
-	[gpgTask addArgument:@"--list-config"];
-	[gpgTask start];
-	NSString *outText = [gpgTask outText];
-	
-	if (!outText || outText.length < 10) {
-		NSLog(@"readGPGConfig faild");
-		return;
+		return GPGErrorNoError;
 	}
 	
-	NSArray *lines = [outText componentsSeparatedByString:@"\n"];
-	
-	for (NSString *line in lines) {
-		if ([line hasPrefix:@"cfg:"]) {
-			NSArray *parts = [line componentsSeparatedByString:@":"];
-			if ([parts count] > 2) {
-				NSString *name = [parts objectAtIndex:1];
-				NSString *value = [parts objectAtIndex:2];
-				
-				if ([name isEqualToString:@"version"]) {
-					gpgVersion = [value retain];
-				} else if ([name isEqualToString:@"pubkey"]) {
-					publicKeyAlgorithm = [[self algorithmSetFromString:value] retain];
-				} else if ([name isEqualToString:@"cipher"]) {
-					cipherAlgorithm = [[self algorithmSetFromString:value] retain];
-				} else if ([name isEqualToString:@"digest"]) {
-					digestAlgorithm = [[self algorithmSetFromString:value] retain];
-				} else if ([name isEqualToString:@"compress"]) {
-					compressAlgorithm = [[self algorithmSetFromString:value] retain];
+	@try {
+		GPGTask *gpgTask = [GPGTask gpgTask];
+		[gpgTask addArgument:@"--list-config"];
+		
+		if ([gpgTask start] != 0) {
+			return GPGErrorConfigurationError;
+		}
+		
+		NSString *outText = [gpgTask outText];
+		if (!outText || outText.length < 10) {
+			return GPGErrorGeneralError;
+		}
+		
+		NSArray *lines = [outText componentsSeparatedByString:@"\n"];
+		
+		for (NSString *line in lines) {
+			if ([line hasPrefix:@"cfg:"]) {
+				NSArray *parts = [line componentsSeparatedByString:@":"];
+				if ([parts count] > 2) {
+					NSString *name = [parts objectAtIndex:1];
+					NSString *value = [parts objectAtIndex:2];
+					
+					if ([name isEqualToString:@"version"]) {
+						gpgVersion = [value retain];
+					} else if ([name isEqualToString:@"pubkey"]) {
+						publicKeyAlgorithm = [[self algorithmSetFromString:value] retain];
+					} else if ([name isEqualToString:@"cipher"]) {
+						cipherAlgorithm = [[self algorithmSetFromString:value] retain];
+					} else if ([name isEqualToString:@"digest"]) {
+						digestAlgorithm = [[self algorithmSetFromString:value] retain];
+					} else if ([name isEqualToString:@"compress"]) {
+						compressAlgorithm = [[self algorithmSetFromString:value] retain];
+					}
 				}
 			}
 		}
+	} @catch (GPGException *exception) {
+		if (exception.errorCode) {
+			return exception.errorCode;
+		} else {
+			return GPGErrorGeneralError;
+		}
 	}
+	@catch (NSException *exception) {
+		return GPGErrorGeneralError;
+	}
+	
+	configReaded = YES;
+	return GPGErrorNoError;
 }
 
 
