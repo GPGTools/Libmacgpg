@@ -122,7 +122,6 @@ const int armorTypeStringsCount = 7;
 					break;
 				}
 				readPos += armorBeginMarkLength;
-				state = state_parseStart;
 			case state_parseStart:
 				canRead(40);
 				found = NO;

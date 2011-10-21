@@ -1743,7 +1743,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 				goto closeSocket;
 			}
 			NSString *command = [NSString stringWithFormat:@"GET_PASSPHRASE --no-ask %@ . . .\n", key];
-			length = send(sock, [command UTF8String], [command UTF8Length], 0);
+			send(sock, [command UTF8String], [command UTF8Length], 0);
 			
 			int pos = 0;
 			while ((length = recv(sock, buffer+pos, 100-pos, 0)) > 0) {

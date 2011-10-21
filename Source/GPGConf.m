@@ -419,8 +419,7 @@
 
 
 - (void)setAllOptionsWithName:(NSString *)name values:(NSArray *)values {
-	NSMutableIndexSet *indexesToKeep = [NSMutableIndexSet indexSet];
-	NSMutableIndexSet *indexesToRemove = [NSMutableIndexSet indexSet];
+	NSMutableIndexSet *indexesToRemove, *indexesToKeep = [NSMutableIndexSet indexSet];
 	NSMutableArray *linesToDo = [NSMutableArray arrayWithCapacity:[values count]];
 	NSUInteger index;
 	GPGConfLine *line;
