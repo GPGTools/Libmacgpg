@@ -291,6 +291,7 @@
 		object.name = nil;
 		object.email = nil;
 		object.comment = nil;
+		return;
 	}
 	
 	NSString *workText = aUserID;
