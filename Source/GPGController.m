@@ -772,7 +772,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		[gpgTask addArgument:[key description]];
 		
 		if ([gpgTask start] != 0) {
-			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Add userID failed!") gpgTask:gpgTask];
+			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Change expiration date failed!") gpgTask:gpgTask];
 		}
 		[self keyChanged:key];
 	} @catch (NSException *e) {

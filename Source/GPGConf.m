@@ -291,7 +291,7 @@
         line = [confLines objectAtIndex:index];
         if ([line.value isEqualToString:value]) {
             line.enabled = YES;
-            indexesOfEqualLines = [indexesOfEqualLines mutableCopy];
+            indexesOfEqualLines = [[indexesOfEqualLines mutableCopy] autorelease];
             [(NSMutableIndexSet *)indexesOfEqualLines removeIndex:index];
             break;
         }
@@ -437,13 +437,13 @@
 		}
 	}
 	
-    indexesToRemove = [[confLines indexesOfObjectsPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
+    indexesToRemove = [[[confLines indexesOfObjectsPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
         GPGConfLine *line = obj;
         if (![indexesToKeep containsIndex:idx] && [line.name isEqualToString:name]) {
             return YES;
         }
         return NO;
-    }] mutableCopy];
+    }] mutableCopy] autorelease];
 
 	
 	

@@ -336,10 +336,11 @@ static char *__BDSKCopyFileSystemRepresentation(NSString *str)
 - (NSArray *)inheritedPipesWithName:(NSString *)name {
     // Find the pipe info matching the given name.
     NSDictionary *pipeInfo = [_inheritedPipesMap valueForKey:name];
-    CFMutableArrayRef pipeList = CFArrayCreateMutable(NULL, 0, NULL);
-    for(id idx in [pipeInfo valueForKey:@"pipeIdx"])
-        CFArrayAppendValue(pipeList, CFArrayGetValueAtIndex(_inheritedPipes, [idx intValue]));
-    return [(NSArray *)pipeList autorelease];
+	NSMutableArray *pipeList = [NSMutableArray array];
+    for(id idx in [pipeInfo valueForKey:@"pipeIdx"]) {
+		[pipeList addObject:[(NSArray *)_inheritedPipes objectAtIndex:[idx intValue]]];
+	}
+    return pipeList;
 }
 
 - (NSPipe *)inheritedPipeWithName:(NSString *)name {

@@ -331,7 +331,8 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 	isRunning = YES;
 	
     // Default arguments which every call to GPG needs.
-    NSMutableArray *defaultArguments = [[NSMutableArray alloc] initWithObjects:
+	
+    NSMutableArray *defaultArguments = [NSMutableArray arrayWithObjects:
                                         @"--no-greeting", @"--no-tty", @"--with-colons",
                                         @"--yes", @"--output", @"-", nil];
     // Add GPG 1 arguments.
@@ -395,7 +396,6 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
     gpgTask.standardOutput = [NSPipe pipe];
     gpgTask.standardError = [NSPipe pipe];
     gpgTask.arguments = defaultArguments;
-    [defaultArguments release];
     
     if(self.verbose)
         NSLog(@"gpg %@", [gpgTask.arguments componentsJoinedByString:@" "]);
@@ -411,7 +411,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
         [dupList addObject:[NSNumber numberWithInt:i++]];
     }
     [gpgTask inheritPipes:pipeList mode:O_WRONLY dups:dupList name:@"ins"];
-    //[pipeList release];
+    [pipeList release];
     [dupList release];
     // Setup the task to be run in the parent process, before
     // the parent starts waiting for the child.

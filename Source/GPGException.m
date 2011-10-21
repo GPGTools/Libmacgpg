@@ -51,6 +51,9 @@ NSString *GPGExceptionName = @"GPGException";
 
 
 - (NSString *)description {
+	if (description) {
+		return description;
+	}
 	void *libHandle = dlopen("/usr/local/MacGPG2/lib/libgpg-error.dylib", RTLD_LOCAL | RTLD_LAZY);
     if (!libHandle) {
 		NSLog(@"[%@] %s", [self className], dlerror());
@@ -90,12 +93,20 @@ NSString *GPGExceptionName = @"GPGException";
 	}
 	
 	
-	dlclose(libHandle);
-	return [NSString stringWithFormat:@"%@ (%@)\nCode = %i", self.reason, [NSString stringWithUTF8String:decription], code];
+	description = [[NSString alloc] initWithFormat:@"%@ (%@)\nCode = %i", self.reason, [NSString stringWithUTF8String:decription], code];
 	
 noLibgpgError:
+	if (!description) {
+		description = [[NSString alloc] initWithFormat:@"%@\nCode = %i", self.reason, code];
+	}
+	
 	dlclose(libHandle);
-	return self.reason;
+	return description;
+}
+
+- (void)dealloc {
+	[description release];
+	[super dealloc];
 }
 
 

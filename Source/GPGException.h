@@ -356,6 +356,7 @@ typedef enum {
 @interface GPGException : NSException {
 	GPGTask *gpgTask;
 	GPGErrorCode errorCode;
+	NSString *description;
 }
 
 @property (readonly, retain) GPGTask *gpgTask;
