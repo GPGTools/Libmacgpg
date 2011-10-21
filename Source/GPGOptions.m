@@ -426,12 +426,13 @@ NSMutableDictionary *defaults = nil;
 
 - (NSString *)httpProxy {
 	if (!httpProxy) {
-		NSDictionary *proxyConfig = [(NSDictionary *)SCDynamicStoreCopyProxies(nil) autorelease];
+		NSDictionary *proxyConfig = (NSDictionary *)SCDynamicStoreCopyProxies(nil);
 		if ([[proxyConfig objectForKey:@"HTTPEnable"] intValue]) {
 			httpProxy = [[NSString alloc] initWithFormat:@"%@:%@", [proxyConfig objectForKey:@"HTTPProxy"], [proxyConfig objectForKey:@"HTTPPort"]];
 		} else {
 			httpProxy = @"";
 		}
+		CFRelease(proxyConfig);
 	}
 	return [[httpProxy retain] autorelease];
 }
