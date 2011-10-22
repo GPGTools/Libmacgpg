@@ -120,8 +120,9 @@ static char *__BDSKCopyFileSystemRepresentation(NSString *str)
     // the child process.
     // Not sure for what reason, but let's comply with that.
     // File descriptors to close in the child process.
-    lpxttask_fd fds[CFArrayGetCount(_inheritedPipes)];
-    for(int i = 0; i < CFArrayGetCount(_inheritedPipes); i++) {
+    int pipeCount = CFArrayGetCount(_inheritedPipes);    
+    lpxttask_fd fds[pipeCount];
+    for(int i = 0; i < pipeCount; i++) {
         fds[i].fd = -1;
         fds[i].dupfd = -1;
     }
@@ -178,9 +179,6 @@ static char *__BDSKCopyFileSystemRepresentation(NSString *str)
     struct rlimit openFileLimit;
     if (getrlimit(RLIMIT_NOFILE, &openFileLimit) == 0)
         maxOpenFiles = openFileLimit.rlim_cur;
-    
-    int pipeCount = CFArrayGetCount(_inheritedPipes);
-    
     
     // !!! No CF or Cocoa after this point in the child process!
     _processIdentifier = fork();
