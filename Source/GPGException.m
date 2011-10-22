@@ -17,7 +17,7 @@ NSString *GPGExceptionName = @"GPGException";
 	if (!(self = [super initWithName:aName reason:aReason userInfo:aUserInfo])) {
 		return nil;
 	}
-
+	
 	if (aGPGTask) {
 		self.gpgTask = aGPGTask;
 		if (aGPGTask.exitcode == GPGErrorCancelled) {
@@ -26,9 +26,9 @@ NSString *GPGExceptionName = @"GPGException";
 			aErrorCode = gpgTask.errorCode;
 		}
 	}
-
+	
 	self.errorCode = aErrorCode;
-
+	
 	return self;
 }
 
@@ -54,14 +54,9 @@ NSString *GPGExceptionName = @"GPGException";
 	if (description) {
 		return description;
 	}
-
-	void *libHandle = dlopen("/usr/local/MacGPG2/lib/libgpg-error.dylib", RTLD_LOCAL | RTLD_LAZY);
+	
+	
 	GPGErrorCode code = self.errorCode;
-
-    if (!libHandle) {
-		NSLog(@"[%@] %s", [self className], dlerror());
-        goto noLibgpgError;
-    }
 	if (!code && self.gpgTask) {
 		code = self.gpgTask.errorCode;
 	}
@@ -70,37 +65,44 @@ NSString *GPGExceptionName = @"GPGException";
 		goto noLibgpgError;
 	}
 
+	
+	void *libHandle = dlopen("/usr/local/MacGPG2/lib/libgpg-error.dylib", RTLD_LOCAL | RTLD_LAZY);
+    if (!libHandle) {
+		NSLog(@"[%@] %s", [self className], dlerror());
+        goto noLibgpgError;
+    }
+	
 	unsigned int (*gpg_err_init)() = dlsym(libHandle, "gpg_err_init");
 	if (!gpg_err_init) {
 		NSLog(@"[%@] %s", [self className], dlerror());
         goto noLibgpgError;
 	}
-
+	
 	const char *(*gpg_strerror)(unsigned int) = dlsym(libHandle, "gpg_strerror");
 	if (!gpg_strerror) {
 		NSLog(@"[%@] %s", [self className], dlerror());
         goto noLibgpgError;
 	}
-
+	
 	if (gpg_err_init()) {
 		NSLog(@"[%@] gpg_err_init() failed!", [self className]);
         goto noLibgpgError;
 	}
-
-
+	
+	
 	const char *decription = gpg_strerror(2 << 24 | code);
 	if (!decription) {
 		goto noLibgpgError;
 	}
-
-
+	
+	
 	description = [[NSString alloc] initWithFormat:@"%@ (%@)\nCode = %i", self.reason, [NSString stringWithUTF8String:decription], code];
-
+	
 noLibgpgError:
 	if (!description) {
 		description = [[NSString alloc] initWithFormat:@"%@\nCode = %i", self.reason, code];
 	}
-
+	
 	dlclose(libHandle);
 	return description;
 }
