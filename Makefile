@@ -2,6 +2,13 @@ PROJECT = Libmacgpg
 TARGET = Libmacgpg
 CONFIG = Release
 
+.PRE :=
+ifndef CFG
+compile clean:
+        $(foreach cfg,$(cfg_list), $(MAKE) CFG=$(cfg) $@;)
+.PRE := foo-
+endif
+
 include Dependencies/GPGTools_Core/make/default
 
 all: compile
@@ -14,13 +21,11 @@ update-me:
 
 update: update-me update-core
 
-compile:
-	xcodebuild -project Libmacgpg.xcodeproj -target "Libmacgpg" -configuration Release build
-
-clean:
-	xcodebuild -project Libmacgpg.xcodeproj -target "Libmacgpg" -configuration Release clean
-
 test:
 	@echo "Nothing to test"
 
+compile:
+	@xcodebuild -project $(PROJECT).xcodeproj -target $(TARGET) -configuration $(CONFIG) build
 
+clean:
+	@xcodebuild -project $(PROJECT).xcodeproj -target $(TARGET) -configuration $(CONFIG) clean > /dev/null
