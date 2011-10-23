@@ -55,18 +55,18 @@ NSString *GPGExceptionName = @"GPGException";
 		return description;
 	}
 
-
+	void *libHandle = nil;
 	GPGErrorCode code = self.errorCode;
 	if (!code && self.gpgTask) {
 		code = self.gpgTask.errorCode;
 	}
 	//TODO: Fehlercodes von Schlüsselserver Fehlern.
 	if (!code) {
-		goto noLibgpgError2;
+		goto noLibgpgError;
 	}
 
 
-	void *libHandle = dlopen("/usr/local/MacGPG2/lib/libgpg-error.dylib", RTLD_LOCAL | RTLD_LAZY);
+	libHandle = dlopen("/usr/local/MacGPG2/lib/libgpg-error.dylib", RTLD_LOCAL | RTLD_LAZY);
     if (!libHandle) {
 		NSLog(@"[%@] %s", [self className], dlerror());
         goto noLibgpgError;
@@ -99,13 +99,11 @@ NSString *GPGExceptionName = @"GPGException";
 	description = [[NSString alloc] initWithFormat:@"%@ (%@)\nCode = %i", self.reason, [NSString stringWithUTF8String:decription], code];
 
 noLibgpgError:
-	dlclose(libHandle);
-
-noLibgpgError2:
 	if (!description) {
 		description = [[NSString alloc] initWithFormat:@"%@\nCode = %i", self.reason, code];
 	}
 
+	dlclose(libHandle);
 	return description;
 }
 
