@@ -62,7 +62,7 @@ NSString *GPGExceptionName = @"GPGException";
 	}
 	//TODO: Fehlercodes von Schlüsselserver Fehlern.
 	if (!code) {
-		goto noLibgpgError;
+		goto noLibgpgError2;
 	}
 
 
@@ -99,11 +99,13 @@ NSString *GPGExceptionName = @"GPGException";
 	description = [[NSString alloc] initWithFormat:@"%@ (%@)\nCode = %i", self.reason, [NSString stringWithUTF8String:decription], code];
 
 noLibgpgError:
+	dlclose(libHandle);
+
+noLibgpgError2:
 	if (!description) {
 		description = [[NSString alloc] initWithFormat:@"%@\nCode = %i", self.reason, code];
 	}
 
-	dlclose(libHandle);
 	return description;
 }
 
