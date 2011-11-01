@@ -621,6 +621,16 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
                 errorCode = [[value substringFromIndex:range.location + 1] intValue];
             break;
         }
+		case GPG_STATUS_NO_SECKEY:
+			if (errorCode == 0) {
+				errorCode = GPGErrorNoSecretKey;
+			}
+			break;
+		case GPG_STATUS_NO_PUBKEY:
+			if (errorCode == 0) {
+				errorCode = GPGErrorNoPublicKey;
+			}
+			break;
         case GPG_STATUS_BEGIN_ENCRYPTION: {
             // Encrypt only takes one file, more files not supported,
             // so it's not important to check which file's data is required,
