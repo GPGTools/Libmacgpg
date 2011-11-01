@@ -380,6 +380,16 @@ static char *__BDSKCopyFileSystemRepresentation(NSString *str)
 - (void)cancel {
 	self.cancelled = YES;
 	if (self.processIdentifier > 0) {
+        // Close all pipes, otherwise SIGTERM is ignored it seems.
+        for(NSPipe *pipe in (NSArray *)_inheritedPipes) {
+            @try {
+                [[pipe fileHandleForReading] closeFile];
+                [[pipe fileHandleForWriting] closeFile];
+            }
+            @catch (NSException *e) {
+                // Simply ignore.
+            }
+        }
 		kill(self.processIdentifier, SIGTERM);
 	}
 }
