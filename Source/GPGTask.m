@@ -651,7 +651,14 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
     // Get the passphrase from the pinetry if gpg asks for it.
     if(isPassphraseRequest) {
         if(!returnValue) {
-            returnValue = [self getPassphraseFromPinentry];
+            @try {
+                returnValue = [self getPassphraseFromPinentry];
+            }
+            @catch(NSException *e) {
+                // Cancel gpgTask, otherwise no new task can be run...
+                [self cancel];
+                @throw e;
+            }
             if(returnValue)
                 returnValue = [NSString stringWithFormat:@"%@\n", returnValue];
         }
@@ -761,7 +768,26 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 	}
 	NSString *outString = [output gpgString];
 	
-	NSRange range;
+    // Versions prior to 0.8 of pinentry-mac do not seem
+    // to support the OPTION cache-id yet, but still the
+    // password is successfully retrieved.
+    // To not abort on such an error, first the output string
+    // is checked for a non empty D line and if not found,
+    // any errors are processed.
+    NSRange range = [outString rangeOfString:@"\nD "];
+	if(range.location != NSNotFound) {
+        range.location++;
+        range.length--;
+        range = [outString lineRangeForRange:range];
+        range.location += 2;
+        range.length -= 3;
+        
+        if(range.length > 0) {
+            return [[outString substringWithRange:range] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+        }
+    }
+    // Otherwise process the error.
+    
 	range = [outString rangeOfString:@"\nERR "];
 	if (range.length > 0) {
 		range.location++; 
@@ -780,23 +806,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 		}
 		return nil;
 	}
-	
-	range = [outString rangeOfString:@"\nD "];
-	if (range.length == 0) {
-		return @"";
-	}
-	
-	range.location++;
-	range.length--;
-	range = [outString lineRangeForRange:range];
-	range.location += 2;
-	range.length -= 3;
-	
-	if (range.length <= 0) {
-		return @"";
-	}
-	
-	return [[outString substringWithRange:range] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    return nil;
 }
 
 @end
