@@ -483,7 +483,7 @@ void SystemConfigurationDidChange(SCPreferencesRef prefs, SCPreferencesNotificat
 	if (!updating) {
 		NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:key, @"key", value, @"value", [NSNumber numberWithInt:domain], @"domain", (domain == GPGDomain_standard && standardDomain) ? standardDomain : nil, @"domainName", nil];
 		NSDistributedNotificationCenter *center = [NSDistributedNotificationCenter defaultCenter];
-		[center postNotificationName:GPGOptionsChangedNotification object:identifier userInfo:userInfo options:NSNotificationPostToAllSessions];		
+		[center postNotificationName:GPGOptionsChangedNotification object:identifier userInfo:userInfo options:NSNotificationPostToAllSessions | NSNotificationDeliverImmediately];		
 		[self willChangeValueForKey:key];
 		[self didChangeValueForKey:key];
 	}

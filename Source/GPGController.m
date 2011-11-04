@@ -26,6 +26,7 @@
 #import "GPGOptions.h"
 #import "GPGException.h"
 #import "GPGPacket.h"
+#import "GPGWatcher.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -159,6 +160,8 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 	signatures = [[NSMutableArray alloc] init];
 	keyserverTimeout = 10;
 	asyncProxy = [[AsyncProxy alloc] initWithRealObject:self];
+	
+	[GPGWatcher activate];
 	
 	[[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(keysHaveChanged:) name:GPGKeysChangedNotification object:nil];
 	
@@ -2030,7 +2033,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		NSDictionary *dictionary = notification.userInfo;
 		NSObject <EnumerationList> *keys = [dictionary objectForKey:@"keys"];
 		
-		if ([keys conformsToProtocol:@protocol(EnumerationList)]) {
+		if (!keys || [keys conformsToProtocol:@protocol(EnumerationList)]) {
 			[delegate gpgController:self keysDidChanged:keys external:YES];
 		}
 	}
@@ -2054,7 +2057,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		if ([delegate respondsToSelector:@selector(gpgController:keysDidChanged:external:)]) {
 			[delegate gpgController:self keysDidChanged:keys external:NO];
 		}
-		[[NSDistributedNotificationCenter defaultCenter] postNotificationName:GPGKeysChangedNotification object:identifier userInfo:dictionary options:NSNotificationPostToAllSessions];
+		[[NSDistributedNotificationCenter defaultCenter] postNotificationName:GPGKeysChangedNotification object:identifier userInfo:dictionary options:NSNotificationPostToAllSessions | NSNotificationDeliverImmediately];
 	}
 }
 - (void)keyChanged:(NSObject <KeyFingerprint> *)key {
