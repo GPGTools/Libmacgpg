@@ -103,11 +103,12 @@ void eventStreamCallBack(ConstFSEventStreamRef streamRef, void *clientCallBackIn
 	if (eventStream) {
 		FSEventStreamStop(eventStream);
 		FSEventStreamInvalidate(eventStream);
+		FSEventStreamRelease(eventStream);
 		eventStream = nil;
 	}
 	if (self.delegate && [self.pathsToWatch count] > 0) {
 		FSEventStreamContext context = {0, self, nil, nil, nil};
-		eventStream = FSEventStreamCreate(nil, eventStreamCallBack, &context, (CFArrayRef)[self.pathsToWatch allObjects], kFSEventStreamEventIdSinceNow, latency, kFSEventStreamCreateFlagUseCFTypes | kFSEventStreamCreateFlagWatchRoot | kFSEventStreamCreateFlagIgnoreSelf);
+		eventStream = FSEventStreamCreate(nil, &eventStreamCallBack, &context, (CFArrayRef)[self.pathsToWatch allObjects], kFSEventStreamEventIdSinceNow, latency, kFSEventStreamCreateFlagUseCFTypes | kFSEventStreamCreateFlagIgnoreSelf);
 		if (eventStream) {
 			CFRunLoopRef mainLoop = [[NSRunLoop currentRunLoop] getCFRunLoop];
 			FSEventStreamScheduleWithRunLoop(eventStream, mainLoop, kCFRunLoopDefaultMode);
@@ -130,11 +131,13 @@ void eventStreamCallBack(ConstFSEventStreamRef streamRef, void *clientCallBackIn
 - (void)finalize {
 	FSEventStreamStop(eventStream);
 	FSEventStreamInvalidate(eventStream);
+	FSEventStreamRelease(eventStream);
 	[super finalize];
 }
 - (void)dealloc {
 	FSEventStreamStop(eventStream);
 	FSEventStreamInvalidate(eventStream);
+	FSEventStreamRelease(eventStream);
 	[pathsToWatch release];
 	[super dealloc];
 }
