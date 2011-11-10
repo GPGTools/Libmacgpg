@@ -59,8 +59,11 @@ typedef enum {
 - (id)valueForKey:(NSString *)key;
 - (void)setValue:(id)value forKey:(NSString *)key;
 - (void)removeValueForKey:(NSString *)key;
+- (void)removeValue:(id)value forKey:(NSString *)key;
+
 - (id)valueForKey:(NSString *)key inDomain:(GPGOptionsDomain)domain;
 - (void)setValue:(id)value forKey:(NSString *)key inDomain:(GPGOptionsDomain)domain;
+- (void)removeValue:(id)value forKey:(NSString *)key inDomain:(GPGOptionsDomain)domain;
 
 
 - (void)setInteger:(NSInteger) value forKey:(NSString *)key;
@@ -94,9 +97,12 @@ typedef enum {
 - (NSArray *)allValuesInGPGConfForKey:(NSString *)key;
 - (id)valueInGPGConfForKey:(NSString *)key;
 - (void)setValueInGPGConf:(id)value forKey:(NSString *)key;
+- (void)removeValueInGPGConf:(id)value forKey:(NSString *)key;
+
 - (NSArray *)allValuesInGPGAgentConfForKey:(NSString *)key;
 - (id)valueInGPGAgentConfForKey:(NSString *)key;
 - (void)setValueInGPGAgentConf:(id)value forKey:(NSString *)key;
+- (void)removeValueInGPGAgentConf:(id)value forKey:(NSString *)key;
 
 
 - (void)gpgAgentFlush;
