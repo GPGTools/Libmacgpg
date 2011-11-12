@@ -1101,6 +1101,62 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 	[self operationDidFinishWithReturnValue:nil];	
 }
 
+- (void)removeSignature:(GPGKeySignature *)signature fromUserID:(GPGUserID *)userID ofKey:(NSObject <KeyFingerprint> *)key { //Diese Funktion ist äusserst ineffizient, mir ist allerdings kein besserer Weg bekannt.
+	if (async && !asyncStarted) {
+		asyncStarted = YES;
+		[asyncProxy removeSignature:signature fromUserID:userID ofKey:key];
+		return;
+	}
+	@try {
+		[self operationDidStart];
+		[self registerUndoForKey:key withName:@"Undo_RemoveSignature"];
+
+		NSInteger uid = [self indexOfUserID:userID.hashID fromKey:key];
+		
+		if (uid > 0) {
+			GPGTaskOrder *order = [GPGTaskOrder orderWithNoToAll];
+			[order addCmd:[NSString stringWithFormat:@"uid %i\n", uid] prompt:@"keyedit.prompt"];
+			[order addCmd:@"delsig\n" prompt:@"keyedit.prompt"];
+			
+			NSArray *userIDsignatures = userID.signatures;
+			for (GPGKeySignature *aSignature in userIDsignatures) {
+				if (aSignature == signature) {
+					[order addCmd:@"y\n" prompt:@"keyedit.delsig.valid"];
+					if ([[signature keyID] isEqualToString:[key.description keyID]]) {
+						[order addCmd:@"y\n" prompt:@"keyedit.delsig.selfsig"];
+					}
+				} else {
+					[order addCmd:@"n\n" prompt:@"keyedit.delsig.valid"];
+				}
+			}
+			
+			[order addCmd:@"save\n" prompt:@"keyedit.prompt"];
+			
+			
+			gpgTask = [GPGTask gpgTask];
+            gpgTask.verbose = self.verbose;
+			[self addArgumentsForOptions];
+			gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"]; 
+			[gpgTask addArgument:@"--edit-key"];
+			[gpgTask addArgument:[key description]];
+			
+			
+			if ([gpgTask start] != 0) {
+				@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Remove signature failed!") gpgTask:gpgTask];
+			}
+			[self keyChanged:key];
+		} else {
+			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"UserID not found!") userInfo:[NSDictionary dictionaryWithObjectsAndKeys:userID.hashID, @"hashID", key, @"key", nil] errorCode:GPGErrorNoUserID gpgTask:nil];
+		}
+	} @catch (NSException *e) {
+		[self handleException:e];
+	} @finally {
+		[self cleanAfterOperation];
+	}
+	
+	[self operationDidFinishWithReturnValue:nil];	
+}
+
 - (void)revokeSignature:(GPGKeySignature *)signature fromUserID:(GPGUserID *)userID ofKey:(NSObject <KeyFingerprint> *)key reason:(int)reason description:(NSString *)description { //Diese Funktion ist äusserst ineffizient, mir ist allerdings kein besserer Weg bekannt.
 	if (async && !asyncStarted) {
 		asyncStarted = YES;
@@ -1162,53 +1218,39 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 	[self operationDidFinishWithReturnValue:nil];	
 }
 
-- (void)removeSignature:(GPGKeySignature *)signature fromUserID:(GPGUserID *)userID ofKey:(NSObject <KeyFingerprint> *)key { //Diese Funktion ist äusserst ineffizient, mir ist allerdings kein besserer Weg bekannt.
+
+#pragma mark Working with Subkeys
+
+- (void)addSubkeyToKey:(NSObject <KeyFingerprint> *)key type:(NSInteger)type length:(NSInteger)length daysToExpire:(NSInteger)daysToExpire {
 	if (async && !asyncStarted) {
 		asyncStarted = YES;
-		[asyncProxy removeSignature:signature fromUserID:userID ofKey:key];
+		[asyncProxy addSubkeyToKey:key type:type length:length daysToExpire:daysToExpire];
 		return;
 	}
 	@try {
 		[self operationDidStart];
-		[self registerUndoForKey:key withName:@"Undo_RemoveSignature"];
-
-		NSInteger uid = [self indexOfUserID:userID.hashID fromKey:key];
+		[self registerUndoForKey:key withName:@"Undo_AddSubkey"];
 		
-		if (uid > 0) {
-			GPGTaskOrder *order = [GPGTaskOrder orderWithNoToAll];
-			[order addCmd:[NSString stringWithFormat:@"uid %i\n", uid] prompt:@"keyedit.prompt"];
-			[order addCmd:@"delsig\n" prompt:@"keyedit.prompt"];
-			
-			NSArray *userIDsignatures = userID.signatures;
-			for (GPGKeySignature *aSignature in userIDsignatures) {
-				if (aSignature == signature) {
-					[order addCmd:@"y\n" prompt:@"keyedit.delsig.valid"];
-					if ([[signature keyID] isEqualToString:[key.description keyID]]) {
-						[order addCmd:@"y\n" prompt:@"keyedit.delsig.selfsig"];
-					}
-				} else {
-					[order addCmd:@"n\n" prompt:@"keyedit.delsig.valid"];
-				}
-			}
-			
-			[order addCmd:@"save\n" prompt:@"keyedit.prompt"];
-			
-			
-			gpgTask = [GPGTask gpgTask];
-            gpgTask.verbose = self.verbose;
-			[self addArgumentsForOptions];
-			gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"]; 
-			[gpgTask addArgument:@"--edit-key"];
-			[gpgTask addArgument:[key description]];
-			
-			
-			if ([gpgTask start] != 0) {
-				@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Remove signature failed!") gpgTask:gpgTask];
-			}
-			[self keyChanged:key];
-		} else {
-			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"UserID not found!") userInfo:[NSDictionary dictionaryWithObjectsAndKeys:userID.hashID, @"hashID", key, @"key", nil] errorCode:GPGErrorNoUserID gpgTask:nil];
+		GPGTaskOrder *order = [GPGTaskOrder orderWithYesToAll];
+		[order addCmd:@"addkey\n" prompt:@"keyedit.prompt"];
+		[order addInt:type prompt:@"keygen.algo"];
+		[order addInt:length prompt:@"keygen.size"];
+		[order addInt:daysToExpire prompt:@"keygen.valid"];
+		[order addCmd:@"save\n" prompt:@"keyedit.prompt"];
+		
+		
+		gpgTask = [GPGTask gpgTask];
+        gpgTask.verbose = self.verbose;
+		[self addArgumentsForOptions];
+		gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"]; 
+		[gpgTask addArgument:@"--edit-key"];
+		[gpgTask addArgument:[key description]];
+		
+		if ([gpgTask start] != 0) {
+			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Add subkey failed!") gpgTask:gpgTask];
 		}
+		NSLog(@"\nOut: %@\nErr: %@", gpgTask.outText, gpgTask.errText);
+		[self keyChanged:key];
 	} @catch (NSException *e) {
 		[self handleException:e];
 	} @finally {
@@ -1217,9 +1259,6 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 	
 	[self operationDidFinishWithReturnValue:nil];	
 }
-
-
-#pragma mark Working with Subkeys
 
 - (void)removeSubkey:(NSObject <KeyFingerprint> *)subkey fromKey:(NSObject <KeyFingerprint> *)key {
 	if (async && !asyncStarted) {
@@ -1302,45 +1341,6 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		} else {
 			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Subkey not found!") userInfo:[NSDictionary dictionaryWithObjectsAndKeys:subkey, @"subkey", key, @"key", nil] errorCode:GPGErrorSubkeyNotFound gpgTask:nil];
 		}
-	} @catch (NSException *e) {
-		[self handleException:e];
-	} @finally {
-		[self cleanAfterOperation];
-	}
-	
-	[self operationDidFinishWithReturnValue:nil];	
-}
-
-- (void)addSubkeyToKey:(NSObject <KeyFingerprint> *)key type:(NSInteger)type length:(NSInteger)length daysToExpire:(NSInteger)daysToExpire {
-	if (async && !asyncStarted) {
-		asyncStarted = YES;
-		[asyncProxy addSubkeyToKey:key type:type length:length daysToExpire:daysToExpire];
-		return;
-	}
-	@try {
-		[self operationDidStart];
-		[self registerUndoForKey:key withName:@"Undo_AddSubkey"];
-		
-		GPGTaskOrder *order = [GPGTaskOrder orderWithYesToAll];
-		[order addCmd:@"addkey\n" prompt:@"keyedit.prompt"];
-		[order addInt:type prompt:@"keygen.algo"];
-		[order addInt:length prompt:@"keygen.size"];
-		[order addInt:daysToExpire prompt:@"keygen.valid"];
-		[order addCmd:@"save\n" prompt:@"keyedit.prompt"];
-		
-		
-		gpgTask = [GPGTask gpgTask];
-        gpgTask.verbose = self.verbose;
-		[self addArgumentsForOptions];
-		gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"]; 
-		[gpgTask addArgument:@"--edit-key"];
-		[gpgTask addArgument:[key description]];
-		
-		if ([gpgTask start] != 0) {
-			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Add subkey failed!") gpgTask:gpgTask];
-		}
-		NSLog(@"\nOut: %@\nErr: %@", gpgTask.outText, gpgTask.errText);
-		[self keyChanged:key];
 	} @catch (NSException *e) {
 		[self handleException:e];
 	} @finally {
@@ -1593,7 +1593,6 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 }
 
 - (NSString *)receiveKeysFromServer:(NSObject <EnumerationList> *)keys {
-	//TODO: Undo
 	if (async && !asyncStarted) {
 		asyncStarted = YES;
 		[asyncProxy receiveKeysFromServer:keys];
@@ -1601,6 +1600,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 	}
 	@try {
 		[self operationDidStart];
+		[self registerUndoForKeys:keys withName:@"Undo_ReceiveFromServer"];
 		
 		if ([keys count] == 0) {
 			[NSException raise:NSInvalidArgumentException format:@"Empty key list!"];

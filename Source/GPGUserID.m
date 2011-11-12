@@ -182,7 +182,7 @@
 		cipherPreferences = [[NSArray alloc] init];
 	}
 	
-	//TODO: [mdc] [no-ks-modify]!
+	//TODO: Support for [mdc] [no-ks-modify]!
 }
 
 - (NSArray *)cipherPreferences {

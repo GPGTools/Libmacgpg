@@ -16,6 +16,31 @@ PassphraseLabel = "Passphrase:";
 "Ultimate" = "Ultimate";
 
 
+//For Undo and Redo
+Undo_NewKey = "New Key";
+Undo_Delete = "Delete";
+Undo_CleanKey = "Clean";
+Undo_MinimizeKey = "Minimize";
+Undo_RevokeKey = "Revoke Key"
+Undo_ChangeExpirationDate = "Change Expiration Date";
+Undo_ChangePassphrase = "Change Passphrase";
+Undo_AlgorithmPreferences = "Change Algorithm Preferences";
+Undo_Import = "Import";
+Undo_AddSignature = "Add Signature";
+Undo_RemoveSignature = "Remove Signature";
+Undo_RevokeSignature = "Revoke Signature";
+Undo_AddSubkey = "Add Subkey";
+Undo_RemoveSubkey = "Remove Subkey";
+Undo_RevokeSubkey = "Revoke Subkey";
+Undo_AddUserID = "Add UserID";
+Undo_RemoveUserID = "Remove UserID";
+Undo_RevokeUserID = "Revoke UserID";
+Undo_PrimaryUserID = "Primary UserID";
+Undo_AddPhoto = "Add Photo";
+Undo_RefreshFromServer = "Refresh from server";
+Undo_ReceiveFromServer = "Receive from server"; 
+
+
 
 //Algorithm names
 CIPHER_ALGO_NONE = "None";
