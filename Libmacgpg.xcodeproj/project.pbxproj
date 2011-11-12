@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1BC7A50013D300A600AE57BA /* LPXTTask.h in Headers */ = {isa = PBXBuildFile; fileRef = 1BC7A4FE13D300A600AE57BA /* LPXTTask.h */; settings = {ATTRIBUTES = (); }; };
+		1BC7A50013D300A600AE57BA /* LPXTTask.h in Headers */ = {isa = PBXBuildFile; fileRef = 1BC7A4FE13D300A600AE57BA /* LPXTTask.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1BC7A50113D300A600AE57BA /* LPXTTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 1BC7A4FF13D300A600AE57BA /* LPXTTask.m */; };
 		30247EF5135B2139003BA5E3 /* libcrypto.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 30247EF4135B2139003BA5E3 /* libcrypto.dylib */; };
 		3026F4AF13A203A000F3CA02 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3026F4AE13A203A000F3CA02 /* Security.framework */; };
