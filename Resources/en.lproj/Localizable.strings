@@ -21,7 +21,7 @@ Undo_NewKey = "New Key";
 Undo_Delete = "Delete";
 Undo_CleanKey = "Clean";
 Undo_MinimizeKey = "Minimize";
-Undo_RevokeKey = "Revoke Key"
+Undo_RevokeKey = "Revoke Key";
 Undo_ChangeExpirationDate = "Change Expiration Date";
 Undo_ChangePassphrase = "Change Passphrase";
 Undo_AlgorithmPreferences = "Change Algorithm Preferences";
@@ -38,7 +38,7 @@ Undo_RevokeUserID = "Revoke UserID";
 Undo_PrimaryUserID = "Primary UserID";
 Undo_AddPhoto = "Add Photo";
 Undo_RefreshFromServer = "Refresh from server";
-Undo_ReceiveFromServer = "Receive from server"; 
+Undo_ReceiveFromServer = "Receive from server";
 
 
 

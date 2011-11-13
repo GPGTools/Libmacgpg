@@ -47,7 +47,6 @@
 
 
 - (void)pathsChanged:(NSArray *)paths flags:(const FSEventStreamEventFlags [])flags {
-	NSLog(@"pathsChanged");
 	NSFileManager *fileManager = [NSFileManager defaultManager];
 	NSDate *date1, *date2;
 	
@@ -57,7 +56,6 @@
 		
 		if (!date1 || !date2 || ![date1 isEqualToDate:date2]) {
 			// Change found.
-			NSLog(@"pathsChanged2");
 			
 			lastFoundChange = [NSDate timeIntervalSinceReferenceDate];
 			if (lastKnownChange + TOLERANCE_BEFORE < lastFoundChange) {
@@ -68,14 +66,12 @@
 	}
 }
 - (void)timerFired:(NSTimer *)timer {
-	NSLog(@"timerFired");
 	NSTimeInterval foundChange = [[timer userInfo] doubleValue];
 	if (lastKnownChange + TOLERANCE_BEFORE < foundChange) {
 		[[NSDistributedNotificationCenter defaultCenter] postNotificationName:GPGKeysChangedNotification object:identifier userInfo:nil options:0];
 	}
 }
 - (void)keysChangedNotification:(NSNotification *)notification {
-	NSLog(@"keysChangedNotification");
 	lastKnownChange = [NSDate timeIntervalSinceReferenceDate];
 }
 
