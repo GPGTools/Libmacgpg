@@ -61,6 +61,7 @@
 - (void)restoreKeys:(NSObject <EnumerationList> *)keys withData:(NSData *)data;
 - (void)registerUndoForKeys:(NSObject <EnumerationList> *)keys withName:(NSString *)actionName;
 - (void)registerUndoForKey:(NSObject <KeyFingerprint> *)key withName:(NSString *)actionName;
+- (void)registerUndoForKeys:(NSObject <EnumerationList> *)keys;
 @end
 
 
@@ -2074,6 +2075,8 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 	
 	[undoManager disableUndoRegistration];
 	groupedKeyChange++;
+	BOOL oldAsny = self.async;
+	self.async = NO;
 	
 	@try {
 		[self deleteKeys:keys withMode:GPGDeletePublicAndSecretKey];
@@ -2087,6 +2090,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		} 
 	}
 	
+	self.async = oldAsny;
 	groupedKeyChange--;
 	[self keysChanged:keys];
 	[undoManager enableUndoRegistration];
@@ -2096,8 +2100,11 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 	if ([undoManager isUndoRegistrationEnabled]) {
 		BOOL oldAsny = self.async;
 		self.async = NO;
-		//TODO: Make thread safe.
-		//[[undoManager prepareWithInvocationTarget:self] restoreKeys:keys withData:[self exportKeys:keys allowSecret:YES fullExport:YES]];
+		if ([NSThread isMainThread]) {
+			[self registerUndoForKeys:keys];
+		} else {
+			[self performSelectorOnMainThread:@selector(registerUndoForKeys:) withObject:keys waitUntilDone:YES];
+		}
 		self.async = oldAsny;
 		
 		if (actionName && ![undoManager isUndoing] && ![undoManager isRedoing]) {
@@ -2107,6 +2114,11 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 }
 - (void)registerUndoForKey:(NSObject <KeyFingerprint> *)key withName:(NSString *)actionName {
 	[self registerUndoForKeys:[NSSet setWithObject:key] withName:actionName];
+}
+- (void)registerUndoForKeys:(NSObject <EnumerationList> *)keys {
+	GPGTask *oldGPGTask = gpgTask;
+	[[undoManager prepareWithInvocationTarget:self] restoreKeys:keys withData:[self exportKeys:keys allowSecret:YES fullExport:YES]];
+	gpgTask = oldGPGTask;
 }
 
 

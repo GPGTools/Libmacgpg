@@ -19,6 +19,8 @@
 		3048830C1462B11700F2E5F4 /* DirectoryWatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 3048830A1462B11700F2E5F4 /* DirectoryWatcher.m */; };
 		3048830F1462B22000F2E5F4 /* GPGWatcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 3048830D1462B22000F2E5F4 /* GPGWatcher.h */; settings = {ATTRIBUTES = (); }; };
 		304883101462B22000F2E5F4 /* GPGWatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 3048830E1462B22000F2E5F4 /* GPGWatcher.m */; };
+		3049589C1472BFB5000DDDE2 /* GPGConf2.h in Headers */ = {isa = PBXBuildFile; fileRef = 3049589A1472BFB5000DDDE2 /* GPGConf2.h */; };
+		3049589D1472BFB5000DDDE2 /* GPGConf2.m in Sources */ = {isa = PBXBuildFile; fileRef = 3049589B1472BFB5000DDDE2 /* GPGConf2.m */; };
 		30516558142281270038AAF0 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 30516556142281270038AAF0 /* Localizable.strings */; };
 		3059AF0F14239FA200AD5B30 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 30516556142281270038AAF0 /* Localizable.strings */; };
 		3059AF1114239FAB00AD5B30 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 30516556142281270038AAF0 /* Localizable.strings */; };
@@ -91,6 +93,8 @@
 		3048830A1462B11700F2E5F4 /* DirectoryWatcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DirectoryWatcher.m; sourceTree = "<group>"; };
 		3048830D1462B22000F2E5F4 /* GPGWatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGWatcher.h; sourceTree = "<group>"; };
 		3048830E1462B22000F2E5F4 /* GPGWatcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGWatcher.m; sourceTree = "<group>"; };
+		3049589A1472BFB5000DDDE2 /* GPGConf2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGConf2.h; sourceTree = "<group>"; };
+		3049589B1472BFB5000DDDE2 /* GPGConf2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGConf2.m; sourceTree = "<group>"; };
 		305165591422812B0038AAF0 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
 		3059AF1014239FAB00AD5B30 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		30691AA2136AECC4004AA469 /* GPGOptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGOptions.h; sourceTree = "<group>"; };
@@ -271,6 +275,8 @@
 			children = (
 				30D259DA136DC13100274D9F /* GPGConf.h */,
 				30D259DB136DC13100274D9F /* GPGConf.m */,
+				3049589A1472BFB5000DDDE2 /* GPGConf2.h */,
+				3049589B1472BFB5000DDDE2 /* GPGConf2.m */,
 				30D259DE136DC13E00274D9F /* GPGConfLine.h */,
 				30D259DF136DC13E00274D9F /* GPGConfLine.m */,
 				30691AA2136AECC4004AA469 /* GPGOptions.h */,
@@ -330,6 +336,7 @@
 				1BC7A50013D300A600AE57BA /* LPXTTask.h in Headers */,
 				3048830B1462B11700F2E5F4 /* DirectoryWatcher.h in Headers */,
 				3048830F1462B22000F2E5F4 /* GPGWatcher.h in Headers */,
+				3049589C1472BFB5000DDDE2 /* GPGConf2.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -479,6 +486,7 @@
 				30A70EE613EF328000EE9CD9 /* GPGException.m in Sources */,
 				3048830C1462B11700F2E5F4 /* DirectoryWatcher.m in Sources */,
 				304883101462B22000F2E5F4 /* GPGWatcher.m in Sources */,
+				3049589D1472BFB5000DDDE2 /* GPGConf2.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
