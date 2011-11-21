@@ -1071,6 +1071,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		GPGTaskOrder *order = [GPGTaskOrder orderWithYesToAll];
 		[order addCmd:uid prompt:@"keyedit.prompt"];
 		[order addCmd:local ? @"lsign\n" : @"sign\n" prompt:@"keyedit.prompt"];
+		[order addCmd:@"n\n" prompt:@"sign_uid.expire" optional:YES];
 		[order addCmd:[NSString stringWithFormat:@"%i\n", daysToExpire] prompt:@"siggen.valid" optional:YES];
 		[order addCmd:[NSString stringWithFormat:@"%i\n", type] prompt:@"sign_uid.class" optional:YES];
 		[order addCmd:@"save\n" prompt:@"keyedit.prompt"];
