@@ -969,10 +969,14 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		[gpgTask start];
 		
 		statusText = gpgTask.statusText;
-		//TODO: Better error detection!
-		if ([statusText rangeOfString:@"[GNUPG:] IMPORT_OK "].length <= 0) {
+		
+		
+		NSRange range = [statusText rangeOfString:@"[GNUPG:] IMPORT_RES "];
+		
+		if (range.length == 0 || [statusText characterAtIndex:range.location + range.length] == '0') {
 			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Import failed!") gpgTask:gpgTask];
 		}
+		
 		[self keysChanged:keys];
 	} @catch (NSException *e) {
 		[self handleException:e];

@@ -290,6 +290,32 @@ endOfBuffer:
 			publicKeyAlgorithm = readUint8;
 			break;
 		case GPGSignaturePacket:
+			canRead(12);
+			switch (readUint8) {
+				case 3:
+					//TODO
+					break;
+				case 4: {
+					signatureType = readUint8;
+					publicKeyAlgorithm = readUint8;
+					hashAlgorithm = readUint8;
+					
+					// Subpackets verarbeiten.
+					for (int i = 0; i < 2; i++) { // Zweimal da es hashed und unhashed subpackets geben kann!
+						const uint8_t *subpacketEnd = readUint16 + readPos;
+						while (readPos < subpacketEnd) {
+							uint16_t subpacketLength = readUint8;
+							uint8_t subpacketType = readUint8;
+							if (subpacketType == 16 && subpacketLength == 9) {
+								keyID = [bytesToHexString(readPos, 8) retain];
+							}
+							readPos += subpacketLength - 1;
+						}
+					}
+					
+					
+					break; }
+			}
 			break;
 		case GPGSymmetricEncryptedSessionKeyPacket:
 			canRead(2);
@@ -335,22 +361,31 @@ endOfBuffer:
 			
 			break; }
 		case GPGCompressedDataPacket:
+			//TODO
 			break;
 		case GPGSymmetricEncryptedDataPacket:
+			//TODO
 			break;
 		case GPGMarkerPacket:
+			//TODO
 			break;
 		case GPGLiteralDataPacket:
+			//TODO
 			break;
 		case GPGTrustPacket:
+			//TODO
 			break;
 		case GPGUserIDPacket:
+			//TODO
 			break;
 		case GPGUserAttributePacket:
+			//TODO
 			break;
 		case GPGSymmetricEncryptedProtectedDataPacket:
+			//TODO
 			break;
 		case GPGModificationDetectionCodePacket:
+			//TODO
 			break;
 		default: //Unknown packet type.
 			abortSwitch;
