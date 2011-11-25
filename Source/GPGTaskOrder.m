@@ -82,7 +82,7 @@
 - (NSString *)cmdForPrompt:(NSString *)prompt statusCode:(NSInteger)statusCode {
 	NSUInteger count = [items count];
 	for (NSUInteger i = index; i < count; i++) {
-		NSDictionary *item = [items objectAtIndex:index];
+		NSDictionary *item = [items objectAtIndex:i];
 		if ([[item objectForKey:@"prompt"] isEqualToString:prompt]) {
 			index = i + 1;
 			return [item objectForKey:@"cmd"];
@@ -98,7 +98,6 @@
 				return @"n\n";
 		}
 	}
-	index = NSUIntegerMax;	
 	return nil;
 }
 
