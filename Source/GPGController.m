@@ -946,9 +946,11 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 	}
 	@try {
 		NSSet *keys = [self keysInExportedData:data];
-		if ([keys count] == 0) {
+		
+		//TODO: Uncomment the following lines when keysInExportedData: fully work!
+		/*if ([keys count] == 0) {
 			[NSException raise:NSInvalidArgumentException format:@"No keys to import!"];
-		}
+		}*/
 		
 		[self operationDidStart];
 		[self registerUndoForKeys:keys withName:@"Undo_Import"];

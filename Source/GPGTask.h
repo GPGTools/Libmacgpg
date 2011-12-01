@@ -43,6 +43,7 @@
 	NSDictionary *userInfo;
 	NSInteger exitcode;
 	int errorCode;
+	NSMutableArray *errorCodes;
 	BOOL getAttributeData;
 	
     LPXTTask *gpgTask;

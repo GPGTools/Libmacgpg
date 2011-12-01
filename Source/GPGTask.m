@@ -30,11 +30,12 @@
 @property (retain) NSData *errData;
 @property (retain) NSData *statusData;
 @property (retain) NSData *attributeData;
-
+@property int errorCode;
 
 + (void)initializeStatusCodes;
 - (NSString *)getPassphraseFromPinentry;
 - (void)_writeInputData;
+- (void)unsetErrorCode:(int)value;
 
 @end
 
@@ -279,6 +280,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 		arguments = [[NSMutableArray alloc] initWithArray:args];
 		self.gpgPath = _gpgPath;
 		batchMode = batch;
+		errorCodes = [NSMutableArray array];
 	}
 	return self;	
 }
@@ -307,6 +309,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 	[statusText release];
 	[inDatas release];
     //[cmdPipe release];
+	[errorCodes release];
 	
 	self.lastUserIDHint = nil;
 	self.lastNeedPassphrase = nil;
@@ -607,9 +610,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
             self.lastUserIDHint = nil;
             self.lastNeedPassphrase = nil;
             passphraseStatus = 3;
-			if (errorCode == 0) {
-				errorCode = GPGErrorCancelled;
-			}
+			self.errorCode = GPGErrorCancelled;
             break;
         case GPG_STATUS_GET_HIDDEN:
             if([value isEqualToString:@"passphrase.enter"])
@@ -617,19 +618,15 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
             break;
         case GPG_STATUS_ERROR: {
             NSRange range = [value rangeOfString:@" "];
-            if(range.length > 0 && errorCode == 0)
-                errorCode = [[value substringFromIndex:range.location + 1] intValue];
+            if(range.length > 0)
+                self.errorCode = [[value substringFromIndex:range.location + 1] intValue];
             break;
         }
 		case GPG_STATUS_NO_SECKEY:
-			if (errorCode == 0) {
-				errorCode = GPGErrorNoSecretKey;
-			}
+			self.errorCode = GPGErrorNoSecretKey;
 			break;
 		case GPG_STATUS_NO_PUBKEY:
-			if (errorCode == 0) {
-				errorCode = GPGErrorNoPublicKey;
-			}
+			self.errorCode = GPGErrorNoPublicKey;
 			break;
         case GPG_STATUS_BEGIN_ENCRYPTION: {
             // Encrypt only takes one file, more files not supported,
@@ -642,6 +639,9 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
             [self _writeInputData];
             break;
         }
+		case GPG_STATUS_DECRYPTION_OKAY:
+			[self unsetErrorCode:GPGErrorNoSecretKey];
+			break;
     }
     id returnValue = nil;
     if([delegate respondsToSelector:@selector(gpgTask:statusCode:prompt:)]) {
@@ -694,6 +694,25 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
         }
     }
 }
+
+- (void)setErrorCode:(int)value {
+	NSNumber *code = [NSNumber numberWithInt:value];
+	if (![errorCodes containsObject:code]) {
+		[errorCodes addObject:code];
+		if (!errorCode) {
+			errorCode = value;
+		}
+	}
+}
+- (void)unsetErrorCode:(int)value {
+	NSNumber *code = [NSNumber numberWithInt:value];
+	if ([errorCodes containsObject:code]) {
+		[errorCodes removeObject:code];
+		errorCode = [[errorCodes objectAtIndex:0] intValue];
+	}
+}
+
+
 
 /* Helper function to display NSData content. */
 - (void)logDataContent:(NSData *)data message:(NSString *)message {
