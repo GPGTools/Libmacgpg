@@ -45,6 +45,7 @@
 	int errorCode;
 	NSMutableArray *errorCodes;
 	BOOL getAttributeData;
+	BOOL inputDataWritten;
 	
     LPXTTask *gpgTask;
     

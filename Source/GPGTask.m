@@ -551,6 +551,8 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 }
 
 - (void)_writeInputData {
+	if (inputDataWritten) return;
+	inputDataWritten = YES;
     NSArray *pipeList = [gpgTask inheritedPipesWithName:@"ins"];
     for(int i = 0; i < [pipeList count]; i++) {
         [[[pipeList objectAtIndex:i] fileHandleForWriting] writeData:[inDatas objectAtIndex:i]];
@@ -628,17 +630,10 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 		case GPG_STATUS_NO_PUBKEY:
 			self.errorCode = GPGErrorNoPublicKey;
 			break;
-        case GPG_STATUS_BEGIN_ENCRYPTION: {
-            // Encrypt only takes one file, more files not supported,
-            // so it's not important to check which file's data is required,
-            // it's always the first.
+        case GPG_STATUS_BEGIN_ENCRYPTION:
+        case GPG_STATUS_BEGIN_SIGNING:
             [self _writeInputData];
             break;
-        }
-        case GPG_STATUS_BEGIN_SIGNING: {
-            [self _writeInputData];
-            break;
-        }
 		case GPG_STATUS_DECRYPTION_OKAY:
 			[self unsetErrorCode:GPGErrorNoSecretKey];
 			break;
