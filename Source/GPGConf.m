@@ -87,7 +87,7 @@
 	}
 	
 	if (config == nil) {
-		config = [NSMutableDictionary dictionary];
+		config = [[NSMutableDictionary alloc] init];
 	} else {
 		[config removeAllObjects];
 	}
@@ -196,6 +196,10 @@
 }
 - (id)init {
     return [self initWithPath:nil];
+}
+- (void)dealloc {
+	[config release];
+	self.path = nil;
 }
 
 @end
