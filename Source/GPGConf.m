@@ -69,7 +69,7 @@
 			}
 		}
 	}
-	
+
 	NSError *error = nil;
 	[lines writeToFile:path atomically:YES encoding:NSUTF8StringEncoding error:&error];
 	if (error) {
@@ -104,14 +104,6 @@
 		if ([line hasPrefix:@"#"] || [line length] == 0) {
 			continue; //Ignore comments and empty lines.
 		}
-		NSLog(@"Original Line '%@'", line);
-		range = [line rangeOfString:@"#"];
-		if (range.length > 0) {
-			line = [line substringToIndex:range.location - 1];
-		}
-		NSLog(@"Line without comment'%@'", line);
-
-		
 		
 		NSArray *parts = [line componentsSeparatedByCharactersInSet:whitespaces];
 		NSString *name = [parts objectAtIndex:0];
