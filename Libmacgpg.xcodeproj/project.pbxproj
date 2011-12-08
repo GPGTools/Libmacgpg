@@ -36,10 +36,8 @@
 		30C60EEF12FF3321006BB8DA /* Libmacgpg.h in Headers */ = {isa = PBXBuildFile; fileRef = 30C60EEE12FF3321006BB8DA /* Libmacgpg.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		30C8B39C1395052D00F49AA1 /* Test1.m in Sources */ = {isa = PBXBuildFile; fileRef = 30C8B39B1395052D00F49AA1 /* Test1.m */; };
 		30C8B3B11395072C00F49AA1 /* Libmacgpg.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DC2EF5B0486A6940098B216 /* Libmacgpg.framework */; };
-		30D259DC136DC13100274D9F /* GPGConf.h in Headers */ = {isa = PBXBuildFile; fileRef = 30D259DA136DC13100274D9F /* GPGConf.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		30D259DD136DC13100274D9F /* GPGConf.m in Sources */ = {isa = PBXBuildFile; fileRef = 30D259DB136DC13100274D9F /* GPGConf.m */; };
-		30D259E0136DC13E00274D9F /* GPGConfLine.h in Headers */ = {isa = PBXBuildFile; fileRef = 30D259DE136DC13E00274D9F /* GPGConfLine.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		30D259E1136DC13E00274D9F /* GPGConfLine.m in Sources */ = {isa = PBXBuildFile; fileRef = 30D259DF136DC13E00274D9F /* GPGConfLine.m */; };
+		30D5E2A41483A0F700F31454 /* GPGConf.h in Headers */ = {isa = PBXBuildFile; fileRef = 30D5E2A21483A0F700F31454 /* GPGConf.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		30D5E2A51483A0F700F31454 /* GPGConf.m in Sources */ = {isa = PBXBuildFile; fileRef = 30D5E2A31483A0F700F31454 /* GPGConf.m */; };
 		30FF413712FAC6CD00F39832 /* GPGController.h in Headers */ = {isa = PBXBuildFile; fileRef = 30FF411D12FAC6CD00F39832 /* GPGController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		30FF413812FAC6CD00F39832 /* GPGController.m in Sources */ = {isa = PBXBuildFile; fileRef = 30FF411E12FAC6CD00F39832 /* GPGController.m */; };
 		30FF413B12FAC6CD00F39832 /* GPGGlobals.h in Headers */ = {isa = PBXBuildFile; fileRef = 30FF412112FAC6CD00F39832 /* GPGGlobals.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -109,10 +107,8 @@
 		30C8B38F139503A800F49AA1 /* UnitTest-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "UnitTest-Info.plist"; path = "UnitTest/UnitTest-Info.plist"; sourceTree = "<group>"; };
 		30C8B39A1395052D00F49AA1 /* Test1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Test1.h; path = UnitTest/Test1.h; sourceTree = "<group>"; };
 		30C8B39B1395052D00F49AA1 /* Test1.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Test1.m; path = UnitTest/Test1.m; sourceTree = "<group>"; };
-		30D259DA136DC13100274D9F /* GPGConf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGConf.h; sourceTree = "<group>"; };
-		30D259DB136DC13100274D9F /* GPGConf.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGConf.m; sourceTree = "<group>"; };
-		30D259DE136DC13E00274D9F /* GPGConfLine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGConfLine.h; sourceTree = "<group>"; };
-		30D259DF136DC13E00274D9F /* GPGConfLine.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGConfLine.m; sourceTree = "<group>"; };
+		30D5E2A21483A0F700F31454 /* GPGConf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGConf.h; sourceTree = "<group>"; };
+		30D5E2A31483A0F700F31454 /* GPGConf.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGConf.m; sourceTree = "<group>"; };
 		30FF411D12FAC6CD00F39832 /* GPGController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGController.h; sourceTree = "<group>"; };
 		30FF411E12FAC6CD00F39832 /* GPGController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGController.m; sourceTree = "<group>"; };
 		30FF412112FAC6CD00F39832 /* GPGGlobals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGGlobals.h; sourceTree = "<group>"; };
@@ -269,10 +265,8 @@
 		307FAABB13F26BB4003FA99B /* GPGOptions */ = {
 			isa = PBXGroup;
 			children = (
-				30D259DA136DC13100274D9F /* GPGConf.h */,
-				30D259DB136DC13100274D9F /* GPGConf.m */,
-				30D259DE136DC13E00274D9F /* GPGConfLine.h */,
-				30D259DF136DC13E00274D9F /* GPGConfLine.m */,
+				30D5E2A21483A0F700F31454 /* GPGConf.h */,
+				30D5E2A31483A0F700F31454 /* GPGConf.m */,
 				30691AA2136AECC4004AA469 /* GPGOptions.h */,
 				30691AA3136AECC4004AA469 /* GPGOptions.m */,
 			);
@@ -323,13 +317,12 @@
 				302AA3AE133608BE0022A371 /* GPGSuper_Template.h in Headers */,
 				309A20FB13587D5B0041E0AA /* GPGPacket.h in Headers */,
 				30691AA4136AECC4004AA469 /* GPGOptions.h in Headers */,
-				30D259DC136DC13100274D9F /* GPGConf.h in Headers */,
-				30D259E0136DC13E00274D9F /* GPGConfLine.h in Headers */,
 				309A18D013E3812E0069DC0F /* GPGTransformer.h in Headers */,
 				30A70EE513EF328000EE9CD9 /* GPGException.h in Headers */,
 				1BC7A50013D300A600AE57BA /* LPXTTask.h in Headers */,
 				3048830B1462B11700F2E5F4 /* DirectoryWatcher.h in Headers */,
 				3048830F1462B22000F2E5F4 /* GPGWatcher.h in Headers */,
+				30D5E2A41483A0F700F31454 /* GPGConf.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -472,13 +465,12 @@
 				302AA3AF133608BE0022A371 /* GPGSuper_Template.m in Sources */,
 				309A20FC13587D5B0041E0AA /* GPGPacket.m in Sources */,
 				30691AA5136AECC4004AA469 /* GPGOptions.m in Sources */,
-				30D259DD136DC13100274D9F /* GPGConf.m in Sources */,
-				30D259E1136DC13E00274D9F /* GPGConfLine.m in Sources */,
 				1BC7A50113D300A600AE57BA /* LPXTTask.m in Sources */,
 				309A18D113E3812E0069DC0F /* GPGTransformer.m in Sources */,
 				30A70EE613EF328000EE9CD9 /* GPGException.m in Sources */,
 				3048830C1462B11700F2E5F4 /* DirectoryWatcher.m in Sources */,
 				304883101462B22000F2E5F4 /* GPGWatcher.m in Sources */,
+				30D5E2A51483A0F700F31454 /* GPGConf.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
