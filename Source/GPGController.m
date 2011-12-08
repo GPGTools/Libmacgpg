@@ -947,10 +947,22 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 	@try {
 		NSSet *keys = [self keysInExportedData:data];
 		
+		if ([keys count] == 0) {
+			//Get keys from RTF data.
+			NSData *data2 = [[[[[NSAttributedString alloc] initWithData:data options:nil documentAttributes:nil error:nil] autorelease] string] dataUsingEncoding:NSUTF8StringEncoding];
+			if (data2) {
+				keys = [self keysInExportedData:data2];
+				if ([keys count] > 0) {
+					data = data2;
+				}
+			}
+		}
+
 		//TODO: Uncomment the following lines when keysInExportedData: fully work!
 		/*if ([keys count] == 0) {
 			[NSException raise:NSInvalidArgumentException format:@"No keys to import!"];
 		}*/
+		
 		
 		[self operationDidStart];
 		[self registerUndoForKeys:keys withName:@"Undo_Import"];
