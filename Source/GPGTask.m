@@ -280,7 +280,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 		arguments = [[NSMutableArray alloc] initWithArray:args];
 		self.gpgPath = _gpgPath;
 		batchMode = batch;
-		errorCodes = [NSMutableArray array];
+		errorCodes = [[NSMutableArray alloc] init];
 	}
 	return self;	
 }
