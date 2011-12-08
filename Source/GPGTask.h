@@ -27,7 +27,7 @@
 //Should return NSData or NSString, it is passed to GPG.
 - (id)gpgTask:(GPGTask *)gpgTask statusCode:(NSInteger)status prompt:(NSString *)prompt;
 
-
+- (void)gpgTask:(GPGTask *)gpgTask progressed:(NSInteger)progressed total:(NSInteger)total;
 - (void)gpgTaskWillStart:(GPGTask *)gpgTask;
 - (void)gpgTaskDidTerminate:(GPGTask *)gpgTask;
 
@@ -70,10 +70,18 @@
 	BOOL cancelled;
 	BOOL isRunning;
     BOOL verbose;
+	
+	dispatch_group_t collectorGroup;
+	dispatch_queue_t queue;
+	NSInteger inDataLength;
+	NSInteger progressedLength;
+	NSMutableDictionary *progressedLengths;
+	BOOL progressInfo;
 }
 
 @property (readonly) BOOL cancelled;
 @property (readonly) BOOL isRunning;
+@property BOOL progressInfo;
 @property BOOL batchMode;
 @property BOOL getAttributeData;
 @property (assign) NSObject <GPGTaskDelegate> *delegate;

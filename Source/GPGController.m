@@ -2014,6 +2014,9 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 	}
 }
 
+- (void)gpgTask:(GPGTask *)gpgTask progressed:(NSInteger)progressed total:(NSInteger)total {
+	[delegate gpgController:self progressed:progressed total:total];
+}
 
 
 #pragma mark Notify delegate
@@ -2197,6 +2200,9 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		[gpgTask addArgument:gpgHome];
 	}
 	gpgTask.delegate = self;
+	if ([delegate respondsToSelector:@selector(gpgController:progressed:total:)]) {
+		gpgTask.progressInfo = YES;
+	}
 }
 
 

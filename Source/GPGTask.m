@@ -47,7 +47,7 @@ NSDictionary *statusCodes;
 
 static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 @synthesize isRunning, batchMode, getAttributeData, delegate, userInfo, exitcode, errorCode, gpgPath, outData, errData, statusData, attributeData, lastUserIDHint, lastNeedPassphrase, cancelled,
-            gpgTask, verbose;
+            gpgTask, verbose, progressInfo;
 
 - (NSArray *)arguments {
 	return [[arguments copy] autorelease];
@@ -310,6 +310,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 	[inDatas release];
     //[cmdPipe release];
 	[errorCodes release];
+	[progressedLengths release];
 	
 	self.lastUserIDHint = nil;
 	self.lastNeedPassphrase = nil;
@@ -336,24 +337,32 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
     // Default arguments which every call to GPG needs.
 	
     NSMutableArray *defaultArguments = [NSMutableArray arrayWithObjects:
-                                        @"--no-greeting", @"--no-tty", @"--with-colons",
-                                        @"--yes", @"--output", @"-", nil];
-    // Add GPG 1 arguments.
-    [defaultArguments addObject:@"--fixed-list-mode"];
-    //[defaultArguments addObject:@"--use-agent"];
-    // Add the status fd.
-    [defaultArguments addObjectsFromArray:[NSArray arrayWithObjects:@"--status-fd", @"3", nil]];
+                                        @"--no-greeting", @"--no-tty", @"--with-colons", @"--fixed-list-mode",
+                                        @"--yes", @"--output", @"-", @"--status-fd", @"3", nil];
+	
+	
+	if (progressInfo && [delegate respondsToSelector:@selector(gpgTask:progressed:total:)]) {
+		for (NSData *data in inDatas) {
+			inDataLength += [data length];
+		}
+		progressedLengths = [[NSMutableDictionary alloc] init];
+		[defaultArguments addObject:@"--enable-progress-filter"];
+    }
+
+	
+	
     // If batch mode is not set, add the command-fd using stdin.
-    if(batchMode)
+    if (batchMode)
         [defaultArguments addObject:@"--batch"];
     else
         [defaultArguments addObjectsFromArray:[NSArray arrayWithObjects:@"--no-batch", @"--command-fd", @"0", nil]];
+	
     // If the attribute data is required, add the attribute-fd.
-    if(getAttributeData)
+    if (getAttributeData)
         [defaultArguments addObjectsFromArray:[NSArray arrayWithObjects:@"--attribute-fd", @"4", nil]];
  
 	// TODO: Optimize and make more generic.
-    //Für Funktionen wie --decrypt oder --verify sollte "--no-armor" nicht gesetzt sein.
+    //Für Funktionen wie --decrypt oder --verify muss "--no-armor" nicht gesetzt sein.
     if ([arguments containsObject:@"--no-armor"] || [arguments containsObject:@"--no-armour"]) {
         NSSet *inputParameters = [NSSet setWithObjects:@"--decrypt", @"--verify", @"--import", @"--recv-keys", @"--refresh-keys", nil];
         for (NSString *argument in arguments) {
@@ -380,11 +389,13 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 	
     // Last but not least, add the fd's used to read the in-data from.
     int i = 5;
-    for(NSData *data in inDatas) {
+    for (NSData *data in inDatas) {
         [defaultArguments addObject:[NSString stringWithFormat:@"/dev/fd/%d", i++]];
     }
+		
     
-    if([delegate respondsToSelector:@selector(gpgTaskWillStart:)]) {
+	
+    if ([delegate respondsToSelector:@selector(gpgTaskWillStart:)]) {
         [delegate gpgTaskWillStart:self];
     }
     
@@ -400,7 +411,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
     gpgTask.standardError = [NSPipe pipe];
     gpgTask.arguments = defaultArguments;
     
-    if(self.verbose)
+    if (self.verbose)
         NSLog(@"gpg %@", [gpgTask.arguments componentsJoinedByString:@" "]);
     
     // Now setup all the pipes required to communicate with gpg.
@@ -409,7 +420,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
     NSMutableArray *pipeList = [[NSMutableArray alloc] init];
     NSMutableArray *dupList = [[NSMutableArray alloc] init];
     i = 5;
-    for(NSData *data in inDatas) {
+    for (NSData *data in inDatas) {
         [pipeList addObject:[NSPipe pipe]];
         [dupList addObject:[NSNumber numberWithInt:i++]];
     }
@@ -425,10 +436,10 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 
     gpgTask.parentTask = ^{
         // Setup the dispatch queue.
-        dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+        /*dispatch_queue_t*/ queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
         // Create the group which will hold all the jobs which should finish before
         // the parent process starts waiting for the child.
-        dispatch_group_t collectorGroup = dispatch_group_create();
+       /* dispatch_group_t*/ collectorGroup = dispatch_group_create();
         // The data is written to the pipe as soon as gpg issues the status
         // BEGIN_ENCRYPTION or BEGIN_SIGNING. See processStatus.
         // When we want to encrypt or sign, the data can't be written before the 
@@ -560,20 +571,20 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
     }
 }
 - (void)processStatusLine:(NSString *)line {
-    NSString *keyword;
-    NSString *value;
+    NSString *keyword, *value;
+	
     line = [line stringByReplacingOccurrencesOfString:GPG_STATUS_PREFIX withString:@""];
-    if(self.verbose)
+    if (self.verbose)
         NSLog(@">> %@", line);
-    NSMutableArray *parts = [[line componentsSeparatedByString:@" "] mutableCopy];
+    
+	NSMutableArray *parts = [[[line componentsSeparatedByString:@" "] mutableCopy] autorelease];
     keyword = [parts objectAtIndex:0];
-    if([parts count] > 1) {
+    if ([parts count] > 1) {
         [parts removeObjectAtIndex:0];
         value = [parts componentsJoinedByString:@" "];
-    }
-    else
+    } else {
         value = [NSString stringWithString:@""];
-    [parts release];
+	}
     
     NSInteger statusCode = [[statusCodes objectForKey:keyword] integerValue];
     // No status code available, we're out of here.
@@ -632,11 +643,29 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 			break;
         case GPG_STATUS_BEGIN_ENCRYPTION:
         case GPG_STATUS_BEGIN_SIGNING:
-            [self _writeInputData];
+            dispatch_group_async(collectorGroup, queue, ^{
+                [self _writeInputData];
+            });
             break;
 		case GPG_STATUS_DECRYPTION_OKAY:
 			[self unsetErrorCode:GPGErrorNoSecretKey];
 			break;
+		case GPG_STATUS_PROGRESS: {
+			if (inDataLength) {
+				NSString *what = [parts objectAtIndex:0];
+				NSString *length = [parts objectAtIndex:2];
+				
+				if ([what hasPrefix:@"/dev/fd/"]) {
+					progressedLength -= [[progressedLengths objectForKey:what] integerValue];
+				}
+				[progressedLengths setObject:length forKey:what];
+				
+				progressedLength += [length integerValue];
+				
+				[delegate gpgTask:self progressed:progressedLength total:inDataLength];
+			}
+			break;
+		}
     }
     id returnValue = nil;
     if([delegate respondsToSelector:@selector(gpgTask:statusCode:prompt:)]) {

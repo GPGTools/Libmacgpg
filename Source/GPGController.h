@@ -32,6 +32,7 @@
 - (void)gpgController:(GPGController *)gpgc operationThrownException:(NSException *)e;
 - (void)gpgController:(GPGController *)gpgc keysDidChanged:(NSObject <EnumerationList> *)keys external:(BOOL)external;
 - (void)gpgControllerOperationDidStart:(GPGController *)gpgc;
+- (void)gpgController:(GPGController *)gpgc progressed:(NSInteger)progressed total:(NSInteger)total;
 
 
 @end
