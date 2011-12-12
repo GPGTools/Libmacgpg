@@ -140,7 +140,9 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 	[signerKeys removeObjectAtIndex:index];
 	[self didChangeValueForKey:@"signerKeys"];
 }
-
+- (BOOL)decryptionOkay {
+	return gpgTask.decryptionOkay;
+}
 
 
 #pragma mark Init

@@ -47,7 +47,7 @@ NSDictionary *statusCodes;
 
 static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 @synthesize isRunning, batchMode, getAttributeData, delegate, userInfo, exitcode, errorCode, gpgPath, outData, errData, statusData, attributeData, lastUserIDHint, lastNeedPassphrase, cancelled,
-            gpgTask, verbose, progressInfo;
+            gpgTask, verbose, progressInfo, decryptionOkay;
 
 - (NSArray *)arguments {
 	return [[arguments copy] autorelease];
@@ -648,6 +648,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
             });
             break;
 		case GPG_STATUS_DECRYPTION_OKAY:
+			decryptionOkay = YES;
 			[self unsetErrorCode:GPGErrorNoSecretKey];
 			break;
 		case GPG_STATUS_PROGRESS: {

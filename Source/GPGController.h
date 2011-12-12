@@ -85,6 +85,7 @@
 @property NSUInteger keyserverTimeout;
 @property (retain) NSDictionary *userInfo;
 @property (retain) NSUndoManager *undoManager;
+@property (readonly) BOOL decryptionOkay;
 @property BOOL async;
 @property BOOL useArmor;
 @property BOOL useTextMode;
