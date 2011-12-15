@@ -43,16 +43,18 @@
 @implementation GPGTask
 
 NSString *_gpgPath;
+NSString *_pinentryPath = nil;
 NSDictionary *statusCodes;
 
 static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 @synthesize isRunning, batchMode, getAttributeData, delegate, userInfo, exitcode, errorCode, gpgPath, outData, errData, statusData, attributeData, lastUserIDHint, lastNeedPassphrase, cancelled,
             gpgTask, verbose, progressInfo, decryptionOkay;
 
+
+
 - (NSArray *)arguments {
 	return [[arguments copy] autorelease];
 }
-
 
 - (void)addInData:(NSData *)data {
 	if (!inDatas) {
@@ -95,6 +97,10 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 	}
 	[_gpgPath retain];
     NSLog(@"GPG_PATH: %@", _gpgPath);
+	
+	[self pinentryPath];
+    NSLog(@"GPG_PATH: %@", [self pinentryPath]);
+	
 
 	[self initializeStatusCodes];
 }
@@ -213,10 +219,29 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 	return nil;
 }
 + (NSString *)pinentryPath {
-	NSString *foundPath = [[GPGOptions sharedOptions] valueForKey:@"pinentry-path" inDomain:GPGDomain_gpgAgentConf];
+	if (_pinentryPath) {
+		return [[_pinentryPath retain] autorelease];
+	}
+	
+	GPGOptions *options = [GPGOptions sharedOptions];
+	NSString *foundPath = [options valueForKey:@"pinentry-program" inDomain:GPGDomain_gpgAgentConf];
 	foundPath = [foundPath stringByStandardizingPath];
 	if (![[NSFileManager defaultManager] isExecutableFileAtPath:foundPath]) {
 		foundPath = [self findExecutableWithName:@"../libexec/pinentry-mac.app/Contents/MacOS/pinentry-mac"];
+		
+		if (!foundPath) {
+			foundPath = [[[NSBundle bundleWithIdentifier:@"org.gpgtools.Libmacgpg"] pathForResource:@"pinentry-mac" ofType:@"app"] stringByAppendingPathComponent:@"Contents/MacOS/pinentry-mac"];
+			if (![[NSFileManager defaultManager] isExecutableFileAtPath:foundPath]) {
+				foundPath = nil;
+			}
+		}
+		if (foundPath) {
+			[options setValue:foundPath forKey:@"pinentry-program" inDomain:GPGDomain_gpgAgentConf];
+		}
+	}
+	
+	if (foundPath) {
+		_pinentryPath = [foundPath retain];
 	}
 	return foundPath;
 }

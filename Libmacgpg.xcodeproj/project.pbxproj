@@ -20,11 +20,8 @@
 		3048830F1462B22000F2E5F4 /* GPGWatcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 3048830D1462B22000F2E5F4 /* GPGWatcher.h */; settings = {ATTRIBUTES = (); }; };
 		304883101462B22000F2E5F4 /* GPGWatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 3048830E1462B22000F2E5F4 /* GPGWatcher.m */; };
 		30516558142281270038AAF0 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 30516556142281270038AAF0 /* Localizable.strings */; };
-		3059AF0F14239FA200AD5B30 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 30516556142281270038AAF0 /* Localizable.strings */; };
-		3059AF1114239FAB00AD5B30 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 30516556142281270038AAF0 /* Localizable.strings */; };
 		30691AA4136AECC4004AA469 /* GPGOptions.h in Headers */ = {isa = PBXBuildFile; fileRef = 30691AA2136AECC4004AA469 /* GPGOptions.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		30691AA5136AECC4004AA469 /* GPGOptions.m in Sources */ = {isa = PBXBuildFile; fileRef = 30691AA3136AECC4004AA469 /* GPGOptions.m */; };
-		307D79111340B71A005C9C32 /* TODO in Resources */ = {isa = PBXBuildFile; fileRef = 307D79101340B71A005C9C32 /* TODO */; };
 		309A18D013E3812E0069DC0F /* GPGTransformer.h in Headers */ = {isa = PBXBuildFile; fileRef = 309A18CE13E3812E0069DC0F /* GPGTransformer.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		309A18D113E3812E0069DC0F /* GPGTransformer.m in Sources */ = {isa = PBXBuildFile; fileRef = 309A18CF13E3812E0069DC0F /* GPGTransformer.m */; };
 		309A20FB13587D5B0041E0AA /* GPGPacket.h in Headers */ = {isa = PBXBuildFile; fileRef = 309A20F913587D5B0041E0AA /* GPGPacket.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -33,6 +30,7 @@
 		30A70EE613EF328000EE9CD9 /* GPGException.m in Sources */ = {isa = PBXBuildFile; fileRef = 30A70EE413EF328000EE9CD9 /* GPGException.m */; };
 		30B586F5141E255C000373F1 /* Keyservers.plist in Resources */ = {isa = PBXBuildFile; fileRef = 30B586F4141E255C000373F1 /* Keyservers.plist */; };
 		30BA88F2138FE593005982D9 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 30BA88F1138FE593005982D9 /* SystemConfiguration.framework */; };
+		30C412C4149A35860035D35F /* pinentry-mac.app in Resources */ = {isa = PBXBuildFile; fileRef = 30C412C2149A35720035D35F /* pinentry-mac.app */; };
 		30C60EEF12FF3321006BB8DA /* Libmacgpg.h in Headers */ = {isa = PBXBuildFile; fileRef = 30C60EEE12FF3321006BB8DA /* Libmacgpg.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		30C8B39C1395052D00F49AA1 /* Test1.m in Sources */ = {isa = PBXBuildFile; fileRef = 30C8B39B1395052D00F49AA1 /* Test1.m */; };
 		30C8B3B11395072C00F49AA1 /* Libmacgpg.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DC2EF5B0486A6940098B216 /* Libmacgpg.framework */; };
@@ -66,6 +64,20 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		30C412B0149A34D80035D35F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 30C412A8149A34D80035D35F /* pinentry-mac.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 8D1107320486CEB800E47090;
+			remoteInfo = "pinentry-mac";
+		};
+		30C412B3149A34E80035D35F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 30C412A8149A34D80035D35F /* pinentry-mac.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 8D1107260486CEB800E47090;
+			remoteInfo = "pinentry-mac";
+		};
 		30C8B3931395046400F49AA1 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
@@ -102,6 +114,8 @@
 		30A70EE413EF328000EE9CD9 /* GPGException.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGException.m; sourceTree = "<group>"; };
 		30B586F4141E255C000373F1 /* Keyservers.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Keyservers.plist; sourceTree = "<group>"; };
 		30BA88F1138FE593005982D9 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		30C412A8149A34D80035D35F /* pinentry-mac.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "pinentry-mac.xcodeproj"; path = "Dependencies/pinentry-mac/pinentry-mac.xcodeproj"; sourceTree = "<group>"; };
+		30C412C2149A35720035D35F /* pinentry-mac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; name = "pinentry-mac.app"; path = "Dependencies/pinentry-mac/build/${CONFIGURATION}/pinentry-mac.app"; sourceTree = SOURCE_ROOT; };
 		30C60EEE12FF3321006BB8DA /* Libmacgpg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Libmacgpg.h; sourceTree = "<group>"; };
 		30C8B38E139503A800F49AA1 /* UnitTest.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = UnitTest.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		30C8B38F139503A800F49AA1 /* UnitTest-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "UnitTest-Info.plist"; path = "UnitTest/UnitTest-Info.plist"; sourceTree = "<group>"; };
@@ -179,6 +193,7 @@
 				0867D69AFE84028FC02AAC07 /* Frameworks */,
 				034768DFFF38A50411DB9C8B /* Products */,
 				30C8B399139504DC00F49AA1 /* UnitTest */,
+				30C412A8149A34D80035D35F /* pinentry-mac.xcodeproj */,
 			);
 			name = Libmacgpg;
 			sourceTree = "<group>";
@@ -197,6 +212,7 @@
 		089C1665FE841158C02AAC07 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				30C412C2149A35720035D35F /* pinentry-mac.app */,
 				30516556142281270038AAF0 /* Localizable.strings */,
 				30B586F4141E255C000373F1 /* Keyservers.plist */,
 				8DC2EF5A0486A6940098B216 /* Info.plist */,
@@ -271,6 +287,14 @@
 				30691AA3136AECC4004AA469 /* GPGOptions.m */,
 			);
 			name = GPGOptions;
+			sourceTree = "<group>";
+		};
+		30C412A9149A34D80035D35F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				30C412B1149A34D80035D35F /* pinentry-mac.app */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 		30C8B399139504DC00F49AA1 /* UnitTest */ = {
@@ -360,6 +384,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				30C412B4149A34E80035D35F /* PBXTargetDependency */,
 			);
 			name = Libmacgpg;
 			productInstallPath = "$(HOME)/Library/Frameworks";
@@ -390,6 +415,12 @@
 			mainGroup = 0867D691FE84028FC02AAC07 /* Libmacgpg */;
 			productRefGroup = 034768DFFF38A50411DB9C8B /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 30C412A9149A34D80035D35F /* Products */;
+					ProjectRef = 30C412A8149A34D80035D35F /* pinentry-mac.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				8DC2EF4F0486A6940098B216 /* Libmacgpg */,
@@ -397,6 +428,16 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		30C412B1149A34D80035D35F /* pinentry-mac.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = "pinentry-mac.app";
+			remoteRef = 30C412B0149A34D80035D35F /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		30C8B389139503A800F49AA1 /* Resources */ = {
@@ -410,11 +451,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				307D79111340B71A005C9C32 /* TODO in Resources */,
 				30B586F5141E255C000373F1 /* Keyservers.plist in Resources */,
 				30516558142281270038AAF0 /* Localizable.strings in Resources */,
-				3059AF0F14239FA200AD5B30 /* Localizable.strings in Resources */,
-				3059AF1114239FAB00AD5B30 /* Localizable.strings in Resources */,
+				30C412C4149A35860035D35F /* pinentry-mac.app in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -477,6 +516,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		30C412B4149A34E80035D35F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "pinentry-mac";
+			targetProxy = 30C412B3149A34E80035D35F /* PBXContainerItemProxy */;
+		};
 		30C8B3941395046400F49AA1 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 8DC2EF4F0486A6940098B216 /* Libmacgpg */;
