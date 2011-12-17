@@ -77,12 +77,13 @@
 	NSInteger progressedLength;
 	NSMutableDictionary *progressedLengths;
 	BOOL progressInfo;
-	BOOL decryptionOkay;
+	
+	NSMutableDictionary *statusDict;
 }
 
 @property (readonly) BOOL cancelled;
 @property (readonly) BOOL isRunning;
-@property (readonly) BOOL decryptionOkay;
+@property (readonly) NSDictionary *statusDict;
 @property BOOL progressInfo;
 @property BOOL batchMode;
 @property BOOL getAttributeData;

@@ -48,7 +48,7 @@ NSDictionary *statusCodes;
 
 static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 @synthesize isRunning, batchMode, getAttributeData, delegate, userInfo, exitcode, errorCode, gpgPath, outData, errData, statusData, attributeData, lastUserIDHint, lastNeedPassphrase, cancelled,
-            gpgTask, verbose, progressInfo, decryptionOkay;
+            gpgTask, verbose, progressInfo, statusDict;
 
 
 
@@ -101,7 +101,6 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 	[self pinentryPath];
     NSLog(@"GPG_PATH: %@", [self pinentryPath]);
 	
-
 	[self initializeStatusCodes];
 }
 
@@ -306,6 +305,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 		self.gpgPath = _gpgPath;
 		batchMode = batch;
 		errorCodes = [[NSMutableArray alloc] init];
+		statusDict = [[NSMutableDictionary alloc] init];
 	}
 	return self;	
 }
@@ -336,6 +336,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
     //[cmdPipe release];
 	[errorCodes release];
 	[progressedLengths release];
+	[statusDict release];
 	
 	self.lastUserIDHint = nil;
 	self.lastNeedPassphrase = nil;
@@ -673,9 +674,18 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
             });
             break;
 		case GPG_STATUS_DECRYPTION_OKAY:
-			decryptionOkay = YES;
+			[statusDict setObject:[NSNumber numberWithBool:YES] forKey:@"DECRYPTION_OKAY"];
 			[self unsetErrorCode:GPGErrorNoSecretKey];
 			break;
+		case GPG_STATUS_NODATA: {
+			NSNumber *what = [NSNumber numberWithInt:[[parts objectAtIndex:0] intValue]];
+			NSMutableArray *value = [statusDict objectForKey:@"NODATA"];
+			if (value) {
+				[value addObject:what];
+			} else {
+				[statusDict setObject:[NSMutableArray arrayWithObject:what] forKey:@"NODATA"];
+			}
+			break; }
 		case GPG_STATUS_PROGRESS: {
 			if (inDataLength) {
 				NSString *what = [parts objectAtIndex:0];

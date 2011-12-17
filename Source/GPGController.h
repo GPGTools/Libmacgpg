@@ -93,6 +93,7 @@
 @property BOOL useDefaultComments;
 @property BOOL trustAllKeys;
 @property BOOL verbose;
+@property (readonly) NSDictionary *statusDict;
 
 
 + (NSString *)gpgVersion;

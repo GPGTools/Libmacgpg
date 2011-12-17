@@ -141,7 +141,10 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 	[self didChangeValueForKey:@"signerKeys"];
 }
 - (BOOL)decryptionOkay {
-	return gpgTask.decryptionOkay;
+	return [[gpgTask.statusDict objectForKey:@"DECRYPTION_OKAY"] boolValue];
+}
+- (NSDictionary *)statusDict {
+	return gpgTask.statusDict;
 }
 
 
