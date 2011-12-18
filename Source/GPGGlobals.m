@@ -19,6 +19,7 @@
 
 #import "GPGGlobals.h"
 #import "GPGTask.h"
+#import "GPGKey.h"
 
 @implementation NSData (GPGExtension)
 - (NSString *)gpgString {
@@ -218,6 +219,17 @@ break;
 }
 @end
 
+@implementation NSSet (GPGExtension)
+- (NSSet *)usableGPGKeys {
+	Class gpgKeyClass = [GPGKey class];
+	return [self objectsPassingTest:^BOOL(id obj, BOOL *stop) {
+		if ([obj isKindOfClass:gpgKeyClass] && [(GPGKey *)obj status] < GPGKeyStatus_Invalid) {
+			return YES;
+		}
+		return NO;
+	}];
+}
+@end
 
 
 NSString *GPGKeysChangedNotification = @"GPGKeysChangedNotification";

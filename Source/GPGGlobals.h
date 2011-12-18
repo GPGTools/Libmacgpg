@@ -244,7 +244,9 @@ NSSet *fingerprintsFromStatusText(NSString *statusText);
 @interface NSArray (KeyList) <EnumerationList>
 @end
 
-
+@interface NSSet (GPGExtension)
+- (NSSet *)usableGPGKeys;
+@end
 @interface NSSet (KeyList) <EnumerationList>
 @end
 @interface NSString (KeyFingerprint) <KeyFingerprint>
