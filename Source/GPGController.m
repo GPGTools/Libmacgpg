@@ -2061,7 +2061,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		NSDictionary *dictionary = notification.userInfo;
 		NSObject <EnumerationList> *keys = [dictionary objectForKey:@"keys"];
 		
-		if (!keys || [keys conformsToProtocol:@protocol(EnumerationList)]) {
+		if (!keys || [keys isKindOfClass:[NSArray class]] || [keys isKindOfClass:[NSSet class]]) {
 			[delegate gpgController:self keysDidChanged:keys external:YES];
 		}
 	}

@@ -116,7 +116,6 @@
 
 		
 		if ([name isEqualToString:@"group"]) {
-			NSLog(@"Group Line '%@'", line);
 			//NSMutableDictionary *value 
 			range = [line rangeOfString:@"="];
 			if (range.length == 0 || range.location == 0 || range.location >= [line length] - 1) {
@@ -139,7 +138,6 @@
 				value = [NSMutableDictionary dictionaryWithObject:members forKey:group];
 			}
 		} else if ([name isEqualToString:@"comment"]) {
-			NSLog(@"comment Line '%@'", line);
 			value = [config objectForKey:name];
 			if (value) {
 				value = [value arrayByAddingObject:line];
@@ -147,7 +145,6 @@
 				value = [NSArray arrayWithObject:line];;
 			}
 		} else if ([name hasSuffix:@"-options"]) {
-			NSLog(@"options Line '%@'", line);
 			value = [config objectForKey:name];
 			if (value) {
 				NSMutableSet *newValue = [NSMutableSet setWithArray:value];
@@ -157,7 +154,6 @@
 				value = parts;
 			}
 		} else {
-			NSLog(@"normal Line '%@'", line);
 			//Option die nur einen Wert hat (bzw. haben darf).
 			if ([parts count] == 0) {
 				if ([name hasPrefix:@"no-"]) {

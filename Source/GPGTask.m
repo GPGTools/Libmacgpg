@@ -36,6 +36,7 @@
 - (NSString *)getPassphraseFromPinentry;
 - (void)_writeInputData;
 - (void)unsetErrorCode:(int)value;
+- (void)addObjectToStatusDict:(id)object forKey:(NSString *)key;
 
 @end
 
@@ -45,6 +46,7 @@
 NSString *_gpgPath;
 NSString *_pinentryPath = nil;
 NSDictionary *statusCodes;
+char partCountForStatusCode[GPG_STATUS_COUNT];
 
 static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 @synthesize isRunning, batchMode, getAttributeData, delegate, userInfo, exitcode, errorCode, gpgPath, outData, errData, statusData, attributeData, lastUserIDHint, lastNeedPassphrase, cancelled,
@@ -190,6 +192,31 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 				   [NSNumber numberWithInteger:GPG_STATUS_USERID_HINT], @"USERID_HINT",
 				   [NSNumber numberWithInteger:GPG_STATUS_VALIDSIG], @"VALIDSIG",
 				   nil];
+	
+	
+	
+	//Status codes where the last part can contain withespaces.
+	memset(partCountForStatusCode, 0, sizeof(partCountForStatusCode));
+	NSLog(@"sizeof(partCountForStatusCode) %lu", sizeof(partCountForStatusCode));
+	partCountForStatusCode[GPG_STATUS_EXPKEYSIG] = 2;
+	partCountForStatusCode[GPG_STATUS_EXPSIG] = 2;
+	partCountForStatusCode[GPG_STATUS_GOODSIG] = 2;
+	partCountForStatusCode[GPG_STATUS_IMPORTED] = 2;
+	partCountForStatusCode[GPG_STATUS_IMPORT_CHECK] = 3;
+	partCountForStatusCode[GPG_STATUS_INV_RECP] = 2;
+	partCountForStatusCode[GPG_STATUS_INV_SGNR] = 2;
+	partCountForStatusCode[GPG_STATUS_NOTATION_DATA] = 1;
+	partCountForStatusCode[GPG_STATUS_NOTATION_NAME] = 1;
+	partCountForStatusCode[GPG_STATUS_NO_RECP] = 1;
+	partCountForStatusCode[GPG_STATUS_NO_SGNR] = 1;
+	partCountForStatusCode[GPG_STATUS_PKA_TRUST_BAD] = 1;
+	partCountForStatusCode[GPG_STATUS_PKA_TRUST_GOOD] = 1;
+	partCountForStatusCode[GPG_STATUS_PLAINTEXT] = 3;
+	partCountForStatusCode[GPG_STATUS_POLICY_URL] = 1;
+	partCountForStatusCode[GPG_STATUS_REVKEYSIG] = 2;
+	partCountForStatusCode[GPG_STATUS_USERID_HINT] = 2;
+	
+
 }
 
 
@@ -605,8 +632,8 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
     
 	NSMutableArray *parts = [[[line componentsSeparatedByString:@" "] mutableCopy] autorelease];
     keyword = [parts objectAtIndex:0];
-    if ([parts count] > 1) {
-        [parts removeObjectAtIndex:0];
+	[parts removeObjectAtIndex:0];
+    if ([parts count] > 0) {
         value = [parts componentsJoinedByString:@" "];
     } else {
         value = [NSString stringWithString:@""];
@@ -674,18 +701,8 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
             });
             break;
 		case GPG_STATUS_DECRYPTION_OKAY:
-			[statusDict setObject:[NSNumber numberWithBool:YES] forKey:@"DECRYPTION_OKAY"];
 			[self unsetErrorCode:GPGErrorNoSecretKey];
 			break;
-		case GPG_STATUS_NODATA: {
-			NSNumber *what = [NSNumber numberWithInt:[[parts objectAtIndex:0] intValue]];
-			NSMutableArray *value = [statusDict objectForKey:@"NODATA"];
-			if (value) {
-				[value addObject:what];
-			} else {
-				[statusDict setObject:[NSMutableArray arrayWithObject:what] forKey:@"NODATA"];
-			}
-			break; }
 		case GPG_STATUS_PROGRESS: {
 			if (inDataLength) {
 				NSString *what = [parts objectAtIndex:0];
@@ -703,6 +720,34 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 			break;
 		}
     }
+	
+	//Fill statusDict.
+	NSUInteger partCount = [parts count];
+	if (partCount > 0) {
+		NSArray *myParts;
+		NSUInteger maxCount = partCountForStatusCode[statusCode];
+		if (maxCount > 0 && partCount > maxCount) { //We have more parts than maxCount (the real last part contain whitespaces).
+			myParts = [parts subarrayWithRange:NSMakeRange(0, maxCount - 1)];
+			NSString *lastPart = [[parts subarrayWithRange:NSMakeRange(maxCount, partCount - maxCount)] componentsJoinedByString:@" "];
+			myParts = [myParts arrayByAddingObject:lastPart];
+		} else {
+			myParts = parts;
+		}
+		
+		NSMutableArray *value = [statusDict objectForKey:keyword];
+		if (value) {
+			[value addObject:myParts];
+		} else {
+			[statusDict setObject:[NSMutableArray arrayWithObject:myParts] forKey:keyword];
+		}
+	} else {
+		[statusDict setObject:[NSNumber numberWithBool:YES] forKey:keyword];
+	}
+	
+	
+	
+	
+	
     id returnValue = nil;
     if([delegate respondsToSelector:@selector(gpgTask:statusCode:prompt:)]) {
         returnValue = [delegate gpgTask:self statusCode:statusCode prompt:value];
