@@ -36,7 +36,6 @@
 - (NSString *)getPassphraseFromPinentry;
 - (void)_writeInputData;
 - (void)unsetErrorCode:(int)value;
-- (void)addObjectToStatusDict:(id)object forKey:(NSString *)key;
 
 @end
 
