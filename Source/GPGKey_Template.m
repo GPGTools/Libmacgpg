@@ -24,6 +24,7 @@
 
 @property (retain) NSString *keyID;
 @property (retain) NSString *shortKeyID;
+@property (retain) NSString *capabilities;
 @property GPGPublicKeyAlgorithm algorithm;
 @property unsigned int length;
 @property BOOL canEncrypt, canSign, canCertify, canAuthenticate, canAnyEncrypt, canAnySign, canAnyCertify, canAnyAuthenticate, disabled;
@@ -45,11 +46,13 @@
 	self.shortKeyID = [keyID shortKeyID];
 	
 	
-	const char *capabilities = [[line objectAtIndex:11] cStringUsingEncoding:NSASCIIStringEncoding];
+	self.capabilities = [line objectAtIndex:11];
+	
+	const char *char_capabilities = [capabilities cStringUsingEncoding:NSASCIIStringEncoding];
 	BOOL canSignVal = 0, canEncryptVal = 0, canCertifyVal = 0, canAuthenticateVal = 0, canAnySignVal = 0, canAnyEncryptVal = 0, canAnyCertifyVal = 0, canAnyAuthenticateVal = 0, disabledVal = 0;
 	
-	for (; *capabilities; capabilities++) {
-		switch (*capabilities) {
+	for (; *char_capabilities; char_capabilities++) {
+		switch (*char_capabilities) {
 			case 'd':
 			case 'D':
 				disabledVal = 1;

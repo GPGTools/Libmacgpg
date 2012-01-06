@@ -24,6 +24,7 @@
 @interface GPGKey_Template : GPGSuper_Template {
 	NSString *keyID;
 	NSString *shortKeyID;
+	NSString *capabilities;
 	
 	GPGPublicKeyAlgorithm algorithm;
 	unsigned int length;
@@ -34,6 +35,7 @@
 
 @property (readonly, retain) NSString *keyID;
 @property (readonly, retain) NSString *shortKeyID;
+@property (readonly, retain) NSString *capabilities;
 @property (readonly) GPGPublicKeyAlgorithm algorithm;
 @property (readonly) unsigned int length;
 @property (readonly) BOOL canEncrypt, canSign, canCertify, canAuthenticate, canAnyEncrypt, canAnySign, canAnyCertify, canAnyAuthenticate;
