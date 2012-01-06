@@ -68,6 +68,7 @@
 @property (readonly) id fingerprint;
 @property (readonly) id length;
 @property (readonly) id algorithm;
+@property (readonly) id capabilities;
 
 
 - (id)initWithListing:(NSArray *)listing signatureListing:(NSArray *)sigListing parentKey:(GPGKey *)key;

@@ -45,6 +45,7 @@
 - (id)keyID {return nil;}
 - (id)shortKeyID {return nil;}
 - (id)fingerprint {return nil;}
+- (id)capabilities {return nil;}
 
 - (NSString *)type {return @"uid";}
 
