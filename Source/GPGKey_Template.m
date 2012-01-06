@@ -46,9 +46,8 @@
 	self.shortKeyID = [keyID shortKeyID];
 	
 	
-	self.capabilities = [line objectAtIndex:11];
 	
-	const char *char_capabilities = [capabilities cStringUsingEncoding:NSASCIIStringEncoding];
+	const char *char_capabilities = [[line objectAtIndex:11] cStringUsingEncoding:NSASCIIStringEncoding];
 	BOOL canSignVal = 0, canEncryptVal = 0, canCertifyVal = 0, canAuthenticateVal = 0, canAnySignVal = 0, canAnyEncryptVal = 0, canAnyCertifyVal = 0, canAnyAuthenticateVal = 0, disabledVal = 0;
 	
 	for (; *char_capabilities; char_capabilities++) {
@@ -83,6 +82,25 @@
 				break;
 		}
 	}
+	
+	
+	unichar theCapabilities[4];
+	int i = 0;
+	if (canAnyEncryptVal || canEncryptVal) {
+		theCapabilities[i++] = canEncryptVal ? 'e' : 'E';
+	}
+	if (canAnySignVal || canSignVal) {
+		theCapabilities[i++] = canSignVal ? 's' : 'S';
+	}
+	if (canAnyCertifyVal || canCertifyVal) {
+		theCapabilities[i++] = canCertifyVal ? 'c' : 'C';
+	}
+	if (canAnyAuthenticateVal || canAuthenticateVal) {
+		theCapabilities[i++] = canAuthenticateVal ? 'a' : 'A';
+	}
+	
+	self.capabilities = [NSString stringWithCharacters:theCapabilities length:i]; 
+
 	
 	
 	self.canEncrypt = canEncryptVal;
