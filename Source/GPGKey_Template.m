@@ -26,17 +26,13 @@
 @property (retain) NSString *shortKeyID;
 @property GPGPublicKeyAlgorithm algorithm;
 @property unsigned int length;
-@property BOOL canEncrypt;
-@property BOOL canSign;
-@property BOOL canCertify;
-@property BOOL canAuthenticate;
-@property BOOL disabled;
+@property BOOL canEncrypt, canSign, canCertify, canAuthenticate, canAnyEncrypt, canAnySign, canAnyCertify, canAnyAuthenticate, disabled;
 
 @end
 
 
 @implementation GPGKey_Template
-@synthesize keyID, shortKeyID, algorithm, length, canEncrypt, canSign, canCertify, canAuthenticate;
+@synthesize keyID, shortKeyID, algorithm, length, canEncrypt, canSign, canCertify, canAuthenticate, canAnyEncrypt, canAnySign, canAnyCertify, canAnyAuthenticate;
 @dynamic disabled;
 
 
@@ -50,7 +46,7 @@
 	
 	
 	const char *capabilities = [[line objectAtIndex:11] cStringUsingEncoding:NSASCIIStringEncoding];
-	BOOL canSignVal = 0, canEncryptVal = 0, canCertifyVal = 0, canAuthenticateVal = 0, disabledVal = 0;
+	BOOL canSignVal = 0, canEncryptVal = 0, canCertifyVal = 0, canAuthenticateVal = 0, canAnySignVal = 0, canAnyEncryptVal = 0, canAnyCertifyVal = 0, canAnyAuthenticateVal = 0, disabledVal = 0;
 	
 	for (; *capabilities; capabilities++) {
 		switch (*capabilities) {
@@ -59,20 +55,28 @@
 				disabledVal = 1;
 				break;
 			case 'e':
-			case 'E':
 				canEncryptVal = 1;
 				break;
 			case 's':
-			case 'S':
 				canSignVal = 1;
 				break;
 			case 'c':
-			case 'C':
 				canCertifyVal = 1;
 				break;
 			case 'a':
-			case 'A':
 				canAuthenticateVal = 1;
+				break;
+			case 'E':
+				canAnyEncryptVal = 1;
+				break;
+			case 'S':
+				canAnySignVal = 1;
+				break;
+			case 'C':
+				canAnyCertifyVal = 1;
+				break;
+			case 'A':
+				canAnyAuthenticateVal = 1;
 				break;
 		}
 	}
@@ -82,6 +86,10 @@
 	self.canSign = canSignVal;
 	self.canCertify = canCertifyVal;
 	self.canAuthenticate = canAuthenticateVal;
+	self.canAnyEncrypt = canAnyEncryptVal;
+	self.canAnySign = canAnySignVal;
+	self.canAnyCertify = canAnyCertifyVal;
+	self.canAnyAuthenticate = canAnyAuthenticateVal;
 	self.disabled = disabledVal;
 	
 }

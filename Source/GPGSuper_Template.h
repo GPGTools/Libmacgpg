@@ -31,13 +31,9 @@
 	NSDate *expirationDate;
 }
 @property (readonly) GPGValidity validity;
-@property (readonly) BOOL expired;
-@property (readonly) BOOL disabled;
-@property (readonly) BOOL invalid;
-@property (readonly) BOOL revoked;
+@property (readonly) BOOL expired, disabled, invalid, revoked;
 @property (readonly) NSInteger status;
-@property (readonly, retain) NSDate *creationDate;
-@property (readonly, retain) NSDate *expirationDate;
+@property (readonly, retain) NSDate *creationDate, *expirationDate;
 
 
 + (GPGValidity)validityFromLetter:(NSString *)letter;

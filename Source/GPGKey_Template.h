@@ -28,20 +28,15 @@
 	GPGPublicKeyAlgorithm algorithm;
 	unsigned int length;
 	
-	BOOL canEncrypt;
-	BOOL canSign;
-	BOOL canCertify;
-	BOOL canAuthenticate;
+	BOOL canEncrypt, canSign, canCertify, canAuthenticate; //Capabilities of the key.
+	BOOL canAnyEncrypt, canAnySign, canAnyCertify, canAnyAuthenticate; //Capabilities of the key and the subkeys.
 }
 
 @property (readonly, retain) NSString *keyID;
 @property (readonly, retain) NSString *shortKeyID;
 @property (readonly) GPGPublicKeyAlgorithm algorithm;
 @property (readonly) unsigned int length;
-@property (readonly) BOOL canEncrypt;
-@property (readonly) BOOL canSign;
-@property (readonly) BOOL canCertify;
-@property (readonly) BOOL canAuthenticate;
+@property (readonly) BOOL canEncrypt, canSign, canCertify, canAuthenticate, canAnyEncrypt, canAnySign, canAnyCertify, canAnyAuthenticate;
 
 
 @end
