@@ -33,7 +33,7 @@
 
 
 @implementation GPGKey_Template
-@synthesize keyID, shortKeyID, algorithm, length, canEncrypt, canSign, canCertify, canAuthenticate, canAnyEncrypt, canAnySign, canAnyCertify, canAnyAuthenticate;
+@synthesize keyID, shortKeyID, algorithm, length, canEncrypt, canSign, canCertify, canAuthenticate, canAnyEncrypt, canAnySign, canAnyCertify, canAnyAuthenticate, capabilities;
 @dynamic disabled;
 
 
