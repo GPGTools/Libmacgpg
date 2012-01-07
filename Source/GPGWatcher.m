@@ -3,7 +3,7 @@
 #import "GPGOptions.h"
 
 @interface GPGWatcher ()
-@property (retain) NSDictionary *changeDates;
+@property (retain) NSMutableDictionary *changeDates;
 - (void)updateWatcher;
 - (void)timerFired:(NSTimer *)timer;
 - (void)keysChangedNotification:(NSNotification *)notification;
@@ -56,6 +56,7 @@
 		
 		if (!date1 || !date2 || ![date1 isEqualToDate:date2]) {
 			// Change found.
+			[changeDates setObject:date2 forKey:file];
 			
 			lastFoundChange = [NSDate timeIntervalSinceReferenceDate];
 			if (lastKnownChange + TOLERANCE_BEFORE < lastFoundChange) {
