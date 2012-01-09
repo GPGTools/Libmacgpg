@@ -21,9 +21,6 @@
 #import <Libmacgpg/GPGGlobals.h>
 
 @interface GPGPacket : NSObject {
-	GPGPacket *previousPacket;
-	GPGPacket *nextPacket;
-
 	GPGPacketType type;
 	NSData *data;
 	NSString *keyID;
@@ -33,9 +30,6 @@
 	uint8_t hashAlgorithm;
 	uint8_t signatureType;
 }
-
-@property (readonly) GPGPacket *previousPacket;
-@property (readonly) GPGPacket *nextPacket;
 
 @property (readonly) GPGPacketType type;
 @property (readonly) NSData *data;
@@ -48,7 +42,6 @@
 
 
 
-- (id)initWithData:(NSData *)data;
-+ (id)packetWithData:(NSData *)theData;
++ (id)packetsWithData:(NSData *)data;
 
 @end

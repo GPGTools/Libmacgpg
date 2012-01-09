@@ -1953,13 +1953,12 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 
 - (NSSet *)keysInExportedData:(NSData *)data {
 	NSMutableSet *keys = [NSMutableSet set];
-	GPGPacket *packet = [GPGPacket packetWithData:data];
+	NSArray *packets = [GPGPacket packetsWithData:data];
 	
-	while (packet) {
+	for (GPGPacket *packet in packets) {
 		if (packet.type == GPGPublicKeyPacket || packet.type == GPGSecretKeyPacket) {
 			[keys addObject:packet.fingerprint];
 		}
-		packet = packet.nextPacket;
 	}
 	
 	return keys;
