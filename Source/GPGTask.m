@@ -812,8 +812,14 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 	NSNumber *code = [NSNumber numberWithInt:value];
 	if ([errorCodes containsObject:code]) {
 		[errorCodes removeObject:code];
-		errorCode = [[errorCodes objectAtIndex:0] intValue];
-	}
+		/* If other errors were found, set the errorCode to the
+           first one, otherwise to No Error.
+         */
+        if([errorCodes count])
+            errorCode = [[errorCodes objectAtIndex:0] intValue];
+        else
+            errorCode = GPGErrorNoError;
+    }
 }
 
 

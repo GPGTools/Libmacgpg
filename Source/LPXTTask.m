@@ -372,24 +372,31 @@ static char *__BDSKCopyFileSystemRepresentation(NSString *str)
     [_standardInput release];
     [_standardOutput release];
     [_parentTask release];
-    CFRelease(_inheritedPipes);
+    if(_inheritedPipes)
+        CFRelease(_inheritedPipes);
     [_inheritedPipesMap release];
     [super dealloc];
+}
+
+- (void)closePipes {
+    // Close all pipes, otherwise SIGTERM is ignored it seems.
+    NSLog(@"Inherited Pipes: %@", (NSArray *)_inheritedPipes);
+    for(NSPipe *pipe in (NSArray *)_inheritedPipes) {
+        @try {
+            [[pipe fileHandleForReading] closeFile];
+            [[pipe fileHandleForWriting] closeFile];
+        }
+        @catch (NSException *e) {
+            // Simply ignore.
+        }
+    }
 }
 
 - (void)cancel {
 	self.cancelled = YES;
 	if (self.processIdentifier > 0) {
         // Close all pipes, otherwise SIGTERM is ignored it seems.
-        for(NSPipe *pipe in (NSArray *)_inheritedPipes) {
-            @try {
-                [[pipe fileHandleForReading] closeFile];
-                [[pipe fileHandleForWriting] closeFile];
-            }
-            @catch (NSException *e) {
-                // Simply ignore.
-            }
-        }
+        [self closePipes];
 		kill(self.processIdentifier, SIGTERM);
 	}
 }
