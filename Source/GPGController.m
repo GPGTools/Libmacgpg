@@ -62,6 +62,7 @@
 - (void)registerUndoForKeys:(NSObject <EnumerationList> *)keys withName:(NSString *)actionName;
 - (void)registerUndoForKey:(NSObject <KeyFingerprint> *)key withName:(NSString *)actionName;
 - (void)registerUndoForKeys:(NSObject <EnumerationList> *)keys;
+- (void)logException:(NSException *)e;
 @end
 
 
@@ -241,8 +242,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		
 		
 		gpgTask = [GPGTask gpgTask];
-        gpgTask.verbose = self.verbose;
-        gpgTask.batchMode = YES;
+		gpgTask.batchMode = YES;
 		[self addArgumentsForOptions];
 		[gpgTask addArgument:@"--list-secret-keys"];
 		[gpgTask addArgument:@"--with-fingerprint"];
@@ -261,7 +261,6 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		}
 		
 		gpgTask = [GPGTask gpgTask];
-        gpgTask.verbose = self.verbose;
 		[self addArgumentsForOptions];
 		if (withSigs) {
 			[gpgTask addArgument:@"--list-sigs"];
@@ -332,13 +331,12 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		
 		GPGTaskOrder *order = [GPGTaskOrder orderWithNoToAll];
 		gpgTask = [GPGTask gpgTask];
-        gpgTask.verbose = self.verbose;
 		[self addArgumentsForOptions];
 		gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"];
 		// Should be YES maybe, but detached sign doesn't ask for a passphrase
-        // so, basically, it's NO until further testing.
-        gpgTask.batchMode = NO;
-        
+		// so, basically, it's NO until further testing.
+		gpgTask.batchMode = NO;
+		
 		[self addArgumentsForComments];
 		[self addArgumentsForSignerKeys];
 		
@@ -412,14 +410,13 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		[asyncProxy decryptData:data];
 		return nil;
 	}
-    NSData *retVal;
-    
+	NSData *retVal;
+	
 	@try {
 		[self operationDidStart];
 		
 		
 		gpgTask = [GPGTask gpgTask];
-        gpgTask.verbose = self.verbose;
 		[self addArgumentsForOptions];
 		[gpgTask addInData:data];
 		
@@ -431,11 +428,11 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 	} @catch (NSException *e) {
 		[self handleException:e];
 	} @finally {
-        retVal = gpgTask.outData;
+		retVal = gpgTask.outData;
 		[self cleanAfterOperation];
-        [self operationDidFinishWithReturnValue:retVal];	
+		[self operationDidFinishWithReturnValue:retVal];	
 	}
-    
+	
 	return retVal;
 }
 
@@ -445,13 +442,12 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		[asyncProxy verifySignature:signatureData originalData:originalData];
 		return nil;
 	}
-    NSArray *retVal;
+	NSArray *retVal;
 	@try {
 		[self operationDidStart];
 		
 		
 		gpgTask = [GPGTask gpgTask];
-        gpgTask.verbose = self.verbose;
 		[self addArgumentsForOptions];
 		[gpgTask addInData:signatureData];
 		if (originalData) {
@@ -467,9 +463,9 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 	} @catch (NSException *e) {
 		[self handleException:e];
 	} @finally {
-        retVal = self.signatures;
+		retVal = self.signatures;
 		[self cleanAfterOperation];
-        [self operationDidFinishWithReturnValue:retVal];	
+		[self operationDidFinishWithReturnValue:retVal];	
 	}
 	
 	return retVal;
@@ -585,7 +581,6 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		
 		
 		gpgTask = [GPGTask gpgTask];
-        gpgTask.verbose = self.verbose;
 		[self addArgumentsForOptions];
 		gpgTask.userInfo = [NSDictionary dictionaryWithObject:[GPGTaskOrder orderWithYesToAll] forKey:@"order"]; 
 		
@@ -632,7 +627,6 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		
 		
 		gpgTask = [GPGTask gpgTask];
-        gpgTask.verbose = self.verbose;
 		[self addArgumentsForOptions];
 		[gpgTask addArgument:@"--edit-key"];
 		[gpgTask addArgument:[key description]];
@@ -663,7 +657,6 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		[self registerUndoForKey:key withName:@"Undo_MinimizeKey"];
 		
 		gpgTask = [GPGTask gpgTask];
-        gpgTask.verbose = self.verbose;
 		[self addArgumentsForOptions];
 		[gpgTask addArgument:@"--edit-key"];
 		[gpgTask addArgument:[key description]];
@@ -704,7 +697,6 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		
 		
 		gpgTask = [GPGTask gpgTask];
-        gpgTask.verbose = self.verbose;
 		[self addArgumentsForOptions];
 		gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"]; 
 		[gpgTask addArgument:@"-a"];
@@ -774,7 +766,6 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		
 		
 		gpgTask = [GPGTask gpgTask];
-        gpgTask.verbose = self.verbose;
 		[self addArgumentsForOptions];
 		gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"]; 
 		[gpgTask addArgument:@"--edit-key"];
@@ -809,7 +800,6 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		
 		
 		gpgTask = [GPGTask gpgTask];
-        gpgTask.verbose = self.verbose;
 		[self addArgumentsForOptions];
 		gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"]; 
 		[gpgTask addArgument:@"--edit-key"];
@@ -852,7 +842,6 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		[order addCmd:@"save\n" prompt:@"keyedit.prompt"];
 		
 		gpgTask = [GPGTask gpgTask];
-        gpgTask.verbose = self.verbose;
 		[self addArgumentsForOptions];
 		gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"]; 
 		[gpgTask addArgument:@"--edit-key"];
@@ -882,7 +871,6 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		//No undo for this operation.
 		
 		gpgTask = [GPGTask gpgTask];
-        gpgTask.verbose = self.verbose;
 		[self addArgumentsForOptions];
 		[gpgTask addArgument:@"--edit-key"];
 		[gpgTask addArgument:[key description]];
@@ -919,7 +907,6 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		
 		
 		gpgTask = [GPGTask gpgTask];
-        gpgTask.verbose = self.verbose;
 		[self addArgumentsForOptions];
 		gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"]; 
 		[gpgTask addArgument:@"--edit-key"];
@@ -974,7 +961,6 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		
 
 		gpgTask = [GPGTask gpgTask];
-        gpgTask.verbose = self.verbose;
 		[self addArgumentsForOptions];
 		[gpgTask addInData:data];
 		[gpgTask addArgument:@"--import"];
@@ -1030,7 +1016,6 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		
 		
 		gpgTask = [GPGTask gpgTask];
-        gpgTask.verbose = self.verbose;
 		[self addArgumentsForOptions];
 		[self addArgumentsForComments];
 		[gpgTask addArguments:arguments];
@@ -1045,7 +1030,6 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		if (allowSec) {
 			[arguments replaceObjectAtIndex:0 withObject:@"--export-secret-keys"];
 			gpgTask = [GPGTask gpgTask];
-            gpgTask.verbose = self.verbose;
 			[self addArgumentsForOptions];
 			[self addArgumentsForComments];
 			[gpgTask addArguments:arguments];
@@ -1101,7 +1085,6 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		
 		
 		gpgTask = [GPGTask gpgTask];
-        gpgTask.verbose = self.verbose;
 		[self addArgumentsForOptions];
 		gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"]; 
 		if (signKey) {
@@ -1159,7 +1142,6 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 			
 			
 			gpgTask = [GPGTask gpgTask];
-            gpgTask.verbose = self.verbose;
 			[self addArgumentsForOptions];
 			gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"]; 
 			[gpgTask addArgument:@"--edit-key"];
@@ -1220,8 +1202,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 			
 			
 			gpgTask = [GPGTask gpgTask];
-			gpgTask.verbose = self.verbose;
-            [self addArgumentsForOptions];
+			[self addArgumentsForOptions];
 			gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"]; 
 			[gpgTask addArgument:@"--edit-key"];
 			[gpgTask addArgument:[key description]];
@@ -1265,7 +1246,6 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		
 		
 		gpgTask = [GPGTask gpgTask];
-        gpgTask.verbose = self.verbose;
 		[self addArgumentsForOptions];
 		gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"]; 
 		[gpgTask addArgument:@"--edit-key"];
@@ -1304,7 +1284,6 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 			[order addCmd:@"save\n" prompt:@"keyedit.prompt"];
 			
 			gpgTask = [GPGTask gpgTask];
-            gpgTask.verbose = self.verbose;
 			[self addArgumentsForOptions];
 			gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"]; 
 			[gpgTask addArgument:@"--edit-key"];
@@ -1353,7 +1332,6 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 			[order addCmd:@"save\n" prompt:@"keyedit.prompt"];
 			
 			gpgTask = [GPGTask gpgTask];
-            gpgTask.verbose = self.verbose;
 			[self addArgumentsForOptions];
 			gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"]; 
 			[gpgTask addArgument:@"--edit-key"];
@@ -1397,8 +1375,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		
 		
 		gpgTask = [GPGTask gpgTask];
-		gpgTask.verbose = self.verbose;
-        [self addArgumentsForOptions];
+		[self addArgumentsForOptions];
 		gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"]; 
 		[gpgTask addArgument:@"--edit-key"];
 		[gpgTask addArgument:[key description]];
@@ -1435,7 +1412,6 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 			[order addCmd:@"save\n" prompt:@"keyedit.prompt"];
 			
 			gpgTask = [GPGTask gpgTask];
-            gpgTask.verbose = self.verbose;
 			[self addArgumentsForOptions];
 			gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"]; 
 			[gpgTask addArgument:@"--edit-key"];
@@ -1484,7 +1460,6 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 			[order addCmd:@"save\n" prompt:@"keyedit.prompt"];
 			
 			gpgTask = [GPGTask gpgTask];
-            gpgTask.verbose = self.verbose;
 			[self addArgumentsForOptions];
 			gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"]; 
 			[gpgTask addArgument:@"--edit-key"];
@@ -1520,8 +1495,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		
 		if (uid > 0) {
 			gpgTask = [GPGTask gpgTask];
-			gpgTask.verbose = self.verbose;
-            [self addArgumentsForOptions];
+			[self addArgumentsForOptions];
 			[gpgTask addArgument:@"--edit-key"];
 			[gpgTask addArgument:[key description]];
 			[gpgTask addArgument:[NSString stringWithFormat:@"%i", uid]];
@@ -1559,8 +1533,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		[order addCmd:path prompt:@"photoid.jpeg.add"];
 		
 		gpgTask = [GPGTask gpgTask];
-		gpgTask.verbose = self.verbose;
-        [self addArgumentsForOptions];
+		[self addArgumentsForOptions];
 		gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"]; 
 		[gpgTask addArgument:@"--edit-key"];
 		[gpgTask addArgument:[key description]];
@@ -1594,8 +1567,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		[self registerUndoForKeys:keys withName:@"Undo_RefreshFromServer"];
 		
 		gpgTask = [GPGTask gpgTask];
-		gpgTask.verbose = self.verbose;
-        [self addArgumentsForOptions];
+		[self addArgumentsForOptions];
 		[self addArgumentsForKeyserver];
 		[gpgTask addArgument:@"--refresh-keys"];
 		for (id key in keys) {
@@ -1631,8 +1603,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 			[NSException raise:NSInvalidArgumentException format:@"Empty key list!"];
 		}
 		gpgTask = [GPGTask gpgTask];
-		gpgTask.verbose = self.verbose;
-        [self addArgumentsForOptions];
+		[self addArgumentsForOptions];
 		[self addArgumentsForKeyserver];
 		[gpgTask addArgument:@"--recv-keys"];
 		for (id key in keys) {
@@ -1669,8 +1640,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 			[NSException raise:NSInvalidArgumentException format:@"Empty key list!"];
 		}
 		gpgTask = [GPGTask gpgTask];
-		gpgTask.verbose = self.verbose;
-        [self addArgumentsForOptions];
+		[self addArgumentsForOptions];
 		[self addArgumentsForKeyserver];
 		[gpgTask addArgument:@"--send-keys"];
 		for (id key in keys) {
@@ -1699,8 +1669,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		[self operationDidStart];
 		
 		gpgTask = [GPGTask gpgTask];
-		gpgTask.verbose = self.verbose;
-        [self addArgumentsForOptions];
+		[self addArgumentsForOptions];
 		gpgTask.batchMode = YES;
 		[self addArgumentsForKeyserver];
 		[gpgTask addArgument:@"--search-keys"];
@@ -1793,8 +1762,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 
 - (NSInteger)indexOfUserID:(NSString *)hashID fromKey:(NSObject <KeyFingerprint> *)key {
 	gpgTask = [GPGTask gpgTask];
-	gpgTask.verbose = self.verbose;
-    [self addArgumentsForOptions];
+	[self addArgumentsForOptions];
 	[gpgTask addArgument:@"-k"];
 	[gpgTask addArgument:[key description]];
 	
@@ -1821,7 +1789,6 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 
 - (NSInteger)indexOfSubkey:(NSObject <KeyFingerprint> *)subkey fromKey:(NSObject <KeyFingerprint> *)key {
 	gpgTask = [GPGTask gpgTask];
-    gpgTask.verbose = self.verbose;
 	[self addArgumentsForOptions];
 	[gpgTask addArgument:@"-k"];
 	[gpgTask addArgument:@"--with-fingerprint"];
@@ -2033,6 +2000,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 	[e retain];
 	[error release];
 	error = e;
+	[self logException:e];
 }
 
 - (void)operationDidStart {
@@ -2048,7 +2016,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 }
 - (void)operationDidFinishWithReturnValue:(id)value {
 	if (runningOperations == 0) {
-        lastReturnValue = value;
+		lastReturnValue = value;
 		if ([delegate respondsToSelector:@selector(gpgController:operationDidFinishWithReturnValue:)]) {
 			[delegate gpgController:self operationDidFinishWithReturnValue:value];
 		}		
@@ -2070,6 +2038,15 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 
 #pragma mark Private
 
+
+- (void)logException:(NSException *)e {
+	if (self.verbose) {
+		NSLog(@"GPGController: %@", e.description);
+		if ([e isKindOfClass:[GPGException class]]) {
+			NSLog(@"Error text: %@\nStatus text: %@", [(GPGException *)e gpgTask].errText, [(GPGException *)e gpgTask].statusText);
+		}
+	}
+}
 
 - (void)keysChanged:(NSObject <EnumerationList> *)keys {
 	if (groupedKeyChange == 0) {
@@ -2192,6 +2169,8 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 }
 
 - (void)addArgumentsForOptions {
+	gpgTask.verbose = self.verbose;
+
 	[gpgTask addArgument:useArmor ? @"--armor" : @"--no-armor"];
 	[gpgTask addArgument:useTextMode ? @"--textmode" : @"--no-textmode"];
 	[gpgTask addArgument:printVersion ? @"--emit-version" : @"--no-emit-version"];
@@ -2287,6 +2266,8 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		[gpgTask addArgument:@"--list-config"];
 		
 		if ([gpgTask start] != 0) {
+			NSLog(@"GPGController -readGPGConfig: GPGErrorConfigurationError");
+			NSLog(@"Error text: %@\nStatus text: %@", gpgTask.errText, gpgTask.statusText);
 			return GPGErrorConfigurationError;
 		}
 		
@@ -2319,13 +2300,15 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 			}
 		}
 	} @catch (GPGException *exception) {
+		NSLog(@"GPGController -readGPGConfig: %@", exception.description);
+		NSLog(@"Error text: %@\nStatus text: %@", [exception gpgTask].errText, [exception gpgTask].statusText);
 		if (exception.errorCode) {
 			return exception.errorCode;
 		} else {
 			return GPGErrorGeneralError;
 		}
-	}
-	@catch (NSException *exception) {
+	} @catch (NSException *exception) {
+		NSLog(@"GPGController -readGPGConfig: %@", exception.description);
 		return GPGErrorGeneralError;
 	}
 	
@@ -2335,10 +2318,10 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 
 
 - (void)setLastReturnValue:(id)value {
-    if (value != lastReturnValue) {
-        [lastReturnValue release];
-        lastReturnValue = [value retain];
-    }
+	if (value != lastReturnValue) {
+		[lastReturnValue release];
+		lastReturnValue = [value retain];
+	}
 }
 
 
