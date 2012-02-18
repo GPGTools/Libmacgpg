@@ -43,5 +43,8 @@
 
 
 + (id)packetsWithData:(NSData *)data;
++ (BOOL)isArmored:(const uint8_t)byte;
++ (NSData *)unArmor:(NSData *)data;
++ (NSData *)repairPacketData:(NSData *)data;
 
 @end

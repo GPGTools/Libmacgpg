@@ -71,6 +71,7 @@
 
 NSString *gpgVersion = nil;
 NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil, *compressAlgorithm = nil;
+BOOL gpgConfigReaded = NO;
 
 
 
@@ -248,11 +249,11 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		[gpgTask addArgument:@"--with-fingerprint"];
 		[gpgTask addArguments:searchStrings];
 		
-		if ([gpgTask start] != 0) {
+		/*if ([gpgTask start] != 0) {
 			if ([keyList count] == 0) { //TODO: Bessere Lösung um Probleme zu vermeiden, wenn ein nicht (mehr) vorhandener Schlüssel gelistet werden soll.
 				@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"List secret keys failed!") gpgTask:gpgTask];
 			}
-		}
+		}*/
 		secKeyFingerprints = [[self class] fingerprintsFromColonListing:gpgTask.outText];
 
 		
@@ -949,6 +950,11 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 				}
 			}
 		}
+		/*if ([keys count] == 0) {
+			NSData *data2 = [GPGPacket repairPacketData:data];
+		}*/
+		
+		
 
 		//TODO: Uncomment the following lines when keysInExportedData: fully work!
 		/*if ([keys count] == 0) {
@@ -2252,12 +2258,12 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 
 
 + (GPGErrorCode)testGPG {
+	gpgConfigReaded = NO;
 	return [self readGPGConfig];
 }
 
 + (GPGErrorCode)readGPGConfig {
-	static BOOL configReaded = NO;
-	if (configReaded) {
+	if (gpgConfigReaded) {
 		return GPGErrorNoError;
 	}
 	
@@ -2312,7 +2318,7 @@ NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil,
 		return GPGErrorGeneralError;
 	}
 	
-	configReaded = YES;
+	gpgConfigReaded = YES;
 	return GPGErrorNoError;
 }
 

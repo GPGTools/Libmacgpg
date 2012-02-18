@@ -38,8 +38,6 @@
 
 @interface GPGPacket (Private)
 
-+ (BOOL)isArmored:(const uint8_t)byte;
-+ (NSData *)unArmor:(NSData *)theData;
 - (id)initWithBytes:(const uint8_t *)bytes length:(NSUInteger)dataLength nextPacketStart:(const uint8_t **)nextPacket;
 
 @end
@@ -80,18 +78,12 @@ const int armorTypeStringsCount = 7;
 	NSMutableArray *packets = [NSMutableArray array];
 	
 	
-	const uint8_t *bytes = [theData bytes];
+	
+	theData = [self unArmor:theData];
 	if ([theData length] < 10) {
 		return nil;
 	}
-	
-	if ([self isArmored:bytes[0]]) {
-		theData = [self unArmor:theData];
-		if (!theData || [theData length] < 10) {
-			return nil;
-		}
-		bytes = [theData bytes];
-	}
+	const uint8_t *bytes = [theData bytes];
 	
 	
 	const uint8_t *endPos = bytes + [theData length];
@@ -210,13 +202,6 @@ const int armorTypeStringsCount = 7;
 					//TODO
 					break;
 				case 4: {
-					static int asdasdasd = 0;
-					asdasdasd++;
-					
-					if (asdasdasd >= 767) {
-						asdasdasd=asdasdasd;
-					}
-					
 					signatureType = readUint8;
 					publicKeyAlgorithm = readUint8;
 					hashAlgorithm = readUint8;
@@ -339,6 +324,11 @@ endOfBuffer:
 + (NSData *)unArmor:(NSData *)theData {
 	const char *bytes = [theData bytes];
 	NSUInteger dataLength = [theData length];
+	
+	if (dataLength < 50 || ![self isArmored:*bytes]) {
+		return theData;
+	}
+	
 	const char *readPos = bytes;
 	const char *endPos = bytes + dataLength;
 	int newlineCount, armorType;
@@ -355,8 +345,9 @@ endOfBuffer:
 	for (;readPos < endPos - 25; readPos++) {
 		switch (state) {
 			case state_searchStart:
-				if (memcmp(armorBeginMark, readPos, armorBeginMarkLength) != 0) {
-					break;
+				readPos = strnstr(readPos, armorBeginMark, endPos - readPos - 20);
+				if (!readPos) {
+					goto endOfBuffer;
 				}
 				readPos += armorBeginMarkLength;
 			case state_parseStart:
@@ -466,6 +457,37 @@ endOfBuffer:
 	}
 	return YES;
 }
+
+
+
++ (NSData *)repairPacketData:(NSData *)theData {
+	const char *bytes = [theData bytes];
+	NSUInteger dataLength = [theData length];
+		
+	if (dataLength < 50 || ![self isArmored:*bytes]) {
+		return theData;
+	}
+	
+	const char *readPos = bytes;
+	const char *endPos = bytes + dataLength;
+	NSMutableData *repairedData = [NSMutableData data];
+
+	
+	readPos = strnstr(readPos, armorBeginMark, endPos - readPos - 20);
+	if (!readPos) {
+		goto endOfBuffer;
+	}
+	
+	//TODO
+	
+	
+	
+	
+	
+endOfBuffer:
+	return repairedData;
+}
+
 
 
 
