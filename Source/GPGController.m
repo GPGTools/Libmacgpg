@@ -249,6 +249,7 @@ BOOL gpgConfigReaded = NO;
 		[gpgTask addArgument:@"--with-fingerprint"];
 		[gpgTask addArguments:searchStrings];
 		
+		[gpgTask start];
 		/*if ([gpgTask start] != 0) {
 			if ([keyList count] == 0) { //TODO: Bessere Lösung um Probleme zu vermeiden, wenn ein nicht (mehr) vorhandener Schlüssel gelistet werden soll.
 				@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"List secret keys failed!") gpgTask:gpgTask];
