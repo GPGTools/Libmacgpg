@@ -107,8 +107,8 @@
 - (void)setComment:(NSString *)comment;
 - (void)addComment:(NSString *)comment;
 - (void)removeCommentAtIndex:(NSUInteger)index;
-- (void)setSignerKey:(NSString *)signerKey;
-- (void)addSignerKey:(NSString *)signerKey;
+- (void)setSignerKey:(NSObject <KeyFingerprint> *)signerKey;
+- (void)addSignerKey:(NSObject <KeyFingerprint> *)signerKey;
 - (void)removeSignerKeyAtIndex:(NSUInteger)index;
 
 

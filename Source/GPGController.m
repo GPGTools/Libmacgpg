@@ -124,7 +124,7 @@ BOOL gpgConfigReaded = NO;
 	[comments removeObjectAtIndex:index];
 	[self didChangeValueForKey:@"comments"];
 }
-- (void)setSignerKey:(NSString *)signerKey {
+- (void)setSignerKey:(NSObject <KeyFingerprint> *)signerKey {
 	[self willChangeValueForKey:@"signerKeys"];
 	[signerKeys removeAllObjects];
 	if (signerKey) {
@@ -132,7 +132,7 @@ BOOL gpgConfigReaded = NO;
 	}
 	[self didChangeValueForKey:@"signerKeys"];
 }
-- (void)addSignerKey:(NSString *)signerKey {
+- (void)addSignerKey:(NSObject <KeyFingerprint> *)signerKey {
 	[self willChangeValueForKey:@"signerKeys"];
 	[signerKeys addObject:signerKey];
 	[self didChangeValueForKey:@"signerKeys"];
