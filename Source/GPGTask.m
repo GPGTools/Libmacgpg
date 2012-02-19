@@ -89,12 +89,8 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 
 + (void)initialize {
 	_gpgPath = [self findExecutableWithName:@"gpg2"];
-	if (_gpgPath) {
-	} else {
+	if (!_gpgPath) {
 		_gpgPath = [self findExecutableWithName:@"gpg"];
-		if (!_gpgPath) {
-			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"GPG not found!") errorCode:GPGErrorNotFound];
-		}
 	}
 	[_gpgPath retain];
     NSLog(@"GPG_PATH: %@", _gpgPath);
@@ -196,7 +192,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 	
 	//Status codes where the last part can contain withespaces.
 	memset(partCountForStatusCode, 0, sizeof(partCountForStatusCode));
-	NSLog(@"sizeof(partCountForStatusCode) %lu", sizeof(partCountForStatusCode));
+	//NSLog(@"sizeof(partCountForStatusCode) %lu", sizeof(partCountForStatusCode));
 	partCountForStatusCode[GPG_STATUS_EXPKEYSIG] = 2;
 	partCountForStatusCode[GPG_STATUS_EXPSIG] = 2;
 	partCountForStatusCode[GPG_STATUS_GOODSIG] = 2;
@@ -220,7 +216,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 
 
 + (BOOL)isGPGAgentSocket:(NSString *)socketPath {
-	socketPath = [socketPath stringByResolvingSymlinksInPath];
+	socketPath = [socketPath stringByResolvingSymlinksInPath];	
 	NSDictionary *attributes = [[NSFileManager defaultManager] attributesOfItemAtPath:socketPath error:nil];
 	if ([[attributes fileType] isEqualToString:NSFileTypeSocket]) {
 		return YES;
@@ -327,8 +323,12 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 - (id)initWithArguments:(NSArray *)args batchMode:(BOOL)batch {
 	self = [super init];
 	if (self) {
-		arguments = [[NSMutableArray alloc] initWithArray:args];
+		if (!_gpgPath) {
+			[self release];
+			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"GPG not found!") errorCode:GPGErrorNotFound];
+		}
 		self.gpgPath = _gpgPath;
+		arguments = [[NSMutableArray alloc] initWithArray:args];
 		batchMode = batch;
 		errorCodes = [[NSMutableArray alloc] init];
 		statusDict = [[NSMutableDictionary alloc] init];
