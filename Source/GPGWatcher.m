@@ -56,7 +56,12 @@
 		
 		if (!date1 || !date2 || ![date1 isEqualToDate:date2]) {
 			// Change found.
-			[changeDates setObject:date2 forKey:file];
+			if (date2) {
+				[changeDates setObject:date2 forKey:file];
+			} else {
+				// Set to any other date, because we can't set to nil.
+				[changeDates setObject:[date1 dateByAddingTimeInterval:-100000] forKey:file];
+			}
 			
 			lastFoundChange = [NSDate timeIntervalSinceReferenceDate];
 			if (lastKnownChange + TOLERANCE_BEFORE < lastFoundChange) {
