@@ -2160,6 +2160,9 @@ BOOL gpgConfigReaded = NO;
 	[keyserverOptions appendFormat:@"timeout=%lu", keyserverTimeout];
 	NSString *proxy = proxyServer ? proxyServer : [[GPGOptions sharedOptions] httpProxy];
 	if ([proxy length] > 0) {
+		if ([proxy rangeOfString:@"://"].length == 0) {
+			proxy = [@"http://" stringByAppendingString:proxy]; 
+		}
 		[keyserverOptions appendFormat:@",http-proxy=%@", proxy];
 	}
 	[gpgTask addArgument:keyserverOptions];
