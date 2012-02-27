@@ -3,9 +3,11 @@
 #import "LPXTTask.h"
 #include <sys/types.h>
 #include <dirent.h>
+#include "GPGStdSetting.h"
 
 #define BDSKSpecialPipeServiceRunLoopMode @"BDSKSpecialPipeServiceRunLoopMode"
 
+static NSString *skelconf = @"/usr/local/MacGPG2/share/gnupg/gpg-conf.skel";
 
 @implementation Test1
 
@@ -14,6 +16,7 @@
 	gpgc = [[GPGController alloc] init];
 	char tempPath[] = "/tmp/Libmacgpg_UnitTest-XXXXXX";
 	tempDir = [NSString stringWithUTF8String:mkdtemp(tempPath)];
+    NSLog(@"Tempdir is %@", tempDir);
 	NSFileManager *fileManager = [NSFileManager defaultManager];
 	BOOL isDirectory;
 	if (!([fileManager fileExistsAtPath:tempDir isDirectory:&isDirectory] && isDirectory)) {
@@ -58,7 +61,7 @@
 	
 	
 	NSData *input = [@"This is a test text." dataUsingEncoding:NSUTF8StringEncoding];
-	NSData *output = [gpgc processData:input withEncryptSignMode:GPGEnryptSign recipients:[NSSet setWithObject:keyID] hiddenRecipients:nil];
+	NSData *output = [gpgc processData:input withEncryptSignMode:GPGEncryptSign recipients:[NSSet setWithObject:keyID] hiddenRecipients:nil];
 	
 	STAssertNotNil(output, @"processData faild.");
 	
@@ -88,7 +91,7 @@
     NSData *encryptedData = [gpgc processData:arg1 withEncryptSignMode:GPGPublicKeyEncrypt recipients:[NSSet setWithObject:@"608B00ABE1DAA3501C5FF91AE58271326F9F4937"] hiddenRecipients:nil];
     //[self logDataContent:encryptedData message:@"ENCRYPTED-DATA"];
     NSData *decryptedData = [gpgc decryptData:encryptedData];
-   // [self logDataContent:decryptedData message:@"DECRYPTED-DATA"];
+   [self logDataContent:decryptedData message:@"DECRYPTED-DATA"];
 }
 
 - (void)logDataContent:(NSData *)data message:(NSString *)message {
@@ -107,6 +110,59 @@
     [fh waitForDataInBackgroundAndNotify];
 }
 
+- (void)testGPGConfGetContents {
+    GPGConf *conf = [[GPGConf alloc] initWithPath:skelconf andDomain:GPGDomain_gpgConf];
+    
+    NSError *error;
+	NSString *skelContents = [NSString stringWithContentsOfFile:skelconf usedEncoding:nil error:&error];
+    STAssertNotNil(skelContents, @"Unexpectedly nil!");
+    NSString *reencoded = [conf getContents];
+    STAssertEquals([skelContents length], [reencoded length], @"Content length mis-match!");
+    STAssertEqualObjects(skelContents, reencoded, @"GPGConf did not round-trip contents!");
+}
+
+- (void)testGPGConfAlterContents {
+    GPGConf *conf = [[GPGConf alloc] initWithPath:skelconf andDomain:GPGDomain_gpgConf];
+    
+    NSError *error;
+	NSString *skelContents = [NSString stringWithContentsOfFile:skelconf usedEncoding:nil error:&error];
+    STAssertNotNil(skelContents, @"Unexpectedly nil!");
+    
+    [conf setValue:[NSNumber numberWithBool:TRUE] forKey:@"greeting"];
+    NSString *reencoded = [conf getContents];
+    NSString *gpath = [tempDir stringByAppendingPathComponent:@"gpg-testing.conf"];
+	[reencoded writeToFile:gpath atomically:YES encoding:NSUTF8StringEncoding error:&error];
+    STAssertNil(error, @"writeToFile unexpectedly failed!");
+
+    NSTask *task;
+    task = [[NSTask alloc] init];
+    [task setLaunchPath: @"/usr/bin/diff"];
+    
+    NSArray *arguments;
+    arguments = [NSArray arrayWithObjects: skelconf, gpath, nil];
+    [task setArguments: arguments];
+    
+    NSPipe *pipe;
+    pipe = [NSPipe pipe];
+    [task setStandardOutput: pipe];
+    
+    NSFileHandle *file;
+    file = [pipe fileHandleForReading];
+    
+    [task launch];
+    
+    NSData *data;
+    data = [file readDataToEndOfFile];
+    
+    NSString *diffout;
+    diffout = [[NSString alloc] initWithData: data encoding: NSUTF8StringEncoding];
+    NSLog (@"diff returned:\n%@", diffout);
+    NSString *expected = @"28c28\n< #no-greeting\n---\n> greeting\n";
+    STAssertEqualObjects(expected, diffout, @"Diff not as expected!");
+    
+    [diffout release];
+    [task release];
+}
 
 //- (void)stdoutNowAvailable:(NSNotification *)notification {
 //    NSLog(@"Data coming in...");
