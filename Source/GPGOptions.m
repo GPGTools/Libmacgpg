@@ -359,13 +359,15 @@ NSMutableDictionary *defaults = nil;
 // Propertys.
 - (GPGConf *)gpgConf {
 	if (!gpgConf) {
-		gpgConf = [[GPGConf alloc] initWithPath:[[self gpgHome] stringByAppendingPathComponent:@"gpg.conf"]];
+        NSString *gpath = [[self gpgHome] stringByAppendingPathComponent:@"gpg.conf"];
+		gpgConf = [[GPGConf alloc] initWithPath:gpath andDomain:GPGDomain_gpgConf];
 	}
 	return [[gpgConf retain] autorelease];
 }
 - (GPGConf *)gpgAgentConf {
 	if (!gpgAgentConf) {
-		gpgAgentConf = [[GPGConf alloc] initWithPath:[[self gpgHome] stringByAppendingPathComponent:@"gpg-agent.conf"]];
+        NSString *gpath = [[self gpgHome] stringByAppendingPathComponent:@"gpg-agent.conf"];
+		gpgAgentConf = [[GPGConf alloc] initWithPath:gpath andDomain:GPGDomain_gpgAgentConf];
 	}
 	return [[gpgAgentConf retain] autorelease];
 }
@@ -415,6 +417,12 @@ NSMutableDictionary *defaults = nil;
 		}
 	}
 	return GPGDomain_standard;
+}
+
+- (BOOL) isKnownKey:(NSString *)key domainForKey:(GPGOptionsDomain)domain {
+	NSString *searchString = [NSString stringWithFormat:@"|%@|", key];
+    NSString *keys = [domainKeys objectForKey:[NSNumber numberWithInt:domain]];
+    return ([keys rangeOfString:searchString].length > 0);
 }
 
 + (NSString *)standardizedKey:(NSString *)key {

@@ -30,7 +30,6 @@
 		30A70EE613EF328000EE9CD9 /* GPGException.m in Sources */ = {isa = PBXBuildFile; fileRef = 30A70EE413EF328000EE9CD9 /* GPGException.m */; };
 		30B586F5141E255C000373F1 /* Keyservers.plist in Resources */ = {isa = PBXBuildFile; fileRef = 30B586F4141E255C000373F1 /* Keyservers.plist */; };
 		30BA88F2138FE593005982D9 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 30BA88F1138FE593005982D9 /* SystemConfiguration.framework */; };
-		30C412C4149A35860035D35F /* pinentry-mac.app in Resources */ = {isa = PBXBuildFile; fileRef = 30C412C2149A35720035D35F /* pinentry-mac.app */; };
 		30C60EEF12FF3321006BB8DA /* Libmacgpg.h in Headers */ = {isa = PBXBuildFile; fileRef = 30C60EEE12FF3321006BB8DA /* Libmacgpg.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		30C8B39C1395052D00F49AA1 /* Test1.m in Sources */ = {isa = PBXBuildFile; fileRef = 30C8B39B1395052D00F49AA1 /* Test1.m */; };
 		30C8B3B11395072C00F49AA1 /* Libmacgpg.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DC2EF5B0486A6940098B216 /* Libmacgpg.framework */; };
@@ -60,6 +59,22 @@
 		30FF414E12FAC6CD00F39832 /* GPGTaskOrder.m in Sources */ = {isa = PBXBuildFile; fileRef = 30FF413412FAC6CD00F39832 /* GPGTaskOrder.m */; };
 		30FF414F12FAC6CD00F39832 /* GPGUserID.h in Headers */ = {isa = PBXBuildFile; fileRef = 30FF413512FAC6CD00F39832 /* GPGUserID.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		30FF415012FAC6CD00F39832 /* GPGUserID.m in Sources */ = {isa = PBXBuildFile; fileRef = 30FF413612FAC6CD00F39832 /* GPGUserID.m */; };
+		45156A1C14FB1B1200129FE7 /* GPGLinesSetting.h in Headers */ = {isa = PBXBuildFile; fileRef = 45156A1A14FB1B1200129FE7 /* GPGLinesSetting.h */; };
+		45156A1D14FB1B1200129FE7 /* GPGLinesSetting.m in Sources */ = {isa = PBXBuildFile; fileRef = 45156A1B14FB1B1200129FE7 /* GPGLinesSetting.m */; };
+		45156A2014FB1D7D00129FE7 /* GPGDictSetting.h in Headers */ = {isa = PBXBuildFile; fileRef = 45156A1E14FB1D7D00129FE7 /* GPGDictSetting.h */; };
+		45156A2114FB1D7D00129FE7 /* GPGDictSetting.m in Sources */ = {isa = PBXBuildFile; fileRef = 45156A1F14FB1D7D00129FE7 /* GPGDictSetting.m */; };
+		45156A2414FB310300129FE7 /* GPGLinesSettingTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 45156A2314FB310300129FE7 /* GPGLinesSettingTest.m */; };
+		45156A2714FB35DC00129FE7 /* GPGDictSettingTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 45156A2614FB35DC00129FE7 /* GPGDictSettingTest.m */; };
+		45156A2A14FB3EF700129FE7 /* GPGArraySetting.h in Headers */ = {isa = PBXBuildFile; fileRef = 45156A2814FB3EF700129FE7 /* GPGArraySetting.h */; };
+		45156A2B14FB3EF700129FE7 /* GPGArraySetting.m in Sources */ = {isa = PBXBuildFile; fileRef = 45156A2914FB3EF700129FE7 /* GPGArraySetting.m */; };
+		45156A2D14FB506E00129FE7 /* GPGArraySettingTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 45156A2C14FB506E00129FE7 /* GPGArraySettingTest.m */; };
+		451932F514F8061100D1F727 /* GPGStdSetting.h in Headers */ = {isa = PBXBuildFile; fileRef = 451932F314F8061100D1F727 /* GPGStdSetting.h */; };
+		451932F614F8061100D1F727 /* GPGStdSetting.m in Sources */ = {isa = PBXBuildFile; fileRef = 451932F414F8061100D1F727 /* GPGStdSetting.m */; };
+		4547646614FBC8A900A37306 /* GPGStdSettingTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 4547646514FBC8A900A37306 /* GPGStdSettingTest.m */; };
+		4570876614FAA7C90030AAE6 /* GPGConfReader.h in Headers */ = {isa = PBXBuildFile; fileRef = 4570876414FAA7C90030AAE6 /* GPGConfReader.h */; };
+		4570876714FAA7C90030AAE6 /* GPGConfReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 4570876514FAA7C90030AAE6 /* GPGConfReader.m */; };
+		4591C4CA14F85AA3007F6D47 /* GPGConfReaderTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 4591C4C914F85AA3007F6D47 /* GPGConfReaderTest.m */; };
+		45C6E82714F8913B00ED67C6 /* pinentry-mac.app in Resources */ = {isa = PBXBuildFile; fileRef = 30C412B1149A34D80035D35F /* pinentry-mac.app */; };
 		8DC2EF570486A6940098B216 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
 /* End PBXBuildFile section */
 
@@ -115,13 +130,12 @@
 		30B586F4141E255C000373F1 /* Keyservers.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Keyservers.plist; sourceTree = "<group>"; };
 		30BA88F1138FE593005982D9 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		30C412A8149A34D80035D35F /* pinentry-mac.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "pinentry-mac.xcodeproj"; path = "Dependencies/pinentry-mac/pinentry-mac.xcodeproj"; sourceTree = "<group>"; };
-		30C412C2149A35720035D35F /* pinentry-mac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; name = "pinentry-mac.app"; path = "Dependencies/pinentry-mac/build/${CONFIGURATION}/pinentry-mac.app"; sourceTree = SOURCE_ROOT; };
 		30C60EEE12FF3321006BB8DA /* Libmacgpg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Libmacgpg.h; sourceTree = "<group>"; };
 		30C8B38E139503A800F49AA1 /* UnitTest.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = UnitTest.octest; sourceTree = BUILT_PRODUCTS_DIR; };
-		30C8B38F139503A800F49AA1 /* UnitTest-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "UnitTest-Info.plist"; path = "UnitTest/UnitTest-Info.plist"; sourceTree = "<group>"; };
-		30C8B39A1395052D00F49AA1 /* Test1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Test1.h; path = UnitTest/Test1.h; sourceTree = "<group>"; };
-		30C8B39B1395052D00F49AA1 /* Test1.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Test1.m; path = UnitTest/Test1.m; sourceTree = "<group>"; };
-		30D5E2A21483A0F700F31454 /* GPGConf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGConf.h; sourceTree = "<group>"; };
+		30C8B38F139503A800F49AA1 /* UnitTest-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "UnitTest-Info.plist"; sourceTree = "<group>"; };
+		30C8B39A1395052D00F49AA1 /* Test1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Test1.h; sourceTree = "<group>"; };
+		30C8B39B1395052D00F49AA1 /* Test1.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Test1.m; sourceTree = "<group>"; };
+		30D5E2A21483A0F700F31454 /* GPGConf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = GPGConf.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		30D5E2A31483A0F700F31454 /* GPGConf.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGConf.m; sourceTree = "<group>"; };
 		30FF411D12FAC6CD00F39832 /* GPGController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGController.h; sourceTree = "<group>"; };
 		30FF411E12FAC6CD00F39832 /* GPGController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGController.m; sourceTree = "<group>"; };
@@ -148,6 +162,24 @@
 		30FF413512FAC6CD00F39832 /* GPGUserID.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGUserID.h; sourceTree = "<group>"; };
 		30FF413612FAC6CD00F39832 /* GPGUserID.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGUserID.m; sourceTree = "<group>"; };
 		32DBCF5E0370ADEE00C91783 /* Libmacgpg_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Libmacgpg_Prefix.pch; sourceTree = "<group>"; };
+		45156A1A14FB1B1200129FE7 /* GPGLinesSetting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGLinesSetting.h; sourceTree = "<group>"; };
+		45156A1B14FB1B1200129FE7 /* GPGLinesSetting.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGLinesSetting.m; sourceTree = "<group>"; };
+		45156A1E14FB1D7D00129FE7 /* GPGDictSetting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGDictSetting.h; sourceTree = "<group>"; };
+		45156A1F14FB1D7D00129FE7 /* GPGDictSetting.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGDictSetting.m; sourceTree = "<group>"; };
+		45156A2314FB310300129FE7 /* GPGLinesSettingTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGLinesSettingTest.m; sourceTree = "<group>"; };
+		45156A2614FB35DC00129FE7 /* GPGDictSettingTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGDictSettingTest.m; sourceTree = "<group>"; };
+		45156A2814FB3EF700129FE7 /* GPGArraySetting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGArraySetting.h; sourceTree = "<group>"; };
+		45156A2914FB3EF700129FE7 /* GPGArraySetting.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGArraySetting.m; sourceTree = "<group>"; };
+		45156A2C14FB506E00129FE7 /* GPGArraySettingTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGArraySettingTest.m; sourceTree = "<group>"; };
+		451932F314F8061100D1F727 /* GPGStdSetting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = GPGStdSetting.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		451932F414F8061100D1F727 /* GPGStdSetting.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = GPGStdSetting.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		4547646514FBC8A900A37306 /* GPGStdSettingTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGStdSettingTest.m; sourceTree = "<group>"; };
+		4570876414FAA7C90030AAE6 /* GPGConfReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = GPGConfReader.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		4570876514FAA7C90030AAE6 /* GPGConfReader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = GPGConfReader.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		4591C4C914F85AA3007F6D47 /* GPGConfReaderTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = GPGConfReaderTest.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		4591C4D314F86D38007F6D47 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		4591C4D414F86D38007F6D47 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		4591C4D514F86D38007F6D47 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		8DC2EF5A0486A6940098B216 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8DC2EF5B0486A6940098B216 /* Libmacgpg.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Libmacgpg.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -205,14 +237,14 @@
 				30BA88F1138FE593005982D9 /* SystemConfiguration.framework */,
 				3026F4AE13A203A000F3CA02 /* Security.framework */,
 				30247EF4135B2139003BA5E3 /* libcrypto.dylib */,
+				4591C4D214F86D38007F6D47 /* Other Frameworks */,
 			);
-			name = Frameworks;
+			path = Frameworks;
 			sourceTree = "<group>";
 		};
 		089C1665FE841158C02AAC07 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				30C412C2149A35720035D35F /* pinentry-mac.app */,
 				30516556142281270038AAF0 /* Localizable.strings */,
 				30B586F4141E255C000373F1 /* Keyservers.plist */,
 				8DC2EF5A0486A6940098B216 /* Info.plist */,
@@ -283,6 +315,16 @@
 			children = (
 				30D5E2A21483A0F700F31454 /* GPGConf.h */,
 				30D5E2A31483A0F700F31454 /* GPGConf.m */,
+				451932F314F8061100D1F727 /* GPGStdSetting.h */,
+				451932F414F8061100D1F727 /* GPGStdSetting.m */,
+				45156A1A14FB1B1200129FE7 /* GPGLinesSetting.h */,
+				45156A1B14FB1B1200129FE7 /* GPGLinesSetting.m */,
+				45156A1E14FB1D7D00129FE7 /* GPGDictSetting.h */,
+				45156A1F14FB1D7D00129FE7 /* GPGDictSetting.m */,
+				45156A2814FB3EF700129FE7 /* GPGArraySetting.h */,
+				45156A2914FB3EF700129FE7 /* GPGArraySetting.m */,
+				4570876414FAA7C90030AAE6 /* GPGConfReader.h */,
+				4570876514FAA7C90030AAE6 /* GPGConfReader.m */,
 				30691AA2136AECC4004AA469 /* GPGOptions.h */,
 				30691AA3136AECC4004AA469 /* GPGOptions.m */,
 			);
@@ -304,8 +346,13 @@
 				30C8B39B1395052D00F49AA1 /* Test1.m */,
 				30C8B38F139503A800F49AA1 /* UnitTest-Info.plist */,
 				30C8B38E139503A800F49AA1 /* UnitTest.octest */,
+				4591C4C914F85AA3007F6D47 /* GPGConfReaderTest.m */,
+				4547646514FBC8A900A37306 /* GPGStdSettingTest.m */,
+				45156A2314FB310300129FE7 /* GPGLinesSettingTest.m */,
+				45156A2C14FB506E00129FE7 /* GPGArraySettingTest.m */,
+				45156A2614FB35DC00129FE7 /* GPGDictSettingTest.m */,
 			);
-			name = UnitTest;
+			path = UnitTest;
 			sourceTree = "<group>";
 		};
 		32C88DFF0371C24200C91783 /* Other Sources */ = {
@@ -315,6 +362,16 @@
 			);
 			name = "Other Sources";
 			path = Source;
+			sourceTree = "<group>";
+		};
+		4591C4D214F86D38007F6D47 /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				4591C4D314F86D38007F6D47 /* AppKit.framework */,
+				4591C4D414F86D38007F6D47 /* CoreData.framework */,
+				4591C4D514F86D38007F6D47 /* Foundation.framework */,
+			);
+			name = "Other Frameworks";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -347,6 +404,11 @@
 				3048830B1462B11700F2E5F4 /* DirectoryWatcher.h in Headers */,
 				3048830F1462B22000F2E5F4 /* GPGWatcher.h in Headers */,
 				30D5E2A41483A0F700F31454 /* GPGConf.h in Headers */,
+				451932F514F8061100D1F727 /* GPGStdSetting.h in Headers */,
+				4570876614FAA7C90030AAE6 /* GPGConfReader.h in Headers */,
+				45156A1C14FB1B1200129FE7 /* GPGLinesSetting.h in Headers */,
+				45156A2014FB1D7D00129FE7 /* GPGDictSetting.h in Headers */,
+				45156A2A14FB3EF700129FE7 /* GPGArraySetting.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -453,7 +515,7 @@
 			files = (
 				30B586F5141E255C000373F1 /* Keyservers.plist in Resources */,
 				30516558142281270038AAF0 /* Localizable.strings in Resources */,
-				30C412C4149A35860035D35F /* pinentry-mac.app in Resources */,
+				45C6E82714F8913B00ED67C6 /* pinentry-mac.app in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -481,6 +543,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				30C8B39C1395052D00F49AA1 /* Test1.m in Sources */,
+				4591C4CA14F85AA3007F6D47 /* GPGConfReaderTest.m in Sources */,
+				45156A2414FB310300129FE7 /* GPGLinesSettingTest.m in Sources */,
+				45156A2714FB35DC00129FE7 /* GPGDictSettingTest.m in Sources */,
+				45156A2D14FB506E00129FE7 /* GPGArraySettingTest.m in Sources */,
+				4547646614FBC8A900A37306 /* GPGStdSettingTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -510,6 +577,11 @@
 				3048830C1462B11700F2E5F4 /* DirectoryWatcher.m in Sources */,
 				304883101462B22000F2E5F4 /* GPGWatcher.m in Sources */,
 				30D5E2A51483A0F700F31454 /* GPGConf.m in Sources */,
+				451932F614F8061100D1F727 /* GPGStdSetting.m in Sources */,
+				4570876714FAA7C90030AAE6 /* GPGConfReader.m in Sources */,
+				45156A1D14FB1B1200129FE7 /* GPGLinesSetting.m in Sources */,
+				45156A2114FB1D7D00129FE7 /* GPGDictSetting.m in Sources */,
+				45156A2B14FB3EF700129FE7 /* GPGArraySetting.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
