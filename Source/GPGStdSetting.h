@@ -31,6 +31,7 @@
     BOOL endComments_;
     NSMutableString * raw_;  // as read from .conf
     id value_;
+    NSString *key_;
 }
 
 // Get or set the option key 

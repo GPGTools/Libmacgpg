@@ -8,6 +8,7 @@
     // Contains either GPGStdSetting instances or strings read from the file;
     // If a GPGStdSetting, then it will be mapped in ->config
     NSMutableArray *contents;
+    GPGOptionsDomain optionsDomain;
 }
 @property (retain, readonly) NSString *path;
 @property (readwrite) GPGOptionsDomain optionsDomain;
