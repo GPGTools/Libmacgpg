@@ -334,6 +334,7 @@ BOOL gpgConfigReaded = NO;
 		GPGTaskOrder *order = [GPGTaskOrder orderWithNoToAll];
 		gpgTask = [GPGTask gpgTask];
 		[self addArgumentsForOptions];
+		[self addArgumentsForKeyserver];
 		gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"];
 		// Should be YES maybe, but detached sign doesn't ask for a passphrase
 		// so, basically, it's NO until further testing.
@@ -420,6 +421,7 @@ BOOL gpgConfigReaded = NO;
 		
 		gpgTask = [GPGTask gpgTask];
 		[self addArgumentsForOptions];
+		[self addArgumentsForKeyserver];
 		[gpgTask addInData:data];
 		
 		[gpgTask addArgument:@"--decrypt"];
@@ -451,6 +453,7 @@ BOOL gpgConfigReaded = NO;
 		
 		gpgTask = [GPGTask gpgTask];
 		[self addArgumentsForOptions];
+		[self addArgumentsForKeyserver];
 		[gpgTask addInData:signatureData];
 		if (originalData) {
 			[gpgTask addInData:originalData];
