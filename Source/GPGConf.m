@@ -1,5 +1,6 @@
 #import "GPGConf.h"
-
+#import "GPGConfReader.h"
+#import "GPGStdSetting.h"
 
 
 @interface GPGConf ()
@@ -8,67 +9,37 @@
 
 @implementation GPGConf
 @synthesize path;
+@synthesize optionsDomain;
 
 - (id)valueForKey:(NSString *)key {
-	return [config objectForKey:key];
+    GPGStdSetting *setting = [config objectForKey:key];
+    if (setting) 
+        return [setting value];
+    else
+        return nil;
 }
 - (void)setValue:(id)value forKey:(NSString *)key {
+    GPGStdSetting *setting = [config objectForKey:key];
 	if (value) {
-		if ([key isEqualToString:@"group"]) {
-			if (![value isKindOfClass:[NSDictionary class]]) {
-				NSLog(@"GPGConf setValue:forKey: Illegal class for key \"group\"!");
-				return;
-			}
-		} else if ([key isEqualToString:@"comment"] || [key hasSuffix:@"-options"]) {
-			if (![value isKindOfClass:[NSArray class]]) {
-				NSLog(@"GPGConf setValue:forKey: Illegal class for key \"%@\"!", key);
-				return;
-			}
-		} else if (![value isKindOfClass:[NSString class]] && ![value isKindOfClass:[NSNumber class]]) {
-			NSLog(@"GPGConf setValue:forKey: Illegal class for key \"%@\"!", key);
-			return;
-		}
-		
-		[config setObject:value forKey:key];
-	} else { //value == nil
-		[config removeObjectForKey:key];
+        if (!setting) {
+            GPGConfReader *reader = [GPGConfReader readerForDomain:self.optionsDomain];
+            setting = [reader buildForLine:key];            
+            if (setting) {
+                [config setObject:setting forKey:key];
+                [contents addObject:setting];
+            }
+        }
+
+        if (setting)
+            [setting setValue:value];
+	} else if (setting) { //value == nil
+		[setting setValue:nil];
 	}
 }
 
 
 - (BOOL)saveConfig {
-	NSMutableString *lines = [NSMutableString string];
-	
-	for (NSString *name in config) {
-		id value = [config objectForKey:name];
-		
-		
-		if ([name isEqualToString:@"group"]) {
-			//value is NSDictionary.
-			for (NSString *group in value) {
-				[lines appendFormat:@"group %@ = %@\n", group, [[value objectForKey:group] componentsJoinedByString:@" "]];
-			}
-		} else if ([name isEqualToString:@"comment"]) {
-			//value is NSArray.
-			for (NSString *comment in value) {
-				[lines appendFormat:@"comment %@\n", comment];
-			}
-		} else if ([name hasSuffix:@"-options"]) {
-			//value is NSArray.
-			[lines appendFormat:@"%@ %@\n", name, [value componentsJoinedByString:@" "]];
-		} else {
-			//value is NSNumber or NSString.
-			if ([value isKindOfClass:[NSNumber class]]) {
-				if ([value boolValue]) {
-					[lines appendFormat:@"%@\n", name];
-				} else {
-					[lines appendFormat:@"no-%@\n", name];
-				}
-			} else {
-				[lines appendFormat:@"%@ %@\n", name, value];
-			}
-		}
-	}
+	NSString *lines = [self getContents];
 
 	NSError *error = nil;
 	[lines writeToFile:path atomically:YES encoding:NSUTF8StringEncoding error:&error];
@@ -76,6 +47,18 @@
 		return NO;
 	}
 	return YES;
+}
+
+- (NSString *)getContents {
+	NSMutableString *lines = [NSMutableString string];
+	
+	for (id item in contents) {
+        NSString *encoded = [item description];
+        [lines appendString:encoded];
+        if (![encoded hasSuffix:@"\n"])
+            [lines appendString:@"\n"];
+	}
+    return lines;
 }
 
 - (BOOL)loadConfig {
@@ -86,102 +69,85 @@
 		return  NO;
 	}
 	
-	if (config == nil) {
-		config = [[NSMutableDictionary alloc] init];
-	} else {
-		[config removeAllObjects];
-	}
-	
-	NSRange range;
-	NSPredicate *notEmptyPredicate = [NSPredicate predicateWithFormat:@"length > 0"];
-	NSCharacterSet *whitespaces = [NSCharacterSet whitespaceCharacterSet];
+    [config removeAllObjects];
+    [contents removeAllObjects];
 
-	
-	NSArray *lines = [configFile componentsSeparatedByString:@"\n"];
+	GPGConfReader *reader = [GPGConfReader readerForDomain:self.optionsDomain];
+    NSMutableArray *saveLines = [NSMutableArray arrayWithCapacity:0];
+	NSCharacterSet *whitespaces = [NSCharacterSet whitespaceCharacterSet];
+    BOOL lastLineWasEmpty = FALSE;
+
+    NSMutableArray *lines = [NSMutableArray arrayWithArray:[configFile componentsSeparatedByString:@"\n"]];
+    // if configFile ends with a newline, one split line is spurious
+    if ([configFile hasSuffix:@"\n"]) 
+        [lines removeObjectAtIndex:[lines count] - 1];
 	
 	for (NSString *line in lines) {
-		line = [line stringByTrimmingCharactersInSet:whitespaces];
-		if ([line hasPrefix:@"#"] || [line length] == 0) {
-			continue; //Ignore comments and empty lines.
-		}
-		
-		NSArray *parts = [line componentsSeparatedByCharactersInSet:whitespaces];
-		NSString *name = [parts objectAtIndex:0];
-		id value;
-		
-		
-		parts = [parts subarrayWithRange:NSMakeRange(1, parts.count - 1)]; // Remove the name from parts.
-		line = [parts componentsJoinedByString:@" "]; // Set line to all parts without name. Needed to preserve spaces in the value for the comment-option.
-		parts = [parts filteredArrayUsingPredicate:notEmptyPredicate]; // Remove empty parts.
+        GPGStdSetting *setting = [reader buildForLine:line];
+        if (!setting) {
+            // An empty line is noted; may later checkpoint saved lines and clear
+            NSString *trimmed = [line stringByTrimmingCharactersInSet:whitespaces];
+            if ([trimmed length] < 1) {
+                lastLineWasEmpty = TRUE;
+                [saveLines addObject:line];
+            }
+            else if (lastLineWasEmpty) {
+                lastLineWasEmpty = FALSE;
+                [contents addObjectsFromArray:saveLines];
+                [saveLines removeAllObjects];
+                [saveLines addObject:line];
+            }
+            else {
+                [saveLines addObject:line];
+            }
+            
+            continue;
+        }
 
-		
-		if ([name isEqualToString:@"group"]) {
-			//NSMutableDictionary *value 
-			range = [line rangeOfString:@"="];
-			if (range.length == 0 || range.location == 0 || range.location >= [line length] - 1) {
-				//TODO: Log the error.
-				continue; //Illegal config line.
-			}
-			
-			NSString *group = [[line substringToIndex:range.location] stringByTrimmingCharactersInSet:whitespaces];
-			NSArray *members = [[line substringFromIndex:range.location + 1] componentsSeparatedByCharactersInSet:whitespaces];
-			members = [members filteredArrayUsingPredicate:notEmptyPredicate];
-			
-			value = [config objectForKey:name];
-			if (value) {
-				NSArray *oldMembers = [value objectForKey:group];
-				if (oldMembers) {
-					members = [oldMembers arrayByAddingObjectsFromArray:members];
-				}
-				[value setObject:members forKey:group];
-			} else {
-				value = [NSMutableDictionary dictionaryWithObject:members forKey:group];
-			}
-		} else if ([name isEqualToString:@"comment"]) {
-			value = [config objectForKey:name];
-			if (value) {
-				value = [value arrayByAddingObject:line];
-			} else {
-				value = [NSArray arrayWithObject:line];;
-			}
-		} else if ([name hasSuffix:@"-options"]) {
-			value = [config objectForKey:name];
-			if (value) {
-				NSMutableSet *newValue = [NSMutableSet setWithArray:value];
-				[newValue addObjectsFromArray:parts];
-				value = [newValue allObjects];
-			} else {
-				value = parts;
-			}
-		} else {
-			//Option die nur einen Wert hat (bzw. haben darf).
-			if ([parts count] == 0) {
-				if ([name hasPrefix:@"no-"]) {
-					name = [name substringFromIndex:3];
-					value = [NSNumber numberWithBool:NO];
-				} else {
-					value = [NSNumber numberWithBool:YES];		 
-				}
-			} else {
-				value = line;
-			}
-		}
-		
-		[config setObject:value forKey:name];
+        lastLineWasEmpty = FALSE;
+        
+        // Append to existing settings if already mapped
+        GPGStdSetting *extant = [config objectForKey:setting.key];
+        if (!extant) {
+            extant = setting;
+            [config setObject:setting forKey:setting.key];
+            [contents addObject:setting];
+        }
+
+        // Append any savedLines
+        for (NSString *nsaved in saveLines) {
+            [extant appendLine:nsaved withReader:reader];
+        }
+        [saveLines removeAllObjects];
+
+        // Append the current line
+        [extant appendLine:line withReader:reader];
 	}
-	
+
+    // Checkpoint any savedLines
+    [contents addObjectsFromArray:saveLines];
+    [saveLines removeAllObjects];
+
 	return YES;
 }
 
 + (id)confWithPath:(NSString *)aPath {
 	return [[[[self class] alloc] initWithPath:aPath] autorelease];
 }
+
 - (id)initWithPath:(NSString *)aPath {
+    return [self initWithPath:aPath andDomain:GPGDomain_gpgConf];
+}
+
+- (id)initWithPath:(NSString *)aPath andDomain:(GPGOptionsDomain)domain {
 	if ((self = [super init]) == nil) {
 		return nil;
 	}
 
 	self.path = aPath;
+    self.optionsDomain = domain;
+    config = [[NSMutableDictionary alloc] init];
+    contents = [[NSMutableArray alloc] init];
 	
 	if (![self loadConfig]) {
 		[self release];
@@ -195,13 +161,16 @@
 }
 - (void)dealloc {
 	[config release];
+	[contents release];
 	self.path = nil;
+    [super dealloc];
 }
 
 @end
 
 /*
- config	is a NSMutableDictionary, it can contain NSNumber(BOOL), NSString, NSArray and NSDictionary.
+ config	is a NSMutableDictionary, it can contain GPGStdSetting objects
+ contents contains the objects in config but also unassociated comments from .conf
  
  Samples:
  
