@@ -67,7 +67,7 @@
 
 
 @implementation GPGController
-@synthesize delegate, keyserver, keyserverTimeout, proxyServer, async, userInfo, useArmor, useTextMode, printVersion, useDefaultComments, trustAllKeys, signatures, lastSignature, gpgHome, verbose, lastReturnValue, error, undoManager;
+@synthesize delegate, keyserver, keyserverTimeout, proxyServer, async, userInfo, useArmor, useTextMode, printVersion, useDefaultComments, trustAllKeys, signatures, lastSignature, gpgHome, verbose, autoKeyRetrieve, lastReturnValue, error, undoManager;
 
 NSString *gpgVersion = nil;
 NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil, *compressAlgorithm = nil;
@@ -2157,7 +2157,11 @@ BOOL gpgConfigReaded = NO;
 	[gpgTask addArgument:@"--keyserver-options"];
 	
 	NSMutableString *keyserverOptions = [NSMutableString stringWithCapacity:50];
+	
 	[keyserverOptions appendFormat:@"timeout=%lu", keyserverTimeout];
+	
+	[keyserverOptions appendString:autoKeyRetrieve ? @",auto-key-retrieve" : @",no-auto-key-retrieve"];
+	
 	NSString *proxy = proxyServer ? proxyServer : [[GPGOptions sharedOptions] httpProxy];
 	if ([proxy length] > 0) {
 		if ([proxy rangeOfString:@"://"].length == 0) {
@@ -2165,6 +2169,8 @@ BOOL gpgConfigReaded = NO;
 		}
 		[keyserverOptions appendFormat:@",http-proxy=%@", proxy];
 	}
+	
+	
 	[gpgTask addArgument:keyserverOptions];
 }
 

@@ -56,6 +56,7 @@
 	BOOL trustAllKeys;
 	BOOL async;
     BOOL verbose;
+	BOOL autoKeyRetrieve;
     id lastReturnValue;
 	
 	NSObject <GPGControllerDelegate> *delegate;
@@ -93,6 +94,7 @@
 @property BOOL useDefaultComments;
 @property BOOL trustAllKeys;
 @property BOOL verbose;
+@property BOOL autoKeyRetrieve;
 @property (readonly) NSDictionary *statusDict;
 
 
