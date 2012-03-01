@@ -243,23 +243,36 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 	if (_pinentryPath) {
 		return [[_pinentryPath retain] autorelease];
 	}
-	
+
+    //
+    // Checking in order:
+    // - pinentry-mac in a bundle named "org.gpgtools.Libmacgpg" 
+    // - a defined "pinentry-program" in gpg-agent.conf
+    // - a pinentry-mac executable in a set of dirs (e.g., /usr/local/bin) 
+    //
+    NSMutableArray *possibleBins = [NSMutableArray array];
+    NSString *foundPath = [[NSBundle bundleWithIdentifier:@"org.gpgtools.Libmacgpg"] 
+                           pathForResource:@"pinentry-mac" ofType:@"" 
+                           inDirectory:@"pinentry-mac.app/Contents/MacOS"];
+    if (foundPath) 
+        [possibleBins addObject:foundPath];
+
 	GPGOptions *options = [GPGOptions sharedOptions];
-	NSString *foundPath = [options valueForKey:@"pinentry-program" inDomain:GPGDomain_gpgAgentConf];
-	foundPath = [foundPath stringByStandardizingPath];
-	if (![[NSFileManager defaultManager] isExecutableFileAtPath:foundPath]) {
-		foundPath = [self findExecutableWithName:@"../libexec/pinentry-mac.app/Contents/MacOS/pinentry-mac"];
-		
-		if (!foundPath) {
-			foundPath = [[[NSBundle bundleWithIdentifier:@"org.gpgtools.Libmacgpg"] pathForResource:@"pinentry-mac" ofType:@"app"] stringByAppendingPathComponent:@"Contents/MacOS/pinentry-mac"];
-			if (![[NSFileManager defaultManager] isExecutableFileAtPath:foundPath]) {
-				foundPath = nil;
-			}
-		}
-		if (foundPath) {
-			[options setValue:foundPath forKey:@"pinentry-program" inDomain:GPGDomain_gpgAgentConf];
-		}
-	}
+	foundPath = [options valueForKey:@"pinentry-program" inDomain:GPGDomain_gpgAgentConf];
+    if (foundPath) 
+        [possibleBins addObject:[foundPath stringByStandardizingPath]];
+    
+    foundPath = [self findExecutableWithName:@"../libexec/pinentry-mac.app/Contents/MacOS/pinentry-mac"];
+    if (foundPath) 
+        [possibleBins addObject:foundPath];
+    
+    foundPath = nil;
+    for (NSString *possibleBin in possibleBins) {
+        if ([[NSFileManager defaultManager] isExecutableFileAtPath:possibleBin]) {
+            foundPath = possibleBin;
+            break;
+        }
+    }
 	
 	if (foundPath) {
 		_pinentryPath = [foundPath retain];
