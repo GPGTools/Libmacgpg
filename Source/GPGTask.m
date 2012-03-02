@@ -243,24 +243,49 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 	if (_pinentryPath) {
 		return [[_pinentryPath retain] autorelease];
 	}
-	
+
+    //
+    // Checking in order:
+    // 1. pinentry-mac in a bundle named "org.gpgtools.Libmacgpg" 
+    // 2. a defined "pinentry-program" in gpg-agent.conf
+    // 3. a pinentry-mac executable in a set of dirs (e.g., /usr/local/bin) 
+    //
+    NSMutableArray *possibleBins = [NSMutableArray array];
+    NSFileManager *fmgr = [NSFileManager defaultManager];
+
+    // 1.
+    NSString *bndlePath = [[NSBundle bundleWithIdentifier:@"org.gpgtools.Libmacgpg"] 
+                           pathForResource:@"pinentry-mac" ofType:@"" 
+                           inDirectory:@"pinentry-mac.app/Contents/MacOS"];
+    if (bndlePath && [fmgr isExecutableFileAtPath:bndlePath]) 
+        [possibleBins addObject:bndlePath];
+
+    // 2.
+    static NSString * const kPinentry_program = @"pinentry-program";
 	GPGOptions *options = [GPGOptions sharedOptions];
-	NSString *foundPath = [options valueForKey:@"pinentry-program" inDomain:GPGDomain_gpgAgentConf];
-	foundPath = [foundPath stringByStandardizingPath];
-	if (![[NSFileManager defaultManager] isExecutableFileAtPath:foundPath]) {
-		foundPath = [self findExecutableWithName:@"../libexec/pinentry-mac.app/Contents/MacOS/pinentry-mac"];
-		
-		if (!foundPath) {
-			foundPath = [[[NSBundle bundleWithIdentifier:@"org.gpgtools.Libmacgpg"] pathForResource:@"pinentry-mac" ofType:@"app"] stringByAppendingPathComponent:@"Contents/MacOS/pinentry-mac"];
-			if (![[NSFileManager defaultManager] isExecutableFileAtPath:foundPath]) {
-				foundPath = nil;
-			}
-		}
-		if (foundPath) {
-			[options setValue:foundPath forKey:@"pinentry-program" inDomain:GPGDomain_gpgAgentConf];
-		}
-	}
-	
+    NSString *inconfPath = [options valueForKey:kPinentry_program inDomain:GPGDomain_gpgAgentConf];
+    inconfPath = [inconfPath stringByStandardizingPath];
+    if (inconfPath && [fmgr isExecutableFileAtPath:inconfPath]) 
+        [possibleBins addObject:inconfPath];
+    else
+        inconfPath = nil;
+
+    // 3. Per mento: this feature is a rescue and update system 
+    // if the user doesn't use MacGPG2
+    if (!inconfPath) {
+        if ([possibleBins count] < 1) {
+            inconfPath = [self findExecutableWithName:@"../libexec/pinentry-mac.app/Contents/MacOS/pinentry-mac"];
+            if (inconfPath)
+                [possibleBins addObject:inconfPath];
+        }
+
+        if ([possibleBins count] > 0) {
+            inconfPath = [possibleBins objectAtIndex:0];
+            [options setValue:inconfPath forKey:kPinentry_program inDomain:GPGDomain_gpgAgentConf];
+        }
+    }
+
+    NSString *foundPath = ([possibleBins count] > 0) ? [possibleBins objectAtIndex:0] : nil;
 	if (foundPath) {
 		_pinentryPath = [foundPath retain];
 	}
