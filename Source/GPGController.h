@@ -58,6 +58,9 @@
     BOOL verbose;
 	BOOL autoKeyRetrieve;
     id lastReturnValue;
+    
+    GPGHashAlgorithm hashAlgorithm;
+    
 	
 	NSObject <GPGControllerDelegate> *delegate;
 	NSException *error;
@@ -96,7 +99,7 @@
 @property BOOL verbose;
 @property BOOL autoKeyRetrieve;
 @property (readonly) NSDictionary *statusDict;
-
+@property (nonatomic, readonly) GPGHashAlgorithm hashAlgorithm;
 
 + (NSString *)gpgVersion;
 + (NSSet *)publicKeyAlgorithm;
@@ -105,6 +108,7 @@
 + (NSSet *)compressAlgorithm;
 + (GPGErrorCode)testGPG;
 
++ (NSString *)nameForHashAlgorithm:(GPGHashAlgorithm)hashAlgorithm;
 
 - (void)setComment:(NSString *)comment;
 - (void)addComment:(NSString *)comment;

@@ -67,7 +67,7 @@
 
 
 @implementation GPGController
-@synthesize delegate, keyserver, keyserverTimeout, proxyServer, async, userInfo, useArmor, useTextMode, printVersion, useDefaultComments, trustAllKeys, signatures, lastSignature, gpgHome, verbose, autoKeyRetrieve, lastReturnValue, error, undoManager;
+@synthesize delegate, keyserver, keyserverTimeout, proxyServer, async, userInfo, useArmor, useTextMode, printVersion, useDefaultComments, trustAllKeys, signatures, lastSignature, gpgHome, verbose, autoKeyRetrieve, lastReturnValue, error, undoManager, hashAlgorithm;
 
 NSString *gpgVersion = nil;
 NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil, *compressAlgorithm = nil;
@@ -96,6 +96,44 @@ BOOL gpgConfigReaded = NO;
 	return [[compressAlgorithm retain] autorelease];
 }
 
++ (NSString *)nameForHashAlgorithm:(GPGHashAlgorithm)hashAlgorithm {
+    NSString *hashAlgorithmName = nil;
+    
+    switch (hashAlgorithm) {
+        case GPGHashAlgorithmMD5:
+            hashAlgorithmName = @"md5";
+            break;
+        
+        case GPGHashAlgorithmSHA1:
+            hashAlgorithmName = @"sha1";
+            break;
+        
+        case GPGHashAlgorithmRMD160:
+            hashAlgorithmName = @"ripemd160";
+            break;
+        
+        case GPGHashAlgorithmSHA256:
+            hashAlgorithmName = @"sha256";
+            break;
+        
+        case GPGHashAlgorithmSHA384:
+            hashAlgorithmName = @"sha384";
+            break;
+        
+        case GPGHashAlgorithmSHA512:
+            hashAlgorithmName = @"sha512";
+            break;
+        
+        case GPGHashAlgorithmSHA224:
+            hashAlgorithmName = @"sha225";
+            break;
+            
+        default:
+            break;
+    }
+    
+    return hashAlgorithmName;
+}
 
 
 
@@ -1983,6 +2021,22 @@ BOOL gpgConfigReaded = NO;
 			
 			[lastSignature addInfoFromStatusCode:status andPrompt:prompt];
 			break;
+        // Store the hash algorithm.
+        case GPG_STATUS_SIG_CREATED: {
+            // Split the line by space, index 2 has the hash algorithm.
+            NSArray *promptComponents = [prompt componentsSeparatedByString:@" "];
+            NSUInteger hashAlgo = 0;
+            NSNumberFormatter * f = [[NSNumberFormatter alloc] init];
+            [f setNumberStyle:NSNumberFormatterDecimalStyle];
+            if([promptComponents count] == 6) {
+                NSNumber *algorithmNr = [f numberFromString:[promptComponents objectAtIndex:2]];
+                hashAlgo = [algorithmNr unsignedIntegerValue];
+                NSLog(@"Hash Algorithm is: %lu", hashAlgo);
+                [f release];
+            }
+            hashAlgorithm = hashAlgo;
+            break;
+        }
 	}
 	return nil;
 }
