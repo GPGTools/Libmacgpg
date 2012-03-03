@@ -2031,7 +2031,6 @@ BOOL gpgConfigReaded = NO;
             if([promptComponents count] == 6) {
                 NSNumber *algorithmNr = [f numberFromString:[promptComponents objectAtIndex:2]];
                 hashAlgo = [algorithmNr unsignedIntegerValue];
-                NSLog(@"Hash Algorithm is: %lu", hashAlgo);
                 [f release];
             }
             hashAlgorithm = hashAlgo;
