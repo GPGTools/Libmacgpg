@@ -2026,9 +2026,9 @@ BOOL gpgConfigReaded = NO;
             // Split the line by space, index 2 has the hash algorithm.
             NSArray *promptComponents = [prompt componentsSeparatedByString:@" "];
             NSUInteger hashAlgo = 0;
-            NSNumberFormatter * f = [[NSNumberFormatter alloc] init];
-            [f setNumberStyle:NSNumberFormatterDecimalStyle];
             if([promptComponents count] == 6) {
+                NSNumberFormatter * f = [[NSNumberFormatter alloc] init];
+                [f setNumberStyle:NSNumberFormatterDecimalStyle];
                 NSNumber *algorithmNr = [f numberFromString:[promptComponents objectAtIndex:2]];
                 hashAlgo = [algorithmNr unsignedIntegerValue];
                 [f release];
