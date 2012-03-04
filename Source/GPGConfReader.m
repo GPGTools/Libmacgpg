@@ -71,8 +71,8 @@ static NSMutableCharacterSet *commentChars_;
 }
 
 - (NSString *) condensedKeyForLine:(NSString *)line {
-    NSString *setting, *key;
-    setting = [self settingForLine:line outFullKey:&key];
+    NSString *key;
+    [self settingForLine:line outFullKey:&key];
     if (!key)
         return nil;
 
