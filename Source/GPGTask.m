@@ -282,6 +282,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
         if ([possibleBins count] > 0) {
             inconfPath = [possibleBins objectAtIndex:0];
             [options setValue:inconfPath forKey:kPinentry_program inDomain:GPGDomain_gpgAgentConf];
+            [options gpgAgentFlush];
         }
     }
 
