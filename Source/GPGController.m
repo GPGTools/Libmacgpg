@@ -67,7 +67,7 @@
 
 
 @implementation GPGController
-@synthesize delegate, keyserver, keyserverTimeout, proxyServer, async, userInfo, useArmor, useTextMode, printVersion, useDefaultComments, trustAllKeys, signatures, lastSignature, gpgHome, verbose, autoKeyRetrieve, lastReturnValue, error, undoManager, hashAlgorithm;
+@synthesize delegate, keyserver, keyserverTimeout, proxyServer, async, userInfo, useArmor, useTextMode, printVersion, useDefaultComments, trustAllKeys, signatures, lastSignature, gpgHome, verbose, autoKeyRetrieve, lastReturnValue, error, undoManager, hashAlgorithm, gpgTask;
 
 NSString *gpgVersion = nil;
 NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil, *compressAlgorithm = nil;

@@ -100,6 +100,7 @@
 @property BOOL autoKeyRetrieve;
 @property (readonly) NSDictionary *statusDict;
 @property (nonatomic, readonly) GPGHashAlgorithm hashAlgorithm;
+@property (readonly) GPGTask *gpgTask;
 
 + (NSString *)gpgVersion;
 + (NSSet *)publicKeyAlgorithm;
