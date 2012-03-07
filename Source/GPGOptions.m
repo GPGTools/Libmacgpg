@@ -38,7 +38,7 @@
 
 
 @implementation GPGOptions
-GPGOptions *_sharedInstance = nil;
+
 NSString *environmentPlistPath;
 NSString *environmentPlistDir;
 NSString *commonDefaultsDomain = @"org.gpgtools.common";
@@ -559,39 +559,26 @@ void SystemConfigurationDidChange(SCPreferencesRef prefs, SCPreferencesNotificat
 				  specialKeys, [NSNumber numberWithInt:GPGDomain_special],				  
 				  nil];
 }
+
 + (id)sharedOptions {
-    if (!_sharedInstance) {
-        _sharedInstance = [[super allocWithZone:nil] init];
-    }
-    return _sharedInstance;	
+    static dispatch_once_t onceToken;
+    static GPGOptions *_sharedInstance = nil;
+    
+    dispatch_once(&onceToken, ^{
+        _sharedInstance = [[GPGOptions alloc] init];
+    });
+    
+    return _sharedInstance;
 }
 - (id)init {
-	if (!initialized) {
-		initialized = YES;
-		autoSave = YES;
-		identifier = [[NSString alloc] initWithFormat:@"%i%p", [[NSProcessInfo processInfo] processIdentifier], self];
-		[[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(valueChangedNotification:) name:GPGOptionsChangedNotification object:nil];
-		[self initSystemConfigurationWatch];
-	}
+	self = [super init];
+    if(self) {
+        autoSave = YES;
+        identifier = [[NSString alloc] initWithFormat:@"%i%p", [[NSProcessInfo processInfo] processIdentifier], self];
+        [[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(valueChangedNotification:) name:GPGOptionsChangedNotification object:nil];
+        [self initSystemConfigurationWatch];
+    }
 	return self;
-}
-
-+ (id)allocWithZone:(NSZone *)zone {
-    return [[self sharedOptions] retain];	
-}
-- (id)copyWithZone:(NSZone *)zone {
-    return self;
-}
-- (id)retain {
-    return self;
-}
-- (NSUInteger)retainCount {
-    return NSUIntegerMax;
-}
-- (oneway void)release {
-}
-- (id)autorelease {
-    return self;
 }
 
 @end
