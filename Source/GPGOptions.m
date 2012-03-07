@@ -409,10 +409,9 @@ NSMutableDictionary *defaults = nil;
 
 // Helper methods.
 - (GPGOptionsDomain)domainForKey:(NSString *)key {
-	NSString *searchString = [NSString stringWithFormat:@"|%@|", key];
 	for (NSNumber *key in domainKeys) {
-		NSString *keys = [domainKeys objectForKey:key];
-		if ([keys rangeOfString:searchString].length > 0) {
+		NSSet *keys = [domainKeys objectForKey:key];
+		if ([keys containsObject:key]) {
 			return [key intValue];
 		}
 	}
@@ -420,9 +419,8 @@ NSMutableDictionary *defaults = nil;
 }
 
 - (BOOL) isKnownKey:(NSString *)key domainForKey:(GPGOptionsDomain)domain {
-	NSString *searchString = [NSString stringWithFormat:@"|%@|", key];
-    NSString *keys = [domainKeys objectForKey:[NSNumber numberWithInt:domain]];
-    return ([keys rangeOfString:searchString].length > 0);
+    NSSet *keys = [domainKeys objectForKey:[NSNumber numberWithInt:domain]];
+    return ([keys containsObject:key]);
 }
 
 + (NSString *)standardizedKey:(NSString *)key {
@@ -520,37 +518,106 @@ void SystemConfigurationDidChange(SCPreferencesRef prefs, SCPreferencesNotificat
 	environmentPlistDir = [[NSHomeDirectory() stringByAppendingPathComponent:@".MacOSX"] retain];
 	environmentPlistPath = [[environmentPlistDir stringByAppendingPathComponent:@"environment.plist"] retain];
 
-	NSString *gpgConfKeys = @"|agent-program|allow-freeform-uid|allow-multiple-messages|allow-multisig-verification|allow-non-selfsigned-uid|allow-secret-key-import|always-trust|armor|"
-	"armour|ask-cert-expire|ask-cert-level|ask-sig-expire|attribute-fd|attribute-file|auto-check-trustdb|auto-key-locate|auto-key-retrieve|bzip2-compress-level|bzip2-decompress-lowmem|"
-	"cert-digest-algo|cert-notation|cert-policy-url|charset|check-sig|cipher-algo|command-fd|command-file|comment|completes-needed|compress-algo|compress-keys|compress-level|"
-	"compress-sigs|compression-algo|debug-quick-random|default-cert-check-level|default-cert-expire|default-cert-level|default-comment|default-key|default-keyserver-url|"
-	"default-preference-list|default-recipient|default-recipient-self|default-sig-expire|digest-algo|disable-cipher-algo|disable-dsa2|disable-mdc|disable-pubkey-algo|display-charset|"
-	"dry-run|emit-version|enable-dsa2|enable-progress-filter|enable-special-filenames|encrypt-to|escape-from-lines|exec-path|exit-on-status-write-error|expert|export-options|"
-	"fast-list-mode|fixed-list-mode|for-your-eyes-only|force-mdc|force-ownertrust|force-v3-sigs|force-v4-certs|gnupg|gpg-agent-info|group|hidden-encrypt-to|hidden-recipient|"
-	"honor-http-proxy|ignore-crc-error|ignore-mdc-error|ignore-time-conflict|ignore-valid-from|import-options|interactive|keyid-format|keyring|keyserver|keyserver-options|"
-	"limit-card-insert-tries|list-key|list-only|list-options|list-sig|load-extension|local-user|lock-multiple|lock-never|lock-once|logger-fd|logger-file|mangle-dos-filenames|"
-	"marginals-needed|max-cert-depth|max-output|merge-only|min-cert-level|multifile|no|no-allow-freeform-uid|no-allow-multiple-messages|no-allow-non-selfsigned-uid|no-armor|no-armour|"
-	"no-ask-cert-expire|no-ask-cert-level|no-ask-sig-expire|no-auto-check-trustdb|no-auto-key-locate|no-auto-key-retrieve|no-batch|no-comments|no-default-keyring|no-default-recipient|"
-	"no-disable-mdc|no-emit-version|no-encrypt-to|no-escape-from-lines|no-expensive-trust-checks|no-expert|no-for-your-eyes-only|no-force-mdc|no-force-v3-sigs|no-force-v4-certs|"
-	"no-greeting|no-groups|no-literal|no-mangle-dos-filenames|no-mdc-warning|no-options|no-permission-warning|no-pgp2|no-pgp6|no-pgp7|no-pgp8|no-random-seed-file|no-require-backsigs|"
-	"no-require-cross-certification|no-require-secmem|no-rfc2440-text|no-secmem-warning|no-show-notation|no-show-photos|no-show-policy-url|no-sig-cache|no-sig-create-check|"
-	"no-sk-comments|no-skip-hidden-recipients|no-strict|no-textmode|no-throw-keyid|no-throw-keyids|no-tty|no-use-agent|no-use-embedded-filename|no-utf8-strings|no-verbose|no-version|"
-	"not-dash-escaped|notation-data|openpgp|output|override-session-key|passphrase|passphrase-fd|passphrase-file|passphrase-repeat|personal-cipher-preferences|personal-cipher-prefs|"
-	"personal-compress-preferences|personal-compress-prefs|personal-digest-preferences|personal-digest-prefs|pgp2|pgp6|pgp7|pgp8|photo-viewer|preserve-permissions|primary-keyring|"
-	"recipient|remote-user|require-backsigs|require-cross-certification|require-secmem|rfc1991|rfc2440|rfc2440-text|rfc4880|s2k-cipher-algo|s2k-count|s2k-digest-algo|s2k-mode|"
-	"secret-keyring|set-filename|set-filesize|set-notation|set-policy-url|show-keyring|show-notation|show-photos|show-policy-url|show-session-key|sig-keyserver-url|sig-notation|"
-	"sig-policy-url|sign-with|simple-sk-checksum|sk-comments|skip-hidden-recipients|skip-verify|status-fd|status-file|strict|temp-directory|textmode|throw-keyid|throw-keyids|"
-	"trust-model|trustdb-name|trusted-key|try-all-secrets|ungroup|use-agent|use-embedded-filename|user|utf8-strings|verify-options|with-colons|with-fingerprint|with-key-data|"
-	"with-sig-check|with-sig-list|yes|";
-	NSString *gpgAgentConfKeys = @"|allow-mark-trusted|allow-preset-passphrase|check-passphrase-pattern|csh|daemon|debug-wait|default-cache-ttl|default-cache-ttl-ssh|disable-scdaemon|"
-	"enable-passphrase-history|enable-ssh-support|enforce-passphrase-constraints|faked-system-time|ignore-cache-for-signing|keep-display|keep-tty|max-cache-ttl|max-cache-ttl-ssh|"
-	"max-passphrase-days|min-passphrase-len|min-passphrase-nonalpha|no-detach|no-grab|no-use-standard-socket|pinentry-program|pinentry-touch-file|scdaemon-program|server|sh|"
-	"use-standard-socket|write-env-file|";
-	NSString *environmentKeys = @"|GNUPGHOME|GPG_AGENT_INFO|";
-	NSString *commonKeys = @"|UseKeychain|ShowPassphrase|PathToGPG|";
-	NSString *specialKeys = @"|TrustAllKeys|PassphraseCacheTime|httpProxy|keyservers|";
-	
-					
+    NSSet *gpgConfKeys = [NSSet setWithObjects:@"agent-program", @"allow-freeform-uid",
+                          @"allow-multiple-messages", @"allow-multisig-verification",
+                          @"allow-non-selfsigned-uid", @"allow-secret-key-import",
+                          @"always-trust", @"armor", @"armour", @"ask-cert-expire",
+                          @"ask-cert-level", @"ask-sig-expire", @"attribute-fd",
+                          @"attribute-file", @"auto-check-trustdb", @"auto-key-locate",
+                          @"auto-key-retrieve", @"bzip2-compress-level",
+                          @"bzip2-decompress-lowmem", @"cert-digest-algo", @"cert-notation",
+                          @"cert-policy-url", @"charset", @"check-sig", @"cipher-algo",
+                          @"command-fd", @"command-file", @"comment", @"completes-needed",
+                          @"compress-algo", @"compress-keys", @"compress-level",
+                          @"compress-sigs", @"compression-algo", @"debug-quick-random",
+                          @"default-cert-check-level", @"default-cert-expire",
+                          @"default-cert-level", @"default-comment", @"default-key",
+                          @"default-keyserver-url", @"default-preference-list",
+                          @"default-recipient", @"default-recipient-self",
+                          @"default-sig-expire", @"digest-algo", @"disable-cipher-algo",
+                          @"disable-dsa2", @"disable-mdc", @"disable-pubkey-algo",
+                          @"display-charset", @"dry-run", @"emit-version", @"enable-dsa2",
+                          @"enable-progress-filter", @"enable-special-filenames",
+                          @"encrypt-to", @"escape-from-lines", @"exec-path",
+                          @"exit-on-status-write-error", @"expert", @"export-options",
+                          @"fast-list-mode", @"fixed-list-mode", @"for-your-eyes-only",
+                          @"force-mdc", @"force-ownertrust", @"force-v3-sigs",
+                          @"force-v4-certs", @"gnupg", @"gpg-agent-info", @"group",
+                          @"hidden-encrypt-to", @"hidden-recipient", @"honor-http-proxy",
+                          @"ignore-crc-error", @"ignore-mdc-error", @"ignore-time-conflict",
+                          @"ignore-valid-from", @"import-options", @"interactive",
+                          @"keyid-format", @"keyring", @"keyserver", @"keyserver-options",
+                          @"limit-card-insert-tries", @"list-key", @"list-only",
+                          @"list-options", @"list-sig", @"load-extension", @"local-user",
+                          @"lock-multiple", @"lock-never", @"lock-once", @"logger-fd",
+                          @"logger-file", @"mangle-dos-filenames", @"marginals-needed",
+                          @"max-cert-depth", @"max-output", @"merge-only", @"min-cert-level",
+                          @"multifile", @"no", @"no-allow-freeform-uid",
+                          @"no-allow-multiple-messages", @"no-allow-non-selfsigned-uid",
+                          @"no-armor", @"no-armour", @"no-ask-cert-expire",
+                          @"no-ask-cert-level", @"no-ask-sig-expire",
+                          @"no-auto-check-trustdb", @"no-auto-key-locate",
+                          @"no-auto-key-retrieve", @"no-batch", @"no-comments",
+                          @"no-default-keyring", @"no-default-recipient", @"no-disable-mdc",
+                          @"no-emit-version", @"no-encrypt-to", @"no-escape-from-lines",
+                          @"no-expensive-trust-checks", @"no-expert",
+                          @"no-for-your-eyes-only", @"no-force-mdc", @"no-force-v3-sigs",
+                          @"no-force-v4-certs", @"no-greeting", @"no-groups", @"no-literal",
+                          @"no-mangle-dos-filenames", @"no-mdc-warning", @"no-options",
+                          @"no-permission-warning", @"no-pgp2", @"no-pgp6", @"no-pgp7",
+                          @"no-pgp8", @"no-random-seed-file", @"no-require-backsigs",
+                          @"no-require-cross-certification", @"no-require-secmem",
+                          @"no-rfc2440-text", @"no-secmem-warning", @"no-show-notation",
+                          @"no-show-photos", @"no-show-policy-url", @"no-sig-cache",
+                          @"no-sig-create-check", @"no-sk-comments",
+                          @"no-skip-hidden-recipients", @"no-strict", @"no-textmode",
+                          @"no-throw-keyid", @"no-throw-keyids", @"no-tty", @"no-use-agent",
+                          @"no-use-embedded-filename", @"no-utf8-strings", @"no-verbose",
+                          @"no-version", @"not-dash-escaped", @"notation-data", @"openpgp",
+                          @"output", @"override-session-key", @"passphrase", @"passphrase-fd",
+                          @"passphrase-file", @"passphrase-repeat",
+                          @"personal-cipher-preferences", @"personal-cipher-prefs",
+                          @"personal-compress-preferences", @"personal-compress-prefs",
+                          @"personal-digest-preferences", @"personal-digest-prefs", @"pgp2",
+                          @"pgp6", @"pgp7", @"pgp8", @"photo-viewer", @"preserve-permissions",
+                          @"primary-keyring", @"recipient", @"remote-user",
+                          @"require-backsigs", @"require-cross-certification",
+                          @"require-secmem", @"rfc1991", @"rfc2440", @"rfc2440-text",
+                          @"rfc4880", @"s2k-cipher-algo", @"s2k-count", @"s2k-digest-algo",
+                          @"s2k-mode", @"secret-keyring", @"set-filename", @"set-filesize",
+                          @"set-notation", @"set-policy-url", @"show-keyring",
+                          @"show-notation", @"show-photos", @"show-policy-url",
+                          @"show-session-key", @"sig-keyserver-url", @"sig-notation",
+                          @"sig-policy-url", @"sign-with", @"simple-sk-checksum",
+                          @"sk-comments", @"skip-hidden-recipients", @"skip-verify",
+                          @"status-fd", @"status-file", @"strict", @"temp-directory",
+                          @"textmode", @"throw-keyid", @"throw-keyids", @"trust-model",
+                          @"trustdb-name", @"trusted-key", @"try-all-secrets", @"ungroup",
+                          @"use-agent", @"use-embedded-filename", @"user", @"utf8-strings",
+                          @"verify-options", @"with-colons", @"with-fingerprint",
+                          @"with-key-data", @"with-sig-check", @"with-sig-list", @"yes", nil];
+    
+    NSSet *gpgAgentConfKeys = [NSSet setWithObjects:@"allow-mark-trusted",
+                               @"allow-preset-passphrase", @"check-passphrase-pattern", @"csh",
+                               @"daemon", @"debug-wait", @"default-cache-ttl",
+                               @"default-cache-ttl-ssh", @"disable-scdaemon",
+                               @"enable-passphrase-history", @"enable-ssh-support",
+                               @"enforce-passphrase-constraints", @"faked-system-time",
+                               @"ignore-cache-for-signing", @"keep-display", @"keep-tty",
+                               @"max-cache-ttl", @"max-cache-ttl-ssh", @"max-passphrase-days",
+                               @"min-passphrase-len", @"min-passphrase-nonalpha", @"no-detach",
+                               @"no-grab", @"no-use-standard-socket", @"pinentry-program",
+                               @"pinentry-touch-file", @"scdaemon-program", @"server", @"sh",
+                               @"use-standard-socket", @"write-env-file", nil];
+    
+    NSSet *environmentKeys = [NSSet setWithObjects:@"GNUPGHOME", @"GPG_AGENT_INFO", nil];
+    
+    NSSet *commonKeys = [NSSet setWithObjects:@"PathToGPG", @"ShowPassphrase",
+                         @"UseKeychain", nil];
+    
+    NSSet *specialKeys = [NSSet setWithObjects:@"httpProxy", @"keyservers",
+                          @"PassphraseCacheTime", @"TrustAllKeys", nil];
+    					
 	domainKeys = [[NSDictionary alloc] initWithObjectsAndKeys:
 				  gpgConfKeys, [NSNumber numberWithInt:GPGDomain_gpgConf], 
 				  gpgAgentConfKeys, [NSNumber numberWithInt:GPGDomain_gpgAgentConf],
