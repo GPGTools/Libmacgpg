@@ -175,7 +175,9 @@ const int armorTypeStringsCount = 7;
 				length = readUint32;
 				break;
 			default:
-				abortInit;
+				length = dataLength - 1;
+				break;
+				//abortInit;
 		}
 	}
 	canRead(length);
@@ -332,9 +334,31 @@ endOfBuffer:
 	const char *readPos = bytes;
 	const char *endPos = bytes + dataLength;
 	int newlineCount, armorType;
-	BOOL found;
+	BOOL found, needFree = NO;
 	NSMutableData *decodedData = [NSMutableData data];
 	myState state = state_searchStart;
+	
+	
+	char *mutableBytes, *mutableReadPos = (char *)readPos;
+	while ((mutableReadPos = memchr(mutableReadPos, '\r', endPos - mutableReadPos))) {
+		if (*(mutableReadPos+1) != '\n') {
+			if (!needFree) {
+				if (!(mutableBytes = malloc(dataLength))) {
+					break;
+				}
+				memcpy(mutableBytes, bytes, dataLength);
+				mutableReadPos += mutableBytes - bytes;
+				endPos = mutableBytes + dataLength;
+				needFree = YES;
+			}
+			*mutableReadPos = '\n';
+		}
+		mutableReadPos++;
+	}
+	
+	if (needFree) {
+		readPos = bytes = mutableBytes;
+	}
 	
 	
 	if (memcmp(armorBeginMark+1, readPos, armorBeginMarkLength - 1) == 0) {
@@ -428,6 +452,9 @@ endOfBuffer:
 	}
 	
 endOfBuffer:
+	if (needFree) {
+		free(mutableBytes);
+	}
 	return decodedData;
 }
 
