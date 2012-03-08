@@ -463,9 +463,12 @@ BOOL gpgConfigReaded = NO;
 		[gpgTask addInData:data];
 		
 		[gpgTask addArgument:@"--decrypt"];
-		
-		if ([gpgTask start] != 0) {
-			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Decrypt failed!") gpgTask:gpgTask];
+
+		int rc;
+		if ((rc = [gpgTask start]) != 0) {
+			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Decrypt failed!") 
+                                           errorCode:rc
+                                             gpgTask:gpgTask];
 		}
 	} @catch (NSException *e) {
 		[self handleException:e];
