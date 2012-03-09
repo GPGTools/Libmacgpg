@@ -15,7 +15,7 @@
  
  Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem 
  Programm erhalten haben. Falls nicht, siehe <http://www.gnu.org/licenses/>.
-*/
+ */
 
 #import "GPGPacket.h"
 #import "GPGGlobals.h"
@@ -103,7 +103,7 @@ const int armorTypeStringsCount = 7;
 		currentPos = nextPacketPos;
 	}
 	
-
+	
 	return packets;
 }
 
@@ -411,14 +411,22 @@ endOfBuffer:
 			case state_waitForEnd: {
 				const char *textStart = readPos;
 				const char *textEnd = strnstr(readPos, "\n=", endPos - readPos);
-				if (!textEnd) {
-					goto endOfBuffer;
+				const char *crcPos = NULL;
+				if (textEnd) {
+					textEnd++;
+					crcPos = textEnd + 1;
+					readPos = textEnd + 5;
 				}
-				textEnd++;
-				readPos = strnstr(textEnd, armorEndMark, endPos - textEnd);
+				
+				readPos = strnstr(readPos, armorEndMark, endPos - readPos);
 				if (!readPos) {
 					goto endOfBuffer;
 				}
+				
+				if (!textEnd) {
+					textEnd = readPos + 1;
+				}
+				
 				
 				readPos = readPos + armorEndMarkLength;
 				int length = armorTypeStrings[armorType][0];
@@ -439,6 +447,29 @@ endOfBuffer:
 				length = BIO_read(bio, binaryBuffer, length);
 				BIO_free_all(bio);
 				
+				
+				if (crcPos) {
+					uint32_t crc1, crc2;
+					uint8_t crcBuffer[3];
+					
+					filter = BIO_new(BIO_f_base64());
+					bio = BIO_new_mem_buf((void *)crcPos, 5);
+					bio = BIO_push(filter, bio);
+					int crcLength = BIO_read(bio, crcBuffer, 3);
+					BIO_free_all(bio);
+					
+					if (crcLength != 3) {
+						@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"CRC Error") errorCode:GPGErrorChecksumError];
+					}
+					
+					crc1 = (crcBuffer[0] << 16) + (crcBuffer[1] << 8) + crcBuffer[2];
+					
+					crc2 = crc24(binaryBuffer, length);
+					if (crc1 != crc2) {
+						@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"CRC Error") errorCode:GPGErrorChecksumError];
+					}
+				}
+				
 				if (length > 0) {
 					[decodedData appendBytes:binaryBuffer length:length];
 				}
@@ -457,6 +488,20 @@ endOfBuffer:
 	}
 	return decodedData;
 }
+
+long crc24(char *bytes, NSUInteger length) {
+	long crc = 0xB704CEL;
+	while (length--) {
+		crc ^= (*bytes++) << 16;
+		for (int i = 0; i < 8; i++) {
+			crc <<= 1;
+			if (crc & 0x1000000)
+				crc ^= 0x1864CFBL;
+		}
+	}
+	return crc & 0xFFFFFFL;
+}
+
 
 + (BOOL)isArmored:(const uint8_t)byte {
 	if (!(byte & 0x80)) {
@@ -490,7 +535,7 @@ endOfBuffer:
 + (NSData *)repairPacketData:(NSData *)theData {
 	const char *bytes = [theData bytes];
 	NSUInteger dataLength = [theData length];
-		
+	
 	if (dataLength < 50 || ![self isArmored:*bytes]) {
 		return theData;
 	}
@@ -498,7 +543,7 @@ endOfBuffer:
 	const char *readPos = bytes;
 	const char *endPos = bytes + dataLength;
 	NSMutableData *repairedData = [NSMutableData data];
-
+	
 	
 	readPos = strnstr(readPos, armorBeginMark, endPos - readPos - 20);
 	if (!readPos) {
