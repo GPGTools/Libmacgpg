@@ -47,4 +47,6 @@
 + (NSData *)unArmor:(NSData *)data;
 + (NSData *)repairPacketData:(NSData *)data;
 
+long crc24(char *bytes, NSUInteger length);
+
 @end
