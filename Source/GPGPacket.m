@@ -453,7 +453,7 @@ endOfBuffer:
 					uint8_t crcBuffer[3];
 					
 					filter = BIO_new(BIO_f_base64());
-					bio = BIO_new_mem_buf((void *)crcPos, 5);
+					bio = BIO_new_mem_buf((void *)crcPos, 6);
 					bio = BIO_push(filter, bio);
 					int crcLength = BIO_read(bio, crcBuffer, 3);
 					BIO_free_all(bio);
