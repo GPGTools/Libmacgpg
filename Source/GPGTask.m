@@ -636,6 +636,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
     
     isRunning = NO;
     
+    [completeStatusData release];
     return exitcode;
 }
 
