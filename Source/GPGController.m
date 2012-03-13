@@ -429,8 +429,11 @@ BOOL gpgConfigReaded = NO;
 
 		[gpgTask addInData:data];
 
-		if ([gpgTask start] != 0) {
-			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Process data failed!") gpgTask:gpgTask];
+		int rc;
+		if ((rc = [gpgTask start]) != 0) {
+			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Process data failed!") 
+                                           errorCode:rc
+                                             gpgTask:gpgTask];
 		}		
 		
 	} @catch (NSException *e) {
@@ -501,9 +504,12 @@ BOOL gpgConfigReaded = NO;
 		}
 		
 		[gpgTask addArgument:@"--verify"];
-		
-		if ([gpgTask start] != 0) {
-			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Verify failed!") gpgTask:gpgTask];
+
+		int rc;
+		if ((rc = [gpgTask start]) != 0) {
+			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Verify failed!") 
+                                           errorCode:rc 
+                                             gpgTask:gpgTask];
 		}
 		
 	} @catch (NSException *e) {
@@ -1022,7 +1028,7 @@ BOOL gpgConfigReaded = NO;
 		}
 		
 		
-		[gpgTask start];
+		int rc = [gpgTask start];
 		
 		statusText = gpgTask.statusText;
 		
@@ -1030,7 +1036,9 @@ BOOL gpgConfigReaded = NO;
 		NSRange range = [statusText rangeOfString:@"[GNUPG:] IMPORT_RES "];
 		
 		if (range.length == 0 || [statusText characterAtIndex:range.location + range.length] == '0') {
-			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Import failed!") gpgTask:gpgTask];
+			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Import failed!") 
+                                           errorCode:rc 
+                                             gpgTask:gpgTask];
 		}
 		
 		[self keysChanged:keys];
