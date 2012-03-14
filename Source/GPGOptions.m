@@ -405,6 +405,12 @@ NSMutableDictionary *defaults = nil;
 	return [[httpProxy retain] autorelease];
 }
 
+- (BOOL)debugLog {
+	if (!debugLog) {
+		debugLog = [self boolForKey:@"DebugLog"] | 128;
+	}
+	return debugLog & 127;
+}
 
 
 // Helper methods.
@@ -613,7 +619,7 @@ void SystemConfigurationDidChange(SCPreferencesRef prefs, SCPreferencesNotificat
     NSSet *environmentKeys = [NSSet setWithObjects:@"GNUPGHOME", @"GPG_AGENT_INFO", nil];
     
     NSSet *commonKeys = [NSSet setWithObjects:@"PathToGPG", @"ShowPassphrase",
-                         @"UseKeychain", nil];
+                         @"UseKeychain", @"DebugLog", nil];
     
     NSSet *specialKeys = [NSSet setWithObjects:@"httpProxy", @"keyservers",
                           @"PassphraseCacheTime", @"TrustAllKeys", nil];

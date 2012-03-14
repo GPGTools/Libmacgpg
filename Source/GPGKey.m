@@ -275,7 +275,7 @@
 	for (NSString *line in lines) {
 		if ([line hasPrefix:@"uid:"]) {
 			if (i >= c) {
-				NSLog(@"updatePreferences: index >= count!");				
+				GPGDebugLog(@"updatePreferences: index >= count!");				
 				break;
 			}
 			[[userIDs objectAtIndex:i] updatePreferences:line];

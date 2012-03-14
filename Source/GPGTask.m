@@ -22,6 +22,7 @@
 #import "GPGOptions.h"
 #import "LPXTTask.h"
 #import "GPGException.h"
+#import "GPGGlobals.h"
 //#import <sys/shm.h>
 
 @interface GPGTask ()
@@ -49,7 +50,7 @@ char partCountForStatusCode[GPG_STATUS_COUNT];
 
 static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 @synthesize isRunning, batchMode, getAttributeData, delegate, userInfo, exitcode, errorCode, gpgPath, outData, errData, statusData, attributeData, lastUserIDHint, lastNeedPassphrase, cancelled,
-            gpgTask, verbose, progressInfo, statusDict;
+            gpgTask, progressInfo, statusDict;
 
 
 
@@ -93,10 +94,10 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 		_gpgPath = [self findExecutableWithName:@"gpg"];
 	}
 	[_gpgPath retain];
-    NSLog(@"GPG_PATH: %@", _gpgPath);
+    GPGDebugLog(@"GPG: %@", _gpgPath);
 	
 	[self pinentryPath];
-    NSLog(@"GPG_PATH: %@", [self pinentryPath]);
+    GPGDebugLog(@"Pinentry: %@", [self pinentryPath]);
 	
 	[self initializeStatusCodes];
 }
@@ -192,7 +193,6 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 	
 	//Status codes where the last part can contain withespaces.
 	memset(partCountForStatusCode, 0, sizeof(partCountForStatusCode));
-	//NSLog(@"sizeof(partCountForStatusCode) %lu", sizeof(partCountForStatusCode));
 	partCountForStatusCode[GPG_STATUS_EXPKEYSIG] = 2;
 	partCountForStatusCode[GPG_STATUS_EXPSIG] = 2;
 	partCountForStatusCode[GPG_STATUS_GOODSIG] = 2;
@@ -489,8 +489,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
     gpgTask.standardError = [NSPipe pipe];
     gpgTask.arguments = defaultArguments;
     
-    if (self.verbose)
-        NSLog(@"gpg %@", [gpgTask.arguments componentsJoinedByString:@" "]);
+	GPGDebugLog(@"gpg %@", [gpgTask.arguments componentsJoinedByString:@" "]);
     
     // Now setup all the pipes required to communicate with gpg.
     [gpgTask inheritPipe:[NSPipe pipe] mode:O_RDONLY dup:3 name:@"status"];
@@ -535,13 +534,11 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
         // Add each job to the collector group.
         dispatch_group_async(collectorGroup, queue, ^{
             self.outData = [[[gpgTask inheritedPipeWithName:@"stdout"] fileHandleForReading] readDataToEndOfFile];
-            if(self.verbose)
-                [self logDataContent:outData message:@"[STDOUT]"];
+			[self logDataContent:outData message:@"[STDOUT]"];
         });
         dispatch_group_async(collectorGroup, queue, ^{
             self.errData = [[[gpgTask inheritedPipeWithName:@"stderr"] fileHandleForReading] readDataToEndOfFile];
-            if(self.verbose)
-                [self logDataContent:errData message:@"[STDERR]"];
+			[self logDataContent:errData message:@"[STDERR]"];
         });
         if(getAttributeData) {
             dispatch_group_async(collectorGroup, queue, ^{
@@ -609,8 +606,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
         // And release the dispatch queue.
         dispatch_release(collectorGroup);
         
-        if(self.verbose)
-            [self logDataContent:statusData message:@"[STATUS]"];
+		[self logDataContent:statusData message:@"[STATUS]"];
     };
         
     // AAAAAAAAND NOW! Let's run the task and wait for it to complete.
@@ -653,8 +649,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
     NSString *keyword, *value;
 	
     line = [line stringByReplacingOccurrencesOfString:GPG_STATUS_PREFIX withString:@""];
-    if (self.verbose)
-        NSLog(@">> %@", line);
+	GPGDebugLog(@">> %@", line);
     
 	NSMutableArray *parts = [[[line componentsSeparatedByString:@" "] mutableCopy] autorelease];
     keyword = [parts objectAtIndex:0];
@@ -854,7 +849,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 /* Helper function to display NSData content. */
 - (void)logDataContent:(NSData *)data message:(NSString *)message {
     NSString *tmpString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    NSLog(@"[DEBUG] %@: %@ >>", message, tmpString);
+    GPGDebugLog(@"[DEBUG] %@: %@ >>", message, tmpString);
     [tmpString release];
 }
 

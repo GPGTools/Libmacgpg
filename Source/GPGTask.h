@@ -69,7 +69,6 @@
 	pid_t childPID;
 	BOOL cancelled;
 	BOOL isRunning;
-    BOOL verbose;
 	
 	dispatch_group_t collectorGroup;
 	dispatch_queue_t queue;
@@ -103,7 +102,6 @@
 @property (retain) NSDictionary *lastUserIDHint;
 @property (retain) NSDictionary *lastNeedPassphrase;
 @property (readonly) LPXTTask *gpgTask;
-@property (assign) BOOL verbose;
 
 
 + (NSString *)gpgAgentSocket;

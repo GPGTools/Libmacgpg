@@ -39,6 +39,7 @@ typedef enum {
 	NSMutableDictionary *commonDefaults;
 	NSString *httpProxy;
 	BOOL autoSave;
+	uint8 debugLog;
 	NSString *standardDomain;
 	
 	
@@ -53,6 +54,7 @@ typedef enum {
 @property (readonly) NSArray *keyservers;
 @property BOOL autoSave;
 @property (retain) NSString *standardDomain;
+@property (readonly) BOOL debugLog;
 
 
 + (id)sharedOptions;

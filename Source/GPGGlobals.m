@@ -99,7 +99,7 @@
 		retString = [[NSString alloc] initWithData:self encoding:NSUTF8StringEncoding];
 	}
 	
-	NSLog(@"RET STRING: %@", retString);
+	GPGDebugLog(@"RET STRING: %@", retString);
 	if (retString == nil) {
 		retString = [[NSString alloc] initWithData:self encoding:NSISOLatin1StringEncoding];
 	}

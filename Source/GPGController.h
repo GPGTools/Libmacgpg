@@ -96,7 +96,7 @@
 @property BOOL printVersion;
 @property BOOL useDefaultComments;
 @property BOOL trustAllKeys;
-@property BOOL verbose;
+@property BOOL verbose DEPRECATED_ATTRIBUTE;
 @property BOOL autoKeyRetrieve;
 @property (readonly) NSDictionary *statusDict;
 @property (nonatomic, readonly) GPGHashAlgorithm hashAlgorithm;

@@ -1,7 +1,7 @@
 #import "GPGConf.h"
 #import "GPGConfReader.h"
 #import "GPGStdSetting.h"
-
+#import "GPGGlobals.h"
 
 @interface GPGConf ()
 @property (retain) NSString *path;
@@ -65,7 +65,7 @@
 	NSError *error = nil;
 	NSString *configFile = [NSString stringWithContentsOfFile:path usedEncoding:nil error:&error];
 	if (!configFile) {
-		NSLog(@"Can't load config (%@): %@", path, error);
+		GPGDebugLog(@"Can't load config (%@): %@", path, error);
 		return  NO;
 	}
 	

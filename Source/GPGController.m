@@ -1302,7 +1302,6 @@ BOOL gpgConfigReaded = NO;
 		if ([gpgTask start] != 0) {
 			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Add subkey failed!") gpgTask:gpgTask];
 		}
-		NSLog(@"\nOut: %@\nErr: %@", gpgTask.outText, gpgTask.errText);
 		[self keyChanged:key];
 	} @catch (NSException *e) {
 		[self handleException:e];
@@ -1784,7 +1783,7 @@ BOOL gpgConfigReaded = NO;
 		char buffer[100];
 		if (recv(sock, buffer, 100, 0) > 2) {
 			if (strncmp(buffer, "OK", 2)) {
-				NSLog(@"No OK from gpg-agent.");
+				GPGDebugLog(@"No OK from gpg-agent.");
 				goto closeSocket;
 			}
 			NSString *command = [NSString stringWithFormat:@"GET_PASSPHRASE --no-ask %@ . . .\n", key];
@@ -2103,11 +2102,9 @@ BOOL gpgConfigReaded = NO;
 
 
 - (void)logException:(NSException *)e {
-	if (self.verbose) {
-		NSLog(@"GPGController: %@", e.description);
-		if ([e isKindOfClass:[GPGException class]]) {
-			NSLog(@"Error text: %@\nStatus text: %@", [(GPGException *)e gpgTask].errText, [(GPGException *)e gpgTask].statusText);
-		}
+	GPGDebugLog(@"GPGController: %@", e.description);
+	if ([e isKindOfClass:[GPGException class]]) {
+		GPGDebugLog(@"Error text: %@\nStatus text: %@", [(GPGException *)e gpgTask].errText, [(GPGException *)e gpgTask].statusText);
 	}
 }
 
@@ -2241,8 +2238,6 @@ BOOL gpgConfigReaded = NO;
 }
 
 - (void)addArgumentsForOptions {
-	gpgTask.verbose = self.verbose;
-
 	[gpgTask addArgument:useArmor ? @"--armor" : @"--no-armor"];
 	[gpgTask addArgument:useTextMode ? @"--textmode" : @"--no-textmode"];
 	[gpgTask addArgument:printVersion ? @"--emit-version" : @"--no-emit-version"];
@@ -2338,8 +2333,8 @@ BOOL gpgConfigReaded = NO;
 		[gpgTask addArgument:@"--list-config"];
 		
 		if ([gpgTask start] != 0) {
-			NSLog(@"GPGController -readGPGConfig: GPGErrorConfigurationError");
-			NSLog(@"Error text: %@\nStatus text: %@", gpgTask.errText, gpgTask.statusText);
+			GPGDebugLog(@"GPGController -readGPGConfig: GPGErrorConfigurationError");
+			GPGDebugLog(@"Error text: %@\nStatus text: %@", gpgTask.errText, gpgTask.statusText);
 			return GPGErrorConfigurationError;
 		}
 		
@@ -2372,15 +2367,15 @@ BOOL gpgConfigReaded = NO;
 			}
 		}
 	} @catch (GPGException *exception) {
-		NSLog(@"GPGController -readGPGConfig: %@", exception.description);
-		NSLog(@"Error text: %@\nStatus text: %@", [exception gpgTask].errText, [exception gpgTask].statusText);
+		GPGDebugLog(@"GPGController -readGPGConfig: %@", exception.description);
+		GPGDebugLog(@"Error text: %@\nStatus text: %@", [exception gpgTask].errText, [exception gpgTask].statusText);
 		if (exception.errorCode) {
 			return exception.errorCode;
 		} else {
 			return GPGErrorGeneralError;
 		}
 	} @catch (NSException *exception) {
-		NSLog(@"GPGController -readGPGConfig: %@", exception.description);
+		GPGDebugLog(@"GPGController -readGPGConfig: %@", exception.description);
 		return GPGErrorGeneralError;
 	}
 	

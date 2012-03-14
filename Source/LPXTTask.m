@@ -18,6 +18,7 @@
 */
 
 #import "LPXTTask.h"
+#import "GPGGlobals.h"
 // Includes definition for _NSGetEnviron
 #import <crt_externs.h>
 
@@ -245,7 +246,7 @@ static char *__BDSKCopyFileSystemRepresentation(NSString *str)
         while ((retval = waitpid(_processIdentifier, &stat_loc, 0)) != _processIdentifier) {
             int e = errno;
             if (retval != -1 || e != EINTR) {
-                NSLog(@"waitpid loop: %i errno: %i, %s", retval, e, strerror(e));
+                GPGDebugLog(@"waitpid loop: %i errno: %i, %s", retval, e, strerror(e));
             }
         }
         _terminationStatus = WEXITSTATUS(stat_loc);
@@ -380,7 +381,7 @@ static char *__BDSKCopyFileSystemRepresentation(NSString *str)
 
 - (void)closePipes {
     // Close all pipes, otherwise SIGTERM is ignored it seems.
-    NSLog(@"Inherited Pipes: %@", (NSArray *)_inheritedPipes);
+    GPGDebugLog(@"Inherited Pipes: %@", (NSArray *)_inheritedPipes);
     for(NSPipe *pipe in (NSArray *)_inheritedPipes) {
         @try {
             [[pipe fileHandleForReading] closeFile];

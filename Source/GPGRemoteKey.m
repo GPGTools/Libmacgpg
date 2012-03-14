@@ -89,7 +89,7 @@
 		if ([[splitedLine objectAtIndex:6] isEqualToString:@"r"]) {
 			self.revoked = YES;
 		} else {
-			NSLog(@"Uknown flag: %@", [listing objectAtIndex:0]);
+			GPGDebugLog(@"Uknown flag: %@", [listing objectAtIndex:0]);
 		}
 	}
 	
