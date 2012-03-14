@@ -456,6 +456,7 @@ BOOL gpgConfigReaded = NO;
 	@try {
 		[self operationDidStart];
 		
+		data = [GPGPacket unArmor:data];
 		
 		gpgTask = [GPGTask gpgTask];
 		[self addArgumentsForOptions];
@@ -488,6 +489,7 @@ BOOL gpgConfigReaded = NO;
 	@try {
 		[self operationDidStart];
 		
+		signatureData = [GPGPacket unArmor:signatureData];
 		
 		gpgTask = [GPGTask gpgTask];
 		[self addArgumentsForOptions];
@@ -980,25 +982,22 @@ BOOL gpgConfigReaded = NO;
 		return nil;
 	}
 	@try {
+		data = [GPGPacket unArmor:data];
 		NSSet *keys = [self keysInExportedData:data];
 		
 		if ([keys count] == 0) {
 			//Get keys from RTF data.
 			NSData *data2 = [[[[[NSAttributedString alloc] initWithData:data options:nil documentAttributes:nil error:nil] autorelease] string] dataUsingEncoding:NSUTF8StringEncoding];
 			if (data2) {
+				data2 = [GPGPacket unArmor:data2];
 				keys = [self keysInExportedData:data2];
 				if ([keys count] > 0) {
 					data = data2;
 				}
 			}
 		}
-		/*if ([keys count] == 0) {
-			NSData *data2 = [GPGPacket repairPacketData:data];
-		}*/
 		
-		
-
-		//TODO: Uncomment the following lines when keysInExportedData: fully work!
+		//TODO: Uncomment the following lines when keysInExportedData: fully works!
 		/*if ([keys count] == 0) {
 			[NSException raise:NSInvalidArgumentException format:@"No keys to import!"];
 		}*/

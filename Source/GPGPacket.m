@@ -177,7 +177,6 @@ const int armorTypeStringsCount = 7;
 			default:
 				length = dataLength - 1;
 				break;
-				//abortInit;
 		}
 	}
 	canRead(length);
