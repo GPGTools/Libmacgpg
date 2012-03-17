@@ -415,10 +415,10 @@ NSMutableDictionary *defaults = nil;
 
 // Helper methods.
 - (GPGOptionsDomain)domainForKey:(NSString *)key {
-	for (NSNumber *key in domainKeys) {
-		NSSet *keys = [domainKeys objectForKey:key];
+	for (NSNumber *keyType in domainKeys) {
+		NSSet *keys = [domainKeys objectForKey:keyType];
 		if ([keys containsObject:key]) {
-			return [key intValue];
+			return [keyType intValue];
 		}
 	}
 	return GPGDomain_standard;
