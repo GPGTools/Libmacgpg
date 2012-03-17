@@ -71,6 +71,7 @@
 		451932F514F8061100D1F727 /* GPGStdSetting.h in Headers */ = {isa = PBXBuildFile; fileRef = 451932F314F8061100D1F727 /* GPGStdSetting.h */; };
 		451932F614F8061100D1F727 /* GPGStdSetting.m in Sources */ = {isa = PBXBuildFile; fileRef = 451932F414F8061100D1F727 /* GPGStdSetting.m */; };
 		4547646614FBC8A900A37306 /* GPGStdSettingTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 4547646514FBC8A900A37306 /* GPGStdSettingTest.m */; };
+		455B17BA15143D9A00FAD47D /* GPGOptionsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 455B17B915143D9A00FAD47D /* GPGOptionsTest.m */; };
 		4570876614FAA7C90030AAE6 /* GPGConfReader.h in Headers */ = {isa = PBXBuildFile; fileRef = 4570876414FAA7C90030AAE6 /* GPGConfReader.h */; };
 		4570876714FAA7C90030AAE6 /* GPGConfReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 4570876514FAA7C90030AAE6 /* GPGConfReader.m */; };
 		4591C4CA14F85AA3007F6D47 /* GPGConfReaderTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 4591C4C914F85AA3007F6D47 /* GPGConfReaderTest.m */; };
@@ -174,6 +175,7 @@
 		451932F314F8061100D1F727 /* GPGStdSetting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = GPGStdSetting.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		451932F414F8061100D1F727 /* GPGStdSetting.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = GPGStdSetting.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		4547646514FBC8A900A37306 /* GPGStdSettingTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGStdSettingTest.m; sourceTree = "<group>"; };
+		455B17B915143D9A00FAD47D /* GPGOptionsTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGOptionsTest.m; sourceTree = "<group>"; };
 		4570876414FAA7C90030AAE6 /* GPGConfReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = GPGConfReader.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		4570876514FAA7C90030AAE6 /* GPGConfReader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = GPGConfReader.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		4591C4C914F85AA3007F6D47 /* GPGConfReaderTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = GPGConfReaderTest.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
@@ -351,6 +353,7 @@
 				45156A2314FB310300129FE7 /* GPGLinesSettingTest.m */,
 				45156A2C14FB506E00129FE7 /* GPGArraySettingTest.m */,
 				45156A2614FB35DC00129FE7 /* GPGDictSettingTest.m */,
+				455B17B915143D9A00FAD47D /* GPGOptionsTest.m */,
 			);
 			path = UnitTest;
 			sourceTree = "<group>";
@@ -548,6 +551,7 @@
 				45156A2714FB35DC00129FE7 /* GPGDictSettingTest.m in Sources */,
 				45156A2D14FB506E00129FE7 /* GPGArraySettingTest.m in Sources */,
 				4547646614FBC8A900A37306 /* GPGStdSettingTest.m in Sources */,
+				455B17BA15143D9A00FAD47D /* GPGOptionsTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
