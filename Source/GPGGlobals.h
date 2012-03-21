@@ -19,6 +19,7 @@
 
 #import <Cocoa/Cocoa.h>
 #import <Libmacgpg/GPGException.h>
+#import <Libmacgpg/GPGOptions.h>
 
 @class GPGTask;
 
@@ -203,7 +204,7 @@ enum gpgStatusCodes {
 
 
 #define localizedLibmacgpgString(key) [[NSBundle bundleWithIdentifier:@"org.gpgtools.Libmacgpg"] localizedStringForKey:(key) value:@"" table:@""]
-#define GPGDebugLog(...) {NSLog(__VA_ARGS__);}
+#define GPGDebugLog(...) {if ([GPGOptions debugLog]) NSLog(__VA_ARGS__);}
 #define GPG_SERVICE_NAME "GnuPG"
 
 extern NSString *GPGKeysChangedNotification;

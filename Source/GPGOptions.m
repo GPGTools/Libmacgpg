@@ -44,6 +44,7 @@ NSString *environmentPlistDir;
 NSString *commonDefaultsDomain = @"org.gpgtools.common";
 NSDictionary *domainKeys;
 NSMutableDictionary *defaults = nil;
+uint8 debugLog;
 
 
 // Methods to configure GPGOptions.
@@ -406,8 +407,14 @@ NSMutableDictionary *defaults = nil;
 }
 
 - (BOOL)debugLog {
-	if (!debugLog) {
+	if (debugLog < 128) {
 		debugLog = [self boolForKey:@"DebugLog"] | 128;
+	}
+	return debugLog & 127;
+}
++ (BOOL)debugLog {
+	if (debugLog < 128) {
+		[[self sharedOptions] debugLog];
 	}
 	return debugLog & 127;
 }
