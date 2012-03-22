@@ -74,7 +74,12 @@
 		455B17BA15143D9A00FAD47D /* GPGOptionsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 455B17B915143D9A00FAD47D /* GPGOptionsTest.m */; };
 		4570876614FAA7C90030AAE6 /* GPGConfReader.h in Headers */ = {isa = PBXBuildFile; fileRef = 4570876414FAA7C90030AAE6 /* GPGConfReader.h */; };
 		4570876714FAA7C90030AAE6 /* GPGConfReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 4570876514FAA7C90030AAE6 /* GPGConfReader.m */; };
+		45891A3E151BA1C9002D7410 /* SignedInputStringCRLF.txt in Resources */ = {isa = PBXBuildFile; fileRef = 45891A3C151BA1C9002D7410 /* SignedInputStringCRLF.txt */; };
+		45891A3F151BA1C9002D7410 /* SignedInputStringLF.txt in Resources */ = {isa = PBXBuildFile; fileRef = 45891A3D151BA1C9002D7410 /* SignedInputStringLF.txt */; };
+		45891A41151BA1EC002D7410 /* SignedInputStringCR.txt in Resources */ = {isa = PBXBuildFile; fileRef = 45891A40151BA1EC002D7410 /* SignedInputStringCR.txt */; };
 		4591C4CA14F85AA3007F6D47 /* GPGConfReaderTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 4591C4C914F85AA3007F6D47 /* GPGConfReaderTest.m */; };
+		45C0BC03151B65C700AA8BF6 /* GPGTestVerify.m in Sources */ = {isa = PBXBuildFile; fileRef = 45C0BC02151B65C700AA8BF6 /* GPGTestVerify.m */; };
+		45C0BC18151B66F500AA8BF6 /* GPGResourceUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 45C0BC17151B66F500AA8BF6 /* GPGResourceUtil.m */; };
 		45C6E82714F8913B00ED67C6 /* pinentry-mac.app in Resources */ = {isa = PBXBuildFile; fileRef = 30C412B1149A34D80035D35F /* pinentry-mac.app */; };
 		8DC2EF570486A6940098B216 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
 /* End PBXBuildFile section */
@@ -178,10 +183,16 @@
 		455B17B915143D9A00FAD47D /* GPGOptionsTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGOptionsTest.m; sourceTree = "<group>"; };
 		4570876414FAA7C90030AAE6 /* GPGConfReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = GPGConfReader.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		4570876514FAA7C90030AAE6 /* GPGConfReader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = GPGConfReader.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		45891A3C151BA1C9002D7410 /* SignedInputStringCRLF.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SignedInputStringCRLF.txt; sourceTree = "<group>"; };
+		45891A3D151BA1C9002D7410 /* SignedInputStringLF.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SignedInputStringLF.txt; sourceTree = "<group>"; };
+		45891A40151BA1EC002D7410 /* SignedInputStringCR.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SignedInputStringCR.txt; sourceTree = "<group>"; };
 		4591C4C914F85AA3007F6D47 /* GPGConfReaderTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = GPGConfReaderTest.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		4591C4D314F86D38007F6D47 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		4591C4D414F86D38007F6D47 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		4591C4D514F86D38007F6D47 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		45C0BC02151B65C700AA8BF6 /* GPGTestVerify.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGTestVerify.m; sourceTree = "<group>"; };
+		45C0BC16151B66F500AA8BF6 /* GPGResourceUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGResourceUtil.h; sourceTree = "<group>"; };
+		45C0BC17151B66F500AA8BF6 /* GPGResourceUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGResourceUtil.m; sourceTree = "<group>"; };
 		8DC2EF5A0486A6940098B216 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8DC2EF5B0486A6940098B216 /* Libmacgpg.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Libmacgpg.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -344,6 +355,9 @@
 		30C8B399139504DC00F49AA1 /* UnitTest */ = {
 			isa = PBXGroup;
 			children = (
+				45C0BC13151B664D00AA8BF6 /* Resources */,
+				45C0BC16151B66F500AA8BF6 /* GPGResourceUtil.h */,
+				45C0BC17151B66F500AA8BF6 /* GPGResourceUtil.m */,
 				30C8B39A1395052D00F49AA1 /* Test1.h */,
 				30C8B39B1395052D00F49AA1 /* Test1.m */,
 				30C8B38F139503A800F49AA1 /* UnitTest-Info.plist */,
@@ -354,6 +368,7 @@
 				45156A2C14FB506E00129FE7 /* GPGArraySettingTest.m */,
 				45156A2614FB35DC00129FE7 /* GPGDictSettingTest.m */,
 				455B17B915143D9A00FAD47D /* GPGOptionsTest.m */,
+				45C0BC02151B65C700AA8BF6 /* GPGTestVerify.m */,
 			);
 			path = UnitTest;
 			sourceTree = "<group>";
@@ -375,6 +390,16 @@
 				4591C4D514F86D38007F6D47 /* Foundation.framework */,
 			);
 			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		45C0BC13151B664D00AA8BF6 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				45891A40151BA1EC002D7410 /* SignedInputStringCR.txt */,
+				45891A3C151BA1C9002D7410 /* SignedInputStringCRLF.txt */,
+				45891A3D151BA1C9002D7410 /* SignedInputStringLF.txt */,
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -509,6 +534,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				45891A3E151BA1C9002D7410 /* SignedInputStringCRLF.txt in Resources */,
+				45891A3F151BA1C9002D7410 /* SignedInputStringLF.txt in Resources */,
+				45891A41151BA1EC002D7410 /* SignedInputStringCR.txt in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -552,6 +580,8 @@
 				45156A2D14FB506E00129FE7 /* GPGArraySettingTest.m in Sources */,
 				4547646614FBC8A900A37306 /* GPGStdSettingTest.m in Sources */,
 				455B17BA15143D9A00FAD47D /* GPGOptionsTest.m in Sources */,
+				45C0BC03151B65C700AA8BF6 /* GPGTestVerify.m in Sources */,
+				45C0BC18151B66F500AA8BF6 /* GPGResourceUtil.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
