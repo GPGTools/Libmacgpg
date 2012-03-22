@@ -19,6 +19,7 @@
 
 #import "GPGPacket.h"
 #import "GPGGlobals.h"
+#include <string.h>
 #include <openssl/bio.h>
 #include <openssl/evp.h>
 
@@ -330,34 +331,40 @@ endOfBuffer:
 		return theData;
 	}
 	
-	const char *readPos = bytes;
-	const char *endPos = bytes + dataLength;
+	const char *readPos = bytes, *endPos;
 	int newlineCount, armorType;
-	BOOL found, needFree = NO;
+	BOOL found;
 	NSMutableData *decodedData = [NSMutableData data];
 	myState state = state_searchStart;
 	
 	
-	char *mutableBytes, *mutableReadPos = (char *)readPos;
-	while ((mutableReadPos = memchr(mutableReadPos, '\r', endPos - mutableReadPos))) {
-		if (*(mutableReadPos+1) != '\n') {
-			if (!needFree) {
-				if (!(mutableBytes = malloc(dataLength))) {
-					break;
-				}
-				memcpy(mutableBytes, bytes, dataLength);
-				mutableReadPos += mutableBytes - bytes;
-				endPos = mutableBytes + dataLength;
-				needFree = YES;
-			}
-			*mutableReadPos = '\n';
-		}
-		mutableReadPos++;
+
+	// Replace \r and \0 by \n.
+	char *mutableBytes = malloc(dataLength);
+	if (!mutableBytes) {
+		@throw [NSException exceptionWithName:@"malloc exception" reason:@"malloc failed" userInfo:nil];
 	}
+	memcpy(mutableBytes, bytes, dataLength);
+	char *mutableReadPos = mutableBytes;
+	endPos = mutableBytes + dataLength;
+
 	
-	if (needFree) {
-		readPos = bytes = mutableBytes;
+	for (; mutableReadPos < endPos; mutableReadPos++) {
+		switch (mutableReadPos[0]) {
+			case '\r':
+				if (mutableReadPos[1] != '\n') {
+					mutableReadPos[0] = '\n';
+				}
+				break;
+			case 0:
+				mutableReadPos[0] = '\n';
+			default:
+				break;
+		}
 	}
+	readPos = bytes = mutableBytes;
+
+	
 	
 	
 	if (memcmp(armorBeginMark+1, readPos, armorBeginMarkLength - 1) == 0) {
@@ -368,7 +375,7 @@ endOfBuffer:
 	for (;readPos < endPos - 25; readPos++) {
 		switch (state) {
 			case state_searchStart:
-				readPos = strnstr(readPos, armorBeginMark, endPos - readPos - 20);
+				readPos = memmem(readPos, endPos - readPos - 20, armorBeginMark, armorBeginMarkLength);
 				if (!readPos) {
 					goto endOfBuffer;
 				}
@@ -409,7 +416,7 @@ endOfBuffer:
 				break;
 			case state_waitForEnd: {
 				const char *textStart = readPos;
-				const char *textEnd = strnstr(readPos, "\n=", endPos - readPos);
+				const char *textEnd = memmem(readPos, endPos - readPos, "\n=", 2);
 				const char *crcPos = NULL;
 				if (textEnd) {
 					textEnd++;
@@ -417,7 +424,7 @@ endOfBuffer:
 					readPos = textEnd + 5;
 				}
 				
-				readPos = strnstr(readPos, armorEndMark, endPos - readPos);
+				readPos = memmem(readPos, endPos - readPos, armorEndMark, armorEndMarkLength);
 				if (!readPos) {
 					goto endOfBuffer;
 				}
@@ -482,9 +489,7 @@ endOfBuffer:
 	}
 	
 endOfBuffer:
-	if (needFree) {
-		free(mutableBytes);
-	}
+	free(mutableBytes);
 	return decodedData;
 }
 
@@ -544,7 +549,7 @@ long crc24(char *bytes, NSUInteger length) {
 	NSMutableData *repairedData = [NSMutableData data];
 	
 	
-	readPos = strnstr(readPos, armorBeginMark, endPos - readPos - 20);
+	readPos = memmem(readPos, endPos - readPos - 20, armorBeginMark, armorBeginMarkLength);
 	if (!readPos) {
 		goto endOfBuffer;
 	}
