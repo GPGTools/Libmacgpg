@@ -72,7 +72,6 @@ static NSString *skelconf = @"/usr/local/MacGPG2/share/gnupg/gpg-conf.skel";
 
 - (void)testDecryptData {
     gpgc = [[GPGController alloc] init];
-    gpgc.verbose = YES;
     STAssertNotNil(gpgc, @"Can't init GPGController.");
 //    
 //    NSData *encryptedData = [NSData dataWithContentsOfFile:@"/Users/lukele/Desktop/Old Files/t.asc"];
