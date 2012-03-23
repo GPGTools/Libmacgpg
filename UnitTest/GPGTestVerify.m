@@ -10,11 +10,28 @@
 #import "GPGResourceUtil.h"
 #import "GPGSignature.h"
 
-@interface GPGTestVerify : SenTestCase
+@interface GPGTestVerify : SenTestCase {
+    BOOL _didImport;
+}
 
 @end
 
 @implementation GPGTestVerify
+
+- (void)setUp {
+    if (!_didImport) {
+        NSData *data = [GPGResourceUtil dataForResourceAtPath:@"OpenPGP" ofType:@"asc"];
+        GPGController* ctx = [GPGController gpgController];
+        [ctx importFromData:data fullImport:TRUE];
+        _didImport = TRUE;
+    }
+}
+
+- (void)testAAAFindTestKey {
+    GPGController* ctx = [GPGController gpgController];
+    NSSet *foundKeys = [ctx keysForSearchPattern:@"test@gpgtools.org"];
+    STAssertTrue([foundKeys count] > 0, @"Test key not imported!");
+}
 
 - (void)testVerifyDataLF {
     NSData *data = [GPGResourceUtil dataForResourceAtPath:@"SignedInputStringLF" ofType:@"txt"];
