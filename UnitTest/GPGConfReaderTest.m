@@ -39,7 +39,7 @@
     STAssertEqualObjects(@"a b  c", trimmedInput, @"Not trimmed as expected!");
     
     NSArray *splitTrimmed = [trimmedInput componentsSeparatedByCharactersInSet:whsp];
-    STAssertEquals(4ul, [splitTrimmed count], @"Not split as expected!");
+	STAssertTrue(4 == [splitTrimmed count], @"Not split as expected!");
 }
 
 - (void) testSplitString {
@@ -48,7 +48,7 @@
 
     NSString *input = @"a bb  ccc  ddddd";
     NSArray *splitTrimmed = [GPGConfReader splitString:input bySet:whsp maxCount:NSIntegerMax];
-    STAssertEquals(4ul, [splitTrimmed count], @"Not split as expected!");
+	STAssertTrue(4 == [splitTrimmed count], @"Not split as expected!");
     
     STAssertEqualObjects(@"a", [splitTrimmed objectAtIndex:0], @"Element not as expected!");
     STAssertEqualObjects(@"bb", [splitTrimmed objectAtIndex:1], @"Element not as expected!");
@@ -57,15 +57,15 @@
 
     input = @"a     bb  ";
     splitTrimmed = [GPGConfReader splitString:input bySet:whsp maxCount:NSIntegerMax];
-    STAssertEquals(3ul, [splitTrimmed count], @"Not split as expected!");
-    
+ 	STAssertTrue(3 == [splitTrimmed count], @"Not split as expected!");
+   
     STAssertEqualObjects(@"a", [splitTrimmed objectAtIndex:0], @"Element not as expected!");
     STAssertEqualObjects(@"bb", [splitTrimmed objectAtIndex:1], @"Element not as expected!");
     STAssertEqualObjects(@"", [splitTrimmed objectAtIndex:2], @"Element not as expected!");
 
     input = @" a    bb  ";
     splitTrimmed = [GPGConfReader splitString:input bySet:whsp maxCount:NSIntegerMax];
-    STAssertEquals(4ul, [splitTrimmed count], @"Not split as expected!");
+	STAssertTrue(4 == [splitTrimmed count], @"Not split as expected!");
     
     STAssertEqualObjects(@"", [splitTrimmed objectAtIndex:0], @"Element not as expected!");
     STAssertEqualObjects(@"a", [splitTrimmed objectAtIndex:1], @"Element not as expected!");
@@ -80,7 +80,7 @@
     
     NSString *input = @"a   = bb ccc    ";
     NSArray *splitTrimmed = [GPGConfReader splitString:input bySet:whspeqsign maxCount:2];
-    STAssertEquals(2ul, [splitTrimmed count], @"Not split as expected!");
+	STAssertTrue(2 == [splitTrimmed count], @"Not split as expected!");
     
     STAssertEqualObjects(@"a", [splitTrimmed objectAtIndex:0], @"Element not as expected!");
     STAssertEqualObjects(@"bb ccc    ", [splitTrimmed objectAtIndex:1], @"Element not as expected!");

@@ -38,7 +38,7 @@
     GPGController* ctx = [GPGController gpgController];
     ctx.useArmor = YES;
     NSArray* sigs = [ctx verifySignature:data originalData:nil];
-    STAssertEquals([sigs count], 1ul, @"Did not verify as expected!");
+	STAssertTrue(1 == [sigs count], @"Did not verify as expected!");
     GPGSignature *signature = ([sigs count]) ? [sigs objectAtIndex:0] : nil;
     STAssertEquals(signature.status, GPGErrorNoError, @"Did not verify as expected!");
     STAssertTrue(signature.hasFilled, @"Did not verify as expected!");
@@ -49,7 +49,7 @@
     GPGController* ctx = [GPGController gpgController];
     ctx.useArmor = YES;
     NSArray* sigs = [ctx verifySignature:data originalData:nil];
-    STAssertEquals([sigs count], 1ul, @"Did not verify as expected!");
+	STAssertTrue(1 == [sigs count], @"Did not verify as expected!");
     GPGSignature *signature = ([sigs count]) ? [sigs objectAtIndex:0] : nil;
     STAssertEquals(signature.status, GPGErrorNoError, @"Did not verify as expected!");
     STAssertTrue(signature.hasFilled, @"Did not verify as expected!");
@@ -60,7 +60,7 @@
     GPGController* ctx = [GPGController gpgController];
     ctx.useArmor = YES;
     NSArray* sigs = [ctx verifySignature:data originalData:nil];
-    STAssertEquals([sigs count], 1ul, @"Did not verify as expected!");
+	STAssertTrue(1 == [sigs count], @"Did not verify as expected!");
     GPGSignature *signature = ([sigs count]) ? [sigs objectAtIndex:0] : nil;
     STAssertEquals(signature.status, GPGErrorNoError, @"Did not verify as expected!");
     STAssertTrue(signature.hasFilled, @"Did not verify as expected!");
@@ -74,7 +74,7 @@
     GPGController* ctx = [GPGController gpgController];
     ctx.useArmor = YES;
     NSArray* sigs = [ctx verifySignature:data originalData:nil];
-    STAssertEquals([sigs count], 1ul, @"Did not verify as expected!");
+	STAssertTrue(1 == [sigs count], @"Did not verify as expected!");
     GPGSignature *signature = ([sigs count]) ? [sigs objectAtIndex:0] : nil;
     STAssertEquals(signature.status, GPGErrorNoError, @"Did not verify as expected!");
     STAssertTrue(signature.hasFilled, @"Did not verify as expected!");
@@ -88,7 +88,7 @@
     GPGController* ctx = [GPGController gpgController];
     ctx.useArmor = YES;
     NSArray* sigs = [ctx verifySignature:data originalData:nil];
-    STAssertEquals([sigs count], 1ul, @"Did not verify as expected!");
+	STAssertTrue(1 == [sigs count], @"Did not verify as expected!");
     GPGSignature *signature = ([sigs count]) ? [sigs objectAtIndex:0] : nil;
     STAssertEquals(signature.status, GPGErrorNoError, @"Did not verify as expected!");
     STAssertTrue(signature.hasFilled, @"Did not verify as expected!");
@@ -102,7 +102,7 @@
     GPGController* ctx = [GPGController gpgController];
     ctx.useArmor = YES;
     NSArray* sigs = [ctx verifySignature:data originalData:nil];
-    STAssertEquals([sigs count], 1ul, @"Did not get entry as expected!");
+	STAssertTrue(1 == [sigs count], @"Did not verify as expected!");
     GPGSignature *signature = ([sigs count]) ? [sigs objectAtIndex:0] : nil;
     STAssertEquals(signature.status, GPGErrorBadSignature, @"Verified unexpectedly!");
     STAssertTrue(signature.hasFilled, @"Did not get entry as expected!");

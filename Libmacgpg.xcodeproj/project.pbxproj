@@ -739,6 +739,7 @@
 					SenTestingKit,
 				);
 				PRODUCT_NAME = UnitTest;
+				TEST_AFTER_BUILD = YES;
 				WRAPPER_EXTENSION = octest;
 			};
 			name = Debug;
@@ -763,6 +764,7 @@
 					SenTestingKit,
 				);
 				PRODUCT_NAME = UnitTest;
+				TEST_AFTER_BUILD = YES;
 				WRAPPER_EXTENSION = octest;
 				ZERO_LINK = NO;
 			};

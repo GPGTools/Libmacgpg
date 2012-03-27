@@ -22,7 +22,7 @@ update-me:
 update: update-me update-core
 
 test:
-	@echo "Nothing to test"
+	@xcodebuild -project $(PROJECT).xcodeproj -scheme Test -configuration $(CONFIG) build
 
 compile:
 	@xcodebuild -project $(PROJECT).xcodeproj -target $(TARGET) -configuration $(CONFIG) build
