@@ -45,6 +45,7 @@
 + (id)packetsWithData:(NSData *)data;
 + (BOOL)isArmored:(const uint8_t)byte;
 + (NSData *)unArmor:(NSData *)data;
++ (NSData *)unArmor:(NSData *)theData clearText:(NSData **)clearText;
 + (NSData *)repairPacketData:(NSData *)data;
 
 long crc24(char *bytes, NSUInteger length);

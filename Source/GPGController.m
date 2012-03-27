@@ -489,7 +489,11 @@ BOOL gpgConfigReaded = NO;
 	@try {
 		[self operationDidStart];
 		
-		signatureData = [GPGPacket unArmor:signatureData];
+		
+		signatureData = [GPGPacket unArmor:signatureData clearText:originalData ? nil : &originalData];
+		[originalData writeToFile:@"/Users/Roman/Desktop/dat" atomically:YES];
+		[signatureData writeToFile:@"/Users/Roman/Desktop/dat.sig" atomically:YES];
+		
 		
 		gpgTask = [GPGTask gpgTask];
 		[self addArgumentsForOptions];

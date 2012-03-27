@@ -72,6 +72,11 @@ static const char *armorTypeStrings[] = { //The first byte contains the length o
 };
 const int armorTypeStringsCount = 7;
 
+static const char clearTextBeginMark[] = "-----BEGIN PGP SIGNED MESSAGE-----";
+const int clearTextBeginMarkLength = 34;
+static const char clearTextEndMark[] = "-----BEGIN PGP SIGNATURE-----";
+const int clearTextEndMarkLength = 29;
+
 
 
 
@@ -107,11 +112,6 @@ const int armorTypeStringsCount = 7;
 	
 	return packets;
 }
-
-
-
-
-
 
 
 - (id)initWithBytes:(const uint8_t *)bytes length:(NSUInteger)dataLength nextPacketStart:(const uint8_t **)nextPacket {
@@ -319,11 +319,11 @@ endOfBuffer:
 }
 
 
-
-
-
-
 + (NSData *)unArmor:(NSData *)theData {
+	return [self unArmor:theData clearText:nil];
+}
+
++ (NSData *)unArmor:(NSData *)theData clearText:(NSData **)clearText {
 	const char *bytes = [theData bytes];
 	NSUInteger dataLength = [theData length];
 	
@@ -331,25 +331,81 @@ endOfBuffer:
 		return theData;
 	}
 	
-	const char *readPos = bytes, *endPos;
-	int newlineCount, armorType;
-	BOOL found;
+	const char *readPos, *endPos;
+	const char *textStart, *textEnd;
+	int newlineCount, armorType, maxCRToAdd = 0;
+	BOOL haveClearText = NO;
 	NSMutableData *decodedData = [NSMutableData data];
 	myState state = state_searchStart;
+	NSException *exception = nil;
 	
 	
 
-	// Replace \r and \0 by \n.
 	char *mutableBytes = malloc(dataLength);
 	if (!mutableBytes) {
-		@throw [NSException exceptionWithName:@"malloc exception" reason:@"malloc failed" userInfo:nil];
+		exception = [NSException exceptionWithName:@"malloc exception" reason:@"malloc failed" userInfo:nil];
+		goto endOfBuffer;
 	}
 	memcpy(mutableBytes, bytes, dataLength);
 	char *mutableReadPos = mutableBytes;
 	endPos = mutableBytes + dataLength;
 
 	
+	
+	char *clearTextStart, *clearTextEnd;
+	readPos = mutableBytes;
+	do {
+		clearTextStart = memmem(readPos, endPos - readPos, clearTextBeginMark, clearTextBeginMarkLength);
+		
+		if (clearTextStart == mutableBytes || (clearTextStart && (clearTextStart[-1] == '\n' || clearTextStart[-1] == '\r'))) {
+			readPos = clearTextStart + clearTextBeginMarkLength + 1;
+			do {
+				clearTextEnd = memmem(readPos, endPos - readPos, clearTextEndMark, clearTextEndMarkLength);
+				if (clearTextEnd && (clearTextEnd[-1] == '\n' || clearTextEnd[-1] == '\r')) {
+					clearTextEnd--;
+					break;
+				}
+				
+				readPos = clearTextEnd + clearTextEndMarkLength;
+			} while (clearTextEnd);
+			
+			if (clearTextEnd) {
+				readPos = clearTextStart + clearTextBeginMarkLength;
+				for (; readPos < clearTextEnd; readPos++) {
+					switch (*readPos) {
+						case '\r':
+							if (readPos[1] == '\n') {
+								readPos++;
+							}
+						case '\n':
+							newlineCount++;
+							if (newlineCount == 2) {
+								state = haveClearText ? state_searchStart : state_waitForEnd;
+								textStart = readPos + 1;
+							}
+						case ' ':
+						case '\t':
+							break;
+						default:
+							newlineCount = 0;
+					}
+				}
+			} else {
+				clearTextStart = nil;
+			}
+			
+			break;
+		}
+		readPos = clearTextStart + clearTextBeginMarkLength + 1;
+	} while (clearTextStart);
+
+	
+	
+	// Replace \r and \0 by \n.
 	for (; mutableReadPos < endPos; mutableReadPos++) {
+		if (mutableReadPos == clearTextStart) {
+			mutableReadPos = clearTextEnd;
+		}
 		switch (mutableReadPos[0]) {
 			case '\r':
 				if (mutableReadPos[1] != '\n') {
@@ -358,14 +414,14 @@ endOfBuffer:
 				break;
 			case 0:
 				mutableReadPos[0] = '\n';
+			case '\n':
+				maxCRToAdd++;
 			default:
 				break;
 		}
 	}
 	readPos = bytes = mutableBytes;
 
-	
-	
 	
 	if (memcmp(armorBeginMark+1, readPos, armorBeginMarkLength - 1) == 0) {
 		state = state_parseStart;
@@ -382,30 +438,90 @@ endOfBuffer:
 				readPos += armorBeginMarkLength;
 			case state_parseStart:
 				canRead(40);
-				found = NO;
-				for (armorType = 0; armorType < armorTypeStringsCount; armorType++) {
-					if (memcmp(armorTypeStrings[armorType]+1, readPos, armorTypeStrings[armorType][0]) == 0) {
-						readPos += armorTypeStrings[armorType][0] - 1;
-						if (armorType != 0) { //Is not "-----BEGIN PGP SIGNED MESSAGE-----".
-							found = YES;
+				
+				if (haveClearText) {
+					armorType = 3;
+					if (memcmp(armorTypeStrings[armorType]+1, readPos, armorTypeStrings[armorType][0])) {
+						GPGDebugLog(@"GPGPacket unarmor: \"-----BEGIN PGP SIGNATURE-----\" expected but not found.")
+						goto endOfBuffer;
+					}
+					textEnd = readPos - armorBeginMarkLength;
+					
+					char *clearBytes = malloc(textEnd - textStart + maxCRToAdd);
+					if (!clearBytes) {
+						exception = [NSException exceptionWithName:@"malloc exception" reason:@"malloc failed" userInfo:nil];
+						goto endOfBuffer;
+					}
+					readPos = textStart;
+					char *clearBytesPtr = clearBytes;
+					const char *newlinePos;
+					while ((newlinePos = memchr(readPos, '\n', textEnd - readPos))) {
+						readPos = newlinePos - 1;
+						if (*readPos == '\r') {
+							readPos--;
 						}
+						
+						while (*readPos == ' ' || *readPos == '\t') {
+							readPos--;
+						}
+						
+						readPos++;
+						memcpy(clearBytesPtr, textStart, readPos - textStart);
+						clearBytesPtr += readPos - textStart;
+						
+						clearBytesPtr[0] = '\r';
+						clearBytesPtr[1] = '\n';
+						clearBytesPtr += 2;
+
+						
+						readPos = newlinePos + 1;
+						if (*readPos == '-' && *readPos == ' ') {
+							readPos += 2;
+						}
+						textStart = readPos;
+					}
+					memcpy(clearBytesPtr, textStart, textEnd - textStart);
+					clearBytesPtr += textEnd - textStart;
+										
+					*clearText = [NSData dataWithBytes:clearBytes length:clearBytesPtr - clearBytes];
+					free(clearBytes);
+					haveClearText = NO;
+					
+					readPos = textEnd + armorBeginMarkLength + armorTypeStrings[armorType][0];
+					state = state_waitForText;
+				} else {
+					BOOL found = NO;
+					for (armorType = 0; armorType < armorTypeStringsCount; armorType++) {
+						if (memcmp(armorTypeStrings[armorType]+1, readPos, armorTypeStrings[armorType][0]) == 0) {						
+							readPos += armorTypeStrings[armorType][0] - 1;
+							
+							if (armorType == 0) { //Is "-----BEGIN PGP SIGNED MESSAGE-----".
+								if (clearText) {
+									haveClearText = YES;
+									found = YES;
+								}
+							} else {
+								found = YES;
+							}
+							break;
+						}
+					}
+					if (!found) {
+						state = state_searchStart;
 						break;
 					}
+					state = state_waitForText;
+					readPos++;
 				}
-				if (!found) {
-					state = state_searchStart;
-					break;
-				}
-				state = state_waitForText;
 				newlineCount = 0;
-				readPos++;
 			case state_waitForText:
 				switch (*readPos) {
 					case '\n':
 						newlineCount++;
 						if (newlineCount == 2) {
-							state = state_waitForEnd;
-						}						
+							state = haveClearText ? state_searchStart : state_waitForEnd;
+							textStart = readPos + 1;
+						}
 					case '\r':
 					case ' ':
 					case '\t':
@@ -415,8 +531,7 @@ endOfBuffer:
 				}
 				break;
 			case state_waitForEnd: {
-				const char *textStart = readPos;
-				const char *textEnd = memmem(readPos, endPos - readPos, "\n=", 2);
+				textEnd = memmem(readPos, endPos - readPos, "\n=", 2);
 				const char *crcPos = NULL;
 				if (textEnd) {
 					textEnd++;
@@ -465,14 +580,16 @@ endOfBuffer:
 					BIO_free_all(bio);
 					
 					if (crcLength != 3) {
-						@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"CRC Error") errorCode:GPGErrorChecksumError];
+						exception = [GPGException exceptionWithReason:localizedLibmacgpgString(@"CRC Error") errorCode:GPGErrorChecksumError];
+						goto endOfBuffer;
 					}
 					
 					crc1 = (crcBuffer[0] << 16) + (crcBuffer[1] << 8) + crcBuffer[2];
 					
 					crc2 = crc24(binaryBuffer, length);
 					if (crc1 != crc2) {
-						@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"CRC Error") errorCode:GPGErrorChecksumError];
+						exception = [GPGException exceptionWithReason:localizedLibmacgpgString(@"CRC Error") errorCode:GPGErrorChecksumError];
+						goto endOfBuffer;
 					}
 				}
 				
@@ -490,8 +607,12 @@ endOfBuffer:
 	
 endOfBuffer:
 	free(mutableBytes);
+	if (exception) {
+		@throw exception;
+	}
 	return decodedData;
 }
+
 
 long crc24(char *bytes, NSUInteger length) {
 	long crc = 0xB704CEL;
