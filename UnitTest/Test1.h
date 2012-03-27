@@ -6,5 +6,5 @@
 	GPGController *gpgc;
 	NSString *tempDir;
 }
-
+- (void)logDataContent:(NSData *)data message:(NSString *)message;
 @end

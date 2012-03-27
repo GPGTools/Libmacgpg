@@ -40,7 +40,7 @@ static NSString *skelconf = @"/usr/local/MacGPG2/share/gnupg/gpg-conf.skel";
     NSArray *array = [NSArray arrayWithObjects:[NSNumber numberWithInt:1],
                       [NSNumber numberWithInt:2], [NSNumber numberWithInt:3],
                       [NSNumber numberWithInt:4], [NSNumber numberWithInt:5], nil];
-    NSLog(@"Found at position: %lu", [array indexOfObject:[NSNumber numberWithInt:5]]);
+    NSLog(@"Found at position: %lu", (unsigned long)[array indexOfObject:[NSNumber numberWithInt:5]]);
     
     NSSet *keys = [gpgc allKeys];
     STAssertTrue(keys != nil && [keys count] == 0, @"Can’t list keys.");
