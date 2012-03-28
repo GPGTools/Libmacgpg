@@ -112,7 +112,7 @@ static NSString *skelconf = @"/usr/local/MacGPG2/share/gnupg/gpg-conf.skel";
 - (void)testGPGConfGetContents {
     GPGConf *conf = [[GPGConf alloc] initWithPath:skelconf andDomain:GPGDomain_gpgConf];
     
-    NSError *error;
+    NSError *error = nil;
 	NSString *skelContents = [NSString stringWithContentsOfFile:skelconf usedEncoding:nil error:&error];
     STAssertNotNil(skelContents, @"Unexpectedly nil!");
     NSString *reencoded = [conf getContents];
@@ -123,7 +123,7 @@ static NSString *skelconf = @"/usr/local/MacGPG2/share/gnupg/gpg-conf.skel";
 - (void)testGPGConfAlterContents {
     GPGConf *conf = [[GPGConf alloc] initWithPath:skelconf andDomain:GPGDomain_gpgConf];
     
-    NSError *error;
+    NSError *error = nil;
 	NSString *skelContents = [NSString stringWithContentsOfFile:skelconf usedEncoding:nil error:&error];
     STAssertNotNil(skelContents, @"Unexpectedly nil!");
     
