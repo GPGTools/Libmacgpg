@@ -1,6 +1,7 @@
 PROJECT = Libmacgpg
 TARGET = Libmacgpg
 CONFIG = Release
+TEST_TARGET = UnitTest
 
 .PRE :=
 ifndef CFG
@@ -22,7 +23,7 @@ update-me:
 update: update-me update-core
 
 test:
-	@xcodebuild -project $(PROJECT).xcodeproj -scheme Test -configuration $(CONFIG) build
+	@xcodebuild -project $(PROJECT).xcodeproj -target $(TEST_TARGET) -configuration $(CONFIG) build
 
 compile:
 	@xcodebuild -project $(PROJECT).xcodeproj -target $(TARGET) -configuration $(CONFIG) build
