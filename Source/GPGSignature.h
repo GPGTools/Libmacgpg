@@ -59,5 +59,9 @@
 
 
 - (void)addInfoFromStatusCode:(NSInteger)status andPrompt:(NSString *)prompt;
+// localized
+- (NSString *)humanReadableDescription;
+// really for unit-testing
+- (NSString *)humanReadableDescriptionShouldLocalize:(BOOL)shouldLocalize;
 
 @end
