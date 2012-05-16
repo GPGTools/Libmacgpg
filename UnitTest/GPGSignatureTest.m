@@ -24,33 +24,6 @@
     [sig release];
 }
 
-- (void)testGoodSignatureDescWithTrustClarification {
-    GPGSignature *sig = [[GPGSignature alloc] init];
-    [sig addInfoFromStatusCode:GPG_STATUS_GOODSIG andPrompt:@"ABCZYX someone@someplace.com"];
-
-    [sig addInfoFromStatusCode:GPG_STATUS_TRUST_ULTIMATE andPrompt:nil];
-    NSString *desc = [sig humanReadableDescriptionShouldLocalize:NO];
-    STAssertEqualObjects(desc, @"Signed (someone@someplace.com)", @"Unreadable!");
-
-    [sig addInfoFromStatusCode:GPG_STATUS_TRUST_FULLY andPrompt:nil];
-    desc = [sig humanReadableDescriptionShouldLocalize:NO];
-    STAssertEqualObjects(desc, @"Signed (someone@someplace.com)", @"Unreadable!");
-
-    [sig addInfoFromStatusCode:GPG_STATUS_TRUST_MARGINAL andPrompt:nil];
-    desc = [sig humanReadableDescriptionShouldLocalize:NO];
-    STAssertEqualObjects(desc, @"Signed (someone@someplace.com) — Marginal Trust", @"Unreadable!");
-
-    [sig addInfoFromStatusCode:GPG_STATUS_TRUST_NEVER andPrompt:nil];
-    desc = [sig humanReadableDescriptionShouldLocalize:NO];
-    STAssertEqualObjects(desc, @"Signed (someone@someplace.com) — Do Not Trust", @"Unreadable!");
-
-    [sig addInfoFromStatusCode:GPG_STATUS_TRUST_UNDEFINED andPrompt:nil];
-    desc = [sig humanReadableDescriptionShouldLocalize:NO];
-    STAssertEqualObjects(desc, @"Signed (someone@someplace.com)", @"Unreadable!");
-
-    [sig release];
-}
-
 - (void)testExpiredSignatureDesc {
     GPGSignature *sig = [[GPGSignature alloc] init];
     [sig addInfoFromStatusCode:GPG_STATUS_EXPSIG andPrompt:@"ABCZYX someone@someplace.com"];
