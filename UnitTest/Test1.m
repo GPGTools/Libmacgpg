@@ -52,45 +52,20 @@ static NSString *skelconf = @"/usr/local/MacGPG2/share/gnupg/gpg-conf.skel";
     [gpgc generateNewKeyWithName:testKey_name email:testKey_email comment:testKey_comment keyType:1 keyLength:1024 subkeyType:1 subkeyLength:1024 daysToExpire:5 preferences:nil passphrase:@""];
     keys = [gpgc allKeys];
     STAssertTrue([keys count] == 1, @"Can’t generate key.");
-    NSLog(@"Keys: %@", keys);
 	
 	GPGKey *key = [keys anyObject];
 	STAssertTrue([key.name isEqualToString:testKey_name] && [key.email isEqualToString:testKey_email], @"Generate key faild.");
 	
 	NSString *keyID = key.keyID;
 	
-	
 	NSData *input = [@"This is a test text." dataUsingEncoding:NSUTF8StringEncoding];
 	NSData *output = [gpgc processData:input withEncryptSignMode:GPGEncryptSign recipients:[NSSet setWithObject:keyID] hiddenRecipients:nil];
-	
 	STAssertNotNil(output, @"processData faild.");
-	
-	NSData *decryptedData = [gpgc decryptData:output];
-    
-    NSLog(@"decrypted data: %@", [decryptedData gpgString]);
-}
+    STAssertTrue(![input isEqualToData:output], @"Signing did not produce different data!");
 
-- (void)testDecryptData {
-    gpgc = [[GPGController alloc] init];
-    STAssertNotNil(gpgc, @"Can't init GPGController.");
-//    
-//    NSData *encryptedData = [NSData dataWithContentsOfFile:@"/Users/lukele/Desktop/Old Files/t.asc"];
-//    NSLog(@"[DEBUG] PGP input data: \n\n%@", [[NSString alloc] initWithData:encryptedData encoding:NSUTF8StringEncoding]);
-//    NSData *decryptedData = [gpgc decryptData:encryptedData];
-//    NSLog(@"[DEBUG] PGP decrypted data: \n\n%@", [decryptedData gpgString]);
-    
-    // Encrypt the in data.
-    NSData *arg1 = [NSData dataWithContentsOfFile:@"/Users/lukele/Desktop/in.data"];
-   // [self logDataContent:arg1 message:@"IN-DATA"];
-    gpgc.useTextMode = YES;
-    // If use armor isn't used, the encrypted data cannot be turned into a string for display.
-    // but is binary data.
-    // Otherwise it can be printed using NSUTF8StringEncoding as the NSString encoding.
-    gpgc.useArmor = NO;
-    NSData *encryptedData = [gpgc processData:arg1 withEncryptSignMode:GPGPublicKeyEncrypt recipients:[NSSet setWithObject:@"608B00ABE1DAA3501C5FF91AE58271326F9F4937"] hiddenRecipients:nil];
-    //[self logDataContent:encryptedData message:@"ENCRYPTED-DATA"];
-    NSData *decryptedData = [gpgc decryptData:encryptedData];
-   [self logDataContent:decryptedData message:@"DECRYPTED-DATA"];
+	NSData *decryptedData = [gpgc decryptData:output];
+	STAssertNotNil(decryptedData, @"decryptData failed.");
+    STAssertTrue([decryptedData isEqualToData:input], @"Round-trip sign/unsign failed!");
 }
 
 - (void)logDataContent:(NSData *)data message:(NSString *)message {
