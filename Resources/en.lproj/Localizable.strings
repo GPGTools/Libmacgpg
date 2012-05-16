@@ -86,7 +86,3 @@ GPG_DiffieHellmanAlgorithm = "DiffieHellman";
 "Signature error" = "Signature error";
 "Unverifiable signature" = "Unverifiable signature";
 "Signed by stranger" = "Signed by stranger";
-"Do Not Trust" = "Do Not Trust";
-"Marginal Trust" = "Marginal Trust";
-"Full Trust" = "Full Trust";
-"Ultimate Trust" = "Ultimate Trust";
