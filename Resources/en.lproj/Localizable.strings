@@ -76,3 +76,13 @@ GPG_EllipticCurveAlgorithm = "EllipticCurve";
 GPG_ECDSAAlgorithm = "ECDSA";
 GPG_ElgamalAlgorithm = "ELG";
 GPG_DiffieHellmanAlgorithm = "DiffieHellman";
+
+/* GPGSignature humanReadableDescription */
+"Signed" = "Signed";
+"Signature expired" = "Signature expired";
+"Key expired" = "Key expired";
+"Bad signature" = "Bad signature";
+"Signature revoked" = "Signature revoked";
+"Signature error" = "Signature error";
+"Unverifiable signature" = "Unverifiable signature";
+"Signed by stranger" = "Signed by stranger";
