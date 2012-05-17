@@ -82,6 +82,7 @@
 		45C0BC03151B65C700AA8BF6 /* GPGTestVerify.m in Sources */ = {isa = PBXBuildFile; fileRef = 45C0BC02151B65C700AA8BF6 /* GPGTestVerify.m */; };
 		45C0BC18151B66F500AA8BF6 /* GPGResourceUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 45C0BC17151B66F500AA8BF6 /* GPGResourceUtil.m */; };
 		45C6E82714F8913B00ED67C6 /* pinentry-mac.app in Resources */ = {isa = PBXBuildFile; fileRef = 30C412B1149A34D80035D35F /* pinentry-mac.app */; };
+		45DD3D4C15642A0D00C9A4C1 /* GPGSignatureTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 45DD3D4B15642A0D00C9A4C1 /* GPGSignatureTest.m */; };
 		8DC2EF570486A6940098B216 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
 /* End PBXBuildFile section */
 
@@ -195,6 +196,7 @@
 		45C0BC02151B65C700AA8BF6 /* GPGTestVerify.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGTestVerify.m; sourceTree = "<group>"; };
 		45C0BC16151B66F500AA8BF6 /* GPGResourceUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGResourceUtil.h; sourceTree = "<group>"; };
 		45C0BC17151B66F500AA8BF6 /* GPGResourceUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGResourceUtil.m; sourceTree = "<group>"; };
+		45DD3D4B15642A0D00C9A4C1 /* GPGSignatureTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGSignatureTest.m; sourceTree = "<group>"; };
 		8DC2EF5A0486A6940098B216 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8DC2EF5B0486A6940098B216 /* Libmacgpg.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Libmacgpg.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -371,6 +373,7 @@
 				45156A2614FB35DC00129FE7 /* GPGDictSettingTest.m */,
 				455B17B915143D9A00FAD47D /* GPGOptionsTest.m */,
 				45C0BC02151B65C700AA8BF6 /* GPGTestVerify.m */,
+				45DD3D4B15642A0D00C9A4C1 /* GPGSignatureTest.m */,
 			);
 			path = UnitTest;
 			sourceTree = "<group>";
@@ -586,6 +589,7 @@
 				455B17BA15143D9A00FAD47D /* GPGOptionsTest.m in Sources */,
 				45C0BC03151B65C700AA8BF6 /* GPGTestVerify.m in Sources */,
 				45C0BC18151B66F500AA8BF6 /* GPGResourceUtil.m in Sources */,
+				45DD3D4C15642A0D00C9A4C1 /* GPGSignatureTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -739,7 +743,6 @@
 					SenTestingKit,
 				);
 				PRODUCT_NAME = UnitTest;
-				TEST_AFTER_BUILD = YES;
 				WRAPPER_EXTENSION = octest;
 			};
 			name = Debug;
@@ -764,7 +767,6 @@
 					SenTestingKit,
 				);
 				PRODUCT_NAME = UnitTest;
-				TEST_AFTER_BUILD = YES;
 				WRAPPER_EXTENSION = octest;
 				ZERO_LINK = NO;
 			};

@@ -19,6 +19,7 @@
 
 #import "GPGSignature.h"
 #import "GPGKey.h"
+#import "GPGGlobals.h"
 
 @interface GPGSignature () <GPGUserIDProtocol>
 
@@ -163,6 +164,45 @@
 	[super dealloc];
 }
 
+- (NSString *)humanReadableDescription {
+    return [self humanReadableDescriptionShouldLocalize:YES];
+}
 
+#define maybeLocalize(key) (shouldLocalize ? localizedLibmacgpgString(key) : key)
+
+- (NSString *)humanReadableDescriptionShouldLocalize:(BOOL)shouldLocalize 
+{
+    NSString *sigStatus;
+    switch (self.status) {
+        case GPGErrorNoError:
+            sigStatus = maybeLocalize(@"Signed");
+            break;
+        case GPGErrorSignatureExpired:
+        case GPGErrorKeyExpired:
+            sigStatus = maybeLocalize(@"Signature expired");
+            break;
+        case GPGErrorCertificateRevoked:
+            sigStatus = maybeLocalize(@"Signature revoked");
+            break;
+        case GPGErrorUnknownAlgorithm:
+            sigStatus = maybeLocalize(@"Unverifiable signature");
+            break;
+        case GPGErrorNoPublicKey:
+            sigStatus = maybeLocalize(@"Signed by stranger");
+            break;
+        case GPGErrorBadSignature:
+            sigStatus = maybeLocalize(@"Bad signature");
+            break;
+        default:
+            sigStatus = maybeLocalize(@"Signature error");
+            break;
+    }
+    
+    NSMutableString *desc = [NSMutableString stringWithString:sigStatus];
+    if (self.userID && [self.userID length])
+        [desc appendFormat:@" (%@)", self.userID];
+    
+    return desc;
+}
 
 @end
