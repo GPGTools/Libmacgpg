@@ -447,6 +447,9 @@ uint8 debugLog;
 	system("killall -HUP gpg-agent");
 }
 
+- (void)gpgAgentTerminate {
+	system("killall gpg-agent");
+}
 
 
 // Notification handling.
