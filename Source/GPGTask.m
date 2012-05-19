@@ -24,6 +24,12 @@
 #import "GPGException.h"
 #import "GPGGlobals.h"
 //#import <sys/shm.h>
+#import <fcntl.h>
+
+// a little category to fcntl F_SETNOSIGPIPE on each fd
+@interface NSPipe (SetNoSIGPIPE)
+- (NSPipe *)noSIGPIPE;
+@end
 
 @interface GPGTask ()
 
@@ -484,21 +490,21 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
     // Last before launching, create the inPipes and add the fd nums to the arguments.
     gpgTask = [[LPXTTask alloc] init];
     gpgTask.launchPath = self.gpgPath;
-    gpgTask.standardInput = [NSPipe pipe];
-    gpgTask.standardOutput = [NSPipe pipe];
-    gpgTask.standardError = [NSPipe pipe];
+    gpgTask.standardInput = [[NSPipe pipe] noSIGPIPE];
+    gpgTask.standardOutput = [[NSPipe pipe] noSIGPIPE];
+    gpgTask.standardError = [[NSPipe pipe] noSIGPIPE];
     gpgTask.arguments = defaultArguments;
     
 	GPGDebugLog(@"gpg %@", [gpgTask.arguments componentsJoinedByString:@" "]);
     
     // Now setup all the pipes required to communicate with gpg.
-    [gpgTask inheritPipe:[NSPipe pipe] mode:O_RDONLY dup:3 name:@"status"];
-    [gpgTask inheritPipe:[NSPipe pipe] mode:O_RDONLY dup:4 name:@"attribute"];
+    [gpgTask inheritPipe:[[NSPipe pipe] noSIGPIPE] mode:O_RDONLY dup:3 name:@"status"];
+    [gpgTask inheritPipe:[[NSPipe pipe] noSIGPIPE] mode:O_RDONLY dup:4 name:@"attribute"];
     NSMutableArray *pipeList = [[NSMutableArray alloc] init];
     NSMutableArray *dupList = [[NSMutableArray alloc] init];
     i = 5;
     for (NSData *data in inDatas) {
-        [pipeList addObject:[NSPipe pipe]];
+        [pipeList addObject:[[NSPipe pipe] noSIGPIPE]];
         [dupList addObject:[NSNumber numberWithInt:i++]];
     }
     [gpgTask inheritPipes:pipeList mode:O_WRONLY dups:dupList name:@"ins"];
@@ -861,8 +867,8 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 }
 
 - (NSString *)getPassphraseFromPinentry {
-	NSPipe *inPipe = [NSPipe pipe];
-	NSPipe *outPipe = [NSPipe pipe];
+	NSPipe *inPipe = [[NSPipe pipe] noSIGPIPE];
+	NSPipe *outPipe = [[NSPipe pipe] noSIGPIPE];
 	NSTask *pinentryTask = [[NSTask new] autorelease];
 	
 	NSString *pinentryPath = [[self class] pinentryPath];
@@ -962,5 +968,22 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 
 @end
 
+//-----------------------------------------
+
+@implementation NSPipe (SetNoSIGPIPE)
+
+#ifndef F_SETNOSIGPIPE
+#define F_SETNOSIGPIPE		73	/* No SIGPIPE generated on EPIPE */
+#endif
+#define FCNTL_SETNOSIGPIPE(fd) (fcntl(fd, F_SETNOSIGPIPE, 1))
+
+- (NSPipe *)noSIGPIPE 
+{
+    FCNTL_SETNOSIGPIPE([[self fileHandleForReading] fileDescriptor]);
+    FCNTL_SETNOSIGPIPE([[self fileHandleForWriting] fileDescriptor]);
+    return self;
+}
+
+@end
 
 
