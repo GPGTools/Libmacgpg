@@ -400,7 +400,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 	self.lastNeedPassphrase = nil;
 	
 	self.gpgPath = nil;
-	
+	[writeException release];
 	[super dealloc];
 }
 
@@ -619,9 +619,10 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
     [gpgTask launchAndWait];
 	
     
-	if (blockException) {
+	if (blockException) 
 		@throw [blockException autorelease];
-	}
+	if (writeException)
+		@throw writeException;
 	
     exitcode = gpgTask.terminationStatus;
     
@@ -647,8 +648,14 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 	inputDataWritten = YES;
     NSArray *pipeList = [gpgTask inheritedPipesWithName:@"ins"];
     for(int i = 0; i < [pipeList count]; i++) {
-        [[[pipeList objectAtIndex:i] fileHandleForWriting] writeData:[inDatas objectAtIndex:i]];
-        [[[pipeList objectAtIndex:i] fileHandleForWriting] closeFile];
+        @try {
+            [[[pipeList objectAtIndex:i] fileHandleForWriting] writeData:[inDatas objectAtIndex:i]];
+            [[[pipeList objectAtIndex:i] fileHandleForWriting] closeFile];
+        }
+        @catch (NSException *exception) {
+            writeException = [exception retain];
+            return;
+        }
     }
 }
 - (void)processStatusLine:(NSString *)line {

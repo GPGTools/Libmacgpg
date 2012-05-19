@@ -72,6 +72,8 @@
 	
 	dispatch_group_t collectorGroup;
 	dispatch_queue_t queue;
+	// safe to write without locking because only one thread writes
+	NSException *writeException;
 	NSInteger inDataLength;
 	NSInteger progressedLength;
 	NSMutableDictionary *progressedLengths;
