@@ -18,6 +18,7 @@
  */
 
 #import "GPGPacket.h"
+#import "GPGMemoryStream.h"
 #import "GPGGlobals.h"
 #include <string.h>
 #include <openssl/bio.h>
@@ -324,13 +325,22 @@ endOfBuffer:
 }
 
 + (NSData *)unArmor:(NSData *)theData clearText:(NSData **)clearText {
+    GPGMemoryStream *input = [GPGMemoryStream memoryStreamForReading:theData];
+    NSData *unarmored = [self unArmorFrom:input clearText:clearText];
+    if (unarmored)
+        return unarmored;
+    return theData;
+}
+
++ (NSData *)unArmorFrom:(GPGStream *)input clearText:(NSData **)clearText 
+{
+	if ([input length] < 50 || ![self isArmored:[input peekByte]]) {
+		return nil;
+	}
+
+    NSData *theData = [input readAllData];
 	const char *bytes = [theData bytes];
 	NSUInteger dataLength = [theData length];
-	
-	if (dataLength < 50 || ![self isArmored:*bytes]) {
-		return theData;
-	}
-	
 	const char *readPos, *endPos;
 	const char *textStart, *textEnd;
 	int newlineCount, armorType, maxCRToAdd = 0;
