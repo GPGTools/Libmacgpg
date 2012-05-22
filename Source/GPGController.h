@@ -24,6 +24,7 @@
 
 @class GPGSignature;
 @class GPGController;
+@class GPGStream;
 
 @protocol GPGControllerDelegate
 @optional
@@ -171,10 +172,17 @@
 - (void)key:(NSObject <KeyFingerprint> *)key setDisabled:(BOOL)disabled;
 - (void)key:(NSObject <KeyFingerprint> *)key setOwnerTrsut:(GPGValidity)trust;
 
+- (void)processTo:(GPGStream *)output data:(GPGStream *)input withEncryptSignMode:(GPGEncryptSignMode)encryptSignMode 
+			 recipients:(NSObject <EnumerationList> *)recipients hiddenRecipients:(NSObject <EnumerationList> *)hiddenRecipients;
 - (NSData *)processData:(NSData *)data withEncryptSignMode:(GPGEncryptSignMode)encryptSignMode 
 			 recipients:(NSObject <EnumerationList> *)recipients hiddenRecipients:(NSObject <EnumerationList> *)hiddenRecipients;
+
+- (void)decryptTo:(GPGStream *)output data:(GPGStream *)input;
 - (NSData *)decryptData:(NSData *)data;
+
+- (NSArray *)verifySignatureOf:(GPGStream *)signatureInput originalData:(GPGStream *)originalInput;
 - (NSArray *)verifySignature:(NSData *)signatureData originalData:(NSData *)originalData;
+
 - (NSArray *)verifySignedData:(NSData *)signedData;
 - (NSSet *)keysInExportedData:(NSData *)data;
 
