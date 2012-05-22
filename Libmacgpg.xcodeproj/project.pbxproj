@@ -70,6 +70,12 @@
 		45156A2D14FB506E00129FE7 /* GPGArraySettingTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 45156A2C14FB506E00129FE7 /* GPGArraySettingTest.m */; };
 		451932F514F8061100D1F727 /* GPGStdSetting.h in Headers */ = {isa = PBXBuildFile; fileRef = 451932F314F8061100D1F727 /* GPGStdSetting.h */; };
 		451932F614F8061100D1F727 /* GPGStdSetting.m in Sources */ = {isa = PBXBuildFile; fileRef = 451932F414F8061100D1F727 /* GPGStdSetting.m */; };
+		451D8829156A7AD900A0B890 /* GPGStream.h in Headers */ = {isa = PBXBuildFile; fileRef = 451D8827156A7AD900A0B890 /* GPGStream.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		451D882A156A7AD900A0B890 /* GPGStream.m in Sources */ = {isa = PBXBuildFile; fileRef = 451D8828156A7AD900A0B890 /* GPGStream.m */; };
+		451D882D156A7CA300A0B890 /* GPGMemoryStream.h in Headers */ = {isa = PBXBuildFile; fileRef = 451D882B156A7CA300A0B890 /* GPGMemoryStream.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		451D882E156A7CA300A0B890 /* GPGMemoryStream.m in Sources */ = {isa = PBXBuildFile; fileRef = 451D882C156A7CA300A0B890 /* GPGMemoryStream.m */; };
+		451D8831156A7E4900A0B890 /* GPGFileStream.h in Headers */ = {isa = PBXBuildFile; fileRef = 451D882F156A7E4900A0B890 /* GPGFileStream.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		451D8832156A7E4900A0B890 /* GPGFileStream.m in Sources */ = {isa = PBXBuildFile; fileRef = 451D8830156A7E4900A0B890 /* GPGFileStream.m */; };
 		4547646614FBC8A900A37306 /* GPGStdSettingTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 4547646514FBC8A900A37306 /* GPGStdSettingTest.m */; };
 		455B17BA15143D9A00FAD47D /* GPGOptionsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 455B17B915143D9A00FAD47D /* GPGOptionsTest.m */; };
 		4570876614FAA7C90030AAE6 /* GPGConfReader.h in Headers */ = {isa = PBXBuildFile; fileRef = 4570876414FAA7C90030AAE6 /* GPGConfReader.h */; };
@@ -181,6 +187,12 @@
 		45156A2C14FB506E00129FE7 /* GPGArraySettingTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGArraySettingTest.m; sourceTree = "<group>"; };
 		451932F314F8061100D1F727 /* GPGStdSetting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = GPGStdSetting.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		451932F414F8061100D1F727 /* GPGStdSetting.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = GPGStdSetting.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		451D8827156A7AD900A0B890 /* GPGStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGStream.h; sourceTree = "<group>"; };
+		451D8828156A7AD900A0B890 /* GPGStream.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGStream.m; sourceTree = "<group>"; };
+		451D882B156A7CA300A0B890 /* GPGMemoryStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGMemoryStream.h; sourceTree = "<group>"; };
+		451D882C156A7CA300A0B890 /* GPGMemoryStream.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGMemoryStream.m; sourceTree = "<group>"; };
+		451D882F156A7E4900A0B890 /* GPGFileStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGFileStream.h; sourceTree = "<group>"; };
+		451D8830156A7E4900A0B890 /* GPGFileStream.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGFileStream.m; sourceTree = "<group>"; };
 		4547646514FBC8A900A37306 /* GPGStdSettingTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGStdSettingTest.m; sourceTree = "<group>"; };
 		455B17B915143D9A00FAD47D /* GPGOptionsTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGOptionsTest.m; sourceTree = "<group>"; };
 		4570876414FAA7C90030AAE6 /* GPGConfReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = GPGConfReader.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -295,6 +307,12 @@
 				3048830E1462B22000F2E5F4 /* GPGWatcher.m */,
 				304883091462B11700F2E5F4 /* DirectoryWatcher.h */,
 				3048830A1462B11700F2E5F4 /* DirectoryWatcher.m */,
+				451D8827156A7AD900A0B890 /* GPGStream.h */,
+				451D8828156A7AD900A0B890 /* GPGStream.m */,
+				451D882B156A7CA300A0B890 /* GPGMemoryStream.h */,
+				451D882C156A7CA300A0B890 /* GPGMemoryStream.m */,
+				451D882F156A7E4900A0B890 /* GPGFileStream.h */,
+				451D8830156A7E4900A0B890 /* GPGFileStream.m */,
 			);
 			name = Classes;
 			path = Source;
@@ -443,6 +461,9 @@
 				45156A1C14FB1B1200129FE7 /* GPGLinesSetting.h in Headers */,
 				45156A2014FB1D7D00129FE7 /* GPGDictSetting.h in Headers */,
 				45156A2A14FB3EF700129FE7 /* GPGArraySetting.h in Headers */,
+				451D8829156A7AD900A0B890 /* GPGStream.h in Headers */,
+				451D882D156A7CA300A0B890 /* GPGMemoryStream.h in Headers */,
+				451D8831156A7E4900A0B890 /* GPGFileStream.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -624,6 +645,9 @@
 				45156A1D14FB1B1200129FE7 /* GPGLinesSetting.m in Sources */,
 				45156A2114FB1D7D00129FE7 /* GPGDictSetting.m in Sources */,
 				45156A2B14FB3EF700129FE7 /* GPGArraySetting.m in Sources */,
+				451D882A156A7AD900A0B890 /* GPGStream.m in Sources */,
+				451D882E156A7CA300A0B890 /* GPGMemoryStream.m in Sources */,
+				451D8832156A7E4900A0B890 /* GPGFileStream.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

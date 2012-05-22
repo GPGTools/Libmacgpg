@@ -21,6 +21,7 @@
 #import "LPXTTask.h"
 
 @class GPGTask;
+@class GPGStream;
 
 @protocol GPGTaskDelegate
 @optional
@@ -51,7 +52,7 @@
     
 	NSMutableArray *inDatas;
 	
-	NSData *outData;
+    GPGStream *outStream;
 	NSData *errData;
 	NSData *statusData;
 	NSData *attributeData;
@@ -93,7 +94,8 @@
 @property (readonly) NSInteger exitcode;
 @property (readonly) int errorCode;
 @property (retain) NSString *gpgPath;
-@property (readonly, retain) NSData *outData;
+// if not set before starting, GPGTask will use a GPGMemoryStream
+@property (retain) GPGStream *outStream;
 @property (readonly, retain) NSData *errData;
 @property (readonly, retain) NSData *statusData;
 @property (readonly, retain) NSData *attributeData;
@@ -119,7 +121,8 @@
 
 - (void)cancel;
 
-
+- (NSData *)outData;
+- (void)addInput:(GPGStream *)stream;
 - (void)addInData:(NSData *)data;
 - (void)addInText:(NSString *)string;
 
