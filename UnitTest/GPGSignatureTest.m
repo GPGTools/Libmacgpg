@@ -51,19 +51,17 @@
 
 - (void)testNoPublicKeyDesc {
     GPGSignature *sig = [[GPGSignature alloc] init];
-    [sig addInfoFromStatusCode:GPG_STATUS_BADSIG andPrompt:@"ABCZYX someone@someplace.com"];
-    [sig addInfoFromStatusCode:GPG_STATUS_ERRSIG andPrompt:@"ABCZYX alg hash class date 9"];
+    [sig addInfoFromStatusCode:GPG_STATUS_ERRSIG andPrompt:@"ABCZYX 1 hash class date 9"];
     NSString *desc = [sig humanReadableDescriptionShouldLocalize:NO];
-    STAssertEqualObjects(desc, @"Signed by stranger (someone@someplace.com)", @"Unreadable!");
+    STAssertEqualObjects(desc, @"Signed by stranger (ABCZYX GPG_RSAAlgorithm)", @"Unreadable!");
     [sig release];
 }
 
 - (void)testUnknownAlgorithmDesc {
     GPGSignature *sig = [[GPGSignature alloc] init];
-    [sig addInfoFromStatusCode:GPG_STATUS_BADSIG andPrompt:@"ABCZYX someone@someplace.com"];
-    [sig addInfoFromStatusCode:GPG_STATUS_ERRSIG andPrompt:@"ABCZYX alg hash class date 4"];
+    [sig addInfoFromStatusCode:GPG_STATUS_ERRSIG andPrompt:@"ABCZYX 244 hash class date 4"];
     NSString *desc = [sig humanReadableDescriptionShouldLocalize:NO];
-    STAssertEqualObjects(desc, @"Unverifiable signature (someone@someplace.com)", @"Unreadable!");
+    STAssertEqualObjects(desc, @"Unverifiable signature (ABCZYX Algorithm_244)", @"Unreadable!");
     [sig release];
 }
 
