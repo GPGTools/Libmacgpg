@@ -76,6 +76,7 @@ GPG_EllipticCurveAlgorithm = "EllipticCurve";
 GPG_ECDSAAlgorithm = "ECDSA";
 GPG_ElgamalAlgorithm = "ELG";
 GPG_DiffieHellmanAlgorithm = "DiffieHellman";
+"Algorithm_%i" = "Algorithm_%i";
 
 /* GPGSignature humanReadableDescription */
 "Signed" = "Signed";

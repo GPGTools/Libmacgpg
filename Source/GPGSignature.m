@@ -20,6 +20,7 @@
 #import "GPGSignature.h"
 #import "GPGKey.h"
 #import "GPGGlobals.h"
+#import "GPGTransformer.h"
 
 @interface GPGSignature () <GPGUserIDProtocol>
 
@@ -199,8 +200,17 @@
     }
     
     NSMutableString *desc = [NSMutableString stringWithString:sigStatus];
-    if (self.userID && [self.userID length])
+    if (self.userID && [self.userID length]) {
         [desc appendFormat:@" (%@)", self.userID];
+    }
+    else if (self.fingerprint && [self.fingerprint length]) {
+        GPGKeyAlgorithmNameTransformer *algTransformer = [[GPGKeyAlgorithmNameTransformer alloc] init];
+        algTransformer.keepUnlocalized = !shouldLocalize;
+
+        NSString *algorithmDesc = [algTransformer transformedIntegerValue:self.publicKeyAlgorithm];
+        [desc appendFormat:@" (%@ %@)", self.fingerprint, algorithmDesc];
+        [algTransformer release];
+    }
     
     return desc;
 }

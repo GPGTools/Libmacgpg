@@ -20,7 +20,12 @@
 #import "GPGTransformer.h"
 #import "GPGGlobals.h"
 
+#define maybeLocalize(key) (!_keepUnlocalized ? localizedLibmacgpgString(key) : key)
+
 @implementation GPGKeyAlgorithmNameTransformer
+
+@synthesize keepUnlocalized = _keepUnlocalized;
+
 + (Class)transformedValueClass { return [NSString class]; }
 + (BOOL)allowsReverseTransformation { return NO; }
 - (id)transformedValue:(id)value {
@@ -29,31 +34,34 @@
 - (id)transformedIntegerValue:(NSInteger)value {
 	switch (value) {
 		case GPG_RSAAlgorithm:
-			return localizedLibmacgpgString(@"GPG_RSAAlgorithm");
+			return maybeLocalize(@"GPG_RSAAlgorithm");
 		case GPG_RSAEncryptOnlyAlgorithm:
-			return localizedLibmacgpgString(@"GPG_RSAEncryptOnlyAlgorithm");
+			return maybeLocalize(@"GPG_RSAEncryptOnlyAlgorithm");
 		case GPG_RSASignOnlyAlgorithm:
-			return localizedLibmacgpgString(@"GPG_RSASignOnlyAlgorithm");
+			return maybeLocalize(@"GPG_RSASignOnlyAlgorithm");
 		case GPG_ElgamalEncryptOnlyAlgorithm:
-			return localizedLibmacgpgString(@"GPG_ElgamalEncryptOnlyAlgorithm");
+			return maybeLocalize(@"GPG_ElgamalEncryptOnlyAlgorithm");
 		case GPG_DSAAlgorithm:
-			return localizedLibmacgpgString(@"GPG_DSAAlgorithm");
+			return maybeLocalize(@"GPG_DSAAlgorithm");
 		case GPG_EllipticCurveAlgorithm:
-			return localizedLibmacgpgString(@"GPG_EllipticCurveAlgorithm");
+			return maybeLocalize(@"GPG_EllipticCurveAlgorithm");
 		case GPG_ECDSAAlgorithm:
-			return localizedLibmacgpgString(@"GPG_ECDSAAlgorithm");
+			return maybeLocalize(@"GPG_ECDSAAlgorithm");
 		case GPG_ElgamalAlgorithm:
-			return localizedLibmacgpgString(@"GPG_ElgamalAlgorithm");
+			return maybeLocalize(@"GPG_ElgamalAlgorithm");
 		case GPG_DiffieHellmanAlgorithm:
-			return localizedLibmacgpgString(@"GPG_DiffieHellmanAlgorithm");
+			return maybeLocalize(@"GPG_DiffieHellmanAlgorithm");
 		default:
-			return @"";
+			return [NSString stringWithFormat:maybeLocalize(@"Algorithm_%i"), value];
 	}
 }
 
 @end
 
 @implementation GPGKeyStatusDescriptionTransformer
+
+@synthesize keepUnlocalized = _keepUnlocalized;
+
 + (Class)transformedValueClass { return [NSString class]; }
 + (BOOL)allowsReverseTransformation { return NO; }
 - (id)transformedValue:(id)value {
@@ -62,33 +70,33 @@
 	
 	switch (intValue & 7) {
 		case 2:
-			[statusText appendString:localizedLibmacgpgString(@"?")]; //Was bedeutet 2? 
+			[statusText appendString:maybeLocalize(@"?")]; //Was bedeutet 2? 
 			break;
 		case 3:
-			[statusText appendString:localizedLibmacgpgString(@"Marginal")];
+			[statusText appendString:maybeLocalize(@"Marginal")];
 			break;
 		case 4:
-			[statusText appendString:localizedLibmacgpgString(@"Full")];
+			[statusText appendString:maybeLocalize(@"Full")];
 			break;
 		case 5:
-			[statusText appendString:localizedLibmacgpgString(@"Ultimate")];
+			[statusText appendString:maybeLocalize(@"Ultimate")];
 			break;
 		default:
-			[statusText appendString:localizedLibmacgpgString(@"Unknown")];
+			[statusText appendString:maybeLocalize(@"Unknown")];
 			break;
 	}
 	
 	if (intValue & GPGKeyStatus_Invalid) {
-		[statusText appendFormat:@", %@", localizedLibmacgpgString(@"Invalid")];
+		[statusText appendFormat:@", %@", maybeLocalize(@"Invalid")];
 	}
 	if (intValue & GPGKeyStatus_Revoked) {
-		[statusText appendFormat:@", %@", localizedLibmacgpgString(@"Revoked")];
+		[statusText appendFormat:@", %@", maybeLocalize(@"Revoked")];
 	}
 	if (intValue & GPGKeyStatus_Expired) {
-		[statusText appendFormat:@", %@", localizedLibmacgpgString(@"Expired")];
+		[statusText appendFormat:@", %@", maybeLocalize(@"Expired")];
 	}
 	if (intValue & GPGKeyStatus_Disabled) {
-		[statusText appendFormat:@", %@", localizedLibmacgpgString(@"Disabled")];
+		[statusText appendFormat:@", %@", maybeLocalize(@"Disabled")];
 	}
 	return [[statusText copy] autorelease];
 }
