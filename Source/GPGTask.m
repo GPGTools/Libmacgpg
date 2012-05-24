@@ -524,7 +524,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
     // the parent starts waiting for the child.
     NSMutableData *completeStatusData = [[NSMutableData alloc] initWithLength:0];
     
-    
+	NSObject *syncRoot = [[[NSObject alloc] init] autorelease];    
 	__block NSException *blockException = nil;
 
     gpgTask.parentTask = ^{
@@ -564,6 +564,12 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
                     pool = [[NSAutoreleasePool alloc] init];
                 }
             }
+            @catch (NSException *exception) {
+                @synchronized(syncRoot) {
+                    if (!blockException)
+                        blockException = [exception retain];
+                }
+            }
             @finally {
                 [outStream flush];
                 [pool release];
@@ -573,12 +579,28 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
                 [self logDataContent:[self outData] message:@"[STDOUT]"];
         });
         dispatch_group_async(collectorGroup, queue, ^{
-            self.errData = [[[gpgTask inheritedPipeWithName:@"stderr"] fileHandleForReading] readDataToEndOfFile];
+            @try {
+                self.errData = [[[gpgTask inheritedPipeWithName:@"stderr"] fileHandleForReading] readDataToEndOfFile];
+            }
+            @catch (NSException *exception) {
+                @synchronized(syncRoot) {
+                    if (!blockException)
+                        blockException = [exception retain];
+                }
+            }
 			[self logDataContent:errData message:@"[STDERR]"];
         });
         if(getAttributeData) {
             dispatch_group_async(collectorGroup, queue, ^{
-                self.attributeData = [[[gpgTask inheritedPipeWithName:@"attribute"] fileHandleForReading] readDataToEndOfFile];
+                @try {
+                    self.attributeData = [[[gpgTask inheritedPipeWithName:@"attribute"] fileHandleForReading] readDataToEndOfFile];
+                }
+                @catch (NSException *exception) {
+                    @synchronized(syncRoot) {
+                        if (!blockException)
+                            blockException = [exception retain];
+                    }
+                }
             });
         }
 				
@@ -629,7 +651,10 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 				}
 
 			} @catch (NSException *exception) {
-				blockException = [exception retain];
+                @synchronized(syncRoot) {
+                    if (!blockException)
+                        blockException = [exception retain];
+                }
 				[gpgTask cancel];
 			} @finally {
 				self.statusData = completeStatusData;
