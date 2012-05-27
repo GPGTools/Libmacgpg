@@ -484,25 +484,19 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
     // Last before launching, create the inPipes and add the fd nums to the arguments.
     gpgTask = [[LPXTTask alloc] init];
     gpgTask.launchPath = self.gpgPath;
-    gpgTask.standardInput = [NSPipe pipe];
-    gpgTask.standardOutput = [NSPipe pipe];
-    gpgTask.standardError = [NSPipe pipe];
     gpgTask.arguments = defaultArguments;
     
 	GPGDebugLog(@"gpg %@", [gpgTask.arguments componentsJoinedByString:@" "]);
     
     // Now setup all the pipes required to communicate with gpg.
-    [gpgTask inheritPipe:[NSPipe pipe] mode:O_RDONLY dup:3 name:@"status"];
-    [gpgTask inheritPipe:[NSPipe pipe] mode:O_RDONLY dup:4 name:@"attribute"];
-    NSMutableArray *pipeList = [[NSMutableArray alloc] init];
+    [gpgTask inheritPipeWithMode:O_RDONLY dup:3 name:@"status"];
+    [gpgTask inheritPipeWithMode:O_RDONLY dup:4 name:@"attribute"];
     NSMutableArray *dupList = [[NSMutableArray alloc] init];
     i = 5;
     for (NSData *data in inDatas) {
-        [pipeList addObject:[NSPipe pipe]];
         [dupList addObject:[NSNumber numberWithInt:i++]];
     }
-    [gpgTask inheritPipes:pipeList mode:O_WRONLY dups:dupList name:@"ins"];
-    [pipeList release];
+    [gpgTask inheritPipesWithMode:O_WRONLY dups:dupList name:@"ins"];
     [dupList release];
     // Setup the task to be run in the parent process, before
     // the parent starts waiting for the child.

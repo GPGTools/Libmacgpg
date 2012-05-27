@@ -29,17 +29,17 @@ typedef struct {
 
 @interface LPXTTask ()
 
-- (void)inheritPipe:(NSPipe *)pipe mode:(int)mode dup:(int)dupfd name:(NSString *)name addIfExists:(BOOL)add;
+- (void)inheritPipeWithMode:(int)mode dup:(int)dupfd name:(NSString *)name addIfExists:(BOOL)add;
 - (void)_performParentTask;
 @property BOOL cancelled;
 
 @end
 
+
 @implementation LPXTTask
 @synthesize arguments=_arguments, currentDirectoryPath=_currentDirectoryPath, 
             environment=_environment, launchPath=_launchPath, 
-            processIdentifier=_processIdentifier, standardError=_standardError,
-            standardInput=_standardInput, standardOutput=_standardOutput,
+            processIdentifier=_processIdentifier,
             terminationStatus=_terminationStatus, parentTask=_parentTask,
 			cancelled=_cancelled;
 
@@ -108,12 +108,10 @@ static char *__BDSKCopyFileSystemRepresentation(NSString *str)
     }
     // Add the stdin, stdout and stderr to the inherited pipes, so all of them can be
     // processed together.
-    if([_standardInput isKindOfClass:[NSPipe class]])
-        [self inheritPipe:_standardInput mode:O_WRONLY dup:0 name:@"stdin"];
-    if([_standardOutput isKindOfClass:[NSPipe class]])
-        [self inheritPipe:_standardOutput mode:O_RDONLY dup:1 name:@"stdout"];
-    if([_standardError isKindOfClass:[NSPipe class]])
-        [self inheritPipe:_standardError mode:O_RDONLY dup:2 name:@"stderr"];
+	[self inheritPipeWithMode:O_WRONLY dup:0 name:@"stdin"];
+	[self inheritPipeWithMode:O_RDONLY dup:1 name:@"stdout"];
+	[self inheritPipeWithMode:O_RDONLY dup:2 name:@"stderr"];
+	
     
     // File descriptors to close in the parent process.
     NSMutableSet *closeInParent = [NSMutableSet set];
@@ -287,7 +285,7 @@ static char *__BDSKCopyFileSystemRepresentation(NSString *str)
  1.) addIfExists is set to true -> add the pipe under the given name.
  2.) addIfExists is set to NO -> don't add the pipe and raise an error!
  */
-- (void)inheritPipe:(NSPipe *)pipe mode:(int)mode dup:(int)dupfd name:(NSString *)name addIfExists:(BOOL)addIfExists {
+- (void)inheritPipeWithMode:(int)mode dup:(int)dupfd name:(NSString *)name addIfExists:(BOOL)addIfExists {
     // Create a dictionary holding additional information about the pipe.
     // This info is used later to close and dup the file descriptor which
     // is used by either parent or child.
@@ -297,7 +295,7 @@ static char *__BDSKCopyFileSystemRepresentation(NSString *str)
     // Add the pipe to the _inheritedPipes array.
     // A CFMutableArray is used instead of a NSMutableArray due to the fact,
     // that NSMutableArrays copy added values and CFMutableArrays only retain them.
-    CFArrayAppendValue(_inheritedPipes, pipe);
+    CFArrayAppendValue(_inheritedPipes, [NSPipe pipe]);
     [pipeInfo setValue:[NSNumber numberWithInt:CFArrayGetCount(_inheritedPipes)-1] forKey:@"pipeIdx"];
     // The pipe info is add to the pipe maps.
     // If a pipe already exists under that name, it's added to the list of pipes the
@@ -319,16 +317,14 @@ static char *__BDSKCopyFileSystemRepresentation(NSString *str)
         [_inheritedPipesMap setValue:pipeList forKey:name];
 }
 
-- (void)inheritPipe:(NSPipe *)pipe mode:(int)mode dup:(int)dupfd name:(NSString *)name {
+- (void)inheritPipeWithMode:(int)mode dup:(int)dupfd name:(NSString *)name {
     // Raise an error if the pipe already exists.
-    [self inheritPipe:pipe mode:mode dup:dupfd name:name addIfExists:NO];
+    [self inheritPipeWithMode:mode dup:dupfd name:name addIfExists:NO];
 }
 
-- (void)inheritPipes:(NSArray *)pipes mode:(int)mode dups:(NSArray *)dupfds name:(NSString *)name {
-    NSAssert([pipes count] == [dupfds count], @"Number of pipes and fds to duplicate not matching!");
-    
-    for(int i = 0; i < [pipes count]; i++) {
-        [self inheritPipe:[pipes objectAtIndex:i] mode:mode dup:[[dupfds objectAtIndex:i] intValue] name:name addIfExists:YES];
+- (void)inheritPipesWithMode:(int)mode dups:(NSArray *)dupfds name:(NSString *)name {
+    for(int i = 0; i < [dupfds count]; i++) {
+        [self inheritPipeWithMode:mode dup:[[dupfds objectAtIndex:i] intValue] name:name addIfExists:YES];
     }
 }
 
@@ -369,9 +365,6 @@ static char *__BDSKCopyFileSystemRepresentation(NSString *str)
     [_currentDirectoryPath release];
     [_environment release];
     [_launchPath release];
-    [_standardError release];
-    [_standardInput release];
-    [_standardOutput release];
     [_parentTask release];
     if(_inheritedPipes)
         CFRelease(_inheritedPipes);
