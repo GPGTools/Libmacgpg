@@ -18,6 +18,7 @@
 */
 
 #import <Cocoa/Cocoa.h>
+#import <SystemConfiguration/SCPreferences.h>
 
 @class GPGConf;
 
@@ -46,6 +47,9 @@ typedef enum {
 	GPGConf *gpgAgentConf;
 	NSString *identifier;
 	NSUInteger updating;
+    
+    SCPreferencesRef preferences;
+    id syncRoot;
 }
 
 @property (readonly) NSString *httpProxy;

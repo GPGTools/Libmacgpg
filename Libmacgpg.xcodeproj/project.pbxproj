@@ -84,6 +84,7 @@
 		45891A3F151BA1C9002D7410 /* SignedInputStringLF.txt in Resources */ = {isa = PBXBuildFile; fileRef = 45891A3D151BA1C9002D7410 /* SignedInputStringLF.txt */; };
 		45891A41151BA1EC002D7410 /* SignedInputStringCR.txt in Resources */ = {isa = PBXBuildFile; fileRef = 45891A40151BA1EC002D7410 /* SignedInputStringCR.txt */; };
 		4591C4CA14F85AA3007F6D47 /* GPGConfReaderTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 4591C4C914F85AA3007F6D47 /* GPGConfReaderTest.m */; };
+		45B8C6AC157140A600FD49CD /* NSRunLoop+TimeOutAndFlag.m in Sources */ = {isa = PBXBuildFile; fileRef = 45B8C6AB157140A600FD49CD /* NSRunLoop+TimeOutAndFlag.m */; };
 		45B9A7F6151C9A6D00DAD67A /* OpenPGP.asc in Resources */ = {isa = PBXBuildFile; fileRef = 45B9A7F5151C9A6D00DAD67A /* OpenPGP.asc */; };
 		45C0BC03151B65C700AA8BF6 /* GPGTestVerify.m in Sources */ = {isa = PBXBuildFile; fileRef = 45C0BC02151B65C700AA8BF6 /* GPGTestVerify.m */; };
 		45C0BC18151B66F500AA8BF6 /* GPGResourceUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 45C0BC17151B66F500AA8BF6 /* GPGResourceUtil.m */; };
@@ -204,6 +205,8 @@
 		4591C4D314F86D38007F6D47 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		4591C4D414F86D38007F6D47 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		4591C4D514F86D38007F6D47 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		45B8C6AA157140A600FD49CD /* NSRunLoop+TimeOutAndFlag.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSRunLoop+TimeOutAndFlag.h"; sourceTree = "<group>"; };
+		45B8C6AB157140A600FD49CD /* NSRunLoop+TimeOutAndFlag.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSRunLoop+TimeOutAndFlag.m"; sourceTree = "<group>"; };
 		45B9A7F5151C9A6D00DAD67A /* OpenPGP.asc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = OpenPGP.asc; sourceTree = "<group>"; };
 		45C0BC02151B65C700AA8BF6 /* GPGTestVerify.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGTestVerify.m; sourceTree = "<group>"; };
 		45C0BC16151B66F500AA8BF6 /* GPGResourceUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGResourceUtil.h; sourceTree = "<group>"; };
@@ -378,6 +381,8 @@
 			isa = PBXGroup;
 			children = (
 				45C0BC13151B664D00AA8BF6 /* Resources */,
+				45B8C6AA157140A600FD49CD /* NSRunLoop+TimeOutAndFlag.h */,
+				45B8C6AB157140A600FD49CD /* NSRunLoop+TimeOutAndFlag.m */,
 				45C0BC16151B66F500AA8BF6 /* GPGResourceUtil.h */,
 				45C0BC17151B66F500AA8BF6 /* GPGResourceUtil.m */,
 				30C8B39A1395052D00F49AA1 /* Test1.h */,
@@ -611,6 +616,7 @@
 				45C0BC03151B65C700AA8BF6 /* GPGTestVerify.m in Sources */,
 				45C0BC18151B66F500AA8BF6 /* GPGResourceUtil.m in Sources */,
 				45DD3D4C15642A0D00C9A4C1 /* GPGSignatureTest.m in Sources */,
+				45B8C6AC157140A600FD49CD /* NSRunLoop+TimeOutAndFlag.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

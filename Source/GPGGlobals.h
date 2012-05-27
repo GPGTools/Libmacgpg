@@ -207,8 +207,9 @@ enum gpgStatusCodes {
 #define GPGDebugLog(...) {if ([GPGOptions debugLog]) NSLog(__VA_ARGS__);}
 #define GPG_SERVICE_NAME "GnuPG"
 
-extern NSString *GPGKeysChangedNotification;
-extern NSString *GPGOptionsChangedNotification;
+extern NSString * const GPGKeysChangedNotification;
+extern NSString * const GPGOptionsChangedNotification;
+extern NSString * const GPGConfigurationModifiedNotification;
 
 
 
