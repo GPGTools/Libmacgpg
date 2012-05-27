@@ -232,8 +232,9 @@ break;
 @end
 
 
-NSString *GPGKeysChangedNotification = @"GPGKeysChangedNotification";
-NSString *GPGOptionsChangedNotification = @"GPGOptionsChangedNotification";
+NSString * const GPGKeysChangedNotification = @"GPGKeysChangedNotification";
+NSString * const GPGOptionsChangedNotification = @"GPGOptionsChangedNotification";
+NSString * const GPGConfigurationModifiedNotification = @"GPGConfigurationModifiedNotification";
 
 
 int hexToByte (const char *text) {
