@@ -22,21 +22,17 @@
 typedef void (^lpxt_task_t)(void);
 
 @interface LPXTTask : NSObject {
-    NSArray *_arguments;
-    NSDictionary *_environment;
-    NSString *_launchPath;
-    NSString *_currentDirectoryPath;
+    NSArray *arguments;
+    NSString *launchPath;
     
-    int _processIdentifier;
-    int _terminationStatus;
+    int processIdentifier;
+    int terminationStatus;
     
-    lpxt_task_t _parentTask;
-	
-	BOOL _cancelled;
+    lpxt_task_t parentTask;
 
 @private
-    CFMutableArrayRef _inheritedPipes;
-    NSMutableDictionary *_inheritedPipesMap;
+    CFMutableArrayRef inheritedPipes;
+    NSMutableDictionary *inheritedPipesMap;
 	
 }
 
@@ -48,17 +44,10 @@ typedef void (^lpxt_task_t)(void);
 - (void)removeInheritedPipeWithName:(NSString *)name;
 
 @property (retain) NSArray *arguments;
-@property (retain) NSDictionary *environment;
 @property (copy) NSString *launchPath;
-@property (copy) NSString *currentDirectoryPath;
-@property (readonly) int processIdentifier;
 @property (readonly) int terminationStatus;
 @property (copy) lpxt_task_t parentTask;
-@property (readonly) BOOL cancelled;
 
 - (void)cancel;
-//- (void)terminate;
-//- (void)suspend;
-//- (void)resume;
 
 @end

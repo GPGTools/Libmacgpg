@@ -347,6 +347,21 @@ void *memmem(const void *big, size_t big_len, const void *little, size_t little_
 
 
 
+@implementation NSPipe (SetNoSIGPIPE)
+
+#ifndef F_SETNOSIGPIPE
+#define F_SETNOSIGPIPE		73	/* No SIGPIPE generated on EPIPE */
+#endif
+#define FCNTL_SETNOSIGPIPE(fd) (fcntl(fd, F_SETNOSIGPIPE, 1))
+
+- (NSPipe *)noSIGPIPE 
+{
+    FCNTL_SETNOSIGPIPE([[self fileHandleForReading] fileDescriptor]);
+    FCNTL_SETNOSIGPIPE([[self fileHandleForWriting] fileDescriptor]);
+    return self;
+}
+
+@end
 
 
 

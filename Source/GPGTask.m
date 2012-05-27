@@ -29,10 +29,6 @@
 
 static const NSUInteger kDataBufferSize = 65536; 
 
-// a little category to fcntl F_SETNOSIGPIPE on each fd
-@interface NSPipe (SetNoSIGPIPE)
-- (NSPipe *)noSIGPIPE;
-@end
 
 @interface GPGTask ()
 
@@ -1035,24 +1031,6 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 		return nil;
 	}
     return nil;
-}
-
-@end
-
-//-----------------------------------------
-
-@implementation NSPipe (SetNoSIGPIPE)
-
-#ifndef F_SETNOSIGPIPE
-#define F_SETNOSIGPIPE		73	/* No SIGPIPE generated on EPIPE */
-#endif
-#define FCNTL_SETNOSIGPIPE(fd) (fcntl(fd, F_SETNOSIGPIPE, 1))
-
-- (NSPipe *)noSIGPIPE 
-{
-    FCNTL_SETNOSIGPIPE([[self fileHandleForReading] fileDescriptor]);
-    FCNTL_SETNOSIGPIPE([[self fileHandleForWriting] fileDescriptor]);
-    return self;
 }
 
 @end

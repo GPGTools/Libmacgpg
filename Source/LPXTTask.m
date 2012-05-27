@@ -19,8 +19,6 @@
 
 #import "LPXTTask.h"
 #import "GPGGlobals.h"
-// Includes definition for _NSGetEnviron
-#import <crt_externs.h>
 
 typedef struct {
     int fd;
@@ -30,25 +28,19 @@ typedef struct {
 @interface LPXTTask ()
 
 - (void)inheritPipeWithMode:(int)mode dup:(int)dupfd name:(NSString *)name addIfExists:(BOOL)add;
-- (void)_performParentTask;
-@property BOOL cancelled;
 
 @end
 
 
 @implementation LPXTTask
-@synthesize arguments=_arguments, currentDirectoryPath=_currentDirectoryPath, 
-            environment=_environment, launchPath=_launchPath, 
-            processIdentifier=_processIdentifier,
-            terminationStatus=_terminationStatus, parentTask=_parentTask,
-			cancelled=_cancelled;
+@synthesize arguments, launchPath, terminationStatus, parentTask;
 
 - (id)init
 {
     self = [super init];
     if(self != nil) {
-        _inheritedPipes = CFArrayCreateMutable(NULL, 0, NULL);
-        _inheritedPipesMap = [[NSMutableDictionary alloc] init];
+        inheritedPipes = CFArrayCreateMutable(NULL, 0, NULL);
+        inheritedPipesMap = [[NSMutableDictionary alloc] init];
     }
     return self;
 }
@@ -65,7 +57,7 @@ typedef struct {
  
  http://lists.apple.com/archives/objc-language/2011/Mar/msg00122.html
  */
-static char *__BDSKCopyFileSystemRepresentation(NSString *str)
+static char *BDSKCopyFileSystemRepresentation(NSString *str)
 {
     if (nil == str) return NULL;
     
@@ -80,32 +72,18 @@ static char *__BDSKCopyFileSystemRepresentation(NSString *str)
 
 - (void)launchAndWait {
     // This launch method is partly taken from BDSKTask.
-    const NSUInteger argCount = [_arguments count];
-    char *workingDir = __BDSKCopyFileSystemRepresentation(_currentDirectoryPath);
+    const NSUInteger argCount = [arguments count];
     
     // fill with pointers to copied C strings
     char **args = NSZoneCalloc([self zone], (argCount + 2), sizeof(char *));
     NSUInteger i;
-    args[0] = __BDSKCopyFileSystemRepresentation(_launchPath);
+    args[0] = BDSKCopyFileSystemRepresentation(launchPath);
     for (i = 0; i < argCount; i++) {
-        args[i + 1] = __BDSKCopyFileSystemRepresentation([_arguments objectAtIndex:i]);
+        args[i + 1] = BDSKCopyFileSystemRepresentation([arguments objectAtIndex:i]);
     }
     args[argCount + 1] = NULL;
     
-    char ***nsEnvironment = (char ***)_NSGetEnviron();
-    char **env = *nsEnvironment;
     
-    NSDictionary *environment = [self environment];
-    if (environment) {
-        // fill with pointers to copied C strings
-        env = NSZoneCalloc([self zone], [environment count] + 1, sizeof(char *));
-        NSString *key;
-        NSUInteger envIndex = 0;
-        for (key in environment) {
-            env[envIndex++] = __BDSKCopyFileSystemRepresentation([NSString stringWithFormat:@"%@=%@", key, [environment objectForKey:key]]);        
-        }
-        env[envIndex] = NULL;
-    }
     // Add the stdin, stdout and stderr to the inherited pipes, so all of them can be
     // processed together.
 	[self inheritPipeWithMode:O_WRONLY dup:0 name:@"stdin"];
@@ -115,11 +93,9 @@ static char *__BDSKCopyFileSystemRepresentation(NSString *str)
     
     // File descriptors to close in the parent process.
     NSMutableSet *closeInParent = [NSMutableSet set];
-    // Based on BDSKTask's believe, no Cocoa or CF calls should be used in 
-    // the child process.
-    // Not sure for what reason, but let's comply with that.
+	
     // File descriptors to close in the child process.
-    int pipeCount = CFArrayGetCount(_inheritedPipes);    
+    int pipeCount = CFArrayGetCount(inheritedPipes);    
     lpxttask_fd fds[pipeCount];
     for(int i = 0; i < pipeCount; i++) {
         fds[i].fd = -1;
@@ -129,12 +105,12 @@ static char *__BDSKCopyFileSystemRepresentation(NSString *str)
     NSPipe *tmpPipe;
     int k = 0;
     NSMutableArray *fdArray = [NSMutableArray array];
-    for(id key in _inheritedPipesMap) {
-        NSArray *pipeList = [_inheritedPipesMap objectForKey:key];
+    for(id key in inheritedPipesMap) {
+        NSArray *pipeList = [inheritedPipesMap objectForKey:key];
         for(NSDictionary *pipeInfo in pipeList) {
             NSNumber *idx = [pipeInfo valueForKey:@"pipeIdx"];
             
-            tmpPipe = (NSPipe *)CFArrayGetValueAtIndex(_inheritedPipes, [idx intValue]);
+            tmpPipe = (NSPipe *)CFArrayGetValueAtIndex(inheritedPipes, [idx intValue]);
             // The mode value of the pipe decides what should happen with the
             // pipe fd of the parent. Opposite with the fd of the child.
             if([[pipeInfo valueForKey:@"mode"] intValue] == O_RDONLY) {
@@ -180,9 +156,9 @@ static char *__BDSKCopyFileSystemRepresentation(NSString *str)
         maxOpenFiles = openFileLimit.rlim_cur;
     
     // !!! No CF or Cocoa after this point in the child process!
-    _processIdentifier = fork();
+    processIdentifier = fork();
     
-    if(_processIdentifier == 0) {
+    if(processIdentifier == 0) {
         // This is the child.
         
         // set process group for killpg()
@@ -210,8 +186,6 @@ static char *__BDSKCopyFileSystemRepresentation(NSString *str)
                 close(j);
         }
         
-        // Change the working dir.
-        if (workingDir) chdir(workingDir);
         
         char ignored;
         // block until the parent has setup complete
@@ -219,13 +193,13 @@ static char *__BDSKCopyFileSystemRepresentation(NSString *str)
         close(blockpipe[0]);
         
         // AAAAAAND run our command.
-        int ret = execve(args[0], args, env);
+        int ret = execv(args[0], args);
         _exit(ret);
     }
-    else if (_processIdentifier == -1) {
+    else if (processIdentifier == -1) {
         // parent: error
         perror("fork() failed");
-        _terminationStatus = 2;
+        terminationStatus = 2;
     }
     else {
         // This is the parent.
@@ -237,44 +211,33 @@ static char *__BDSKCopyFileSystemRepresentation(NSString *str)
         close(blockpipe[1]);
         
         // Run the task setup to run in the parent.
-        [self _performParentTask];
+		if(parentTask != nil) {
+			parentTask();
+		}
         
         // Wait for the gpg process to finish.
         int retval, stat_loc;
-        while ((retval = waitpid(_processIdentifier, &stat_loc, 0)) != _processIdentifier) {
+        while ((retval = waitpid(processIdentifier, &stat_loc, 0)) != processIdentifier) {
             int e = errno;
             if (retval != -1 || e != EINTR) {
                 GPGDebugLog(@"waitpid loop: %i errno: %i, %s", retval, e, strerror(e));
             }
         }
-        _terminationStatus = WEXITSTATUS(stat_loc);
+        terminationStatus = WEXITSTATUS(stat_loc);
     }
     
     /*
-     Free all the copied C strings.  Don't modify the base pointer of args or env, since we have to
+     Free all the copied C strings.  Don't modify the base pointer of args, since we have to
      free those too!
      */
-    free(workingDir);
     char **freePtr = args;
     while (NULL != *freePtr) { 
         free(*freePtr++);
     }
     
     NSZoneFree(NSZoneFromPointer(args), args);
-    if (*nsEnvironment != env) {
-        freePtr = env;
-        while (NULL != *freePtr) { 
-            free(*freePtr++);
-        }
-        NSZoneFree(NSZoneFromPointer(env), env);
-    }
 }
 
-- (void)_performParentTask {
-    if(_parentTask != nil) {
-        _parentTask();
-    }
-}
 
 /**
  All the magic happens in here.
@@ -292,15 +255,15 @@ static char *__BDSKCopyFileSystemRepresentation(NSString *str)
     NSMutableDictionary *pipeInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                      [NSNumber numberWithInt:mode], @"mode",
                                      [NSNumber numberWithInt:dupfd], @"dupfd", nil];
-    // Add the pipe to the _inheritedPipes array.
+    // Add the pipe to the inheritedPipes array.
     // A CFMutableArray is used instead of a NSMutableArray due to the fact,
     // that NSMutableArrays copy added values and CFMutableArrays only retain them.
-    CFArrayAppendValue(_inheritedPipes, [NSPipe pipe]);
-    [pipeInfo setValue:[NSNumber numberWithInt:CFArrayGetCount(_inheritedPipes)-1] forKey:@"pipeIdx"];
+    CFArrayAppendValue(inheritedPipes, [[NSPipe pipe] noSIGPIPE]);
+    [pipeInfo setValue:[NSNumber numberWithInt:CFArrayGetCount(inheritedPipes)-1] forKey:@"pipeIdx"];
     // The pipe info is add to the pipe maps.
     // If a pipe already exists under that name, it's added to the list of pipes the
     // name is referring to.
-    NSMutableArray *pipeList = (NSMutableArray *)[_inheritedPipesMap valueForKey:name];
+    NSMutableArray *pipeList = (NSMutableArray *)[inheritedPipesMap valueForKey:name];
     if([pipeList count] && !addIfExists) {
         @throw [NSException exceptionWithName:@"LPXTTask" 
                                        reason:[NSString stringWithFormat:@"A pipe is already registered under the name %@",
@@ -314,7 +277,7 @@ static char *__BDSKCopyFileSystemRepresentation(NSString *str)
     [pipeList addObject:pipeInfo];
     // Add the pipe list, if this is the first pipe to be added.
     if([pipeList count] == 1)
-        [_inheritedPipesMap setValue:pipeList forKey:name];
+        [inheritedPipesMap setValue:pipeList forKey:name];
 }
 
 - (void)inheritPipeWithMode:(int)mode dup:(int)dupfd name:(NSString *)name {
@@ -330,10 +293,10 @@ static char *__BDSKCopyFileSystemRepresentation(NSString *str)
 
 - (NSArray *)inheritedPipesWithName:(NSString *)name {
     // Find the pipe info matching the given name.
-    NSDictionary *pipeInfo = [_inheritedPipesMap valueForKey:name];
+    NSDictionary *pipeInfo = [inheritedPipesMap valueForKey:name];
 	NSMutableArray *pipeList = [NSMutableArray array];
     for(id idx in [pipeInfo valueForKey:@"pipeIdx"]) {
-		[pipeList addObject:[(NSArray *)_inheritedPipes objectAtIndex:[idx intValue]]];
+		[pipeList addObject:[(NSArray *)inheritedPipes objectAtIndex:[idx intValue]]];
 	}
     return pipeList;
 }
@@ -352,30 +315,27 @@ static char *__BDSKCopyFileSystemRepresentation(NSString *str)
 
 - (void)removeInheritedPipeWithName:(NSString *)name {
     // Find the pipeInfo.
-    NSArray *pipeList = [_inheritedPipesMap objectForKey:name];
+    NSArray *pipeList = [inheritedPipesMap objectForKey:name];
     for(NSDictionary *pipeInfo in pipeList) {
         NSNumber *idx = [pipeInfo objectForKey:@"pipeIdx"];
-        CFArrayRemoveValueAtIndex(_inheritedPipes, [idx intValue]);
+        CFArrayRemoveValueAtIndex(inheritedPipes, [idx intValue]);
     }
-    [_inheritedPipesMap setValue:nil forKey:name];
+    [inheritedPipesMap setValue:nil forKey:name];
 }
 
 - (void)dealloc {
-    [_arguments release];
-    [_currentDirectoryPath release];
-    [_environment release];
-    [_launchPath release];
-    [_parentTask release];
-    if(_inheritedPipes)
-        CFRelease(_inheritedPipes);
-    [_inheritedPipesMap release];
+    [arguments release];
+    [launchPath release];
+    [parentTask release];
+	CFRelease(inheritedPipes);
+    [inheritedPipesMap release];
     [super dealloc];
 }
 
 - (void)closePipes {
     // Close all pipes, otherwise SIGTERM is ignored it seems.
-    GPGDebugLog(@"Inherited Pipes: %@", (NSArray *)_inheritedPipes);
-    for(NSPipe *pipe in (NSArray *)_inheritedPipes) {
+    GPGDebugLog(@"Inherited Pipes: %@", (NSArray *)inheritedPipes);
+    for(NSPipe *pipe in (NSArray *)inheritedPipes) {
         @try {
             [[pipe fileHandleForReading] closeFile];
             [[pipe fileHandleForWriting] closeFile];
@@ -387,11 +347,10 @@ static char *__BDSKCopyFileSystemRepresentation(NSString *str)
 }
 
 - (void)cancel {
-	self.cancelled = YES;
-	if (self.processIdentifier > 0) {
+	if (processIdentifier > 0) {
         // Close all pipes, otherwise SIGTERM is ignored it seems.
         [self closePipes];
-		kill(self.processIdentifier, SIGTERM);
+		kill(processIdentifier, SIGTERM);
 	}
 }
 
