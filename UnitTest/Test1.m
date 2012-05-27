@@ -115,6 +115,8 @@ static NSString *skelconf = @"/usr/local/MacGPG2/share/gnupg/gpg-conf.skel";
     [fh waitForDataInBackgroundAndNotify];
 }
 
+
+
 - (void)testGPGConfGetContents {
     GPGConf *conf = [[GPGConf alloc] initWithPath:skelconf andDomain:GPGDomain_gpgConf];
     

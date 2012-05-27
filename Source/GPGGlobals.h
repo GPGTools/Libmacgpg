@@ -281,4 +281,8 @@ void *memmem(const void *big, size_t big_len, const void *little, size_t little_
 - (id)init;
 @end
 
+// a little category to fcntl F_SETNOSIGPIPE on each fd
+@interface NSPipe (SetNoSIGPIPE)
+- (NSPipe *)noSIGPIPE;
+@end
 
