@@ -98,6 +98,7 @@ typedef enum {
 
 
 - (void)gpgAgentFlush;
+- (void)gpgAgentTerminate;
 
 + (NSString *)standardizedKey:(NSString *)key;
 - (GPGOptionsDomain)domainForKey:(NSString *)key;

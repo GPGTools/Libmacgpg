@@ -20,11 +20,20 @@
 #import <Cocoa/Cocoa.h>
 
 
-@interface GPGKeyAlgorithmNameTransformer : NSValueTransformer {}
+@interface GPGKeyAlgorithmNameTransformer : NSValueTransformer {
+    BOOL _keepUnlocalized; // default NO; used for Unit Testing
+}
+// default NO
+@property (assign) BOOL keepUnlocalized;
+
 - (id)transformedIntegerValue:(NSInteger)value;
 @end
 
-@interface GPGKeyStatusDescriptionTransformer : NSValueTransformer {}
+@interface GPGKeyStatusDescriptionTransformer : NSValueTransformer {
+    BOOL _keepUnlocalized; // default NO; used for Unit Testing
+}
+// default NO
+@property (assign) BOOL keepUnlocalized;
 @end
 
 @interface SplitFormatter : NSFormatter {

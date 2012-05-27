@@ -20,6 +20,8 @@
 #import <Cocoa/Cocoa.h>
 #import <Libmacgpg/GPGGlobals.h>
 
+@class GPGStream;
+
 @interface GPGPacket : NSObject {
 	GPGPacketType type;
 	NSData *data;
@@ -44,6 +46,8 @@
 
 + (id)packetsWithData:(NSData *)data;
 + (BOOL)isArmored:(const uint8_t)byte;
+// if return nil, input stream is not armored; should be reset and used directly
++ (NSData *)unArmorFrom:(GPGStream *)input clearText:(NSData **)clearText;
 + (NSData *)unArmor:(NSData *)data;
 + (NSData *)unArmor:(NSData *)theData clearText:(NSData **)clearText;
 + (NSData *)repairPacketData:(NSData *)data;

@@ -21,13 +21,21 @@
 #import "GPGGlobals.h"
 #import "GPGOptions.h"
 #import "LPXTTask.h"
+#import "GPGMemoryStream.h"
 #import "GPGException.h"
 #import "GPGGlobals.h"
 //#import <sys/shm.h>
+#import <fcntl.h>
+
+static const NSUInteger kDataBufferSize = 65536; 
+
+// a little category to fcntl F_SETNOSIGPIPE on each fd
+@interface NSPipe (SetNoSIGPIPE)
+- (NSPipe *)noSIGPIPE;
+@end
 
 @interface GPGTask ()
 
-@property (retain) NSData *outData;
 @property (retain) NSData *errData;
 @property (retain) NSData *statusData;
 @property (retain) NSData *attributeData;
@@ -49,8 +57,9 @@ NSDictionary *statusCodes;
 char partCountForStatusCode[GPG_STATUS_COUNT];
 
 static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
-@synthesize isRunning, batchMode, getAttributeData, delegate, userInfo, exitcode, errorCode, gpgPath, outData, errData, statusData, attributeData, lastUserIDHint, lastNeedPassphrase, cancelled,
+@synthesize isRunning, batchMode, getAttributeData, delegate, userInfo, exitcode, errorCode, gpgPath, errData, statusData, attributeData, lastUserIDHint, lastNeedPassphrase, cancelled,
             gpgTask, progressInfo, statusDict;
+@synthesize outStream;
 
 
 
@@ -58,11 +67,18 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 	return [[arguments copy] autorelease];
 }
 
+- (NSData *)outData {
+    return [outStream readAllData];
+}
+
+- (void)addInput:(GPGStream *)stream
+{
+	if (!inDatas) 
+		inDatas = [[NSMutableArray alloc] init];
+	[inDatas addObject:stream];
+}
 - (void)addInData:(NSData *)data {
-	if (!inDatas) {
-		inDatas = [[NSMutableArray alloc] initWithCapacity:1];
-	}
-	[inDatas addObject:data];
+    [self addInput:[GPGMemoryStream memoryStreamForReading:data]];
 }
 - (void)addInText:(NSString *)string {
 	[self addInData:[string UTF8Data]];
@@ -70,7 +86,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 
 - (NSString *)outText {
 	if (!outText) {
-        outText = [[outData gpgString] retain];
+        outText = [[[outStream readAllData] gpgString] retain];
 	}
 	return [[outText retain] autorelease];
 }
@@ -282,7 +298,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
         if ([possibleBins count] > 0) {
             inconfPath = [possibleBins objectAtIndex:0];
             [options setValue:inconfPath forKey:kPinentry_program inDomain:GPGDomain_gpgAgentConf];
-            [options gpgAgentFlush];
+            [options gpgAgentTerminate];
         }
     }
 
@@ -377,7 +393,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 	[arguments release];
 	self.userInfo = nil;
 	
-	[outData release];
+    [outStream release];
 	[errData release];
 	[statusData release];
 	[attributeData release];
@@ -394,7 +410,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 	self.lastNeedPassphrase = nil;
 	
 	self.gpgPath = nil;
-	
+	[writeException release];
 	[super dealloc];
 }
 
@@ -420,8 +436,8 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 	
 	
 	if (progressInfo && [delegate respondsToSelector:@selector(gpgTask:progressed:total:)]) {
-		for (NSData *data in inDatas) {
-			inDataLength += [data length];
+		for (GPGStream *gstream in inDatas) {
+			inDataLength += [gstream length];
 		}
 		progressedLengths = [[NSMutableDictionary alloc] init];
 		[defaultArguments addObject:@"--enable-progress-filter"];
@@ -467,7 +483,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 	
     // Last but not least, add the fd's used to read the in-data from.
     int i = 5;
-    for (NSData *data in inDatas) {
+    for (id object in inDatas) {
         [defaultArguments addObject:[NSString stringWithFormat:@"/dev/fd/%d", i++]];
     }
 		
@@ -502,7 +518,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
     // the parent starts waiting for the child.
     NSMutableData *completeStatusData = [[NSMutableData alloc] initWithLength:0];
     
-    
+	NSObject *syncRoot = [[[NSObject alloc] init] autorelease];    
 	__block NSException *blockException = nil;
 
     gpgTask.parentTask = ^{
@@ -527,16 +543,58 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
         }
         // Add each job to the collector group.
         dispatch_group_async(collectorGroup, queue, ^{
-            self.outData = [[[gpgTask inheritedPipeWithName:@"stdout"] fileHandleForReading] readDataToEndOfFile];
-			[self logDataContent:outData message:@"[STDOUT]"];
+            if (!outStream)
+                outStream = [[GPGMemoryStream memoryStream] retain];
+            NSFileHandle *stdoutfh = [[gpgTask inheritedPipeWithName:@"stdout"] fileHandleForReading];
+
+            NSAutoreleasePool *pool = nil;
+            @try {
+                NSData *data;
+                pool = [[NSAutoreleasePool alloc] init];                
+                while ((data = [stdoutfh readDataOfLength:kDataBufferSize]) && [data length] > 0) 
+                {
+                    [outStream writeData:data];
+                    [pool release];
+                    pool = [[NSAutoreleasePool alloc] init];
+                }
+            }
+            @catch (NSException *exception) {
+                @synchronized(syncRoot) {
+                    if (!blockException)
+                        blockException = [exception retain];
+                }
+            }
+            @finally {
+                [outStream flush];
+                [pool release];
+            }
+
+            if ([GPGOptions debugLog]) 
+                [self logDataContent:[self outData] message:@"[STDOUT]"];
         });
         dispatch_group_async(collectorGroup, queue, ^{
-            self.errData = [[[gpgTask inheritedPipeWithName:@"stderr"] fileHandleForReading] readDataToEndOfFile];
+            @try {
+                self.errData = [[[gpgTask inheritedPipeWithName:@"stderr"] fileHandleForReading] readDataToEndOfFile];
+            }
+            @catch (NSException *exception) {
+                @synchronized(syncRoot) {
+                    if (!blockException)
+                        blockException = [exception retain];
+                }
+            }
 			[self logDataContent:errData message:@"[STDERR]"];
         });
         if(getAttributeData) {
             dispatch_group_async(collectorGroup, queue, ^{
-                self.attributeData = [[[gpgTask inheritedPipeWithName:@"attribute"] fileHandleForReading] readDataToEndOfFile];
+                @try {
+                    self.attributeData = [[[gpgTask inheritedPipeWithName:@"attribute"] fileHandleForReading] readDataToEndOfFile];
+                }
+                @catch (NSException *exception) {
+                    @synchronized(syncRoot) {
+                        if (!blockException)
+                            blockException = [exception retain];
+                    }
+                }
             });
         }
 				
@@ -587,7 +645,10 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 				}
 
 			} @catch (NSException *exception) {
-				blockException = [exception retain];
+                @synchronized(syncRoot) {
+                    if (!blockException)
+                        blockException = [exception retain];
+                }
 				[gpgTask cancel];
 			} @finally {
 				self.statusData = completeStatusData;
@@ -607,9 +668,10 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
     [gpgTask launchAndWait];
 	
     
-	if (blockException) {
+	if (blockException) 
 		@throw [blockException autorelease];
-	}
+	if (writeException)
+		@throw writeException;
 	
     exitcode = gpgTask.terminationStatus;
     
@@ -635,8 +697,29 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 	inputDataWritten = YES;
     NSArray *pipeList = [gpgTask inheritedPipesWithName:@"ins"];
     for(int i = 0; i < [pipeList count]; i++) {
-        [[[pipeList objectAtIndex:i] fileHandleForWriting] writeData:[inDatas objectAtIndex:i]];
-        [[[pipeList objectAtIndex:i] fileHandleForWriting] closeFile];
+        NSFileHandle *ofh = [[pipeList objectAtIndex:i] fileHandleForWriting];
+        NSAutoreleasePool *pool = nil;
+        @try {
+            GPGStream *input = [inDatas objectAtIndex:i];
+            NSData *data;
+
+            pool = [[NSAutoreleasePool alloc] init];            
+            while ((data = [input readDataOfLength:kDataBufferSize]) && [data length] > 0) 
+            {
+                [ofh writeData:data];
+                [pool release];
+                pool = [[NSAutoreleasePool alloc] init];            
+            }
+
+            [ofh closeFile];
+        }
+        @catch (NSException *exception) {
+            writeException = [exception retain];
+            return;
+        }
+        @finally {
+            [pool release];
+        }
     }
 }
 - (void)processStatusLine:(NSString *)line {
@@ -855,8 +938,8 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 }
 
 - (NSString *)getPassphraseFromPinentry {
-	NSPipe *inPipe = [NSPipe pipe];
-	NSPipe *outPipe = [NSPipe pipe];
+	NSPipe *inPipe = [[NSPipe pipe] noSIGPIPE];
+	NSPipe *outPipe = [[NSPipe pipe] noSIGPIPE];
 	NSTask *pinentryTask = [[NSTask new] autorelease];
 	
 	NSString *pinentryPath = [[self class] pinentryPath];
@@ -956,5 +1039,22 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 
 @end
 
+//-----------------------------------------
+
+@implementation NSPipe (SetNoSIGPIPE)
+
+#ifndef F_SETNOSIGPIPE
+#define F_SETNOSIGPIPE		73	/* No SIGPIPE generated on EPIPE */
+#endif
+#define FCNTL_SETNOSIGPIPE(fd) (fcntl(fd, F_SETNOSIGPIPE, 1))
+
+- (NSPipe *)noSIGPIPE 
+{
+    FCNTL_SETNOSIGPIPE([[self fileHandleForReading] fileDescriptor]);
+    FCNTL_SETNOSIGPIPE([[self fileHandleForWriting] fileDescriptor]);
+    return self;
+}
+
+@end
 
 

@@ -27,6 +27,8 @@
 #import "GPGException.h"
 #import "GPGPacket.h"
 #import "GPGWatcher.h"
+#import "GPGStream.h"
+#import "GPGMemoryStream.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -361,11 +363,25 @@ BOOL gpgConfigReaded = NO;
 		[asyncProxy processData:data withEncryptSignMode:mode recipients:recipients hiddenRecipients:hiddenRecipients];
 		return nil;
 	}
-	@try {
-		[self operationDidStart];
-		
+
+    GPGMemoryStream *output = [GPGMemoryStream memoryStream];
+    GPGMemoryStream *input = [GPGMemoryStream memoryStreamForReading:data];
+
+    [self operationDidStart];
+    [self processTo:output data:input withEncryptSignMode:mode recipients:recipients hiddenRecipients:hiddenRecipients];
+	NSData *retVal = [output readAllData];
+	[self cleanAfterOperation];
+	[self operationDidFinishWithReturnValue:retVal];	
+	return retVal;
+}
+
+- (void)processTo:(GPGStream *)output data:(GPGStream *)input withEncryptSignMode:(GPGEncryptSignMode)mode recipients:(NSObject<EnumerationList> *)recipients hiddenRecipients:(NSObject<EnumerationList> *)hiddenRecipients
+{
+    // asyncProxy not recognized here
+
+	@try {		
 		if ((mode & (GPGEncryptFlags | GPGSignFlags)) == 0) {
-			[NSException raise:NSInvalidArgumentException format:@"Unknwon mode: %i!", mode];
+			[NSException raise:NSInvalidArgumentException format:@"Unknown mode: %i!", mode];
 		}
 		
 		
@@ -401,8 +417,16 @@ BOOL gpgConfigReaded = NO;
 		}
 		
 		if ((mode & GPGSeparateSign) && (mode & GPGEncryptFlags)) {
+			// save object; processTo: will overwrite without releasing
 			GPGTask *tempTask = gpgTask;
-			data = [self processData:data withEncryptSignMode:mode & ~(GPGEncryptFlags | GPGSeparateSign) recipients:nil hiddenRecipients:nil];
+
+			// create new in-memory writeable stream
+			GPGMemoryStream *sigoutput = [GPGMemoryStream memoryStream];
+			[self processTo:sigoutput data:input withEncryptSignMode:mode & ~(GPGEncryptFlags | GPGSeparateSign) recipients:nil hiddenRecipients:nil];
+			input = sigoutput;
+
+			// reset back to the outer gpg task
+			[gpgTask release];
 			gpgTask = tempTask;
 		} else {
 			switch (mode & GPGSignFlags & ~GPGSeparateSign) {
@@ -426,23 +450,16 @@ BOOL gpgConfigReaded = NO;
 			}			
 		}
 
-
-		[gpgTask addInData:data];
+		gpgTask.outStream = output;
+		[gpgTask addInput:input];
 
 		if ([gpgTask start] != 0) {
-			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Process data failed!") gpgTask:gpgTask];
+			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Encrypt/sign failed!") gpgTask:gpgTask];
 		}		
 		
 	} @catch (NSException *e) {
 		[self handleException:e];
-	} @finally {
-		[self cleanAfterOperation];
-	}
-	
-	NSData *retVal = gpgTask.outData;
-	[self operationDidFinishWithReturnValue:retVal];	
-	return retVal;
-	
+	}	
 }
 
 - (NSData *)decryptData:(NSData *)data {
@@ -451,17 +468,34 @@ BOOL gpgConfigReaded = NO;
 		[asyncProxy decryptData:data];
 		return nil;
 	}
-	NSData *retVal;
-	
+    
+    GPGMemoryStream *output = [GPGMemoryStream memoryStream];
+    GPGMemoryStream *input = [GPGMemoryStream memoryStreamForReading:data];
+
+    [self operationDidStart];    
+    [self decryptTo:output data:input];
+    NSData *retVal = [output readAllData];
+    [self cleanAfterOperation];
+    [self operationDidFinishWithReturnValue:retVal];	
+    return retVal;
+}
+
+- (void)decryptTo:(GPGStream *)output data:(GPGStream *)input
+{
 	@try {
-		[self operationDidStart];
-		
-		data = [GPGPacket unArmor:data];
+		NSData *unarmored = [GPGPacket unArmorFrom:input clearText:nil];
+        if (unarmored) {
+            input = [GPGMemoryStream memoryStreamForReading:unarmored];
+        }
+        else {
+            [input seekToBeginning];
+        }
 		
 		gpgTask = [GPGTask gpgTask];
 		[self addArgumentsForOptions];
 		[self addArgumentsForKeyserver];
-		[gpgTask addInData:data];
+		[gpgTask addInput:input];
+		gpgTask.outStream = output;
 		
 		[gpgTask addArgument:@"--decrypt"];
 		
@@ -470,13 +504,7 @@ BOOL gpgConfigReaded = NO;
 		}
 	} @catch (NSException *e) {
 		[self handleException:e];
-	} @finally {
-		retVal = gpgTask.outData;
-		[self cleanAfterOperation];
-		[self operationDidFinishWithReturnValue:retVal];	
 	}
-	
-	return retVal;
 }
 
 - (NSArray *)verifySignature:(NSData *)signatureData originalData:(NSData *)originalData {
@@ -485,22 +513,39 @@ BOOL gpgConfigReaded = NO;
 		[asyncProxy verifySignature:signatureData originalData:originalData];
 		return nil;
 	}
+    
+    GPGMemoryStream *signatureInput = [GPGMemoryStream memoryStreamForReading:signatureData];
+    GPGMemoryStream *originalInput = nil;
+    if (originalData)
+        originalInput = [GPGMemoryStream memoryStreamForReading:originalData];
+    return [self verifySignatureOf:signatureInput originalData:originalInput];
+}
+
+- (NSArray *)verifySignatureOf:(GPGStream *)signatureInput originalData:(GPGStream *)originalInput
+{
 	NSArray *retVal;
 	@try {
 		[self operationDidStart];
-		
-		
-		signatureData = [GPGPacket unArmor:signatureData clearText:originalData ? nil : &originalData];
-		[originalData writeToFile:@"/Users/Roman/Desktop/dat" atomically:YES];
-		[signatureData writeToFile:@"/Users/Roman/Desktop/dat.sig" atomically:YES];
+
+		NSData *originalData = nil;		
+		NSData *unarmored = [GPGPacket unArmorFrom:signatureInput clearText:originalInput ? nil : &originalData];
+        if (unarmored) {
+            signatureInput = [GPGMemoryStream memoryStreamForReading:unarmored];
+        }
+        else {
+            [signatureInput seekToBeginning];
+        }
+
+        if (originalData)
+            originalInput = [GPGMemoryStream memoryStreamForReading:originalData];
 		
 		
 		gpgTask = [GPGTask gpgTask];
 		[self addArgumentsForOptions];
 		[self addArgumentsForKeyserver];
-		[gpgTask addInData:signatureData];
-		if (originalData) {
-			[gpgTask addInData:originalData];
+		[gpgTask addInput:signatureInput];
+		if (originalInput) {
+			[gpgTask addInput:originalInput];
 		}
 		
 		[gpgTask addArgument:@"--verify"];
@@ -761,9 +806,10 @@ BOOL gpgConfigReaded = NO;
 	} @finally {
 		[self cleanAfterOperation];
 	}
-	
-	[self operationDidFinishWithReturnValue:gpgTask.outData];	
-	return gpgTask.outData;
+
+	NSData *retVal = [gpgTask outData];
+	[self operationDidFinishWithReturnValue:retVal];	
+	return retVal;
 }
 
 - (void)revokeKey:(NSObject <KeyFingerprint> *)key reason:(int)reason description:(NSString *)description {
@@ -1075,7 +1121,7 @@ BOOL gpgConfigReaded = NO;
 		if ([gpgTask start] != 0) {
 			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Export failed!") gpgTask:gpgTask];
 		}
-		exportedData = gpgTask.outData;
+		exportedData = [gpgTask outData];
 		
 		
 		if (allowSec) {
@@ -1088,8 +1134,9 @@ BOOL gpgConfigReaded = NO;
 			if ([gpgTask start] != 0) {
 				@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Export failed!") gpgTask:gpgTask];
 			}
-			exportedData = [NSMutableData dataWithData:exportedData];
-			[(NSMutableData *)exportedData appendData:gpgTask.outData];
+			NSMutableData *concatExportedData = [NSMutableData dataWithData:exportedData];
+			[concatExportedData appendData:[gpgTask outData]];
+            exportedData = concatExportedData;
 		}
 	} @catch (NSException *e) {
 		[self handleException:e];
