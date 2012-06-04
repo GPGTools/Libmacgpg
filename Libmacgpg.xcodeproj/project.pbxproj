@@ -37,6 +37,7 @@
 		1BCA3035157D327C00D8981D /* XPCKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1B3D65511565C14A00D93BBE /* XPCKit.framework */; };
 		1BCA3038157D32B800D8981D /* XPCKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1B3D65511565C14A00D93BBE /* XPCKit.framework */; };
 		1BCA303B157D336900D8981D /* XPCKit.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1B3D65511565C14A00D93BBE /* XPCKit.framework */; };
+		1BCA304A157D3A1200D8981D /* XPCKit.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1B3D65511565C14A00D93BBE /* XPCKit.framework */; };
 		30247EF5135B2139003BA5E3 /* libcrypto.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 30247EF4135B2139003BA5E3 /* libcrypto.dylib */; };
 		3026F4AF13A203A000F3CA02 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3026F4AE13A203A000F3CA02 /* Security.framework */; };
 		302AA37A133606260022A371 /* GPGKey_Template.h in Headers */ = {isa = PBXBuildFile; fileRef = 302AA378133606260022A371 /* GPGKey_Template.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -229,6 +230,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				1BCA304A157D3A1200D8981D /* XPCKit.framework in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
