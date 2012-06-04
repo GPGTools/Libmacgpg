@@ -311,7 +311,7 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
     [_task launchAndWait];
     
     if(blockException)
-        @throw [blockException autorelease];
+        @throw blockException;
     
     self.status = statusData;
     self.errors = stderrData;
