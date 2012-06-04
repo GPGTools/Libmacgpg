@@ -4,3 +4,6 @@
 [submodule "Dependencies/pinentry-mac"]
 	path = Dependencies/pinentry-mac
 	url = git://github.com/GPGTools/pinentry-mac.git
+[submodule "Dependencies/XPCKit"]
+	path = Dependencies/XPCKit
+	url = git@github.com:GPGTools/XPCKit.git

@@ -25,6 +25,8 @@
 #import <SystemConfiguration/SystemConfiguration.h>
 #import "GPGGlobals.h"
 
+NSString * const GPGOptionsChangedNotification = @"GPGOptionsChangedNotification";
+NSString * const GPGConfigurationModifiedNotification = @"GPGConfigurationModifiedNotification";
 
 @interface GPGOptions ()
 @property (readonly) NSMutableDictionary *environment;

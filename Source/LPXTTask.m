@@ -19,6 +19,7 @@
 
 #import "LPXTTask.h"
 #import "GPGGlobals.h"
+#import "NSPipe+NoSigPipe.h"
 
 typedef struct {
     int fd;

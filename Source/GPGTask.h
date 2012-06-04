@@ -18,7 +18,7 @@
 */
 
 #import <Cocoa/Cocoa.h>
-#import "LPXTTask.h"
+#import "GPGTaskHelper.h"
 
 @class GPGTask;
 @class GPGStream;
@@ -37,7 +37,6 @@
 
 
 @interface GPGTask : NSObject {
-	NSString *gpgPath;
 	NSMutableArray *arguments;
 	BOOL batchMode;
 	NSObject <GPGTaskDelegate> *delegate;
@@ -46,12 +45,11 @@
 	int errorCode;
 	NSMutableArray *errorCodes;
 	BOOL getAttributeData;
-	BOOL inputDataWritten;
 	
-    LPXTTask *gpgTask;
-    
 	NSMutableArray *inDatas;
 	
+    GPGTaskHelper *taskHelper;
+    
     GPGStream *outStream;
 	NSData *errData;
 	NSData *statusData;
@@ -60,24 +58,10 @@
 	NSString *outText;
 	NSString *errText;
 	NSString *statusText;
-	NSPipe *cmdPipe;
-    
-	NSDictionary *lastUserIDHint;
-	NSDictionary *lastNeedPassphrase;
 	
-	char passphraseStatus;
-	
-	pid_t childPID;
 	BOOL cancelled;
 	BOOL isRunning;
 	
-	dispatch_group_t collectorGroup;
-	dispatch_queue_t queue;
-	// safe to write without locking because only one thread writes
-	NSException *writeException;
-	NSInteger inDataLength;
-	NSInteger progressedLength;
-	NSMutableDictionary *progressedLengths;
 	BOOL progressInfo;
 	
 	NSMutableDictionary *statusDict;
@@ -93,7 +77,6 @@
 @property (retain) NSDictionary *userInfo;
 @property (readonly) NSInteger exitcode;
 @property (readonly) int errorCode;
-@property (retain) NSString *gpgPath;
 // if not set before starting, GPGTask will use a GPGMemoryStream
 @property (retain) GPGStream *outStream;
 @property (readonly, retain) NSData *errData;
@@ -103,15 +86,9 @@
 @property (readonly) NSString *errText;
 @property (readonly) NSString *statusText;
 @property (readonly) NSArray *arguments;
-@property (retain) NSDictionary *lastUserIDHint;
-@property (retain) NSDictionary *lastNeedPassphrase;
-@property (readonly) LPXTTask *gpgTask;
-
+@property (readonly) GPGTaskHelper *taskHelper; 
 
 + (NSString *)gpgAgentSocket;
-+ (NSString *)pinentryPath;
-+ (NSString *)findExecutableWithName:(NSString *)executable;
-+ (NSString *)findExecutableWithName:(NSString *)executable atPaths:(NSArray *)paths;
 + (NSString *)nameOfStatusCode:(NSInteger)statusCode;
 
 - (void)addArgument:(NSString *)argument;
@@ -119,14 +96,12 @@
 
 - (NSInteger)start;
 
-- (void)cancel;
-
 - (NSData *)outData;
 - (void)addInput:(GPGStream *)stream;
 - (void)addInData:(NSData *)data;
 - (void)addInText:(NSString *)string;
 
-
+- (void)cancel;
 
 + (id)gpgTaskWithArguments:(NSArray *)args batchMode:(BOOL)batch;
 + (id)gpgTaskWithArguments:(NSArray *)args;
@@ -138,7 +113,6 @@
 - (id)initWithArguments:(NSArray *)args;
 - (id)initWithArgument:(NSString *)arg;
 
-- (void)processStatusLine:(NSString *)line;
 - (void)logDataContent:(NSData *)data message:(NSString *)message;
 
 @end

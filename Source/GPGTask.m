@@ -38,8 +38,6 @@ static const NSUInteger kDataBufferSize = 65536;
 @property int errorCode;
 
 + (void)initializeStatusCodes;
-- (NSString *)getPassphraseFromPinentry;
-- (void)_writeInputData;
 - (void)unsetErrorCode:(int)value;
 
 @end
@@ -47,14 +45,11 @@ static const NSUInteger kDataBufferSize = 65536;
 
 @implementation GPGTask
 
-NSString *_gpgPath;
-NSString *_pinentryPath = nil;
 NSDictionary *statusCodes;
 char partCountForStatusCode[GPG_STATUS_COUNT];
 
-static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
-@synthesize isRunning, batchMode, getAttributeData, delegate, userInfo, exitcode, errorCode, gpgPath, errData, statusData, attributeData, lastUserIDHint, lastNeedPassphrase, cancelled,
-            gpgTask, progressInfo, statusDict;
+@synthesize isRunning, batchMode, getAttributeData, delegate, userInfo, exitcode, errorCode, errData, statusData, attributeData, cancelled,
+            progressInfo, statusDict, taskHelper = taskHelper;
 @synthesize outStream;
 
 
@@ -101,16 +96,6 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 
 
 + (void)initialize {
-	_gpgPath = [self findExecutableWithName:@"gpg2"];
-	if (!_gpgPath) {
-		_gpgPath = [self findExecutableWithName:@"gpg"];
-	}
-	[_gpgPath retain];
-    GPGDebugLog(@"GPG: %@", _gpgPath);
-	
-	[self pinentryPath];
-    GPGDebugLog(@"Pinentry: %@", [self pinentryPath]);
-	
 	[self initializeStatusCodes];
 }
 
@@ -251,91 +236,6 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 	}
 	return nil;
 }
-+ (NSString *)pinentryPath {
-	if (_pinentryPath) {
-		return [[_pinentryPath retain] autorelease];
-	}
-
-    //
-    // Checking in order:
-    // 1. pinentry-mac in a bundle named "org.gpgtools.Libmacgpg" 
-    // 2. a defined "pinentry-program" in gpg-agent.conf
-    // 3. a pinentry-mac executable in a set of dirs (e.g., /usr/local/bin) 
-    //
-    NSMutableArray *possibleBins = [NSMutableArray array];
-    NSFileManager *fmgr = [NSFileManager defaultManager];
-
-    // 1.
-    NSString *bndlePath = [[NSBundle bundleWithIdentifier:@"org.gpgtools.Libmacgpg"] 
-                           pathForResource:@"pinentry-mac" ofType:@"" 
-                           inDirectory:@"pinentry-mac.app/Contents/MacOS"];
-    if (bndlePath && [fmgr isExecutableFileAtPath:bndlePath]) 
-        [possibleBins addObject:bndlePath];
-
-    // 2.
-    static NSString * const kPinentry_program = @"pinentry-program";
-	GPGOptions *options = [GPGOptions sharedOptions];
-    NSString *inconfPath = [options valueForKey:kPinentry_program inDomain:GPGDomain_gpgAgentConf];
-    inconfPath = [inconfPath stringByStandardizingPath];
-    if (inconfPath && [fmgr isExecutableFileAtPath:inconfPath]) 
-        [possibleBins addObject:inconfPath];
-    else
-        inconfPath = nil;
-
-    // 3. Per mento: this feature is a rescue and update system 
-    // if the user doesn't use MacGPG2
-    if (!inconfPath) {
-        if ([possibleBins count] < 1) {
-            inconfPath = [self findExecutableWithName:@"../libexec/pinentry-mac.app/Contents/MacOS/pinentry-mac"];
-            if (inconfPath)
-                [possibleBins addObject:inconfPath];
-        }
-
-        if ([possibleBins count] > 0) {
-            inconfPath = [possibleBins objectAtIndex:0];
-            [options setValue:inconfPath forKey:kPinentry_program inDomain:GPGDomain_gpgAgentConf];
-            [options gpgAgentTerminate];
-        }
-    }
-
-    NSString *foundPath = ([possibleBins count] > 0) ? [possibleBins objectAtIndex:0] : nil;
-	if (foundPath) {
-		_pinentryPath = [foundPath retain];
-	}
-	return foundPath;
-}
-+ (NSString *)findExecutableWithName:(NSString *)executable {
-	NSString *foundPath;
-	NSArray *searchPaths = [NSMutableArray arrayWithObjects:@"/usr/local/bin", @"/usr/local/MacGPG2/bin", @"/usr/local/MacGPG1/bin", @"/usr/bin", @"/bin", @"/opt/local/bin", @"/sw/bin", nil];
-	
-	foundPath = [self findExecutableWithName:executable atPaths:searchPaths];
-	if (foundPath) {
-		return foundPath;
-	}
-	
-	NSString *envPATH = [[[NSProcessInfo processInfo] environment] objectForKey:@"PATH"];
-	if (envPATH) {
-		NSArray *searchPaths = [envPATH componentsSeparatedByString:@":"];
-		foundPath = [self findExecutableWithName:executable atPaths:searchPaths];
-		if (foundPath) {
-			return foundPath;
-		}		
-	}
-	
-	return nil;
-}
-+ (NSString *)findExecutableWithName:(NSString *)executable atPaths:(NSArray *)paths {
-	NSString *searchPath, *foundPath;
-	for (searchPath in paths) {
-		foundPath = [searchPath stringByAppendingPathComponent:executable];
-		if ([[NSFileManager defaultManager] isExecutableFileAtPath:foundPath]) {
-			return [foundPath stringByStandardizingPath];
-		}
-	}
-	return nil;
-}
-
-
 
 + (NSString *)nameOfStatusCode:(NSInteger)statusCode {
 	return [[statusCodes allKeysForObject:[NSNumber numberWithInteger:statusCode]] objectAtIndex:0];
@@ -361,11 +261,6 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 - (id)initWithArguments:(NSArray *)args batchMode:(BOOL)batch {
 	self = [super init];
 	if (self) {
-		if (!_gpgPath) {
-			[self release];
-			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"GPG not found!") errorCode:GPGErrorNotFound];
-		}
-		self.gpgPath = _gpgPath;
 		arguments = [[NSMutableArray alloc] initWithArray:args];
 		batchMode = batch;
 		errorCodes = [[NSMutableArray alloc] init];
@@ -397,21 +292,15 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 	[errText release];
 	[statusText release];
 	[inDatas release];
-    //[cmdPipe release];
-	[errorCodes release];
-	[progressedLengths release];
+    [errorCodes release];
 	[statusDict release];
 	
-	self.lastUserIDHint = nil;
-	self.lastNeedPassphrase = nil;
-	
-	self.gpgPath = nil;
-	[writeException release];
+    if(taskHelper)
+        [taskHelper release];
+    taskHelper = nil;
+    
 	[super dealloc];
 }
-
-
-
 
 - (void)addArgument:(NSString *)arg {
 	[arguments addObject:arg];
@@ -432,14 +321,8 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 	
 	
 	if (progressInfo && [delegate respondsToSelector:@selector(gpgTask:progressed:total:)]) {
-		for (GPGStream *gstream in inDatas) {
-			inDataLength += [gstream length];
-		}
-		progressedLengths = [[NSMutableDictionary alloc] init];
 		[defaultArguments addObject:@"--enable-progress-filter"];
     }
-
-	
 	
     // If batch mode is not set, add the command-fd using stdin.
     if (batchMode)
@@ -476,14 +359,11 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
     }
     [defaultArguments addObjectsFromArray:arguments];
 	
-	
     // Last but not least, add the fd's used to read the in-data from.
     int i = 5;
     for (id object in inDatas) {
         [defaultArguments addObject:[NSString stringWithFormat:@"/dev/fd/%d", i++]];
     }
-		
-    
 	
     if ([delegate respondsToSelector:@selector(gpgTaskWillStart:)]) {
         [delegate gpgTaskWillStart:self];
@@ -493,289 +373,50 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
     if (cancelled)
 		return GPGErrorCancelled;
     
-    // Last before launching, create the inPipes and add the fd nums to the arguments.
-    gpgTask = [[LPXTTask alloc] init];
-    gpgTask.launchPath = self.gpgPath;
-    gpgTask.arguments = defaultArguments;
+    __block typeof(self) cself = self;
+    taskHelper = [[GPGTaskHelper alloc] initWithArguments:defaultArguments];
     
-	GPGDebugLog(@"gpg %@", [gpgTask.arguments componentsJoinedByString:@" "]);
+    if(!outStream)
+        outStream = [[GPGMemoryStream memoryStream] retain];
     
-    // Now setup all the pipes required to communicate with gpg.
-    [gpgTask inheritPipeWithMode:O_RDONLY dup:3 name:@"status"];
-    [gpgTask inheritPipeWithMode:O_RDONLY dup:4 name:@"attribute"];
-    NSMutableArray *dupList = [[NSMutableArray alloc] init];
-    i = 5;
-    for (NSData *data in inDatas) {
-        [dupList addObject:[NSNumber numberWithInt:i++]];
-    }
-    [gpgTask inheritPipesWithMode:O_WRONLY dups:dupList name:@"ins"];
-    [dupList release];
-    // Setup the task to be run in the parent process, before
-    // the parent starts waiting for the child.
-    NSMutableData *completeStatusData = [[NSMutableData alloc] initWithLength:0];
-    
-	NSObject *syncRoot = [[[NSObject alloc] init] autorelease];    
-	__block NSException *blockException = nil;
-
-    gpgTask.parentTask = ^{
-        // Setup the dispatch queue.
-        /*dispatch_queue_t*/ queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-        // Create the group which will hold all the jobs which should finish before
-        // the parent process starts waiting for the child.
-       /* dispatch_group_t*/ collectorGroup = dispatch_group_create();
-        // The data is written to the pipe as soon as gpg issues the status
-        // BEGIN_ENCRYPTION or BEGIN_SIGNING. See processStatus.
-        // When we want to encrypt or sign, the data can't be written before the 
-		// BEGIN_ENCRYPTION or BEGIN_SIGNING status was issued, BUT
-        // in every other case, gpg stalls till it received the data to decrypt.
-        // So in that case, the data actually has to be written as the very first thing.
-		
-		NSArray *options = [NSArray arrayWithObjects:@"--encrypt", @"--sign", @"--clearsign", @"--detach-sign", @"--symmetric", @"-e", @"-s", @"-b", @"-c", nil];
-		
-        if([gpgTask.arguments firstObjectCommonWithArray:options] == nil) {
-            dispatch_group_async(collectorGroup, queue, ^{
-                [self _writeInputData];
-            });
-        }
-        // Add each job to the collector group.
-        dispatch_group_async(collectorGroup, queue, ^{
-            if (!outStream)
-                outStream = [[GPGMemoryStream memoryStream] retain];
-            NSFileHandle *stdoutfh = [[gpgTask inheritedPipeWithName:@"stdout"] fileHandleForReading];
-
-            NSAutoreleasePool *pool = nil;
-            @try {
-                NSData *data;
-                pool = [[NSAutoreleasePool alloc] init];                
-                while ((data = [stdoutfh readDataOfLength:kDataBufferSize]) && [data length] > 0) 
-                {
-                    [outStream writeData:data];
-                    [pool release];
-                    pool = [[NSAutoreleasePool alloc] init];
-                }
-            }
-            @catch (NSException *exception) {
-                @synchronized(syncRoot) {
-                    if (!blockException)
-                        blockException = [exception retain];
-                }
-            }
-            @finally {
-                [outStream flush];
-                [pool release];
-            }
-
-            if ([GPGOptions debugLog]) 
-                [self logDataContent:[self outData] message:@"[STDOUT]"];
-        });
-        dispatch_group_async(collectorGroup, queue, ^{
-            @try {
-                self.errData = [[[gpgTask inheritedPipeWithName:@"stderr"] fileHandleForReading] readDataToEndOfFile];
-            }
-            @catch (NSException *exception) {
-                @synchronized(syncRoot) {
-                    if (!blockException)
-                        blockException = [exception retain];
-                }
-            }
-			[self logDataContent:errData message:@"[STDERR]"];
-        });
-        if(getAttributeData) {
-            dispatch_group_async(collectorGroup, queue, ^{
-                @try {
-                    self.attributeData = [[[gpgTask inheritedPipeWithName:@"attribute"] fileHandleForReading] readDataToEndOfFile];
-                }
-                @catch (NSException *exception) {
-                    @synchronized(syncRoot) {
-                        if (!blockException)
-                            blockException = [exception retain];
-                    }
-                }
-            });
-        }
-				
-        // Handle the status data. This is an important one.
-        dispatch_group_async(collectorGroup, queue, ^{
-			NSMutableString *line = [[NSMutableString alloc] init];
-			@try {
-				NSPipe *statusPipe = [gpgTask inheritedPipeWithName:@"status"];
-				NSFileHandle *statusPipeReadingFH = [statusPipe fileHandleForReading];
-				NSData *currentData;
-				NSString *linePart;
-				NSArray *tmpLines;
-				while((currentData = [statusPipeReadingFH availableData]) && [currentData length]) {
-					// Add the received data for later use.
-					[completeStatusData appendData:currentData];
-					// Convert the data to a string, to better work with it.
-					linePart = [[NSString alloc] initWithData:currentData encoding:NSUTF8StringEncoding];
-					// Line part might acutally be already multiple lines, in that case, well...
-					// the fucker is split up and processKeyword:value: called for each line.
-					tmpLines = [linePart componentsSeparatedByString:@"\n"];
-					[linePart release];
-					int i = 0;
-					for(id tmpLine in tmpLines) {
-						// If multiple lines are found, the last line will be used,
-						// to restart a new line.
-						if(i == 0)
-							tmpLine = [line stringByAppendingString:tmpLine]; 
-						if(i == [tmpLines count] - 1) {
-							[line setString:[tmpLines objectAtIndex:[tmpLines count]-1]];
-							break;
-						}
-						[self processStatusLine:tmpLine];
-						i++;
-					}
-					// Unfortunately we never know if enough data has come in yet to parse.
-					// So, until a \n character is found, we're appending the data.
-					//[line appendString:linePart];
-					if(((NSRange)[line rangeOfString:@"\n"]).location == NSNotFound)
-						continue;
-					[line replaceCharactersInRange:[line rangeOfString:@"\n"] withString:@""];
-					// Skip the lines that don't begin with [GNUPG:].
-					if(((NSRange)[line rangeOfString:GPG_STATUS_PREFIX]).location == NSNotFound)
-						continue;
-					// Parse the keyword and value, and process.
-					[self processStatusLine:line];
-					// Reset line.
-					[line setString:@""];
-				}
-
-			} @catch (NSException *exception) {
-                @synchronized(syncRoot) {
-                    if (!blockException)
-                        blockException = [exception retain];
-                }
-				[gpgTask cancel];
-			} @finally {
-				self.statusData = completeStatusData;
-				[line release];
-			}
-        });
-        
-        // Wait for the jobs to finish.
-        dispatch_group_wait(collectorGroup, DISPATCH_TIME_FOREVER);
-        // And release the dispatch queue.
-        dispatch_release(collectorGroup);
-        
-		[self logDataContent:statusData message:@"[STATUS]"];
+    taskHelper.output = self.outStream;
+    taskHelper.inData = inDatas;
+    taskHelper.processStatus = (lp_process_status_t)^(NSString *keyword, NSString *value){
+        return [cself processStatusWithKeyword:keyword value:value];
     };
-        
-    // AAAAAAAAND NOW! Let's run the task and wait for it to complete.
-    [gpgTask launchAndWait];
-	
+    taskHelper.progressHandler = ^(NSUInteger processedBytes, NSUInteger totalBytes) {
+        [cself.delegate gpgTask:cself progressed:processedBytes total:totalBytes];
+    };
+    taskHelper.readAttributes = getAttributeData;
+    taskHelper.checkForSandbox = YES;	
     
-	if (blockException) 
-		@throw [blockException autorelease];
-	if (writeException)
-		@throw writeException;
-	
-    exitcode = gpgTask.terminationStatus;
-    
-    if(cancelled)
-        exitcode = GPGErrorCancelled;
-    
-    // Add some error handling here...
-    // Close all open pipes by releasing the gpgTask.
-    [gpgTask release];
-	gpgTask = nil;
+    @try {
+        exitcode = [taskHelper run];
+        self.statusData = taskHelper.status;
+        self.attributeData = taskHelper.attributes;
+        self.errData = taskHelper.errors;
+    }
+    @catch (NSException *exception) {
+        @throw exception;
+    }
     
     if([delegate respondsToSelector:@selector(gpgTaskDidTerminate:)])
         [delegate gpgTaskDidTerminate:self];
     
     isRunning = NO;
     
-    [completeStatusData release];
     return exitcode;
 }
 
-- (void)_writeInputData {
-	if (inputDataWritten) return;
-	inputDataWritten = YES;
-    NSArray *pipeList = [gpgTask inheritedPipesWithName:@"ins"];
-    for(int i = 0; i < [pipeList count]; i++) {
-        NSFileHandle *ofh = [[pipeList objectAtIndex:i] fileHandleForWriting];
-        NSAutoreleasePool *pool = nil;
-        @try {
-            GPGStream *input = [inDatas objectAtIndex:i];
-            NSData *data;
-
-            pool = [[NSAutoreleasePool alloc] init];            
-            while ((data = [input readDataOfLength:kDataBufferSize]) && [data length] > 0) 
-            {
-                [ofh writeData:data];
-                [pool release];
-                pool = [[NSAutoreleasePool alloc] init];            
-            }
-
-            [ofh closeFile];
-        }
-        @catch (NSException *exception) {
-            writeException = [exception retain];
-            return;
-        }
-        @finally {
-            [pool release];
-        }
-    }
-}
-- (void)processStatusLine:(NSString *)line {
-    NSString *keyword, *value;
-	
-    line = [line stringByReplacingOccurrencesOfString:GPG_STATUS_PREFIX withString:@""];
-	GPGDebugLog(@">> %@", line);
+- (NSData *)processStatusWithKeyword:(NSString *)keyword value:(NSString *)value {
     
-	NSMutableArray *parts = [[[line componentsSeparatedByString:@" "] mutableCopy] autorelease];
-    keyword = [parts objectAtIndex:0];
-	[parts removeObjectAtIndex:0];
-    if ([parts count] > 0) {
-        value = [parts componentsJoinedByString:@" "];
-    } else {
-        value = [NSString stringWithString:@""];
-	}
-    
+    NSArray *parts = [value isEqualToString:@""] ? [NSArray array] : [value componentsSeparatedByString:@""];
     NSInteger statusCode = [[statusCodes objectForKey:keyword] integerValue];
     // No status code available, we're out of here.
     if(!statusCode)
-        return;
-    BOOL isPassphraseRequest = NO;
+        return nil;
+
     switch(statusCode) {
-        case GPG_STATUS_USERID_HINT: {
-            NSRange range = [value rangeOfString:@" "];
-            NSString *keyID = [value substringToIndex:range.location];
-            NSString *userID = [value substringFromIndex:range.location + 1];
-            self.lastUserIDHint = [NSDictionary dictionaryWithObjectsAndKeys:keyID, @"keyID", userID, @"userID", nil];
-            passphraseStatus = 1;
-            break;
-        }
-        case GPG_STATUS_NEED_PASSPHRASE: {
-            NSArray *components = [value componentsSeparatedByString:@" "];
-            self.lastNeedPassphrase = [NSDictionary dictionaryWithObjectsAndKeys:
-                                       [components objectAtIndex:0], @"mainKeyID", 
-                                       [components objectAtIndex:1], @"keyID", 
-                                       [components objectAtIndex:2], @"keyType", 
-                                       [components objectAtIndex:3], @"keyLength", nil];
-            passphraseStatus = 1;
-            break;
-        }
-        case GPG_STATUS_GOOD_PASSPHRASE:
-            passphraseStatus = 4;
-            break;
-        case GPG_STATUS_BAD_PASSPHRASE: {
-            self.lastUserIDHint = nil;
-            self.lastNeedPassphrase = nil;
-            passphraseStatus = 2;
-            break;
-        }
-        case GPG_STATUS_MISSING_PASSPHRASE:
-            self.lastUserIDHint = nil;
-            self.lastNeedPassphrase = nil;
-            passphraseStatus = 3;
-			self.errorCode = GPGErrorCancelled;
-            break;
-        case GPG_STATUS_GET_HIDDEN:
-            if([value isEqualToString:@"passphrase.enter"])
-                isPassphraseRequest = YES;
-            break;
         case GPG_STATUS_ERROR: {
             NSRange range = [value rangeOfString:@" "];
             if(range.length > 0)
@@ -788,31 +429,9 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 		case GPG_STATUS_NO_PUBKEY:
 			self.errorCode = GPGErrorNoPublicKey;
 			break;
-        case GPG_STATUS_BEGIN_ENCRYPTION:
-        case GPG_STATUS_BEGIN_SIGNING:
-            dispatch_group_async(collectorGroup, queue, ^{
-                [self _writeInputData];
-            });
-            break;
 		case GPG_STATUS_DECRYPTION_OKAY:
 			[self unsetErrorCode:GPGErrorNoSecretKey];
 			break;
-		case GPG_STATUS_PROGRESS: {
-			if (inDataLength) {
-				NSString *what = [parts objectAtIndex:0];
-				NSString *length = [parts objectAtIndex:2];
-				
-				if ([what hasPrefix:@"/dev/fd/"]) {
-					progressedLength -= [[progressedLengths objectForKey:what] integerValue];
-				}
-				[progressedLengths setObject:length forKey:what];
-				
-				progressedLength += [length integerValue];
-				
-				[delegate gpgTask:self progressed:progressedLength total:inDataLength];
-			}
-			break;
-		}
     }
 	
 	//Fill statusDict.
@@ -838,60 +457,14 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 		[statusDict setObject:[NSNumber numberWithBool:YES] forKey:keyword];
 	}
 	
-	
-	
-	
-	
-    id returnValue = nil;
-    if([delegate respondsToSelector:@selector(gpgTask:statusCode:prompt:)]) {
-        returnValue = [delegate gpgTask:self statusCode:statusCode prompt:value];
-    }
+	// If the status is either GET_HIDDEN, GET_LINE or GET_BOOL
+    // the GPG Controller is asked for a value to be passed
+    // to GPG using the command pipe.
+    id response = nil;
+    if([delegate respondsToSelector:@selector(gpgTask:statusCode:prompt:)])
+        response = [delegate gpgTask:self statusCode:statusCode prompt:value];
     
-    // Get the passphrase from the pinetry if gpg asks for it.
-    if(isPassphraseRequest) {
-        if(!returnValue) {
-            @try {
-                returnValue = [self getPassphraseFromPinentry];
-            }
-            @catch(NSException *e) {
-                // Cancel gpgTask, otherwise no new task can be run...
-                [self cancel];
-                @throw e;
-            }
-            if(returnValue)
-                returnValue = [NSString stringWithFormat:@"%@\n", returnValue];
-        }
-        self.lastUserIDHint = nil;
-        self.lastNeedPassphrase = nil;
-    }
-    
-    // Write the return value to the command pipe.
-    if(!cmdPipe) {
-        @try {
-            cmdPipe = [gpgTask inheritedPipeWithName:@"stdin"];
-        }
-        @catch (NSException *e) {
-            cmdPipe = nil;
-        }
-    }
-    // Try to write
-    if(cmdPipe != nil) {
-        if(returnValue) {
-            NSData *dataToWrite;
-            if([returnValue isKindOfClass:[NSData class]])
-                dataToWrite = returnValue;
-            else
-                dataToWrite = [[returnValue description] dataUsingEncoding:NSUTF8StringEncoding];
-            [[cmdPipe fileHandleForWriting] writeData:dataToWrite];
-        }
-        else if (statusCode == GPG_STATUS_GET_BOOL || statusCode == GPG_STATUS_GET_HIDDEN ||
-                 statusCode == GPG_STATUS_GET_LINE) {
-            [[cmdPipe fileHandleForWriting] closeFile];
-            // Remove the pipe from the task so we can't write to it again.
-            [gpgTask removeInheritedPipeWithName:@"stdin"];
-            cmdPipe = nil;
-        }
-    }
+    return [response isKindOfClass:[NSData class]] ? response : [[response description] dataUsingEncoding:NSUTF8StringEncoding];
 }
 
 - (void)setErrorCode:(int)value {
@@ -917,6 +490,9 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
     }
 }
 
+- (void)cancel {
+    [taskHelper cancel];
+}
 
 
 /* Helper function to display NSData content. */
@@ -924,113 +500,6 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
     NSString *tmpString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     GPGDebugLog(@"[DEBUG] %@: %@ >>", message, tmpString);
     [tmpString release];
-}
-
-- (void)cancel {
-	cancelled = YES;
-	if (gpgTask) {
-		[gpgTask cancel];
-	}
-}
-
-- (NSString *)getPassphraseFromPinentry {
-	NSPipe *inPipe = [[NSPipe pipe] noSIGPIPE];
-	NSPipe *outPipe = [[NSPipe pipe] noSIGPIPE];
-	NSTask *pinentryTask = [[NSTask new] autorelease];
-	
-	NSString *pinentryPath = [[self class] pinentryPath];
-	if ([pinentryPath length] == 0) {
-		@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Pinentry not found!") errorCode:GPGErrorNoPINEntry];
-	}
-	
-	pinentryTask.launchPath = pinentryPath;
-	pinentryTask.standardInput = inPipe;
-	pinentryTask.standardOutput = outPipe;
-
-	
-	
-		
-	NSString *keyID = [lastNeedPassphrase objectForKey:@"keyID"];
-	NSString *mainKeyID = [lastNeedPassphrase objectForKey:@"mainKeyID"];
-	NSString *userID = [lastUserIDHint objectForKey:@"userID"];
-	//NSString *keyLength = [lastNeedPassphrase objectForKey:@"keyLength"];
-	//NSString *keyType = [lastNeedPassphrase objectForKey:@"keyType"];
-	
-	NSString *description;
-	if ([keyID isEqualToString:mainKeyID]) {
-		description = [NSString stringWithFormat:localizedLibmacgpgString(@"GetPassphraseDescription"), 
-					   userID, [keyID shortKeyID]];
-	} else {
-		description = [NSString stringWithFormat:localizedLibmacgpgString(@"GetPassphraseDescription_Subkey"), 
-					   userID, [keyID shortKeyID], [mainKeyID keyID]];
-	}
-	description = [description stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-	NSString *prompt = [localizedLibmacgpgString(@"PassphraseLabel") stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-	
-	NSString *inText = [NSString stringWithFormat:@"OPTION grab\n"
-						"OPTION cache-id=%@\n"
-						"SETDESC %@\n"
-						"SETPROMPT %@\n"
-						"GETPIN\n"
-						"BYE\n", 
-						keyID, 
-						description, 
-						prompt];
-	
-	NSData *inData = [inText UTF8Data];
-	[[inPipe fileHandleForWriting] writeData:inData];
-	
-	
-	
-	
-	[pinentryTask launch];
-	NSData *output = [[outPipe fileHandleForReading] readDataToEndOfFile];
-	[pinentryTask waitUntilExit];
-	
-	if (!output) {
-		@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Pinentry error!") errorCode:GPGErrorPINEntryError];
-	}
-	NSString *outString = [output gpgString];
-	
-    // Versions prior to 0.8 of pinentry-mac do not seem
-    // to support the OPTION cache-id yet, but still the
-    // password is successfully retrieved.
-    // To not abort on such an error, first the output string
-    // is checked for a non empty D line and if not found,
-    // any errors are processed.
-    NSRange range = [outString rangeOfString:@"\nD "];
-	if(range.location != NSNotFound) {
-        range.location++;
-        range.length--;
-        range = [outString lineRangeForRange:range];
-        range.location += 2;
-        range.length -= 3;
-        
-        if(range.length > 0) {
-            return [[outString substringWithRange:range] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-        }
-    }
-    // Otherwise process the error.
-    
-	range = [outString rangeOfString:@"\nERR "];
-	if (range.length > 0) {
-		range.location++; 
-		range.length--;
-		range = [outString lineRangeForRange:range];
-		range.location += 4;
-		range.length -= 5;
-		NSRange spaceRange = [outString rangeOfString:@" " options:NSLiteralSearch range:range];
-		if (spaceRange.length > 0) {
-			range.length = spaceRange.location - range.location;
-		}
-		if ([[outString substringWithRange:range] integerValue] == 0x5000063) {
-			[self cancel];
-		} else {
-			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Pinentry error!") errorCode:GPGErrorPINEntryError];
-		}
-		return nil;
-	}
-    return nil;
 }
 
 @end

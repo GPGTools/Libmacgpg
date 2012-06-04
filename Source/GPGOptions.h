@@ -31,8 +31,6 @@ typedef enum {
 	GPGDomain_special //special is not a real domain.
 } GPGOptionsDomain;
 
-
-
 @interface GPGOptions : NSObject {
 	BOOL initialized;
 	NSMutableDictionary *environment;

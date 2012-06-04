@@ -19,7 +19,7 @@
 
 #import <Cocoa/Cocoa.h>
 #import <Libmacgpg/GPGException.h>
-#import <Libmacgpg/GPGOptions.h>
+#import "GPGOptions.h"
 
 @class GPGTask;
 
@@ -280,9 +280,3 @@ void *memmem(const void *big, size_t big_len, const void *little, size_t little_
 - (id)initWithRealObject:(NSObject *)realObject;
 - (id)init;
 @end
-
-// a little category to fcntl F_SETNOSIGPIPE on each fd
-@interface NSPipe (SetNoSIGPIPE)
-- (NSPipe *)noSIGPIPE;
-@end
-
