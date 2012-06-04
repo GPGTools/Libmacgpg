@@ -1019,10 +1019,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks";
 				MACH_O_TYPE = mh_execute;
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
-				OTHER_LDFLAGS = (
-					"-ObjC",
-					"-all_load",
-				);
+				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "org.gpgtools.Libmacgpg.$(TARGET_NAME)";
 				SDKROOT = macosx;
 				WRAPPER_EXTENSION = xpc;
@@ -1046,10 +1043,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks";
 				MACH_O_TYPE = mh_execute;
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
-				OTHER_LDFLAGS = (
-					"-ObjC",
-					"-all_load",
-				);
+				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "org.gpgtools.Libmacgpg.$(TARGET_NAME)";
 				SDKROOT = macosx;
 				WRAPPER_EXTENSION = xpc;
@@ -1077,10 +1071,7 @@
 				INFOPLIST_FILE = Resources/Info.plist;
 				INSTALL_PATH = "@loader_path/../Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks";
-				OTHER_LDFLAGS = (
-					"-ObjC",
-					"-all_load",
-				);
+				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = Libmacgpg;
 				RUN_CLANG_STATIC_ANALYZER = NO;
 				WRAPPER_EXTENSION = framework;
@@ -1105,10 +1096,7 @@
 				INFOPLIST_FILE = Resources/Info.plist;
 				INSTALL_PATH = "@loader_path/../Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks";
-				OTHER_LDFLAGS = (
-					"-ObjC",
-					"-all_load",
-				);
+				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = Libmacgpg;
 				WRAPPER_EXTENSION = framework;
 			};
@@ -1159,6 +1147,7 @@
 				HEADER_SEARCH_PATHS = "${PROJECT_DIR}/Dependencies/XPCKit";
 				INFOPLIST_FILE = "UnitTest/UnitTest-Info.plist";
 				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
+				LD_RUNPATH_SEARCH_PATHS = "${CONFIGURATION_BUILD_DIR}/Libmacgpg.framework/Versions/A/Frameworks";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Cocoa,
@@ -1186,6 +1175,7 @@
 				HEADER_SEARCH_PATHS = "${PROJECT_DIR}/Dependencies/XPCKit";
 				INFOPLIST_FILE = "UnitTest/UnitTest-Info.plist";
 				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
+				LD_RUNPATH_SEARCH_PATHS = "${CONFIGURATION_BUILD_DIR}/Libmacgpg.framework/Versions/A/Frameworks";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Cocoa,
