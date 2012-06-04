@@ -31,7 +31,7 @@ typedef void (^lpxt_task_t)(void);
     lpxt_task_t parentTask;
 
 @private
-    CFMutableArrayRef inheritedPipes;
+    NSMutableArray *inheritedPipes;
     NSMutableDictionary *inheritedPipesMap;
 	
 }

@@ -40,7 +40,7 @@ typedef struct {
 {
     self = [super init];
     if(self != nil) {
-        inheritedPipes = CFArrayCreateMutable(NULL, 0, NULL);
+        inheritedPipes = [[NSMutableArray alloc] init];
         inheritedPipesMap = [[NSMutableDictionary alloc] init];
     }
     return self;
@@ -96,7 +96,7 @@ static char *BDSKCopyFileSystemRepresentation(NSString *str)
     NSMutableSet *closeInParent = [NSMutableSet set];
 	
     // File descriptors to close in the child process.
-    int pipeCount = CFArrayGetCount(inheritedPipes);    
+    int pipeCount = inheritedPipes.count;    
     lpxttask_fd fds[pipeCount];
     for(int i = 0; i < pipeCount; i++) {
         fds[i].fd = -1;
@@ -111,7 +111,7 @@ static char *BDSKCopyFileSystemRepresentation(NSString *str)
         for(NSDictionary *pipeInfo in pipeList) {
             NSNumber *idx = [pipeInfo valueForKey:@"pipeIdx"];
             
-            tmpPipe = (NSPipe *)CFArrayGetValueAtIndex(inheritedPipes, [idx intValue]);
+            tmpPipe = [inheritedPipes objectAtIndex:[idx intValue]];
             // The mode value of the pipe decides what should happen with the
             // pipe fd of the parent. Opposite with the fd of the child.
             if([[pipeInfo valueForKey:@"mode"] intValue] == O_RDONLY) {
@@ -259,8 +259,8 @@ static char *BDSKCopyFileSystemRepresentation(NSString *str)
     // Add the pipe to the inheritedPipes array.
     // A CFMutableArray is used instead of a NSMutableArray due to the fact,
     // that NSMutableArrays copy added values and CFMutableArrays only retain them.
-    CFArrayAppendValue(inheritedPipes, [[NSPipe pipe] noSIGPIPE]);
-    [pipeInfo setValue:[NSNumber numberWithInt:CFArrayGetCount(inheritedPipes)-1] forKey:@"pipeIdx"];
+    [inheritedPipes addObject:[[NSPipe pipe] noSIGPIPE]];
+    [pipeInfo setValue:[NSNumber numberWithInt:inheritedPipes.count-1] forKey:@"pipeIdx"];
     // The pipe info is add to the pipe maps.
     // If a pipe already exists under that name, it's added to the list of pipes the
     // name is referring to.
@@ -319,7 +319,7 @@ static char *BDSKCopyFileSystemRepresentation(NSString *str)
     NSArray *pipeList = [inheritedPipesMap objectForKey:name];
     for(NSDictionary *pipeInfo in pipeList) {
         NSNumber *idx = [pipeInfo objectForKey:@"pipeIdx"];
-        CFArrayRemoveValueAtIndex(inheritedPipes, [idx intValue]);
+        [inheritedPipes removeObjectAtIndex:[idx intValue]];
     }
     [inheritedPipesMap setValue:nil forKey:name];
 }
@@ -328,7 +328,7 @@ static char *BDSKCopyFileSystemRepresentation(NSString *str)
     [arguments release];
     [launchPath release];
     [parentTask release];
-	CFRelease(inheritedPipes);
+	[inheritedPipes release];
     [inheritedPipesMap release];
     [super dealloc];
 }
