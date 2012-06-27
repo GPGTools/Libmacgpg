@@ -18,9 +18,9 @@
 */
 
 #import <Cocoa/Cocoa.h>
-#import "GPGTaskHelper.h"
 
 @class GPGTask;
+@class GPGTaskHelper;
 @class GPGStream;
 
 @protocol GPGTaskDelegate
