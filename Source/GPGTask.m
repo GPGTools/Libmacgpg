@@ -18,6 +18,7 @@
 */
 
 #import "GPGTask.h"
+#import "GPGTaskHelper.h"
 #import "GPGGlobals.h"
 #import "GPGOptions.h"
 #import "LPXTTask.h"
