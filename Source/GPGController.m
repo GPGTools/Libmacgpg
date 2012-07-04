@@ -1056,9 +1056,11 @@ BOOL gpgConfigReaded = NO;
 		[self operationDidStart];
 		[self registerUndoForKeys:keys withName:@"Undo_Import"];
 		
-
+		GPGTaskOrder *order = [GPGTaskOrder orderWithNoToAll];
+		
 		gpgTask = [GPGTask gpgTask];
 		[self addArgumentsForOptions];
+		//gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"]; 
 		[gpgTask addInData:data];
 		[gpgTask addArgument:@"--import"];
 		if (fullImport) {
@@ -2044,6 +2046,8 @@ BOOL gpgConfigReaded = NO;
 					cmd = [cmd stringByAppendingString:@"\n"];
 				}
 				return cmd;
+			} else {
+				return @"\n";
 			}
 			break; }
 		case GPG_STATUS_GOODSIG:

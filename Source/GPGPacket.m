@@ -609,11 +609,11 @@ endOfBuffer:
 				free(binaryBuffer);
 				
 				
-				readPos += armorTypeStrings[armorType][0];
+				readPos += armorTypeStrings[armorType][0] - 1;
 				state = state_searchStart;
 				break; }
 		}		
-	}
+	} //for
 	
 endOfBuffer:
 	free(mutableBytes);

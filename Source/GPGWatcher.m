@@ -16,8 +16,8 @@
 @synthesize toleranceBefore;
 @synthesize toleranceAfter;
 
-#define TOLERANCE_BEFORE 1.0
-#define TOLERANCE_AFTER 1.0
+#define TOLERANCE_BEFORE 10.0
+#define TOLERANCE_AFTER 10.0
 #define DW_LATENCY 5.0
 
 static NSString * const kWatcherLastFoundChange = @"lastFoundChange";

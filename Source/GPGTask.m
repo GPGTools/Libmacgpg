@@ -411,7 +411,7 @@ char partCountForStatusCode[GPG_STATUS_COUNT];
 
 - (NSData *)processStatusWithKeyword:(NSString *)keyword value:(NSString *)value {
     
-    NSArray *parts = [value isEqualToString:@""] ? [NSArray array] : [value componentsSeparatedByString:@""];
+    NSArray *parts = [value isEqualToString:@""] ? [NSArray array] : [value componentsSeparatedByString:@" "];
     NSInteger statusCode = [[statusCodes objectForKey:keyword] integerValue];
     // No status code available, we're out of here.
     if(!statusCode)
