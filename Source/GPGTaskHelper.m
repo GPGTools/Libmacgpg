@@ -78,7 +78,7 @@ void withAutoreleasePool(basic_block_t block)
         block();
     }
     @catch (NSException *exception) {
-        @throw exception;
+        @throw [exception retain];
     }
     @finally {
         [pool release];
@@ -536,6 +536,13 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
                 NSData *response = self.processStatus(keyword, value);
                 if(response)
                     [self replyToCommand:response];
+                else {
+                    NSPipe *cmdPipe = [self.task inheritedPipeWithName:@"stdin"];
+                    if(cmdPipe) {
+                        [[cmdPipe fileHandleForWriting] closeFile];
+                        [self.task removeInheritedPipeWithName:@"stdin"];
+                    }
+                }
             }
             break;
             
@@ -601,9 +608,12 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
     if(!cmdPipe)
         return;
     
+    NSData *NL = [@"\n" dataUsingEncoding:NSASCIIStringEncoding];
+    
     NSMutableData *responseData = [[NSMutableData alloc] init];
     [responseData appendData:[response isKindOfClass:[NSData class]] ? response : [[response description] dataUsingEncoding:NSUTF8StringEncoding]];
-    [responseData appendData:[@"\n" dataUsingEncoding:NSUTF8StringEncoding]];
+    if([responseData rangeOfData:NL options:NSDataSearchBackwards range:NSMakeRange(0, [responseData length])].location == NSNotFound)
+        [responseData appendData:[@"\n" dataUsingEncoding:NSUTF8StringEncoding]];
     GPGStream *responseStream = [GPGMemoryStream memoryStream];
     [responseStream writeData:responseData];
     [self writeData:responseStream pipe:[self.task inheritedPipeWithName:@"stdin"] close:NO];
