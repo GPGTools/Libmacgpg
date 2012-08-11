@@ -1,6 +1,6 @@
 #import "GPGException.h"
 #import "GPGTask.h"
-#import "/usr/include/dlfcn.h"
+#import <dlfcn.h>
 
 @interface GPGException ()
 @property (retain) GPGTask *gpgTask;
