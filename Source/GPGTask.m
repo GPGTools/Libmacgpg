@@ -385,9 +385,13 @@ char partCountForStatusCode[GPG_STATUS_COUNT];
     taskHelper.processStatus = (lp_process_status_t)^(NSString *keyword, NSString *value){
         return [cself processStatusWithKeyword:keyword value:value];
     };
-    taskHelper.progressHandler = ^(NSUInteger processedBytes, NSUInteger totalBytes) {
-        [cself.delegate gpgTask:cself progressed:processedBytes total:totalBytes];
-    };
+    // Only setup the progress handler if the delegate can handle progress messages
+    // and gpg is requested to print out progress info.
+    if(progressInfo && [delegate respondsToSelector:@selector(gpgTask:progressed:total:)]) {
+        taskHelper.progressHandler = ^(NSUInteger processedBytes, NSUInteger totalBytes) {
+            [cself.delegate gpgTask:cself progressed:processedBytes total:totalBytes];
+        };
+    }
     taskHelper.readAttributes = getAttributeData;
     taskHelper.checkForSandbox = YES;	
     

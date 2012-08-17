@@ -566,7 +566,9 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
             
             _processedBytes += [length integerValue];
             
-            self.progressHandler(_processedBytes, _totalInData); 
+            if(self.progressHandler) {
+                self.progressHandler(_processedBytes, _totalInData);
+            }
             
             break;
         }
