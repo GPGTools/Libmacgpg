@@ -327,7 +327,7 @@ endOfBuffer:
 + (NSData *)unArmor:(NSData *)theData clearText:(NSData **)clearText {
     GPGMemoryStream *input = [GPGMemoryStream memoryStreamForReading:theData];
     NSData *unarmored = [self unArmorFrom:input clearText:clearText];
-    if (unarmored)
+    if ([unarmored length])
         return unarmored;
     return theData;
 }
