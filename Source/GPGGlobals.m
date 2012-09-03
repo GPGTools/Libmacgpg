@@ -283,7 +283,7 @@ NSSet *fingerprintsFromStatusText(NSString *statusText) {
 	return [fingerprints count] ? fingerprints : nil;
 }
 
-#if MAC_OS_X_VERSION_MIN_REQUIRED == MAC_OS_X_VERSION_10_6
+#if MAC_OS_X_VERSION_MIN_REQUIRED <= MAC_OS_X_VERSION_10_6
 void *memmem(const void *big, size_t big_len, const void *little, size_t little_len) {
 	if (little_len == 1) {
 		return memchr(big, *(const unsigned char *)little, big_len);
