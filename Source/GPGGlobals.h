@@ -21,6 +21,7 @@
 #import <Libmacgpg/GPGException.h>
 #import "GPGOptions.h"
 
+
 @class GPGTask;
 
 typedef enum { 
@@ -235,9 +236,7 @@ extern NSString * const GPGConfigurationModifiedNotification;
 int hexToByte (const char *text);
 NSString* bytesToHexString(const uint8_t *bytes, NSUInteger length);
 NSSet *fingerprintsFromStatusText(NSString *statusText);
-#if MAC_OS_X_VERSION_MIN_REQUIRED <= MAC_OS_X_VERSION_10_6
-void *memmem(const void *big, size_t big_len, const void *little, size_t little_len);
-#endif
+void *lm_memmem(const void *big, size_t big_len, const void *little, size_t little_len);
 
 
 

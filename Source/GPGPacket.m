@@ -365,12 +365,12 @@ endOfBuffer:
 	char *clearTextStart, *clearTextEnd;
 	readPos = mutableBytes;
 	do {
-		clearTextStart = memmem(readPos, endPos - readPos, clearTextBeginMark, clearTextBeginMarkLength);
+		clearTextStart = lm_memmem(readPos, endPos - readPos, clearTextBeginMark, clearTextBeginMarkLength);
 		
 		if (clearTextStart == mutableBytes || (clearTextStart && (clearTextStart[-1] == '\n' || clearTextStart[-1] == '\r'))) {
 			readPos = clearTextStart + clearTextBeginMarkLength + 1;
 			do {
-				clearTextEnd = memmem(readPos, endPos - readPos, clearTextEndMark, clearTextEndMarkLength);
+				clearTextEnd = lm_memmem(readPos, endPos - readPos, clearTextEndMark, clearTextEndMarkLength);
 				if (clearTextEnd && (clearTextEnd[-1] == '\n' || clearTextEnd[-1] == '\r')) {
 					clearTextEnd--;
 					break;
@@ -441,7 +441,7 @@ endOfBuffer:
 	for (;readPos < endPos - 25; readPos++) {
 		switch (state) {
 			case state_searchStart:
-				readPos = memmem(readPos, endPos - readPos - 20, armorBeginMark, armorBeginMarkLength);
+				readPos = lm_memmem(readPos, endPos - readPos - 20, armorBeginMark, armorBeginMarkLength);
 				if (!readPos) {
 					goto endOfBuffer;
 				}
@@ -541,7 +541,7 @@ endOfBuffer:
 				}
 				break;
 			case state_waitForEnd: {
-				textEnd = memmem(readPos, endPos - readPos, "\n=", 2);
+				textEnd = lm_memmem(readPos, endPos - readPos, "\n=", 2);
 				const char *crcPos = NULL;
 				if (textEnd) {
 					textEnd++;
@@ -549,7 +549,7 @@ endOfBuffer:
 					readPos = textEnd + 5;
 				}
 				
-				readPos = memmem(readPos, endPos - readPos, armorEndMark, armorEndMarkLength);
+				readPos = lm_memmem(readPos, endPos - readPos, armorEndMark, armorEndMarkLength);
 				if (!readPos) {
 					goto endOfBuffer;
 				}
@@ -680,7 +680,7 @@ long crc24(char *bytes, NSUInteger length) {
 	NSMutableData *repairedData = [NSMutableData data];
 	
 	
-	readPos = memmem(readPos, endPos - readPos - 20, armorBeginMark, armorBeginMarkLength);
+	readPos = lm_memmem(readPos, endPos - readPos - 20, armorBeginMark, armorBeginMarkLength);
 	if (!readPos) {
 		goto endOfBuffer;
 	}
