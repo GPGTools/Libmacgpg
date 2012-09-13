@@ -53,6 +53,7 @@ typedef enum {
 @property (readonly) NSString *httpProxy;
 @property (readonly) NSString *gpgHome;
 @property (readonly) NSArray *keyservers;
+@property (retain) NSString *keyserver;
 @property BOOL autoSave;
 @property (retain) NSString *standardDomain;
 @property (readonly) BOOL debugLog;
@@ -97,6 +98,10 @@ typedef enum {
 
 - (id)valueInGPGAgentConfForKey:(NSString *)key;
 - (void)setValueInGPGAgentConf:(id)value forKey:(NSString *)key;
+
+
+- (void)addKeyserver:(NSString *)keyserver;
+- (void)removeKeyserver:(NSString *)keyserver;
 
 
 - (void)gpgAgentFlush;

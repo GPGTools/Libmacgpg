@@ -201,6 +201,8 @@ static NSString * const kGpgAgentConfKVKey = @"gpgAgentConf";
 		return self.httpProxy;
 	} else if ([key isEqualToString:@"keyservers"]) {
 		return self.keyservers;
+	} else if ([key isEqualToString:@"keyserver"]) {
+		return self.keyserver;
 	}
 	return nil;
 }
@@ -217,6 +219,8 @@ static NSString * const kGpgAgentConfKVKey = @"gpgAgentConf";
 		
 		[self setValueInGPGAgentConf:defaultCacheTtl forKey:@"default-cache-ttl"];
 		[self setValueInGPGAgentConf:maxCacheTtl forKey:@"max-cache-ttl"];
+	} else if ([key isEqualToString:@"keyserver"]) {
+		self.keyserver = value;
 	}
 }
 
@@ -397,12 +401,12 @@ static NSString * const kGpgAgentConfKVKey = @"gpgAgentConf";
     NSURL *keyserversPlistURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"Keyservers" withExtension:@"plist"];
     NSMutableSet *keyservers = [NSMutableSet setWithArray:[NSArray arrayWithContentsOfURL:keyserversPlistURL]];
 	
-	NSArray *servers = [[GPGOptions sharedOptions] valueForKey:@"keyservers" inDomain:GPGDomain_common];
+	NSArray *servers = [self valueInCommonDefaultsForKey:@"keyservers"];
 	if ([servers isKindOfClass:[NSArray class]]) {
 		[keyservers addObjectsFromArray:servers];
 	}
-	
-    return [keyservers allObjects];
+	 
+    return [[keyservers allObjects] sortedArrayUsingSelector:@selector(compare:)];
 }
 
 - (NSString *)httpProxy {
@@ -432,6 +436,34 @@ static NSString * const kGpgAgentConfKVKey = @"gpgAgentConf";
 }
 
 
+- (NSString *)keyserver {
+	return [self valueInGPGConfForKey:@"keyserver"];
+}
+- (void)setKeyserver:(NSString *)keyserver {
+	[self setValueInGPGConf:keyserver forKey:@"keyserver"];
+	[self addKeyserver:keyserver];
+}
+- (void)addKeyserver:(NSString *)keyserver {
+	if ([keyserver isKindOfClass:[NSString class]] && [keyserver length] > 1) {
+		NSMutableSet *servers = [NSMutableSet setWithArray:[self valueInCommonDefaultsForKey:@"keyservers"]];
+		[servers addObject:keyserver];
+		[self willChangeValueForKey:@"keyservers"];
+		[self setValueInCommonDefaults:[servers allObjects] forKey:@"keyservers"];
+		[self didChangeValueForKey:@"keyservers"];
+	}
+}
+- (void)removeKeyserver:(NSString *)keyserver {
+	if (keyserver) {
+		NSMutableSet *servers = [NSMutableSet setWithArray:[self valueInCommonDefaultsForKey:@"keyservers"]];
+		[servers removeObject:keyserver];
+		[self willChangeValueForKey:@"keyservers"];
+		[self setValueInCommonDefaults:[servers allObjects] forKey:@"keyservers"];
+		[self didChangeValueForKey:@"keyservers"];
+	}
+}
+
+
+
 // Helper methods.
 - (GPGOptionsDomain)domainForKey:(NSString *)key {
     return [GPGOptions domainForKey:key];
@@ -446,7 +478,7 @@ static NSString * const kGpgAgentConfKVKey = @"gpgAgentConf";
 	return GPGDomain_standard;
 }
 
-- (BOOL) isKnownKey:(NSString *)key domainForKey:(GPGOptionsDomain)domain {
+- (BOOL)isKnownKey:(NSString *)key domainForKey:(GPGOptionsDomain)domain {
     NSSet *keys = [domainKeys objectForKey:[NSNumber numberWithInt:domain]];
     return ([keys containsObject:key]);
 }
@@ -610,7 +642,7 @@ void SystemConfigurationDidChange(SCPreferencesRef prefs, SCPreferencesNotificat
                           @"hidden-encrypt-to", @"hidden-recipient", @"honor-http-proxy",
                           @"ignore-crc-error", @"ignore-mdc-error", @"ignore-time-conflict",
                           @"ignore-valid-from", @"import-options", @"interactive",
-                          @"keyid-format", @"keyring", @"keyserver", @"keyserver-options",
+                          @"keyid-format", @"keyring"/*, @"keyserver"*/, @"keyserver-options",
                           @"limit-card-insert-tries", @"list-key", @"list-only",
                           @"list-options", @"list-sig", @"load-extension", @"local-user",
                           @"lock-multiple", @"lock-never", @"lock-once", @"logger-fd",
@@ -680,7 +712,7 @@ void SystemConfigurationDidChange(SCPreferencesRef prefs, SCPreferencesNotificat
                          @"UseKeychain", @"DebugLog", nil];
     
     NSSet *specialKeys = [NSSet setWithObjects:@"httpProxy", @"keyservers",
-                          @"PassphraseCacheTime", @"TrustAllKeys", nil];
+                          @"PassphraseCacheTime", @"TrustAllKeys", @"keyserver", nil];
     					
 	domainKeys = [[NSDictionary alloc] initWithObjectsAndKeys:
 				  gpgConfKeys, [NSNumber numberWithInt:GPGDomain_gpgConf], 
