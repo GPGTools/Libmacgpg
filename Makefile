@@ -16,11 +16,12 @@ all: compile
 
 update-core:
 	@cd Dependencies/GPGTools_Core; git pull origin master; cd -
-
+update-pinentry:
+	@cd Dependencies/pinentry-mac; git pull origin master; cd -
 update-me:
 	@git pull
 
-update: update-me update-core
+update: update-me update-core update-pinentry
 
 test:
 	@xcodebuild -project $(PROJECT).xcodeproj -target $(TEST_TARGET) -configuration $(CONFIG) build
