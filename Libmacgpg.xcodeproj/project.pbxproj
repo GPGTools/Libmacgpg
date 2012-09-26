@@ -864,7 +864,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "echo SETSETSET\nset\necho SETENDSETENDSETEND\nln -fs Versions/Current/Frameworks ${TARGET_BUILD_DIR}/${FULL_PRODUCT_NAME}\n";
+			shellScript = "ln -fs Versions/Current/Frameworks \"${TARGET_BUILD_DIR}/${FULL_PRODUCT_NAME}\"\n";
 		};
 		30C8B38C139503A800F49AA1 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
