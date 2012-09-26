@@ -716,6 +716,7 @@
 				8DC2EF560486A6940098B216 /* Frameworks */,
 				1B3D64F51565BCFA00D93BBE /* Copy XPC Service */,
 				1BCD58C015684F74006FB9D8 /* CopyFiles */,
+				3059436B161307230028BA1B /* Crate Link for Frameworks */,
 			);
 			buildRules = (
 			);
@@ -851,6 +852,20 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		3059436B161307230028BA1B /* Crate Link for Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Crate Link for Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "ln -fs Versions/Current/Frameworks \"${TARGET_BUILD_DIR}/${FULL_PRODUCT_NAME}\"\n";
+		};
 		30C8B38C139503A800F49AA1 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
