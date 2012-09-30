@@ -20,7 +20,7 @@
 
 - (void)processStatusWithKey:(NSString *)keyword value:(NSString *)value reply:(void (^)(NSData *response))reply;
 - (void)progress:(NSUInteger)processedBytes total:(NSUInteger)total;
-- (void)postNotificationName:(NSString *)name object:(id)object;
+- (void)postNotificationName:(NSString *)name object:(NSString *)object;
 
 @end
 

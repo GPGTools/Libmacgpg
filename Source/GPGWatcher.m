@@ -147,8 +147,7 @@ static NSString * const kWatchedFileName = @"watchedFileName";
 	lastKnownChange = [NSDate timeIntervalSinceReferenceDate];
 }
 
-- (void)postNotificationName:(NSString *)name object:(id)object {
-    NSLog(@"Received notification. Sending to host app: %@ - %@", name, object);
+- (void)postNotificationName:(NSString *)name object:(NSString *)object {
     if(!self.checkForSandbox)
         [[jailfree remoteObjectProxy] postNotificationName:name object:object];
     else

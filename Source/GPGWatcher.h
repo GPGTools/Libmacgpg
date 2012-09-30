@@ -1,8 +1,9 @@
+#import "JailfreeTask.h"
 #import "DirectoryWatcher.h"
 
 extern NSString * const GPGKeysChangedNotification;
 
-@interface GPGWatcher : NSObject <DirectoryWatcherDelegate> {
+@interface GPGWatcher : NSObject <DirectoryWatcherDelegate, Jail> {
 	DirectoryWatcher *dirWatcher;
     // for pubring and secring
 	NSTimeInterval lastKnownChange; // Zeitpunkt der letzten Änderung durch eine Libmacgpg instanz.
