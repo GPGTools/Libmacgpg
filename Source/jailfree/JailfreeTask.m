@@ -8,6 +8,7 @@
 
 #import "JailfreeTask.h"
 #import "GPGMemoryStream.h"
+#import "GPGWatcher.h"
 #import "GPGTaskHelper.h"
 
 @implementation JailfreeTask
@@ -60,6 +61,10 @@
         xpc_transaction_end();
         [task release];
     }
+}
+
+- (void)startGPGWatcher {
+    [GPGWatcher activateWithXPCConnection:self.xpcConnection];
 }
 
 @end

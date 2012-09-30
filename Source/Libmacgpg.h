@@ -27,6 +27,7 @@
 #import <Libmacgpg/GPGSubkey.h>
 #import <Libmacgpg/GPGTaskOrder.h>
 #import <Libmacgpg/GPGUserID.h>
+#import <Libmacgpg/GPGWatcher.h>
 #import <Libmacgpg/GPGController.h>
 #import <Libmacgpg/GPGPacket.h>
 #import <Libmacgpg/GPGOptions.h>

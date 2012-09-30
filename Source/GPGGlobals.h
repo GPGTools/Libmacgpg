@@ -22,7 +22,7 @@
 #import "GPGOptions.h"
 
 
-@class GPGTask;
+@class GPGTask, GPGKey;
 
 typedef enum { 
     GPGKeyStatus_Invalid = 8,
@@ -209,13 +209,8 @@ enum gpgStatusCodes {
 #define GPG_SERVICE_NAME "GnuPG"
 #define JAILFREE_XPC_MACH_NAME JAILFREE_XPC_NAME
 
-extern NSString * const GPGKeysChangedNotification;
 extern NSString * const GPGOptionsChangedNotification;
 extern NSString * const GPGConfigurationModifiedNotification;
-
-
-
-
 
 @interface NSData (GPGExtension)
 - (NSString *)gpgString;

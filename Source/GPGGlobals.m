@@ -232,8 +232,6 @@ break;
 @end
 
 
-NSString * const GPGKeysChangedNotification = @"GPGKeysChangedNotification";
-
 int hexToByte (const char *text) {
 	int retVal = 0;
 	int i;

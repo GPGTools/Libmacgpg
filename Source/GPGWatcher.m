@@ -1,6 +1,9 @@
 #import "GPGWatcher.h"
 #import "GPGGlobals.h"
 #import "GPGOptions.h"
+#import "JailfreeTask.h"
+
+NSString * const GPGKeysChangedNotification = @"GPGKeysChangedNotification";
 
 @interface GPGWatcher ()
 @property (retain) NSMutableDictionary *changeDates;
@@ -15,6 +18,7 @@
 @synthesize changeDates;
 @synthesize toleranceBefore;
 @synthesize toleranceAfter;
+@synthesize jailfree;
 
 #define TOLERANCE_BEFORE 10.0
 #define TOLERANCE_AFTER 10.0
@@ -25,6 +29,10 @@ static NSString * const kWatchedFileName = @"watchedFileName";
 
 - (void)dealloc 
 {
+    if(jailfree) {
+        [jailfree invalidate];
+        [jailfree release];
+    }
     [[NSDistributedNotificationCenter defaultCenter] removeObserver:self];    
     [[[NSWorkspace sharedWorkspace] notificationCenter] removeObserver:self];
 
@@ -126,19 +134,26 @@ static NSString * const kWatchedFileName = @"watchedFileName";
         // for this event type, lastKnownChange is set by watching the event itself!
         // (see keysChangedNotification:)
 
-        [[NSDistributedNotificationCenter defaultCenter] postNotificationName:GPGKeysChangedNotification object:identifier userInfo:nil options:0];
+        [self postNotificationName:GPGKeysChangedNotification object:identifier];
     }
     else if ([GPGConfigurationModifiedNotification isEqualToString:eventName]) {
         // for this event type, we track lastConfKnownChange ourself
         lastConfKnownChange = foundChange;
 
-        [[NSDistributedNotificationCenter defaultCenter] postNotificationName:GPGConfigurationModifiedNotification object:identifier userInfo:nil options:0];
+        [self postNotificationName:GPGConfigurationModifiedNotification object:identifier];
     }
 }
 - (void)keysChangedNotification:(NSNotification *)notification {
 	lastKnownChange = [NSDate timeIntervalSinceReferenceDate];
 }
 
+- (void)postNotificationName:(NSString *)name object:(id)object {
+    NSLog(@"Received notification. Sending to host app: %@ - %@", name, object);
+    if(!self.checkForSandbox)
+        [[jailfree remoteObjectProxy] postNotificationName:name object:object];
+    else
+        [[NSDistributedNotificationCenter defaultCenter] postNotificationName:name object:object userInfo:nil options:0];
+}
 
 //TODO: Testen ob Symlinks in der Mitte des Pfades korrekt verarbeitet werden.
 - (void)workspaceDidMount:(NSNotification *)notification {
@@ -164,13 +179,23 @@ static NSString * const kWatchedFileName = @"watchedFileName";
 	
 	if ([gpgHome rangeOfString:devicePath].length > 0) {
 		// The (un)mounted volume contains gpgHome.
-		[[NSDistributedNotificationCenter defaultCenter] postNotificationName:GPGKeysChangedNotification object:identifier userInfo:nil options:0];
+		[self postNotificationName:GPGKeysChangedNotification object:identifier];
 	}
 }
 
-
-
-
+- (BOOL)sandboxed {
+    static BOOL sandboxed;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+#ifdef USE_XPCSERVICE
+        sandboxed = USE_XPCSERVICE ? YES : NO;
+#else
+        NSBundle *bundle = [NSBundle mainBundle];
+        sandboxed = [bundle ob_isSandboxed];
+#endif
+    });
+    return sandboxed;
+}
 
 // Singleton: alloc, init etc.
 
@@ -182,7 +207,22 @@ static id syncRoot = nil;
 }
 
 + (void)activate {
-	[self sharedInstance];
+    [self activateWithXPCConnection:nil];
+}
+
++ (void)activateWithXPCConnection:(NSXPCConnection *)connection {
+	GPGWatcher *instance = [self sharedInstance];
+    if(!connection)
+        return;
+    
+    instance.jailfree = connection;
+    
+    [instance updateWatcher];
+    
+    [[NSDistributedNotificationCenter defaultCenter] addObserver:instance selector:@selector(keysChangedNotification:) name:GPGKeysChangedNotification object:nil];
+    
+    [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:instance selector:@selector(workspaceDidMount:) name:NSWorkspaceDidMountNotification object:[NSWorkspace sharedWorkspace]];
+    [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:instance selector:@selector(workspaceDidMount:) name:NSWorkspaceDidUnmountNotification object:[NSWorkspace sharedWorkspace]];
 }
 
 + (id)sharedInstance {
@@ -198,7 +238,12 @@ static id syncRoot = nil;
 }
 
 - (id)init {
-    return [self initWithGpgHome:nil];
+    self.checkForSandbox = [self sandboxed];
+    if([self sandboxed])
+        return [self initSandboxed];
+    else {
+        return [self initWithGpgHome:nil];
+    }
 }
 
 - (id)initWithGpgHome:(NSString *)directoryPath
@@ -216,22 +261,39 @@ static id syncRoot = nil;
 
 		self.toleranceBefore = TOLERANCE_BEFORE;
         self.toleranceAfter = TOLERANCE_AFTER;
-
-		dirWatcher = [[DirectoryWatcher alloc] init];
-		dirWatcher.delegate = self;
-		dirWatcher.latency = DW_LATENCY;
-		[self updateWatcher];
-		
-		[[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(keysChangedNotification:) name:GPGKeysChangedNotification object:nil];
-		
-		[[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self selector:@selector(workspaceDidMount:) name:NSWorkspaceDidMountNotification object:[NSWorkspace sharedWorkspace]];
-		[[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self selector:@selector(workspaceDidMount:) name:NSWorkspaceDidUnmountNotification object:[NSWorkspace sharedWorkspace]];
-
-		
-		
+        
+        dirWatcher = [[DirectoryWatcher alloc] init];
+        dirWatcher.delegate = self;
+        dirWatcher.latency = DW_LATENCY;
+        
 		[[NSGarbageCollector defaultCollector] disableCollectorForPointer:self];
 	}
 	return self;
+}
+
+- (id)initSandboxed {
+    self = [super init];
+    if(self) {
+        // The semaphore is used to wait for the reply from the xpc
+        // service.
+        // XPC name: org.gpgtools.Libmacgpg.jailfree.xpc_OpenStep
+        Class LPXPCConnection = NSClassFromString(@"NSXPCConnection");
+        Class LPXPCInterface = NSClassFromString(@"NSXPCInterface");
+        
+        assert(LPXPCConnection);
+        assert(LPXPCInterface);
+        
+        jailfree = [[LPXPCConnection alloc] initWithMachServiceName:JAILFREE_XPC_MACH_NAME options:0];
+        jailfree.remoteObjectInterface = [LPXPCInterface interfaceWithProtocol:@protocol(Jailfree)];
+        jailfree.exportedInterface = [LPXPCInterface interfaceWithProtocol:@protocol(Jail)];
+        jailfree.exportedObject = self;
+        
+        [jailfree resume];
+        
+        // Ask the helper to setup the watcher.
+        [[jailfree remoteObjectProxy] startGPGWatcher];
+    }
+    return self;
 }
 
 @end

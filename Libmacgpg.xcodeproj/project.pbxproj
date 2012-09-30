@@ -27,6 +27,7 @@
 		1B46CFEB1615761C00CF9C5F /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 30BA88F1138FE593005982D9 /* SystemConfiguration.framework */; };
 		1B46CFEC1615765100CF9C5F /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3026F4AE13A203A000F3CA02 /* Security.framework */; };
 		1B46CFED161576D500CF9C5F /* NSPipe+NoSigPipe.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B72F740157AE89600101194 /* NSPipe+NoSigPipe.m */; };
+		1B5BE6751618AD3800EEC20F /* NSBundle+Sandbox.m in Sources */ = {isa = PBXBuildFile; fileRef = 1BCE0CD01617A3DF0026DCFF /* NSBundle+Sandbox.m */; };
 		1B72F741157AE89600101194 /* NSPipe+NoSigPipe.h in Headers */ = {isa = PBXBuildFile; fileRef = 1B72F73F157AE89600101194 /* NSPipe+NoSigPipe.h */; };
 		1B72F742157AE89600101194 /* NSPipe+NoSigPipe.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B72F740157AE89600101194 /* NSPipe+NoSigPipe.m */; };
 		1B9DB26A15784DB700488353 /* GPGTaskHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 1B9DB26815784DB700488353 /* GPGTaskHelper.h */; };
@@ -35,6 +36,9 @@
 		1BC7A50113D300A600AE57BA /* LPXTTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 1BC7A4FF13D300A600AE57BA /* LPXTTask.m */; };
 		1BCE0CD11617A3DF0026DCFF /* NSBundle+Sandbox.h in Headers */ = {isa = PBXBuildFile; fileRef = 1BCE0CCF1617A3DF0026DCFF /* NSBundle+Sandbox.h */; };
 		1BCE0CD21617A3DF0026DCFF /* NSBundle+Sandbox.m in Sources */ = {isa = PBXBuildFile; fileRef = 1BCE0CD01617A3DF0026DCFF /* NSBundle+Sandbox.m */; };
+		1BDA56B81618A7E100185C72 /* GPGWatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 3048830E1462B22000F2E5F4 /* GPGWatcher.m */; };
+		1BDA56BA1618A7EE00185C72 /* DirectoryWatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 3048830A1462B11700F2E5F4 /* DirectoryWatcher.m */; };
+		1BDA56BC1618A94300185C72 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4591C4D314F86D38007F6D47 /* AppKit.framework */; };
 		30247EF5135B2139003BA5E3 /* libcrypto.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 30247EF4135B2139003BA5E3 /* libcrypto.dylib */; };
 		3026F4AF13A203A000F3CA02 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3026F4AE13A203A000F3CA02 /* Security.framework */; };
 		302AA37A133606260022A371 /* GPGKey_Template.h in Headers */ = {isa = PBXBuildFile; fileRef = 302AA378133606260022A371 /* GPGKey_Template.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -43,7 +47,7 @@
 		302AA3AF133608BE0022A371 /* GPGSuper_Template.m in Sources */ = {isa = PBXBuildFile; fileRef = 302AA3AD133608BE0022A371 /* GPGSuper_Template.m */; };
 		3048830B1462B11700F2E5F4 /* DirectoryWatcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 304883091462B11700F2E5F4 /* DirectoryWatcher.h */; settings = {ATTRIBUTES = (); }; };
 		3048830C1462B11700F2E5F4 /* DirectoryWatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 3048830A1462B11700F2E5F4 /* DirectoryWatcher.m */; };
-		3048830F1462B22000F2E5F4 /* GPGWatcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 3048830D1462B22000F2E5F4 /* GPGWatcher.h */; settings = {ATTRIBUTES = (); }; };
+		3048830F1462B22000F2E5F4 /* GPGWatcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 3048830D1462B22000F2E5F4 /* GPGWatcher.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		304883101462B22000F2E5F4 /* GPGWatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 3048830E1462B22000F2E5F4 /* GPGWatcher.m */; };
 		30516558142281270038AAF0 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 30516556142281270038AAF0 /* Localizable.strings */; };
 		30691AA4136AECC4004AA469 /* GPGOptions.h in Headers */ = {isa = PBXBuildFile; fileRef = 30691AA2136AECC4004AA469 /* GPGOptions.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -289,6 +293,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1BDA56BC1618A94300185C72 /* AppKit.framework in Frameworks */,
 				1B46CFEC1615765100CF9C5F /* Security.framework in Frameworks */,
 				1B46CFEB1615761C00CF9C5F /* SystemConfiguration.framework in Frameworks */,
 				1B46CFCE161555DF00CF9C5F /* Foundation.framework in Frameworks */,
@@ -584,9 +589,9 @@
 				30A70EE513EF328000EE9CD9 /* GPGException.h in Headers */,
 				1BC7A50013D300A600AE57BA /* LPXTTask.h in Headers */,
 				3048830B1462B11700F2E5F4 /* DirectoryWatcher.h in Headers */,
-				3048830F1462B22000F2E5F4 /* GPGWatcher.h in Headers */,
 				30D5E2A41483A0F700F31454 /* GPGConf.h in Headers */,
 				451932F514F8061100D1F727 /* GPGStdSetting.h in Headers */,
+				3048830F1462B22000F2E5F4 /* GPGWatcher.h in Headers */,
 				4570876614FAA7C90030AAE6 /* GPGConfReader.h in Headers */,
 				45156A1C14FB1B1200129FE7 /* GPGLinesSetting.h in Headers */,
 				45156A2014FB1D7D00129FE7 /* GPGDictSetting.h in Headers */,
@@ -800,6 +805,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1B5BE6751618AD3800EEC20F /* NSBundle+Sandbox.m in Sources */,
+				1BDA56BA1618A7EE00185C72 /* DirectoryWatcher.m in Sources */,
+				1BDA56B81618A7E100185C72 /* GPGWatcher.m in Sources */,
 				1B46CFED161576D500CF9C5F /* NSPipe+NoSigPipe.m in Sources */,
 				1B46CFE8161575D600CF9C5F /* GPGStdSetting.m in Sources */,
 				1B46CFE9161575D600CF9C5F /* GPGLinesSetting.m in Sources */,

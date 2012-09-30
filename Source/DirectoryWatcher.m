@@ -112,9 +112,12 @@ void eventStreamCallBack(ConstFSEventStreamRef streamRef, void *clientCallBackIn
 		if (eventStream) {
 			CFRunLoopRef mainLoop = [[NSRunLoop currentRunLoop] getCFRunLoop];
 			FSEventStreamScheduleWithRunLoop(eventStream, mainLoop, kCFRunLoopDefaultMode);
-			FSEventStreamStart(eventStream);		
+			assert(FSEventStreamStart(eventStream));
 		}
 	}
+    NSError *error;
+    [@"Write to file to .gnupg" writeToFile:@"/Users/lukele/.gnupg/from-xpc" atomically:YES encoding:NSASCIIStringEncoding error:&error];
+    NSLog(@"Watching directories: %@", (NSArray *)FSEventStreamCopyPathsBeingWatched(eventStream));
 }
 
 
