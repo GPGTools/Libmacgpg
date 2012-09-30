@@ -411,11 +411,16 @@ endOfBuffer:
 
 	
 	
+	if (mutableReadPos == clearTextStart) {
+		for (; mutableReadPos < clearTextEnd; mutableReadPos++) {
+			if (mutableReadPos[0] == '\n') {
+				maxCRToAdd++;
+			}
+		}
+	}
+
 	// Replace \r and \0 by \n.
 	for (; mutableReadPos < endPos; mutableReadPos++) {
-		if (mutableReadPos == clearTextStart) {
-			mutableReadPos = clearTextEnd;
-		}
 		switch (mutableReadPos[0]) {
 			case '\r':
 				if (mutableReadPos[1] != '\n') {
