@@ -41,15 +41,16 @@
 */
 
 #import <Foundation/Foundation.h>
+#import "JailfreeTask.h"
 
-@class LPXTTask, GPGStream, XPCConnection;
+@class LPXTTask, GPGStream;
 
 typedef NSData *  (^lp_process_status_t)(NSString *keyword, NSString *value);
 typedef void (^lp_progress_handler_t)(NSUInteger processedBytes, NSUInteger totalBytes);
 
 static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 
-@interface GPGTaskHelper : NSObject {
+@interface GPGTaskHelper : NSObject <Jail> {
     NSArray *_inData;
     NSUInteger _totalInData;
     NSArray *_arguments;
@@ -69,7 +70,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
     BOOL _sandboxed;
     BOOL _cancelled;
     BOOL _checkForSandbox;
-    XPCConnection *_sandboxHelper;
+    NSXPCConnection *_sandboxHelper;
 }
 
 @property (nonatomic, retain) NSArray *inData;
@@ -100,7 +101,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
  Allows to directly interact with the GPG 2 process via the
  command pipe.
  */
-- (void)replyToCommand:(id)response;
+- (void)respond:(id)response;
 
 /**
  A dictionary including all the gathered information.
@@ -108,33 +109,5 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 - (NSDictionary *)result;
 
 - (void)cancel;
-
-@end
-
-//
-//  NSBundle+OBCodeSigningInfo.h
-//
-//  Created by Ole Begemann on 22.02.12.
-//  Copyright (c) 2012 Ole Begemann. All rights reserved.
-//
-
-#import <Foundation/Foundation.h>
-
-
-typedef enum {
-    OBCodeSignStateUnsigned = 1,
-    OBCodeSignStateSignatureValid,
-    OBCodeSignStateSignatureInvalid,
-    OBCodeSignStateSignatureNotVerifiable,
-    OBCodeSignStateSignatureUnsupported,
-    OBCodeSignStateError
-} OBCodeSignState;
-
-
-@interface NSBundle (OBCodeSigningInfo)
-
-- (BOOL)ob_comesFromAppStore;
-- (BOOL)ob_isSandboxed;
-- (OBCodeSignState)ob_codeSignState;
 
 @end

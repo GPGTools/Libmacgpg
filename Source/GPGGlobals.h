@@ -207,6 +207,7 @@ enum gpgStatusCodes {
 #define localizedLibmacgpgString(key) [[NSBundle bundleWithIdentifier:@"org.gpgtools.Libmacgpg"] localizedStringForKey:(key) value:@"" table:@""]
 #define GPGDebugLog(...) {if ([GPGOptions debugLog]) NSLog(__VA_ARGS__);}
 #define GPG_SERVICE_NAME "GnuPG"
+#define JAILFREE_XPC_MACH_NAME JAILFREE_XPC_NAME
 
 extern NSString * const GPGKeysChangedNotification;
 extern NSString * const GPGOptionsChangedNotification;
