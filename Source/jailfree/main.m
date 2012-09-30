@@ -44,7 +44,7 @@ int main(int argc, const char *argv[])
     
     [serviceListener resume];
     
-    dispatch_main();
+    [[NSRunLoop mainRunLoop] run];
     
     return 0;
 }
