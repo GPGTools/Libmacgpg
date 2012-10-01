@@ -45,12 +45,14 @@
         // Start the task.
         [task run];
         // After completion, collect the result and send it back in the reply block.
-        NSDictionary *result = [task result];
-        NSData *output = [[result objectForKey:@"output"] readAllData];
+        CFMutableDictionaryRef result = (CFMutableDictionaryRef)[task copyResult];
+        NSData *output = [[(NSDictionary *)result objectForKey:@"output"] readAllData];
         
-        NSMutableDictionary *response = [NSMutableDictionary dictionaryWithDictionary:result];
+        NSMutableDictionary *response = [NSMutableDictionary dictionaryWithDictionary:(NSDictionary *)result];
         [response setValue:output forKey:@"output"];
         
+		CFRelease(result);
+		
         reply(response);
     }
     @catch (NSException *exception) {

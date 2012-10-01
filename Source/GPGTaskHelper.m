@@ -271,7 +271,7 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
         
         NSArray *options = [NSArray arrayWithObjects:@"--encrypt", @"--sign", @"--clearsign", @"--detach-sign", @"--symmetric", @"-e", @"-s", @"-b", @"-c", nil];
         
-        if([self.arguments firstObjectCommonWithArray:options] == nil) {
+        if([object.arguments firstObjectCommonWithArray:options] == nil) {
             dispatch_group_async(collectorGroup, queue, ^{
                 runBlockAndRecordExceptionSyncronized(^{
                     [object writeInputData];
@@ -284,7 +284,7 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
                 NSData *data;
                 while((data = [[[object.task inheritedPipeWithName:@"stdout"] fileHandleForReading] readDataOfLength:kDataBufferSize]) &&  [data length] > 0) {
                     withAutoreleasePool(^{
-                        [self.output writeData:data];
+                        [object.output writeData:data];
                     });
                 }
             }, &lock, &blockException);
@@ -432,17 +432,18 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
     if(!_task || !self.inData) return;
     
     NSArray *pipeList = [self.task inheritedPipesWithName:@"ins"];
-    [pipeList enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        [self writeData:[self.inData objectAtIndex:idx] pipe:obj close:YES];
+    __block GPGTaskHelper *bself = self;
+	[pipeList enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        [bself writeData:[bself.inData objectAtIndex:idx] pipe:obj close:YES];
     }];
     
     self.inData = nil;
 }
 
 - (void)writeData:(GPGStream *)data pipe:(NSPipe *)pipe close:(BOOL)close {
-    NSFileHandle *ofh = [pipe fileHandleForWriting];
+    __block NSFileHandle *ofh = [pipe fileHandleForWriting];
     GPGStream *input = data;
-    NSData *tempData = nil;
+    __block NSData *tempData = nil;
     
     @try {
         while((tempData = [input readDataOfLength:kDataBufferSize]) && 
@@ -468,7 +469,8 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
     NSData *currentData = nil;
     NSMutableData *statusData = [NSMutableData data]; 
     NSData *NL = [@"\n" dataUsingEncoding:NSASCIIStringEncoding];
-    while((currentData = [[statusPipe fileHandleForReading] availableData])&& [currentData length]) {
+    __block typeof(self) this = self;
+	while((currentData = [[statusPipe fileHandleForReading] availableData])&& [currentData length]) {
         [statusData appendData:currentData];
         [line appendString:[[[NSString alloc] initWithData:currentData encoding:NSUTF8StringEncoding] autorelease]];
         // Skip data without line ending. Not a full line!
@@ -504,7 +506,7 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
             value = [parts componentsJoinedByString:@" "];
             
             [parts release];
-            [self processStatusWithKeyword:keyword value:value];
+            [this processStatusWithKeyword:keyword value:value];
         }];
     }
     return statusData;
@@ -639,6 +641,7 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
     GPGStream *responseStream = [GPGMemoryStream memoryStream];
     [responseStream writeData:responseData];
     [self writeData:responseStream pipe:[self.task inheritedPipeWithName:@"stdin"] close:NO];
+	[responseData release];
 }
 
 - (NSString *)passphraseForKeyID:(NSString *)keyID mainKeyID:(NSString *)mainKeyID userID:(NSString *)userID {
@@ -730,7 +733,7 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
     _cancelled = YES;
 }
 
-- (NSDictionary *)result {
+- (CFMutableDictionaryRef)copyResult {
     CFMutableDictionaryRef cfResult = CFDictionaryCreateMutable(kCFAllocatorDefault, 0, NULL, NULL);
     if(self.status)
         CFDictionaryAddValue(cfResult, @"status", self.status);
@@ -742,7 +745,7 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
         CFDictionaryAddValue(cfResult, @"output", self.output);
     CFDictionaryAddValue(cfResult, @"exitcode", [NSNumber numberWithInt:self.exitStatus]);
     
-    return (NSDictionary *)cfResult;
+    return cfResult;
 }
 
 + (NSDictionary *)statusCodes {

@@ -22,12 +22,9 @@
     JailfreeTask *exportedObject = [[JailfreeTask alloc] init];
     newConnection.exportedObject = exportedObject;
     
-    // We'll take advantage of the bi-directional nature of NSXPCConnections to send progress back to the caller. The remote side of this connection should implement the FetchProgress protocol.
-    newConnection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Jail)];
-    
-    // Let the fetcher know what connection object it should use to send back progress to the caller.
-    // Note that this is a zeroing weak refernece, because the connection retains the exported object and we do not want to create a retain cycle.
+	newConnection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Jail)];
     exportedObject.xpcConnection = newConnection;
+	[exportedObject release];
     
     [newConnection resume];
     return YES;
@@ -45,6 +42,7 @@ int main(int argc, const char *argv[])
     [serviceListener resume];
     
     [[NSRunLoop mainRunLoop] run];
-    
+    [delegate release];
+	
     return 0;
 }
