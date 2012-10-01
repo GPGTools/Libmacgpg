@@ -362,62 +362,7 @@ endOfBuffer:
 
 	
 	
-	char *clearTextStart, *clearTextEnd;
-	readPos = mutableBytes;
-	do {
-		clearTextStart = lm_memmem(readPos, endPos - readPos, clearTextBeginMark, clearTextBeginMarkLength);
-		
-		if (clearTextStart == mutableBytes || (clearTextStart && (clearTextStart[-1] == '\n' || clearTextStart[-1] == '\r'))) {
-			readPos = clearTextStart + clearTextBeginMarkLength + 1;
-			do {
-				clearTextEnd = lm_memmem(readPos, endPos - readPos, clearTextEndMark, clearTextEndMarkLength);
-				if (clearTextEnd && (clearTextEnd[-1] == '\n' || clearTextEnd[-1] == '\r')) {
-					clearTextEnd--;
-					break;
-				}
-				
-				readPos = clearTextEnd + clearTextEndMarkLength;
-			} while (clearTextEnd);
-			
-			if (clearTextEnd) {
-				readPos = clearTextStart + clearTextBeginMarkLength;
-				for (; readPos < clearTextEnd; readPos++) {
-					switch (*readPos) {
-						case '\r':
-							if (readPos[1] == '\n') {
-								readPos++;
-							}
-						case '\n':
-							newlineCount++;
-							if (newlineCount == 2) {
-								state = haveClearText ? state_searchStart : state_waitForEnd;
-								textStart = readPos + 1;
-							}
-						case ' ':
-						case '\t':
-							break;
-						default:
-							newlineCount = 0;
-					}
-				}
-			} else {
-				clearTextStart = nil;
-			}
-			
-			break;
-		}
-		readPos = clearTextStart + clearTextBeginMarkLength + 1;
-	} while (clearTextStart);
 
-	
-	
-	if (mutableReadPos == clearTextStart) {
-		for (; mutableReadPos < clearTextEnd; mutableReadPos++) {
-			if (mutableReadPos[0] == '\n') {
-				maxCRToAdd++;
-			}
-		}
-	}
 
 	// Replace \r and \0 by \n.
 	for (; mutableReadPos < endPos; mutableReadPos++) {
