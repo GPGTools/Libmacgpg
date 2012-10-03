@@ -10,6 +10,7 @@
 
 @protocol Jailfree <NSObject>
 
+- (void)testConnection:(void (^)(BOOL))reply;
 - (void)launchGPGWithArguments:(NSArray *)arguments data:(NSArray *)data readAttributes:(BOOL)readAttributes reply:(void (^)(NSDictionary *))reply;
 
 - (void)startGPGWatcher;
@@ -25,6 +26,8 @@
 @end
 
 @interface JailfreeTask :  NSObject <Jailfree>
+
+- (void)testConnection:(void (^)(BOOL))reply;
 
 #pragma mark - GPGTaskHelper RPC methods
 - (void)launchGPGWithArguments:(NSArray *)arguments data:(NSArray *)data readAttributes:(BOOL)readAttributes reply:(void (^)(NSDictionary *))reply;

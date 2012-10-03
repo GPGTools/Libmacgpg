@@ -9,9 +9,14 @@
 #import "JailfreeTask.h"
 #import "GPGMemoryStream.h"
 #import "GPGWatcher.h"
+#import "GPGException.h"
 #import "GPGTaskHelper.h"
 
 @implementation JailfreeTask
+
+- (void)testConnection:(void (^)(BOOL))reply {
+	reply(YES);
+}
 
 - (void)launchGPGWithArguments:(NSArray *)arguments data:(NSArray *)data readAttributes:(BOOL)readAttributes reply:(void (^)(NSDictionary *))reply {
     
@@ -45,19 +50,19 @@
         // Start the task.
         [task run];
         // After completion, collect the result and send it back in the reply block.
-        CFMutableDictionaryRef result = (CFMutableDictionaryRef)[task copyResult];
-        NSData *output = [[(NSDictionary *)result objectForKey:@"output"] readAllData];
+        NSDictionary *result = [task copyResult];
         
-        NSMutableDictionary *response = [NSMutableDictionary dictionaryWithDictionary:(NSDictionary *)result];
-        [response setValue:output forKey:@"output"];
-        
-		CFRelease(result);
+		reply(result);
 		
-        reply(response);
+		[result release];
     }
     @catch (NSException *exception) {
         // Create error here.
-        reply(nil);
+        
+		NSMutableDictionary *exceptionInfo = [NSMutableDictionary dictionaryWithDictionary:@{@"name": exception.name, @"reason": exception.reason}];
+		if([exception isKindOfClass:[GPGException class]])
+			exceptionInfo[@"errorCode"] = @(((GPGException *)exception).errorCode);
+		reply(@{@"exception": exceptionInfo});
     }
     @finally {
         xpc_transaction_end();
