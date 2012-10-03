@@ -9,11 +9,11 @@
 	<key>EnableTransactions</key>
 	<true/>
 	<key>Label</key>
-	<string>org.gpgtools.Libmacgpg.jailfree</string>
+	<string>org.gpgtools.Libmacgpg.xpc</string>
 	<key>MachServices</key>
 	<dict>
 		<key>JAILFREE_XPC_NAME</key>
-		<true/>
+		<string>Something-will-be-replaced</string>
 	</dict>
 	<key>ProgramArguments</key>
 	<array>
