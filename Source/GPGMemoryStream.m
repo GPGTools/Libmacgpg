@@ -91,7 +91,7 @@
     if (!_readableData)
         [self openForReading];
 
-    return [[_readableData retain] autorelease];
+    return _readableData;
 }
 
 - (char)peekByte 
