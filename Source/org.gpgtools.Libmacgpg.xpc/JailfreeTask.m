@@ -9,9 +9,15 @@
 #import "JailfreeTask.h"
 #import "GPGMemoryStream.h"
 #import "GPGWatcher.h"
+#import "GPGException.h"
 #import "GPGTaskHelper.h"
+/*#import "NSDictionary+Subscripting.h"*/
 
 @implementation JailfreeTask
+
+- (void)testConnection:(void (^)(BOOL))reply {
+	reply(YES);
+}
 
 - (void)launchGPGWithArguments:(NSArray *)arguments data:(NSArray *)data readAttributes:(BOOL)readAttributes reply:(void (^)(NSDictionary *))reply {
     

@@ -50,6 +50,10 @@ typedef void (^lp_progress_handler_t)(NSUInteger processedBytes, NSUInteger tota
 
 static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 
+#define GPGTASKHELPER_DISPATCH_TIMEOUT_ALMOST_INSTANTLY NSEC_PER_SEC / 1.6 // Should be 625ms (decrease to 500ms after further testing.).
+#define GPGTASKHELPER_DISPATCH_TIMEOUT_QUICKLY NSEC_PER_SEC * 5
+#define GPGTASKHELPER_DISPATCH_TIMEOUT_LOADS_OF_DATA NSEC_PER_SEC * 60 * 40
+
 @interface GPGTaskHelper : NSObject <Jail> {
     NSArray *_inData;
     NSUInteger _totalInData;
@@ -71,6 +75,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
     BOOL _cancelled;
     BOOL _checkForSandbox;
     NSXPCConnection *_sandboxHelper;
+	NSUInteger _timeout;
 }
 
 @property (nonatomic, retain) NSArray *inData;
@@ -84,6 +89,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 @property (nonatomic, assign) BOOL readAttributes;
 @property (nonatomic, copy) lp_progress_handler_t progressHandler;
 @property (nonatomic, assign) BOOL checkForSandbox;
+@property (assign, nonatomic) NSUInteger timeout;
 
 /**
  Configure a new GPG 2 process and pass all command line arguments

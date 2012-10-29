@@ -18,6 +18,7 @@
 */
 
 #import <Cocoa/Cocoa.h>
+#import "GPGTaskHelper.h"
 
 @class GPGTask;
 @class GPGTaskHelper;
@@ -65,6 +66,7 @@
 	BOOL progressInfo;
 	
 	NSMutableDictionary *statusDict;
+	NSUInteger timeout;
 }
 
 @property (readonly) BOOL cancelled;
@@ -87,6 +89,7 @@
 @property (readonly) NSString *statusText;
 @property (readonly) NSArray *arguments;
 @property (readonly) GPGTaskHelper *taskHelper; 
+@property (assign, nonatomic) NSUInteger timeout;
 
 + (NSString *)gpgAgentSocket;
 + (NSString *)nameOfStatusCode:(NSInteger)statusCode;

@@ -69,7 +69,7 @@
 
 
 @implementation GPGController
-@synthesize delegate, keyserver, keyserverTimeout, proxyServer, async, userInfo, useArmor, useTextMode, printVersion, useDefaultComments, trustAllKeys, signatures, lastSignature, gpgHome, verbose, autoKeyRetrieve, lastReturnValue, error, undoManager, hashAlgorithm, gpgTask;
+@synthesize delegate, keyserver, keyserverTimeout, proxyServer, async, userInfo, useArmor, useTextMode, printVersion, useDefaultComments, trustAllKeys, signatures, lastSignature, gpgHome, verbose, autoKeyRetrieve, lastReturnValue, error, undoManager, hashAlgorithm, gpgTask, timeout;
 
 NSString *gpgVersion = nil;
 NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil, *compressAlgorithm = nil;
@@ -208,6 +208,7 @@ BOOL gpgConfigReaded = NO;
 	signatures = [[NSMutableArray alloc] init];
 	keyserverTimeout = 10;
 	asyncProxy = [[AsyncProxy alloc] initWithRealObject:self];
+	timeout = GPGTASKHELPER_DISPATCH_TIMEOUT_LOADS_OF_DATA;
 	
 	[GPGWatcher activate];
 	
@@ -2384,6 +2385,8 @@ BOOL gpgConfigReaded = NO;
 	
 	@try {
 		GPGTask *gpgTask = [GPGTask gpgTask];
+		// Should return as quick as possible if the xpc helper is not available.
+		gpgTask.timeout = GPGTASKHELPER_DISPATCH_TIMEOUT_QUICKLY;
 		[gpgTask addArgument:@"--list-config"];
 		
 		if ([gpgTask start] != 0) {
