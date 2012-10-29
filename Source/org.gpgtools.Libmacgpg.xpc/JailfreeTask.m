@@ -11,6 +11,7 @@
 #import "GPGWatcher.h"
 #import "GPGException.h"
 #import "GPGTaskHelper.h"
+/*#import "NSDictionary+Subscripting.h"*/
 
 @implementation JailfreeTask
 

@@ -378,10 +378,7 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
     
 	__block typeof(_sandboxHelper) _bsandboxHelper = _sandboxHelper;
     
-    __block dispatch_semaphore_t lock = dispatch_semaphore_create(0);
-    dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, _timeout);
-	
-	// Test the connection to assure it's available with a super small timeout.
+    // Test the connection to assure it's available with a super small timeout.
 	// Apple should exactly throw an exception if the mach lookup fails.
 	// For some reason, they don't... :-(
 	__block dispatch_semaphore_t testLock = dispatch_semaphore_create(0);
@@ -389,50 +386,38 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
 	
 	__block BOOL xpcReady = NO;
 	[[_sandboxHelper remoteObjectProxyWithErrorHandler:^(NSError *error) {
-		dispatch_semaphore_signal(testLock);
-		
 		NSString *description = [error description];
 		NSString *explanation = [NSString stringWithFormat:@"[GPGMail] XPC test connection failed - reason: %@", description];
-        
+		
         connectionError = [[NSException exceptionWithName:@"XPCConnectionError" reason:explanation userInfo:nil] retain];
 		
 		NSLog(@"%@", explanation);
-	}] testConnection:^(BOOL success) {
 		dispatch_semaphore_signal(testLock);
-		
+	}] testConnection:^(BOOL success) {
 		xpcReady = YES;
-		//NSLog(@"Coming here first...?");
+		dispatch_semaphore_signal(testLock);
 	}];
 	
 	dispatch_semaphore_wait(testLock, testTimeout);
 	dispatch_release(testLock);
 	
+	__block dispatch_semaphore_t lock = dispatch_semaphore_create(0);
+    dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, _timeout);
+	
 	if(xpcReady) {
 		[[_sandboxHelper remoteObjectProxyWithErrorHandler:^(NSError *error) {
-			dispatch_semaphore_signal(lock);
-			
 			NSString *description = [error description];
 			NSString *explanation = [NSString stringWithFormat:@"[GPGMail] Failed to invoke XPC method - reason: %@", description];
 			
 			connectionError = [[NSException exceptionWithName:@"XPCConnectionError" reason:explanation userInfo:nil] retain];
 			
 			NSLog(@"%@", explanation);
-		}] launchGPGWithArguments:self.arguments data:convertedInData readAttributes:self.readAttributes reply:^(NSDictionary *result) {
 			dispatch_semaphore_signal(lock);
+		}] launchGPGWithArguments:self.arguments data:convertedInData readAttributes:self.readAttributes reply:^(NSDictionary *result) {
 			// Invalidate the connection, it's no longer necessary to keep it around.
 			[_bsandboxHelper invalidate];
 			if([result objectForKey:@"exception"]) {
-				NSDictionary *exceptionInfo = result[@"exception"];
-				id exception = nil;
-				if(![exceptionInfo objectForKey:@"errorCode"]) {
-					exception = [NSException exceptionWithName:exceptionInfo[@"name"] reason:exceptionInfo[@"reason"] userInfo:nil];
-				}
-				else {
-					exception = [GPGException exceptionWithReason:exceptionInfo[@"reason"] errorCode:[exceptionInfo[@"errorCode"] unsignedIntValue]];
-				}
-				
-				taskHelperException = [exception retain];
-				NSLog(@"[GPGMail] Task helper Exception: %@", taskHelperException);
+				taskHelperException = [result objectForKey:@"exception"];
 				return;
 			}
 			
@@ -442,6 +427,7 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
 			this.exitStatus = [[result objectForKey:@"exitcode"] intValue];
 			if([result objectForKey:@"output"])
 				[this.output writeData:[result objectForKey:@"output"]];
+			dispatch_semaphore_signal(lock);
 		}];
 		
 		dispatch_semaphore_wait(lock, timeout);

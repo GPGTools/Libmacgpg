@@ -50,9 +50,9 @@ typedef void (^lp_progress_handler_t)(NSUInteger processedBytes, NSUInteger tota
 
 static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 
-#define GPGTASKHELPER_DISPATCH_TIMEOUT_ALMOST_INSTANTLY NSEC_PER_SEC * 1.6 // Should be 625ms (decrease to 500ms after further testing.).
+#define GPGTASKHELPER_DISPATCH_TIMEOUT_ALMOST_INSTANTLY NSEC_PER_SEC / 1.6 // Should be 625ms (decrease to 500ms after further testing.).
 #define GPGTASKHELPER_DISPATCH_TIMEOUT_QUICKLY NSEC_PER_SEC * 5
-#define GPGTASKHELPER_DISPATCH_TIMEOUT_LOADS_OF_DATA NSEC_PER_SEC * 60 * 30
+#define GPGTASKHELPER_DISPATCH_TIMEOUT_LOADS_OF_DATA NSEC_PER_SEC * 60 * 40
 
 @interface GPGTaskHelper : NSObject <Jail> {
     NSArray *_inData;

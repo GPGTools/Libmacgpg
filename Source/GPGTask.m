@@ -383,7 +383,7 @@ char partCountForStatusCode[GPG_STATUS_COUNT];
 		taskHelper.timeout = ((GPGController *)delegate).timeout;
 	else
 		taskHelper.timeout = self.timeout;
-	
+    
     if(!outStream)
         outStream = [[GPGMemoryStream memoryStream] retain];
     
