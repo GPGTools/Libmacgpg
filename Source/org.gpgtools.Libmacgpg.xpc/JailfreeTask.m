@@ -55,15 +55,17 @@
         
 		reply(result);
 		
-		[result release];
+		//[result release];
     }
     @catch (NSException *exception) {
         // Create error here.
         
-		NSMutableDictionary *exceptionInfo = [NSMutableDictionary dictionaryWithDictionary:@{@"name": exception.name, @"reason": exception.reason}];
+		NSMutableDictionary *exceptionInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:exception.name, @"name",
+											  exception.reason, @"reason", nil];
 		if([exception isKindOfClass:[GPGException class]])
-			exceptionInfo[@"errorCode"] = @(((GPGException *)exception).errorCode);
-		reply(@{@"exception": exceptionInfo});
+			[exceptionInfo setObject:[NSNumber numberWithUnsignedInt:((GPGException *)exception).errorCode] forKey:@"errorCode"];
+		
+		reply([NSDictionary dictionaryWithObjectsAndKeys:exceptionInfo, @"exception", nil]);
     }
     @finally {
         xpc_transaction_end();

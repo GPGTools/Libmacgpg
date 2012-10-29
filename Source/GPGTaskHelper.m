@@ -415,9 +415,21 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
 			dispatch_semaphore_signal(lock);
 		}] launchGPGWithArguments:self.arguments data:convertedInData readAttributes:self.readAttributes reply:^(NSDictionary *result) {
 			// Invalidate the connection, it's no longer necessary to keep it around.
-			[_bsandboxHelper invalidate];
 			if([result objectForKey:@"exception"]) {
-				taskHelperException = [result objectForKey:@"exception"];
+				NSDictionary *exceptionInfo = [result objectForKey:@"exception"];
+				id exception = nil;
+				if(![exceptionInfo objectForKey:@"errorCode"]) {
+					exception = [NSException exceptionWithName:[exceptionInfo objectForKey:@"name"] reason:[exceptionInfo objectForKey:@"reason"] userInfo:nil];
+				}
+				else {
+					exception = [GPGException exceptionWithReason:[exceptionInfo objectForKey:@"reason"] errorCode:[[exceptionInfo objectForKey:@"errorCode"] unsignedIntValue]];
+				}
+				
+				taskHelperException = [exception retain];
+				NSLog(@"[GPGMail] Task helper Exception: %@", taskHelperException);
+				[_bsandboxHelper invalidate];
+				dispatch_semaphore_signal(lock);
+				
 				return;
 			}
 			
@@ -427,6 +439,7 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
 			this.exitStatus = [[result objectForKey:@"exitcode"] intValue];
 			if([result objectForKey:@"output"])
 				[this.output writeData:[result objectForKey:@"output"]];
+			[_bsandboxHelper invalidate];
 			dispatch_semaphore_signal(lock);
 		}];
 		
@@ -760,16 +773,19 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
 
 - (NSDictionary *)copyResult {
     NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
+	NSLog(@"Status: %@", [[[NSString alloc] initWithData:self.status encoding:NSUTF8StringEncoding] autorelease]);
 	if(self.status)
-		result[@"status"] = self.status;
+		[result setObject:self.status forKey:@"status"];
 	if(self.errors)
-		result[@"errors"] = self.errors;
+		[result setObject:self.errors forKey:@"errors"];
+	NSLog(@"Status: %@", [[[NSString alloc] initWithData:self.errors encoding:NSUTF8StringEncoding] autorelease]);
 	if(self.attributes)
-		result[@"attributes"] = self.attributes;
+		[result setObject:self.attributes forKey:@"attributes"];
 	if(self.output)
-		result[@"output"] = [self.output readAllData];
-	result[@"exitcode"] = [NSNumber numberWithInt:self.exitStatus];
-	
+		[result setObject:[self.output readAllData] forKey:@"output"];
+	NSLog(@"Status: %@", [[[NSString alloc] initWithData:[result objectForKey:@"output"] encoding:NSUTF8StringEncoding] autorelease]);
+	[result setObject:[NSNumber numberWithUnsignedInt:self.exitStatus] forKey:@"exitcode"];
+    
     return result;
 }
 
