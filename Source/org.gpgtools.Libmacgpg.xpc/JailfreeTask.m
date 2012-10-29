@@ -51,19 +51,20 @@
         // Start the task.
         [task run];
         // After completion, collect the result and send it back in the reply block.
-        CFMutableDictionaryRef result = (CFMutableDictionaryRef)[task copyResult];
-        NSData *output = [[(NSDictionary *)result objectForKey:@"output"] readAllData];
+        NSDictionary *result = [task copyResult];
         
-        NSMutableDictionary *response = [NSMutableDictionary dictionaryWithDictionary:(NSDictionary *)result];
-        [response setValue:output forKey:@"output"];
-        
-		CFRelease(result);
+		reply(result);
 		
-        reply(response);
+		//[result release];
     }
     @catch (NSException *exception) {
         // Create error here.
-        reply(nil);
+        
+		NSMutableDictionary *exceptionInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:exception.name, @"name",
+											  exception.reason, @"reason", nil];
+		if([exception isKindOfClass:[GPGException class]])
+			[exceptionInfo setObject:[NSNumber numberWithUnsignedInt:((GPGException *)exception).errorCode] forKey:@"errorCode"];
+			reply([NSDictionary dictionaryWithObjectsAndKeys:exceptionInfo, @"exception", nil]);
     }
     @finally {
         xpc_transaction_end();

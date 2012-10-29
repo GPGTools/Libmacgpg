@@ -112,7 +112,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 /**
  A dictionary including all the gathered information.
  */
-- (NSDictionary *)result;
+- (NSDictionary *)copyResult;
 
 - (void)cancel;
 
