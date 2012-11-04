@@ -3,6 +3,11 @@ TARGET = Libmacgpg
 CONFIG = Release
 TEST_TARGET = UnitTest
 
+XCCONFIG = ""
+ifeq ("$(CODE_SIGN)","1")
+    XCCONFIG=-xcconfig Dependencies/GPGTools_Core/make/code-signing.xcconfig
+endif
+
 .PRE :=
 ifndef CFG
 compile clean:
@@ -24,12 +29,10 @@ update-me:
 update: update-me update-core update-pinentry
 
 test:
-	@xcodebuild -project $(PROJECT).xcodeproj -target $(TEST_TARGET) -configuration $(CONFIG) build
+	@xcodebuild -project $(PROJECT).xcodeproj -target $(TEST_TARGET) -configuration $(CONFIG) build 
 
 compile:
-	@xcodebuild -project $(PROJECT).xcodeproj -target $(TARGET) -configuration $(CONFIG) build
+	@xcodebuild -project $(PROJECT).xcodeproj -target $(TARGET) -configuration $(CONFIG) build $(XCCONFIG)
 
 clean:
 	@xcodebuild -project $(PROJECT).xcodeproj -target $(TARGET) -configuration $(CONFIG) clean > /dev/null
-
-
