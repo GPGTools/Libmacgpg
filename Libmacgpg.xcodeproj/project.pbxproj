@@ -786,7 +786,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "JAILFREE_PLIST=\"${EXECUTABLE_NAME}.plist\"\nLAUNCHAGENT_PATH=~/Library/LaunchAgents/${JAILFREE_PLIST}\nJAILFREE_PATH=\"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_NAME}\"\nBUILD_LAUNCHAGENT_PATH=\"${BUILD_DIR}/${JAILFREE_PLIST}\"\n\ncp ${BUILD_LAUNCHAGENT_PATH} ${LAUNCHAGENT_PATH}\n/usr/libexec/PlistBuddy -c \"Set :ProgramArguments:0 \"${JAILFREE_PATH}\"\" \"${LAUNCHAGENT_PATH}\"";
+			shellScript = "JAILFREE_PLIST=\"${EXECUTABLE_NAME}.plist\"\nLAUNCHAGENT_PATH=~/Library/LaunchAgents/${JAILFREE_PLIST}\nJAILFREE_PATH=\"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_NAME}\"\nBUILD_LAUNCHAGENT_PATH=\"${BUILD_DIR}/${JAILFREE_PLIST}\"\n\nif [ -d \"~/Library/LaunchAgents\" ] && [ -w \"~/Library/LaunchAgents\" ] && [ -x \"~/Library/LaunchAgents\" ]; then\n    cp ${BUILD_LAUNCHAGENT_PATH} ${LAUNCHAGENT_PATH}\n    /usr/libexec/PlistBuddy -c \"Set :ProgramArguments:0 \"${JAILFREE_PATH}\"\" \"${LAUNCHAGENT_PATH}\"\nfi";
 		};
 		3059436B161307230028BA1B /* Crate Link for Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
