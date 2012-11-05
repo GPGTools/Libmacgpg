@@ -16,13 +16,13 @@
 @implementation JailfreeService
 
 - (BOOL)listener:(NSXPCListener *)listener shouldAcceptNewConnection:(NSXPCConnection *)newConnection {
-    newConnection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Jailfree)];
+    [newConnection setExportedInterface:[NSXPCInterface interfaceWithProtocol:@protocol(Jailfree)]];
     
     
     JailfreeTask *exportedObject = [[JailfreeTask alloc] init];
-    newConnection.exportedObject = exportedObject;
+    [newConnection setExportedObject:exportedObject];
     
-	newConnection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Jail)];
+	[newConnection setRemoteObjectInterface:[NSXPCInterface interfaceWithProtocol:@protocol(Jail)]];
     exportedObject.xpcConnection = newConnection;
 	[exportedObject release];
     
