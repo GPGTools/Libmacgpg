@@ -76,6 +76,7 @@
 	BOOL canceled;
 	NSInteger runningOperations;
 	NSUInteger groupedKeyChange;
+	NSUInteger timeout;
 }
 
 @property (assign) NSObject <GPGControllerDelegate> *delegate;
@@ -102,6 +103,7 @@
 @property (readonly) NSDictionary *statusDict;
 @property (nonatomic, readonly) GPGHashAlgorithm hashAlgorithm;
 @property (readonly) GPGTask *gpgTask;
+@property (assign, nonatomic) NSUInteger timeout;
 
 + (NSString *)gpgVersion;
 + (NSSet *)publicKeyAlgorithm;

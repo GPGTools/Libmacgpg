@@ -41,15 +41,20 @@
 */
 
 #import <Foundation/Foundation.h>
+#import "JailfreeTask.h"
 
-@class LPXTTask, GPGStream, XPCConnection;
+@class LPXTTask, GPGStream;
 
 typedef NSData *  (^lp_process_status_t)(NSString *keyword, NSString *value);
 typedef void (^lp_progress_handler_t)(NSUInteger processedBytes, NSUInteger totalBytes);
 
 static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 
-@interface GPGTaskHelper : NSObject {
+#define GPGTASKHELPER_DISPATCH_TIMEOUT_ALMOST_INSTANTLY NSEC_PER_SEC / 1.6 // Should be 625ms (decrease to 500ms after further testing.).
+#define GPGTASKHELPER_DISPATCH_TIMEOUT_QUICKLY NSEC_PER_SEC * 5
+#define GPGTASKHELPER_DISPATCH_TIMEOUT_LOADS_OF_DATA NSEC_PER_SEC * 60 * 40
+
+@interface GPGTaskHelper : NSObject <Jail> {
     NSArray *_inData;
     NSUInteger _totalInData;
     NSArray *_arguments;
@@ -69,7 +74,8 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
     BOOL _sandboxed;
     BOOL _cancelled;
     BOOL _checkForSandbox;
-    XPCConnection *_sandboxHelper;
+    NSXPCConnection *_sandboxHelper;
+	NSUInteger _timeout;
 }
 
 @property (nonatomic, retain) NSArray *inData;
@@ -83,6 +89,7 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
 @property (nonatomic, assign) BOOL readAttributes;
 @property (nonatomic, copy) lp_progress_handler_t progressHandler;
 @property (nonatomic, assign) BOOL checkForSandbox;
+@property (assign, nonatomic) NSUInteger timeout;
 
 /**
  Configure a new GPG 2 process and pass all command line arguments
@@ -100,41 +107,13 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
  Allows to directly interact with the GPG 2 process via the
  command pipe.
  */
-- (void)replyToCommand:(id)response;
+- (void)respond:(id)response;
 
 /**
  A dictionary including all the gathered information.
  */
-- (NSDictionary *)result;
+- (NSDictionary *)copyResult;
 
 - (void)cancel;
-
-@end
-
-//
-//  NSBundle+OBCodeSigningInfo.h
-//
-//  Created by Ole Begemann on 22.02.12.
-//  Copyright (c) 2012 Ole Begemann. All rights reserved.
-//
-
-#import <Foundation/Foundation.h>
-
-
-typedef enum {
-    OBCodeSignStateUnsigned = 1,
-    OBCodeSignStateSignatureValid,
-    OBCodeSignStateSignatureInvalid,
-    OBCodeSignStateSignatureNotVerifiable,
-    OBCodeSignStateSignatureUnsupported,
-    OBCodeSignStateError
-} OBCodeSignState;
-
-
-@interface NSBundle (OBCodeSigningInfo)
-
-- (BOOL)ob_comesFromAppStore;
-- (BOOL)ob_isSandboxed;
-- (OBCodeSignState)ob_codeSignState;
 
 @end

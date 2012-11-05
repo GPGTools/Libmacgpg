@@ -110,9 +110,9 @@ void eventStreamCallBack(ConstFSEventStreamRef streamRef, void *clientCallBackIn
 		FSEventStreamContext context = {0, self, nil, nil, nil};
 		eventStream = FSEventStreamCreate(nil, &eventStreamCallBack, &context, (CFArrayRef)[self.pathsToWatch allObjects], kFSEventStreamEventIdSinceNow, latency, kFSEventStreamCreateFlagUseCFTypes | kFSEventStreamCreateFlagIgnoreSelf);
 		if (eventStream) {
-			CFRunLoopRef mainLoop = [[NSRunLoop currentRunLoop] getCFRunLoop];
+			CFRunLoopRef mainLoop = [[NSRunLoop mainRunLoop] getCFRunLoop];
 			FSEventStreamScheduleWithRunLoop(eventStream, mainLoop, kCFRunLoopDefaultMode);
-			FSEventStreamStart(eventStream);		
+			assert(FSEventStreamStart(eventStream));
 		}
 	}
 }

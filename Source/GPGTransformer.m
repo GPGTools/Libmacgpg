@@ -51,6 +51,8 @@
 			return maybeLocalize(@"GPG_ElgamalAlgorithm");
 		case GPG_DiffieHellmanAlgorithm:
 			return maybeLocalize(@"GPG_DiffieHellmanAlgorithm");
+		case 0:
+			return @"";
 		default:
 			return [NSString stringWithFormat:maybeLocalize(@"Algorithm_%i"), value];
 	}
