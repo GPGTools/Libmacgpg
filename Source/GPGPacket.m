@@ -412,6 +412,9 @@ endOfBuffer:
 						exception = [NSException exceptionWithName:@"malloc exception" reason:@"malloc failed" userInfo:nil];
 						goto endOfBuffer;
 					}
+					if (textStart[0] == '-' && textStart[1] == ' ') {
+						textStart += 2;
+					}
 					readPos = textStart;
 					char *clearBytesPtr = clearBytes;
 					const char *newlinePos;
@@ -435,7 +438,7 @@ endOfBuffer:
 
 						
 						readPos = newlinePos + 1;
-						if (*readPos == '-' && *readPos == ' ') {
+						if (readPos[0] == '-' && readPos[1] == ' ') {
 							readPos += 2;
 						}
 						textStart = readPos;

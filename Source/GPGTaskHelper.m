@@ -883,8 +883,6 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
 }
 
 - (void)dealloc {
-    [super dealloc];
-    
     [_inData release];
     _inData = nil;
     [_arguments release];
@@ -911,6 +909,8 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
     _processedBytesMap = nil;
     [_sandboxHelper release];
     _sandboxHelper = nil;
+	
+	[super dealloc];
 }
 
 @end

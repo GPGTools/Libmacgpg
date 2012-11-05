@@ -758,7 +758,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "mkdir -p ~/Library/Application\\ Support/GPGTools\ncp -R ${BUILT_PRODUCTS_DIR}/org.gpgtools.Libmacgpg.xpc ~/Library/Application\\ Support/GPGTools\n# Reload the launchd.plist\nif [ -f \"/Library/LaunchAgents/org.gpgtools.Libmacgpg.xpc.plist\" ]; then\n    launchctl unload /Library/LaunchAgents/org.gpgtools.Libmacgpg.xpc.plist\nfi\nlaunchctl unload ~/Library/LaunchAgents/org.gpgtools.Libmacgpg.xpc.plist\nsleep 3\nlaunchctl load ~/Library/LaunchAgents/org.gpgtools.Libmacgpg.xpc.plist";
+			shellScript = "mkdir -p ~/Library/Application\\ Support/GPGTools\ncp -R ${BUILT_PRODUCTS_DIR}/org.gpgtools.Libmacgpg.xpc ~/Library/Application\\ Support/GPGTools\n# Reload the launchd.plist\nif [ -f \"/Library/LaunchAgents/org.gpgtools.Libmacgpg.xpc.plist\" ]; then\n    launchctl unload /Library/LaunchAgents/org.gpgtools.Libmacgpg.xpc.plist\nfi\nif [ -f \"~/Library/LaunchAgents/org.gpgtools.Libmacgpg.xpc.plist\" ]; then\n    launchctl unload ~/Library/LaunchAgents/org.gpgtools.Libmacgpg.xpc.plist\n    sleep 3\n    launchctl load ~/Library/LaunchAgents/org.gpgtools.Libmacgpg.xpc.plist\nfi";
 		};
 		1B483E061619E69900D692EB /* Prepare XPC Launchd.plist for the Packager */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -786,7 +786,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "JAILFREE_PLIST=\"${EXECUTABLE_NAME}.plist\"\nLAUNCHAGENT_PATH=~/Library/LaunchAgents/${JAILFREE_PLIST}\nJAILFREE_PATH=\"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_NAME}\"\nBUILD_LAUNCHAGENT_PATH=\"${BUILD_DIR}/${JAILFREE_PLIST}\"\n\ncp ${BUILD_LAUNCHAGENT_PATH} ${LAUNCHAGENT_PATH}\n/usr/libexec/PlistBuddy -c \"Set :ProgramArguments:0 \"${JAILFREE_PATH}\"\" \"${LAUNCHAGENT_PATH}\"";
+			shellScript = "JAILFREE_PLIST=\"${EXECUTABLE_NAME}.plist\"\nLAUNCHAGENT_PATH=~/Library/LaunchAgents/${JAILFREE_PLIST}\nJAILFREE_PATH=\"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_NAME}\"\nBUILD_LAUNCHAGENT_PATH=\"${BUILD_DIR}/${JAILFREE_PLIST}\"\n\nif [ -d \"~/Library/LaunchAgents\" ] && [ -w \"~/Library/LaunchAgents\" ] && [ -x \"~/Library/LaunchAgents\" ]; then\n    cp ${BUILD_LAUNCHAGENT_PATH} ${LAUNCHAGENT_PATH}\n    /usr/libexec/PlistBuddy -c \"Set :ProgramArguments:0 \"${JAILFREE_PATH}\"\" \"${LAUNCHAGENT_PATH}\"\nfi";
 		};
 		3059436B161307230028BA1B /* Crate Link for Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
