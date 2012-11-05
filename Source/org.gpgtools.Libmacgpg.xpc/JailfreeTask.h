@@ -8,6 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
+@class NSXPCConnection;
+
 @protocol Jailfree <NSObject>
 
 - (void)testConnection:(void (^)(BOOL))reply;
