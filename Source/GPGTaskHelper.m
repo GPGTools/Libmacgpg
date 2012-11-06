@@ -359,9 +359,9 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
     assert(LPXPCInterface);
     
     _sandboxHelper = [[LPXPCConnection alloc] initWithMachServiceName:JAILFREE_XPC_MACH_NAME options:0];
-    _sandboxHelper.remoteObjectInterface = [LPXPCInterface interfaceWithProtocol:@protocol(Jailfree)];
-    _sandboxHelper.exportedInterface = [LPXPCInterface interfaceWithProtocol:@protocol(Jail)];
-    _sandboxHelper.exportedObject = self;
+    [_sandboxHelper setRemoteObjectInterface:[LPXPCInterface interfaceWithProtocol:@protocol(Jailfree)]];
+    [_sandboxHelper setExportedInterface:[LPXPCInterface interfaceWithProtocol:@protocol(Jail)]];
+    [_sandboxHelper setExportedObject:self];
     
     [_sandboxHelper resume];
     
