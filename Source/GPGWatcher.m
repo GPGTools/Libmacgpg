@@ -284,9 +284,9 @@ static id syncRoot = nil;
         assert(LPXPCInterface);
         
         jailfree = [[LPXPCConnection alloc] initWithMachServiceName:JAILFREE_XPC_MACH_NAME options:0];
-        jailfree.remoteObjectInterface = [LPXPCInterface interfaceWithProtocol:@protocol(Jailfree)];
-        jailfree.exportedInterface = [LPXPCInterface interfaceWithProtocol:@protocol(Jail)];
-        jailfree.exportedObject = self;
+        [jailfree setRemoteObjectInterface:[LPXPCInterface interfaceWithProtocol:@protocol(Jailfree)]];
+        [jailfree setExportedInterface:[LPXPCInterface interfaceWithProtocol:@protocol(Jail)]];
+        [jailfree setExportedObject:self];
         
         [jailfree resume];
         
