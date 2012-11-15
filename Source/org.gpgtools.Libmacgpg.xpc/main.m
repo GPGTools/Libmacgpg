@@ -37,7 +37,7 @@ int main(int argc, const char *argv[])
 	NSXPCListener *serviceListener = [[NSXPCListener alloc] initWithMachServiceName:JAILFREE_XPC_MACH_NAME];
     
     JailfreeService *delegate = [[JailfreeService alloc] init];
-    serviceListener.delegate = delegate;
+    [serviceListener setDelegate:delegate];
     
     [serviceListener resume];
     
