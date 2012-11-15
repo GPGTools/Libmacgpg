@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-@class NSXPCConnection, NSXPCInterface, NSXPCListener;
+@class NSXPCConnection, NSXPCInterface, NSXPCListener, NSXPCListenerDelegate;
 
 @protocol Jailfree <NSObject>
 
