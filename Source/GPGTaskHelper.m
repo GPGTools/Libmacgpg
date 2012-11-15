@@ -773,17 +773,14 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
 
 - (NSDictionary *)copyResult {
     NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
-	NSLog(@"Status: %@", [[[NSString alloc] initWithData:self.status encoding:NSUTF8StringEncoding] autorelease]);
 	if(self.status)
 		[result setObject:self.status forKey:@"status"];
 	if(self.errors)
 		[result setObject:self.errors forKey:@"errors"];
-	NSLog(@"Status: %@", [[[NSString alloc] initWithData:self.errors encoding:NSUTF8StringEncoding] autorelease]);
 	if(self.attributes)
 		[result setObject:self.attributes forKey:@"attributes"];
 	if(self.output)
 		[result setObject:[self.output readAllData] forKey:@"output"];
-	NSLog(@"Status: %@", [[[NSString alloc] initWithData:[result objectForKey:@"output"] encoding:NSUTF8StringEncoding] autorelease]);
 	[result setObject:[NSNumber numberWithUnsignedInt:self.exitStatus] forKey:@"exitcode"];
     
     return result;
