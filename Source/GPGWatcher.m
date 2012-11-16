@@ -19,7 +19,9 @@ NSString * const GPGKeysChangedNotification = @"GPGKeysChangedNotification";
 @synthesize changeDates;
 @synthesize toleranceBefore;
 @synthesize toleranceAfter;
+#if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
 @synthesize jailfree;
+#endif
 
 #define TOLERANCE_BEFORE 10.0
 #define TOLERANCE_AFTER 10.0
@@ -30,10 +32,12 @@ static NSString * const kWatchedFileName = @"watchedFileName";
 
 - (void)dealloc 
 {
+#if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
     if(jailfree) {
         [jailfree invalidate];
         [jailfree release];
     }
+#endif
     [[NSDistributedNotificationCenter defaultCenter] removeObserver:self];    
     [[[NSWorkspace sharedWorkspace] notificationCenter] removeObserver:self];
 
@@ -149,9 +153,11 @@ static NSString * const kWatchedFileName = @"watchedFileName";
 }
 
 - (void)postNotificationName:(NSString *)name object:(NSString *)object {
+#if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
     if(!self.checkForSandbox)
         [[jailfree remoteObjectProxy] postNotificationName:name object:object];
     else
+#endif
         [[NSDistributedNotificationCenter defaultCenter] postNotificationName:name object:object userInfo:nil options:0];
 }
 
@@ -210,7 +216,7 @@ static id syncRoot = nil;
     [self activateWithXPCConnection:nil];
 }
 
-+ (void)activateWithXPCConnection:(NSXPCConnection *)connection {
++ (void)activateWithXPCConnection:(id)connection {
 	GPGWatcher *instance = [self sharedInstance];
     if(!connection)
         return;

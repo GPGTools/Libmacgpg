@@ -910,8 +910,10 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
     _progressHandler = nil;
     [_processedBytesMap release];
     _processedBytesMap = nil;
+#if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
     [_sandboxHelper release];
     _sandboxHelper = nil;
+#endif
 	
 	[super dealloc];
 }
