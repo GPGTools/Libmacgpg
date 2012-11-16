@@ -3,7 +3,11 @@
 
 extern NSString * const GPGKeysChangedNotification;
 
+#if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
 @interface GPGWatcher : NSObject <DirectoryWatcherDelegate, Jail> {
+#else
+@interface GPGWatcher : NSObject <DirectoryWatcherDelegate> {	
+#endif
 	DirectoryWatcher *dirWatcher;
     // for pubring and secring
 	NSTimeInterval lastKnownChange; // Zeitpunkt der letzten Änderung durch eine Libmacgpg instanz.
