@@ -1,3 +1,4 @@
+#if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
 //
 //  GPGXPCTask.h
 //  Libmacgpg
@@ -38,3 +39,4 @@
 @property (weak) NSXPCConnection *xpcConnection;
 
 @end
+#endif
