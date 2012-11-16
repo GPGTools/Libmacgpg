@@ -74,7 +74,9 @@ static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
     BOOL _sandboxed;
     BOOL _cancelled;
     BOOL _checkForSandbox;
+#if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
     NSXPCConnection *_sandboxHelper;
+#endif
 	NSUInteger _timeout;
 }
 

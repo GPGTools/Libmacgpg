@@ -215,6 +215,7 @@ static id syncRoot = nil;
     if(!connection)
         return;
     
+#if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
     instance.jailfree = connection;
     
     [instance updateWatcher];
@@ -223,6 +224,7 @@ static id syncRoot = nil;
     
     [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:instance selector:@selector(workspaceDidMount:) name:NSWorkspaceDidMountNotification object:[NSWorkspace sharedWorkspace]];
     [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:instance selector:@selector(workspaceDidMount:) name:NSWorkspaceDidUnmountNotification object:[NSWorkspace sharedWorkspace]];
+#endif
 }
 
 + (id)sharedInstance {
@@ -272,21 +274,16 @@ static id syncRoot = nil;
 }
 
 - (id)initSandboxed {
+#if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
     self = [super init];
     if(self) {
         // The semaphore is used to wait for the reply from the xpc
         // service.
         // XPC name: org.gpgtools.Libmacgpg.jailfree.xpc_OpenStep
-        Class LPXPCConnection = NSClassFromString(@"NSXPCConnection");
-        Class LPXPCInterface = NSClassFromString(@"NSXPCInterface");
-        
-        assert(LPXPCConnection);
-        assert(LPXPCInterface);
-        
-        jailfree = [[LPXPCConnection alloc] initWithMachServiceName:JAILFREE_XPC_MACH_NAME options:0];
-        [jailfree setRemoteObjectInterface:[LPXPCInterface interfaceWithProtocol:@protocol(Jailfree)]];
-        [jailfree setExportedInterface:[LPXPCInterface interfaceWithProtocol:@protocol(Jail)]];
-        [jailfree setExportedObject:self];
+        jailfree = [[NSXPCConnection alloc] initWithMachServiceName:JAILFREE_XPC_MACH_NAME options:0];
+        jailfree.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Jailfree)];
+        jailfree.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Jail)];
+        jailfree.exportedObject = self;
         
         [jailfree resume];
         
@@ -294,6 +291,9 @@ static id syncRoot = nil;
         [[jailfree remoteObjectProxy] startGPGWatcher];
     }
     return self;
+#else
+	return [self initWithGpgHome:nil];
+#endif
 }
 
 @end

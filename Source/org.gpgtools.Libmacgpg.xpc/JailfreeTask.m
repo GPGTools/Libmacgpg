@@ -1,3 +1,4 @@
+#if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
 //
 //  GPGXPCTask.m
 //  Libmacgpg
@@ -11,7 +12,6 @@
 #import "GPGWatcher.h"
 #import "GPGException.h"
 #import "GPGTaskHelper.h"
-/*#import "NSDictionary+Subscripting.h"*/
 
 @implementation JailfreeTask
 
@@ -21,6 +21,7 @@
 
 - (void)launchGPGWithArguments:(NSArray *)arguments data:(NSArray *)data readAttributes:(BOOL)readAttributes reply:(void (^)(NSDictionary *))reply {
     
+	NSLog(@"Launching a new GPG task (only on >= 10.8)");
     GPGTaskHelper *task = [[GPGTaskHelper alloc] initWithArguments:arguments];
     
     // Setup the task.
@@ -78,3 +79,4 @@
 }
 
 @end
+#endif

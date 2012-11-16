@@ -199,6 +199,7 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
 }
 
 - (BOOL)sandboxed {
+#if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
     static BOOL sandboxed;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -210,6 +211,9 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
 #endif
     });
     return sandboxed;
+#else
+	return NO;
+#endif
 }
 
 - (id)initWithArguments:(NSArray *)arguments {
@@ -349,19 +353,18 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
 }
 
 - (NSUInteger)_runInSandbox {
+#if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
+	// This code is only necessary for >= 10.8, don't even bother compiling it
+	// on older platforms. Wouldn't anyway.
+
     // The semaphore is used to wait for the reply from the xpc
     // service.
     // XPC name: org.gpgtools.Libmacgpg.jailfree.xpc_OpenStep
-    Class LPXPCConnection = NSClassFromString(@"NSXPCConnection");
-    Class LPXPCInterface = NSClassFromString(@"NSXPCInterface");
     
-    assert(LPXPCConnection);
-    assert(LPXPCInterface);
-    
-    _sandboxHelper = [[LPXPCConnection alloc] initWithMachServiceName:JAILFREE_XPC_MACH_NAME options:0];
-    [_sandboxHelper setRemoteObjectInterface:[LPXPCInterface interfaceWithProtocol:@protocol(Jailfree)]];
-    [_sandboxHelper setExportedInterface:[LPXPCInterface interfaceWithProtocol:@protocol(Jail)]];
-    [_sandboxHelper setExportedObject:self];
+    _sandboxHelper = [[NSXPCConnection alloc] initWithMachServiceName:JAILFREE_XPC_MACH_NAME options:0];
+    _sandboxHelper.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Jailfree)];
+    _sandboxHelper.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Jail)];
+    _sandboxHelper.exportedObject = self;
     
     [_sandboxHelper resume];
     
@@ -457,6 +460,9 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
         @throw taskHelperException;
     
     return self.exitStatus;
+#else
+	NSLog(@"This should never be called on OS X < 10.8? Please report to team@gpgtools.org if you're seeing this message.");
+#endif
 }
 
 - (NSUInteger)run {

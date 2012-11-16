@@ -17,7 +17,9 @@ extern NSString * const GPGKeysChangedNotification;
     
     NSTimeInterval toleranceBefore;
     NSTimeInterval toleranceAfter;
+#if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
     NSXPCConnection *jailfree;
+#endif
     BOOL _checkForSandbox;
 }
 
@@ -25,8 +27,9 @@ extern NSString * const GPGKeysChangedNotification;
 @property (assign, nonatomic) NSTimeInterval toleranceBefore;
 // default is 1.0
 @property (assign, nonatomic) NSTimeInterval toleranceAfter;
+#if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
 @property (assign, nonatomic) NSXPCConnection *jailfree;
-
+#endif
 + (id)sharedInstance;
 + (void)activate;
 

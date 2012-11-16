@@ -1,3 +1,4 @@
+#if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
 //
 //  main.m
 //  jailfree-service
@@ -16,13 +17,13 @@
 @implementation JailfreeService
 
 - (BOOL)listener:(NSXPCListener *)listener shouldAcceptNewConnection:(NSXPCConnection *)newConnection {
-    [newConnection setExportedInterface:[NSXPCInterface interfaceWithProtocol:@protocol(Jailfree)]];
+    newConnection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Jailfree)];
     
     
     JailfreeTask *exportedObject = [[JailfreeTask alloc] init];
-    [newConnection setExportedObject:exportedObject];
+    newConnection.exportedObject = exportedObject;
     
-	[newConnection setRemoteObjectInterface:[NSXPCInterface interfaceWithProtocol:@protocol(Jail)]];
+	newConnection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Jail)];
     exportedObject.xpcConnection = newConnection;
 	[exportedObject release];
     
@@ -37,7 +38,7 @@ int main(int argc, const char *argv[])
 	NSXPCListener *serviceListener = [[NSXPCListener alloc] initWithMachServiceName:JAILFREE_XPC_MACH_NAME];
     
     JailfreeService *delegate = [[JailfreeService alloc] init];
-    [serviceListener setDelegate:delegate];
+    serviceListener.delegate = delegate;
     
     [serviceListener resume];
     
@@ -46,3 +47,4 @@ int main(int argc, const char *argv[])
 	
     return 0;
 }
+#endif
