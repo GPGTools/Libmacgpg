@@ -284,9 +284,11 @@ NSSet *fingerprintsFromStatusText(NSString *statusText) {
 }
 
 void *lm_memmem(const void *big, size_t big_len, const void *little, size_t little_len) {
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_7
-	return memmem(big, big_len, little, little_len);
-#else
+#if defined (__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_7
+	if (memmem != NULL) {
+		return memmem(big, big_len, little, little_len);
+	}
+#endif
 	if (little_len == 1) {
 		return memchr(big, *(const unsigned char *)little, big_len);
 	}	
@@ -317,7 +319,6 @@ void *lm_memmem(const void *big, size_t big_len, const void *little, size_t litt
 	}
 	
 	return NULL;
-#endif
 }
 
 
