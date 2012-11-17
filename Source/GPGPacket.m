@@ -362,60 +362,10 @@ endOfBuffer:
 
 	
 	
-	char *clearTextStart, *clearTextEnd;
-	readPos = mutableBytes;
-	do {
-		clearTextStart = lm_memmem(readPos, endPos - readPos, clearTextBeginMark, clearTextBeginMarkLength);
-		
-		if (clearTextStart == mutableBytes || (clearTextStart && (clearTextStart[-1] == '\n' || clearTextStart[-1] == '\r'))) {
-			readPos = clearTextStart + clearTextBeginMarkLength + 1;
-			do {
-				clearTextEnd = lm_memmem(readPos, endPos - readPos, clearTextEndMark, clearTextEndMarkLength);
-				if (clearTextEnd && (clearTextEnd[-1] == '\n' || clearTextEnd[-1] == '\r')) {
-					clearTextEnd--;
-					break;
-				}
-				
-				readPos = clearTextEnd + clearTextEndMarkLength;
-			} while (clearTextEnd);
-			
-			if (clearTextEnd) {
-				readPos = clearTextStart + clearTextBeginMarkLength;
-				for (; readPos < clearTextEnd; readPos++) {
-					switch (*readPos) {
-						case '\r':
-							if (readPos[1] == '\n') {
-								readPos++;
-							}
-						case '\n':
-							newlineCount++;
-							if (newlineCount == 2) {
-								state = haveClearText ? state_searchStart : state_waitForEnd;
-								textStart = readPos + 1;
-							}
-						case ' ':
-						case '\t':
-							break;
-						default:
-							newlineCount = 0;
-					}
-				}
-			} else {
-				clearTextStart = nil;
-			}
-			
-			break;
-		}
-		readPos = clearTextStart + clearTextBeginMarkLength + 1;
-	} while (clearTextStart);
 
-	
-	
+
 	// Replace \r and \0 by \n.
 	for (; mutableReadPos < endPos; mutableReadPos++) {
-		if (mutableReadPos == clearTextStart) {
-			mutableReadPos = clearTextEnd;
-		}
 		switch (mutableReadPos[0]) {
 			case '\r':
 				if (mutableReadPos[1] != '\n') {
@@ -462,6 +412,9 @@ endOfBuffer:
 						exception = [NSException exceptionWithName:@"malloc exception" reason:@"malloc failed" userInfo:nil];
 						goto endOfBuffer;
 					}
+					if (textStart[0] == '-' && textStart[1] == ' ') {
+						textStart += 2;
+					}
 					readPos = textStart;
 					char *clearBytesPtr = clearBytes;
 					const char *newlinePos;
@@ -485,7 +438,7 @@ endOfBuffer:
 
 						
 						readPos = newlinePos + 1;
-						if (*readPos == '-' && *readPos == ' ') {
+						if (readPos[0] == '-' && readPos[1] == ' ') {
 							readPos += 2;
 						}
 						textStart = readPos;

@@ -70,6 +70,15 @@ static NSString *skelconf = @"/usr/local/MacGPG2/share/gnupg/gpg-conf.skel";
     system([touchCmd UTF8String]);
 }
 
+- (void)testTimeout {
+	NSLog(@"Dispatch QUICK: %lld", GPGTASKHELPER_DISPATCH_TIMEOUT_QUICKLY);
+	gpgc.timeout = GPGTASKHELPER_DISPATCH_TIMEOUT_QUICKLY;
+	NSSet *keys = [gpgc allKeys];
+	NSLog(@"Keys: %@", keys);
+	
+	STAssertTrue(keys.count == 0, @"Timeout was not quick enough");
+}
+
 - (void)testCase1 {
     STAssertNotNil(gpgc, @"Can’t init GPGController.");
 

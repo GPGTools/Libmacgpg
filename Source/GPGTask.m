@@ -17,6 +17,7 @@
  Programm erhalten haben. Falls nicht, siehe <http://www.gnu.org/licenses/>.
 */
 
+#import "GPGController.h"
 #import "GPGTask.h"
 #import "GPGTaskHelper.h"
 #import "GPGGlobals.h"
@@ -30,6 +31,7 @@
 
 static const NSUInteger kDataBufferSize = 65536; 
 
+@class GPGController;
 
 @interface GPGTask ()
 
@@ -50,7 +52,7 @@ NSDictionary *statusCodes;
 char partCountForStatusCode[GPG_STATUS_COUNT];
 
 @synthesize isRunning, batchMode, getAttributeData, delegate, userInfo, exitcode, errorCode, errData, statusData, attributeData, cancelled,
-            progressInfo, statusDict, taskHelper = taskHelper;
+            progressInfo, statusDict, taskHelper = taskHelper, timeout;
 @synthesize outStream;
 
 
@@ -262,6 +264,7 @@ char partCountForStatusCode[GPG_STATUS_COUNT];
 - (id)initWithArguments:(NSArray *)args batchMode:(BOOL)batch {
 	self = [super init];
 	if (self) {
+		timeout = GPGTASKHELPER_DISPATCH_TIMEOUT_LOADS_OF_DATA;
 		arguments = [[NSMutableArray alloc] initWithArray:args];
 		batchMode = batch;
 		errorCodes = [[NSMutableArray alloc] init];
@@ -376,6 +379,10 @@ char partCountForStatusCode[GPG_STATUS_COUNT];
     
     __block typeof(self) cself = self;
     taskHelper = [[GPGTaskHelper alloc] initWithArguments:defaultArguments];
+    if([delegate isKindOfClass:[GPGController class]])
+		taskHelper.timeout = ((GPGController *)delegate).timeout;
+	else
+		taskHelper.timeout = self.timeout;
     
     if(!outStream)
         outStream = [[GPGMemoryStream memoryStream] retain];

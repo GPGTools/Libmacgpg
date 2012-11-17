@@ -27,15 +27,15 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <xpc/xpc.h>
-#import <XPCKit/XPCKit.h>
 #import "GPGOptions.h"
 #import "GPGGlobals.h"
 #import "GPGTaskHelper.h"
 #import "GPGMemoryStream.h"
 #import "LPXTTask.h"
 #import "NSPipe+NoSigPipe.h"
+#import "NSBundle+Sandbox.h"
 #import "GPGException.h"
+#import "JailfreeTask.h"
 
 static const NSUInteger kDataBufferSize = 65536; 
 
@@ -93,7 +93,6 @@ void withAutoreleasePool(basic_block_t block)
 @property (nonatomic, readonly) LPXTTask *task;
 @property (nonatomic, retain) NSDictionary *userIDHint;
 @property (nonatomic, retain) NSDictionary *needPassphraseInfo;
-@property (nonatomic, readonly) XPCConnection *sandboxHelper;
 
 - (void)writeData:(GPGStream *)data pipe:(NSPipe *)pipe close:(BOOL)close;
 
@@ -102,7 +101,7 @@ void withAutoreleasePool(basic_block_t block)
 @implementation GPGTaskHelper
 
 @synthesize inData = _inData, arguments = _arguments, output = _output,
-processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status = _status, errors = _errors, attributes = _attributes, readAttributes = _readAttributes, progressHandler = _progressHandler, userIDHint = _userIDHint, needPassphraseInfo = _needPassphraseInfo, checkForSandbox = _checkForSandbox, sandboxHelper = _sandboxHelper;
+processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status = _status, errors = _errors, attributes = _attributes, readAttributes = _readAttributes, progressHandler = _progressHandler, userIDHint = _userIDHint, needPassphraseInfo = _needPassphraseInfo, checkForSandbox = _checkForSandbox, timeout = _timeout;
 
 + (NSString *)findExecutableWithName:(NSString *)executable {
 	NSString *foundPath;
@@ -199,13 +198,31 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
 	return pinentryPath;
 }
 
+- (BOOL)sandboxed {
+#if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
+    static BOOL sandboxed;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+#ifdef USE_XPCSERVICE
+        sandboxed = USE_XPCSERVICE ? YES : NO;
+#else
+        NSBundle *bundle = [NSBundle mainBundle];
+        sandboxed = [bundle ob_isSandboxed];
+#endif
+    });
+    return sandboxed;
+#else
+	return NO;
+#endif
+}
 
 - (id)initWithArguments:(NSArray *)arguments {
     self = [super init];
     if(self) {
         _arguments = [arguments copy];
         _processedBytesMap = [[NSMutableDictionary alloc] init];
-    }
+		_timeout = GPGTASKHELPER_DISPATCH_TIMEOUT_LOADS_OF_DATA;
+	}
     return self;
 }
 
@@ -259,7 +276,7 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
         
         NSArray *options = [NSArray arrayWithObjects:@"--encrypt", @"--sign", @"--clearsign", @"--detach-sign", @"--symmetric", @"-e", @"-s", @"-b", @"-c", nil];
         
-        if([self.arguments firstObjectCommonWithArray:options] == nil) {
+        if([object.arguments firstObjectCommonWithArray:options] == nil) {
             dispatch_group_async(collectorGroup, queue, ^{
                 runBlockAndRecordExceptionSyncronized(^{
                     [object writeInputData];
@@ -272,7 +289,7 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
                 NSData *data;
                 while((data = [[[object.task inheritedPipeWithName:@"stdout"] fileHandleForReading] readDataOfLength:kDataBufferSize]) &&  [data length] > 0) {
                     withAutoreleasePool(^{
-                        [self.output writeData:data];
+                        [object.output writeData:data];
                     });
                 }
             }, &lock, &blockException);
@@ -325,36 +342,34 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
     return _exitStatus;
 }
 
+- (void)progress:(NSUInteger)processedBytes total:(NSUInteger)total {
+    if(self.progressHandler)
+        self.progressHandler(processedBytes, total);
+}
+
+- (void)processStatusWithKey:(NSString *)keyword value:(NSString *)value reply:(void (^)(NSData *))reply {
+    NSData *response = self.processStatus(keyword, value);
+    reply(response);
+}
+
 - (NSUInteger)_runInSandbox {
+#if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
+	// This code is only necessary for >= 10.8, don't even bother compiling it
+	// on older platforms. Wouldn't anyway.
+
     // The semaphore is used to wait for the reply from the xpc
     // service.
-    if(!_sandboxHelper) {
-        _sandboxHelper = [[XPCConnection alloc] initWithServiceName:@"org.gpgtools.Libmacgpg.GPGTaskHelper"];
-    }
+    // XPC name: org.gpgtools.Libmacgpg.jailfree.xpc_OpenStep
     
-#ifdef USE_XPCSERVICE
-    NSLog(@"[%@] gpg2 %@", _sandboxHelper, [self.arguments componentsJoinedByString:@" "]);
-#endif
-
-    __block typeof(self) this = self;
+    _sandboxHelper = [[NSXPCConnection alloc] initWithMachServiceName:JAILFREE_XPC_MACH_NAME options:0];
+    _sandboxHelper.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Jailfree)];
+    _sandboxHelper.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Jail)];
+    _sandboxHelper.exportedObject = self;
     
-    _sandboxHelper.eventHandler = ^(XPCMessage *message, XPCConnection *inConnection){
-        NSString *action = [message objectForKey:@"action"];
-        
-        if([action isEqualToString:@"status"]) {
-            NSData *response = self.processStatus([message objectForKey:@"keyword"], [message objectForKey:@"value"]);
-            XPCMessage *reply = [XPCMessage messageReplyForMessage:message];
-            NSLog(@"Response: %@", response);
-            if(response)
-                [reply setObject:response forKey:@"response"];
-            
-            [this.sandboxHelper sendMessage:reply];
-        }
-        else if([action isEqualToString:@"progress"]) {
-            this.progressHandler([[message objectForKey:@"processedBytes"] intValue], [[message objectForKey:@"totalBytes"] intValue]);
-        }
-    };
-	
+    [_sandboxHelper resume];
+    
+    __block GPGTaskHelper *this = self;
+    
     // GPGStream has to be converted to NSData first.
     NSMutableArray *convertedInData = [NSMutableArray array];
     [self.inData enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
@@ -363,26 +378,80 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
     
     __block NSException *connectionError = nil;
     __block NSException *taskHelperException = nil;
-    [_sandboxHelper sendMessage:[XPCMessage messageWithObjectsAndKeys:@"new", @"action", self.arguments, @"arguments", convertedInData, @"data", [NSNumber numberWithBool:self.readAttributes], @"readAttributes", nil] withReply:^(XPCMessage *message) {
-        if([message objectForKey:@"exception"]) {
-            taskHelperException = [message objectForKey:@"exception"];
-            return;
-        }
-        this.status = [message objectForKey:@"status"];
-        this.attributes = [message objectForKey:@"attributes"];
-        this.errors = [message objectForKey:@"errors"];
-        this.exitStatus = [[message objectForKey:@"exitcode"] intValue];
-        if([message objectForKey:@"output"])
-            [this.output writeData:[message objectForKey:@"output"]];
-    } errorHandler:^(NSError *error) {
-        NSString *explanation = nil;
-        if(error.code == XPCConnectionInterrupted)
-            explanation = @"GPGTaskHelper failed to complete task.";
-        else if(error.code == XPCConnectionInvalid)
-            explanation = @"Failed to connect to GPGTaskHelper. Check service name.";
-        
+    
+	__block typeof(_sandboxHelper) _bsandboxHelper = _sandboxHelper;
+    
+    // Test the connection to assure it's available with a super small timeout.
+	// Apple should exactly throw an exception if the mach lookup fails.
+	// For some reason, they don't... :-(
+	__block dispatch_semaphore_t testLock = dispatch_semaphore_create(0);
+	dispatch_time_t testTimeout = dispatch_time(DISPATCH_TIME_NOW, GPGTASKHELPER_DISPATCH_TIMEOUT_ALMOST_INSTANTLY);
+	
+	__block BOOL xpcReady = NO;
+	[[_sandboxHelper remoteObjectProxyWithErrorHandler:^(NSError *error) {
+		NSString *description = [error description];
+		NSString *explanation = [NSString stringWithFormat:@"[GPGMail] XPC test connection failed - reason: %@", description];
+		
         connectionError = [[NSException exceptionWithName:@"XPCConnectionError" reason:explanation userInfo:nil] retain];
-    } wait:YES];
+		
+		NSLog(@"%@", explanation);
+		dispatch_semaphore_signal(testLock);
+	}] testConnection:^(BOOL success) {
+		xpcReady = YES;
+		dispatch_semaphore_signal(testLock);
+	}];
+	
+	dispatch_semaphore_wait(testLock, testTimeout);
+	dispatch_release(testLock);
+	
+	__block dispatch_semaphore_t lock = dispatch_semaphore_create(0);
+    dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, _timeout);
+	
+	if(xpcReady) {
+		[[_sandboxHelper remoteObjectProxyWithErrorHandler:^(NSError *error) {
+			NSString *description = [error description];
+			NSString *explanation = [NSString stringWithFormat:@"[GPGMail] Failed to invoke XPC method - reason: %@", description];
+			
+			connectionError = [[NSException exceptionWithName:@"XPCConnectionError" reason:explanation userInfo:nil] retain];
+			
+			NSLog(@"%@", explanation);
+			dispatch_semaphore_signal(lock);
+		}] launchGPGWithArguments:self.arguments data:convertedInData readAttributes:self.readAttributes reply:^(NSDictionary *result) {
+			// Invalidate the connection, it's no longer necessary to keep it around.
+			if([result objectForKey:@"exception"]) {
+				NSDictionary *exceptionInfo = [result objectForKey:@"exception"];
+				id exception = nil;
+				if(![exceptionInfo objectForKey:@"errorCode"]) {
+					exception = [NSException exceptionWithName:[exceptionInfo objectForKey:@"name"] reason:[exceptionInfo objectForKey:@"reason"] userInfo:nil];
+				}
+				else {
+					exception = [GPGException exceptionWithReason:[exceptionInfo objectForKey:@"reason"] errorCode:[[exceptionInfo objectForKey:@"errorCode"] unsignedIntValue]];
+				}
+				
+				taskHelperException = [exception retain];
+				NSLog(@"[GPGMail] Task helper Exception: %@", taskHelperException);
+				[_bsandboxHelper invalidate];
+				dispatch_semaphore_signal(lock);
+				
+				return;
+			}
+			
+			this.status = [result objectForKey:@"status"];
+			this.attributes = [result objectForKey:@"attributes"];
+			this.errors = [result objectForKey:@"errors"];
+			this.exitStatus = [[result objectForKey:@"exitcode"] intValue];
+			if([result objectForKey:@"output"])
+				[this.output writeData:[result objectForKey:@"output"]];
+			[_bsandboxHelper invalidate];
+			dispatch_semaphore_signal(lock);
+		}];
+		
+		dispatch_semaphore_wait(lock, timeout);
+		dispatch_release(lock);
+	}
+	else {
+		NSLog(@"[GPGMail] XPC test connection failed - reason: org.gpgtools.Libmacgpg.xpc isn't available.\nPlease try to run the following command in Terminal:\nlaunchctl load /Library/LaunchAgents/org.gpgtools.Libmacgpg.xpc.plist\n");
+	}
     
     if(connectionError)
         @throw connectionError;
@@ -391,17 +460,13 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
         @throw taskHelperException;
     
     return self.exitStatus;
+#else
+	NSLog(@"This should never be called on OS X < 10.8? Please report to team@gpgtools.org if you're seeing this message.");
+#endif
 }
 
 - (NSUInteger)run {
-#ifdef USE_XPCSERVICE
-    _sandboxed = USE_XPCSERVICE ? YES : NO;
-#else
-    NSBundle *bundle = [NSBundle mainBundle];
-    _sandboxed = [bundle ob_isSandboxed];
-#endif
-    
-    if(self.checkForSandbox && _sandboxed)
+    if(self.checkForSandbox && [self sandboxed])
         return [self _runInSandbox];
     else
         return [self _run];
@@ -411,17 +476,18 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
     if(!_task || !self.inData) return;
     
     NSArray *pipeList = [self.task inheritedPipesWithName:@"ins"];
-    [pipeList enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        [self writeData:[self.inData objectAtIndex:idx] pipe:obj close:YES];
+    __block GPGTaskHelper *bself = self;
+	[pipeList enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        [bself writeData:[bself.inData objectAtIndex:idx] pipe:obj close:YES];
     }];
     
     self.inData = nil;
 }
 
 - (void)writeData:(GPGStream *)data pipe:(NSPipe *)pipe close:(BOOL)close {
-    NSFileHandle *ofh = [pipe fileHandleForWriting];
+    __block NSFileHandle *ofh = [pipe fileHandleForWriting];
     GPGStream *input = data;
-    NSData *tempData = nil;
+    __block NSData *tempData = nil;
     
     @try {
         while((tempData = [input readDataOfLength:kDataBufferSize]) && 
@@ -447,7 +513,8 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
     NSData *currentData = nil;
     NSMutableData *statusData = [NSMutableData data]; 
     NSData *NL = [@"\n" dataUsingEncoding:NSASCIIStringEncoding];
-    while((currentData = [[statusPipe fileHandleForReading] availableData])&& [currentData length]) {
+    __block typeof(self) this = self;
+	while((currentData = [[statusPipe fileHandleForReading] availableData])&& [currentData length]) {
         [statusData appendData:currentData];
         [line appendString:[[[NSString alloc] initWithData:currentData encoding:NSUTF8StringEncoding] autorelease]];
         // Skip data without line ending. Not a full line!
@@ -483,7 +550,7 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
             value = [parts componentsJoinedByString:@" "];
             
             [parts release];
-            [self processStatusWithKeyword:keyword value:value];
+            [this processStatusWithKeyword:keyword value:value];
         }];
     }
     return statusData;
@@ -496,7 +563,6 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
     if(!code)
         return;
     
-    NSLog(@"[GNUPG]: %@ %@", keyword, value);
     // Most keywords are handled by the processStatus callback,
     // but some like pinentry passphrase requests are handled
     // directly.
@@ -535,7 +601,7 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
             else {
                 NSData *response = self.processStatus(keyword, value);
                 if(response)
-                    [self replyToCommand:response];
+                    [self respond:response];
                 else {
                     NSPipe *cmdPipe = [self.task inheritedPipeWithName:@"stdin"];
                     if(cmdPipe) {
@@ -596,10 +662,10 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
         self.needPassphraseInfo = nil;
     }
     
-    [self replyToCommand:passphrase];
+    [self respond:passphrase];
 }
 
-- (void)replyToCommand:(id)response {
+- (void)respond:(id)response {
     // Try to write to the command pipe.
     NSPipe *cmdPipe = nil;
     @try {
@@ -619,6 +685,7 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
     GPGStream *responseStream = [GPGMemoryStream memoryStream];
     [responseStream writeData:responseData];
     [self writeData:responseStream pipe:[self.task inheritedPipeWithName:@"stdin"] close:NO];
+	[responseData release];
 }
 
 - (NSString *)passphraseForKeyID:(NSString *)keyID mainKeyID:(NSString *)mainKeyID userID:(NSString *)userID {
@@ -710,19 +777,19 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
     _cancelled = YES;
 }
 
-- (NSDictionary *)result {
-    CFMutableDictionaryRef cfResult = CFDictionaryCreateMutable(kCFAllocatorDefault, 0, NULL, NULL);
-    if(self.status)
-        CFDictionaryAddValue(cfResult, @"status", self.status);
-    if(self.errors)
-        CFDictionaryAddValue(cfResult, @"errors", self.errors);
-    if(self.attributes)
-        CFDictionaryAddValue(cfResult, @"attributes", self.attributes);
-    if(self.output)
-        CFDictionaryAddValue(cfResult, @"output", self.output);
-    CFDictionaryAddValue(cfResult, @"exitcode", [NSNumber numberWithInt:self.exitStatus]);
+- (NSDictionary *)copyResult {
+    NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
+	if(self.status)
+		[result setObject:self.status forKey:@"status"];
+	if(self.errors)
+		[result setObject:self.errors forKey:@"errors"];
+	if(self.attributes)
+		[result setObject:self.attributes forKey:@"attributes"];
+	if(self.output)
+		[result setObject:[self.output readAllData] forKey:@"output"];
+	[result setObject:[NSNumber numberWithUnsignedInt:self.exitStatus] forKey:@"exitcode"];
     
-    return (NSDictionary *)cfResult;
+    return result;
 }
 
 + (NSDictionary *)statusCodes {
@@ -819,8 +886,6 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
 }
 
 - (void)dealloc {
-    [super dealloc];
-    
     [_inData release];
     _inData = nil;
     [_arguments release];
@@ -845,118 +910,12 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
     _progressHandler = nil;
     [_processedBytesMap release];
     _processedBytesMap = nil;
-}
-
-@end
-
-//
-//  NSBundle+OBCodeSigningInfo.m
-//
-//  Created by Ole Begemann on 22.02.12.
-//  Copyright (c) 2012 Ole Begemann. All rights reserved.
-//
-
-#import <Security/SecRequirement.h>
-#import <objc/runtime.h>
-
-
-@interface NSBundle (OBCodeSigningInfoPrivateMethods)
-- (SecStaticCodeRef)ob_createStaticCode;
-- (SecRequirementRef)ob_sandboxRequirement;
-@end
-
-
-@implementation NSBundle (OBCodeSigningInfo)
-
-- (BOOL)ob_comesFromAppStore
-{
-    // Check existence of Mac App Store receipt
-    NSURL *appStoreReceiptURL = [self appStoreReceiptURL];
-    NSFileManager *fileManager = [[NSFileManager alloc] init];
-    BOOL appStoreReceiptExists = [fileManager fileExistsAtPath:[appStoreReceiptURL path]];
-    [fileManager release];
-    return appStoreReceiptExists;
-}
-
-
-- (BOOL)ob_isSandboxed
-{
-    BOOL isSandboxed = NO;
-    if ([self ob_codeSignState] == OBCodeSignStateSignatureValid) 
-    {
-        SecStaticCodeRef staticCode = [self ob_createStaticCode];
-        SecRequirementRef sandboxRequirement = [self ob_sandboxRequirement];
-        if (staticCode && sandboxRequirement) {
-            OSStatus codeCheckResult = SecStaticCodeCheckValidityWithErrors(staticCode, kSecCSBasicValidateOnly, sandboxRequirement, NULL);
-            if (codeCheckResult == errSecSuccess) {
-                isSandboxed = YES;
-            }
-            CFRelease(staticCode);
-        }
-    }
-    return isSandboxed;
-}
-
-
-- (OBCodeSignState)ob_codeSignState
-{
-    // Return cached value if it exists
-    static const void *kOBCodeSignStateKey;
-    NSNumber *resultStateNumber = objc_getAssociatedObject(self, kOBCodeSignStateKey);
-    if (resultStateNumber) {
-        return [resultStateNumber integerValue];
-    }
-    
-    // Determine code sign status
-    OBCodeSignState resultState = OBCodeSignStateError;
-    SecStaticCodeRef staticCode = [self ob_createStaticCode];
-    if (staticCode) 
-    {
-        OSStatus signatureCheckResult = SecStaticCodeCheckValidityWithErrors(staticCode, kSecCSBasicValidateOnly, NULL, NULL);
-        switch (signatureCheckResult) {
-            case errSecSuccess: resultState = OBCodeSignStateSignatureValid; break;
-            case errSecCSUnsigned: resultState = OBCodeSignStateUnsigned; break;
-            case errSecCSSignatureFailed:
-            case errSecCSSignatureInvalid:
-                resultState = OBCodeSignStateSignatureInvalid;
-                break;
-            case errSecCSSignatureNotVerifiable: resultState = OBCodeSignStateSignatureNotVerifiable; break;
-            case errSecCSSignatureUnsupported: resultState = OBCodeSignStateSignatureUnsupported; break;
-            default: resultState = OBCodeSignStateError; break;
-        }
-        CFRelease(staticCode);
-    }
-    else
-    {
-        resultState = OBCodeSignStateError;
-    }
-    
-    // Cache the result
-    resultStateNumber = [NSNumber numberWithInteger:resultState];
-    objc_setAssociatedObject(self, kOBCodeSignStateKey, resultStateNumber, OBJC_ASSOCIATION_RETAIN);
-    
-    return resultState;
-}
-
-
-#pragma mark - Private helper methods
-
-- (SecStaticCodeRef)ob_createStaticCode
-{
-    NSURL *bundleURL = [self bundleURL];
-    SecStaticCodeRef staticCode = NULL;
-    SecStaticCodeCreateWithPath((__bridge CFURLRef)bundleURL, kSecCSDefaultFlags, &staticCode);
-    return staticCode;
-}
-
-- (SecRequirementRef)ob_sandboxRequirement
-{
-    static SecRequirementRef sandboxRequirement = NULL;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        SecRequirementCreateWithString(CFSTR("entitlement[\"com.apple.security.app-sandbox\"] exists"), kSecCSDefaultFlags, &sandboxRequirement);
-    });
-    return sandboxRequirement;
+#if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
+    [_sandboxHelper release];
+    _sandboxHelper = nil;
+#endif
+	
+	[super dealloc];
 }
 
 @end
