@@ -19,7 +19,7 @@ NSString * const GPGKeysChangedNotification = @"GPGKeysChangedNotification";
 @synthesize changeDates;
 @synthesize toleranceBefore;
 @synthesize toleranceAfter;
-@synthesize checkForSandbox;
+@synthesize checkForSandbox = _checkForSandbox;
 #if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
 @synthesize jailfree;
 #endif
