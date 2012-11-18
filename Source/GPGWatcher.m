@@ -19,6 +19,7 @@ NSString * const GPGKeysChangedNotification = @"GPGKeysChangedNotification";
 @synthesize changeDates;
 @synthesize toleranceBefore;
 @synthesize toleranceAfter;
+@synthesize checkForSandbox;
 #if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
 @synthesize jailfree;
 #endif
@@ -190,6 +191,7 @@ static NSString * const kWatchedFileName = @"watchedFileName";
 }
 
 - (BOOL)sandboxed {
+#if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
     static BOOL sandboxed;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -201,6 +203,9 @@ static NSString * const kWatchedFileName = @"watchedFileName";
 #endif
     });
     return sandboxed;
+#else
+	return NO;
+#endif
 }
 
 // Singleton: alloc, init etc.
