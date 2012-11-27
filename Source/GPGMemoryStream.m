@@ -62,7 +62,7 @@
     if (!_readableData) 
         [self openForReading];
 
-    unsigned long long rlength = [_readableData length];
+    NSUInteger rlength = [_readableData length];
     if (_readPos >= rlength)
         return [NSData data];
 
@@ -76,7 +76,7 @@
     if (!_readableData) 
         [self openForReading];
         
-    unsigned long long rlength = [_readableData length];
+    NSUInteger rlength = [_readableData length];
     if (_readPos >= rlength)
         return [NSData data];
 

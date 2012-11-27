@@ -787,7 +787,7 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
 		[result setObject:self.attributes forKey:@"attributes"];
 	if(self.output)
 		[result setObject:[self.output readAllData] forKey:@"output"];
-	[result setObject:[NSNumber numberWithUnsignedInt:self.exitStatus] forKey:@"exitcode"];
+	[result setObject:[NSNumber numberWithUnsignedInteger:self.exitStatus] forKey:@"exitcode"];
     
     return result;
 }

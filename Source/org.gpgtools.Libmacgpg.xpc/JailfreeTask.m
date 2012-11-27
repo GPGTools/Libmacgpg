@@ -14,6 +14,7 @@
 #import "GPGTaskHelper.h"
 
 @implementation JailfreeTask
+@dynamic xpcConnection;
 
 - (void)testConnection:(void (^)(BOOL))reply {
 	reply(YES);

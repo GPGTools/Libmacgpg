@@ -576,8 +576,8 @@ BOOL gpgConfigReaded = NO;
 #pragma mark Edit keys
 
 - (NSString *)generateNewKeyWithName:(NSString *)name email:(NSString *)email comment:(NSString *)comment 
-					   keyType:(GPGPublicKeyAlgorithm)keyType keyLength:(NSInteger)keyLength subkeyType:(GPGPublicKeyAlgorithm)subkeyType subkeyLength:(NSInteger)subkeyLength 
-				  daysToExpire:(NSInteger)daysToExpire preferences:(NSString *)preferences passphrase:(NSString *)passphrase {
+					   keyType:(GPGPublicKeyAlgorithm)keyType keyLength:(int)keyLength subkeyType:(GPGPublicKeyAlgorithm)subkeyType subkeyLength:(int)subkeyLength
+				  daysToExpire:(int)daysToExpire preferences:(NSString *)preferences passphrase:(NSString *)passphrase {
 	if (async && !asyncStarted) {
 		asyncStarted = YES;
 		[asyncProxy generateNewKeyWithName:name email:email comment:comment 
@@ -927,7 +927,7 @@ BOOL gpgConfigReaded = NO;
 		GPGTaskOrder *order = [GPGTaskOrder orderWithYesToAll];
 		
 		if (hashID) {
-			NSInteger uid = [self indexOfUserID:hashID fromKey:key];
+			int uid = [self indexOfUserID:hashID fromKey:key];
 			
 			if (uid <= 0) {
 				@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"UserID not found!") userInfo:[NSDictionary dictionaryWithObjectsAndKeys:hashID, @"hashID", key, @"key", nil] errorCode:GPGErrorNoUserID gpgTask:nil];
@@ -1057,7 +1057,7 @@ BOOL gpgConfigReaded = NO;
 		[self operationDidStart];
 		[self registerUndoForKeys:keys withName:@"Undo_Import"];
 		
-		GPGTaskOrder *order = [GPGTaskOrder orderWithNoToAll];
+		//GPGTaskOrder *order = [GPGTaskOrder orderWithNoToAll];
 		
 		gpgTask = [GPGTask gpgTask];
 		[self addArgumentsForOptions];
@@ -1154,7 +1154,7 @@ BOOL gpgConfigReaded = NO;
 
 #pragma mark Working with Signatures
 
-- (void)signUserID:(NSString *)hashID ofKey:(NSObject <KeyFingerprint> *)key signKey:(NSObject <KeyFingerprint> *)signKey type:(NSInteger)type local:(BOOL)local daysToExpire:(NSInteger)daysToExpire {
+- (void)signUserID:(NSString *)hashID ofKey:(NSObject <KeyFingerprint> *)key signKey:(NSObject <KeyFingerprint> *)signKey type:(int)type local:(BOOL)local daysToExpire:(int)daysToExpire {
 	if (async && !asyncStarted) {
 		asyncStarted = YES;
 		[asyncProxy signUserID:hashID ofKey:key signKey:signKey type:type local:local daysToExpire:daysToExpire];
@@ -1220,7 +1220,7 @@ BOOL gpgConfigReaded = NO;
 		[self operationDidStart];
 		[self registerUndoForKey:key withName:@"Undo_RemoveSignature"];
 
-		NSInteger uid = [self indexOfUserID:userID.hashID fromKey:key];
+		int uid = [self indexOfUserID:userID.hashID fromKey:key];
 		
 		if (uid > 0) {
 			GPGTaskOrder *order = [GPGTaskOrder orderWithNoToAll];
@@ -1275,7 +1275,7 @@ BOOL gpgConfigReaded = NO;
 		[self operationDidStart];
 		[self registerUndoForKey:key withName:@"Undo_RevokeSignature"];
 
-		NSInteger uid = [self indexOfUserID:userID.hashID fromKey:key];
+		int uid = [self indexOfUserID:userID.hashID fromKey:key];
 		
 		if (uid > 0) {
 			GPGTaskOrder *order = [GPGTaskOrder orderWithNoToAll];
@@ -1375,7 +1375,7 @@ BOOL gpgConfigReaded = NO;
 		[self operationDidStart];
 		[self registerUndoForKey:key withName:@"Undo_RemoveSubkey"];
 
-		NSInteger index = [self indexOfSubkey:subkey fromKey:key];
+		int index = [self indexOfSubkey:subkey fromKey:key];
 		
 		if (index > 0) {
 			GPGTaskOrder *order = [GPGTaskOrder orderWithYesToAll];
@@ -1415,7 +1415,7 @@ BOOL gpgConfigReaded = NO;
 		[self operationDidStart];
 		[self registerUndoForKey:key withName:@"Undo_RevokeSubkey"];
 
-		NSInteger index = [self indexOfSubkey:subkey fromKey:key];
+		int index = [self indexOfSubkey:subkey fromKey:key];
 		
 		if (index > 0) {
 			GPGTaskOrder *order = [GPGTaskOrder orderWithYesToAll];
@@ -1503,7 +1503,7 @@ BOOL gpgConfigReaded = NO;
 		[self operationDidStart];
 		[self registerUndoForKey:key withName:@"Undo_RemoveUserID"];
 		
-		NSInteger uid = [self indexOfUserID:hashID fromKey:key];
+		int uid = [self indexOfUserID:hashID fromKey:key];
 		
 		if (uid > 0) {
 			GPGTaskOrder *order = [GPGTaskOrder orderWithYesToAll];
@@ -1543,7 +1543,7 @@ BOOL gpgConfigReaded = NO;
 		[self operationDidStart];
 		[self registerUndoForKey:key withName:@"Undo_RevokeUserID"];
 		
-		NSInteger uid = [self indexOfUserID:hashID fromKey:key];
+		int uid = [self indexOfUserID:hashID fromKey:key];
 		
 		if (uid > 0) {
 			GPGTaskOrder *order = [GPGTaskOrder orderWithYesToAll];
@@ -1591,7 +1591,7 @@ BOOL gpgConfigReaded = NO;
 		[self operationDidStart];
 		[self registerUndoForKey:key withName:@"Undo_PrimaryUserID"];
 		
-		NSInteger uid = [self indexOfUserID:hashID fromKey:key];
+		int uid = [self indexOfUserID:hashID fromKey:key];
 		
 		if (uid > 0) {
 			gpgTask = [GPGTask gpgTask];
@@ -1827,10 +1827,10 @@ BOOL gpgConfigReaded = NO;
 		}
 		
 		
-		struct timeval timeout;
-		timeout.tv_usec = 0;
-		timeout.tv_sec = 2;
-		setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
+		struct timeval socketTimeout;
+		socketTimeout.tv_usec = 0;
+		socketTimeout.tv_sec = 2;
+		setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &socketTimeout, sizeof(socketTimeout));
 		
 		
 		char buffer[100];
@@ -2266,7 +2266,7 @@ BOOL gpgConfigReaded = NO;
 	
 	NSMutableString *keyserverOptions = [NSMutableString stringWithCapacity:50];
 	
-	[keyserverOptions appendFormat:@"timeout=%lu", keyserverTimeout];
+	[keyserverOptions appendFormat:@"timeout=%lu", (unsigned long)keyserverTimeout];
 	
 	[keyserverOptions appendString:autoKeyRetrieve ? @",auto-key-retrieve" : @",no-auto-key-retrieve"];
 	
