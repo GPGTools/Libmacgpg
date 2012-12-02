@@ -234,9 +234,7 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
     if(!_task.launchPath)
         @throw [GPGException exceptionWithReason:@"GPG not found!" errorCode:GPGErrorNotFound];
     
-#ifdef DEBUG
-    NSLog(@"$> %@ %@", _task.launchPath, [_task.arguments componentsJoinedByString:@" "]);
-#endif
+    GPGDebugLog(@"$> %@ %@", _task.launchPath, [_task.arguments componentsJoinedByString:@" "]);
     
     // Create read pipes for status and attribute information.
     [_task inheritPipeWithMode:O_RDONLY dup:3 name:@"status"];
