@@ -52,7 +52,7 @@
 
 
 - (id)initWithListing:(NSArray *)listing fingerprint:(NSString *)aFingerprint parentKey:(GPGKey *)key {
-	[self init];
+	self = [self init];
 	primaryKey = key;
 	self.fingerprint = aFingerprint;
 	[self updateWithListing:listing];

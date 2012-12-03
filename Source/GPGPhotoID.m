@@ -33,7 +33,7 @@
 @synthesize image, hashID, status;
 
 - (id)initWithImage:(NSImage *)aImage hashID:(NSString *)aHashID status:(NSInteger)aStatus {
-	[self init];
+	self = [self init];
 	
 	self.image = [aImage retain];
 	self.hashID = [aHashID retain];

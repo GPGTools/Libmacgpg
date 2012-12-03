@@ -556,7 +556,7 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
 
 - (void)processStatusWithKeyword:(NSString *)keyword value:(NSString *)value {
     
-    NSUInteger errorCode;
+    //NSUInteger errorCode; useless
     NSInteger code = [[[[self class] statusCodes] objectForKey:keyword] integerValue];
     if(!code)
         return;
@@ -587,8 +587,8 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
         case GPG_STATUS_MISSING_PASSPHRASE: {    
             self.userIDHint = nil;
             self.needPassphraseInfo = nil;
-            if(code == GPG_STATUS_MISSING_PASSPHRASE)
-                errorCode = GPGErrorCancelled;
+            //if(code == GPG_STATUS_MISSING_PASSPHRASE)
+             //   errorCode = GPGErrorCancelled; useless
             break;
         }
         case GPG_STATUS_GET_LINE:
