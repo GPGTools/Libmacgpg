@@ -36,3 +36,6 @@ compile:
 
 clean:
 	@xcodebuild -project $(PROJECT).xcodeproj -target $(TARGET) -configuration $(CONFIG) clean > /dev/null
+
+pkg-core: compile
+	@./Dependencies/GPGTools_Core/scripts/pkg-core.sh

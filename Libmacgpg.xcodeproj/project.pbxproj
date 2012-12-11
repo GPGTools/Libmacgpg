@@ -155,28 +155,6 @@
 		};
 /* End PBXContainerItemProxy section */
 
-/* Begin PBXCopyFilesBuildPhase section */
-		1B3D64F51565BCFA00D93BBE /* Copy XPC Service */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 12;
-			dstPath = XPCServices;
-			dstSubfolderSpec = 1;
-			files = (
-			);
-			name = "Copy XPC Service";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		1BCD58C015684F74006FB9D8 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
-
 /* Begin PBXFileReference section */
 		1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		1B3D64DF1565BC6600D93BBE /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -656,9 +634,7 @@
 				8DC2EF520486A6940098B216 /* Resources */,
 				8DC2EF540486A6940098B216 /* Sources */,
 				8DC2EF560486A6940098B216 /* Frameworks */,
-				1B3D64F51565BCFA00D93BBE /* Copy XPC Service */,
-				1BCD58C015684F74006FB9D8 /* CopyFiles */,
-				3059436B161307230028BA1B /* Crate Link for Frameworks */,
+				30C2960E16775037006EF09C /* Fill Info.plist */,
 			);
 			buildRules = (
 			);
@@ -788,19 +764,19 @@
 			shellPath = /bin/sh;
 			shellScript = "JAILFREE_PLIST=\"${EXECUTABLE_NAME}.plist\"\nLAUNCHAGENT_PATH=~/Library/LaunchAgents/${JAILFREE_PLIST}\nJAILFREE_PATH=\"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_NAME}\"\nBUILD_LAUNCHAGENT_PATH=\"${BUILD_DIR}/${JAILFREE_PLIST}\"\n\nif [ -d \"~/Library/LaunchAgents\" ] && [ -w \"~/Library/LaunchAgents\" ] && [ -x \"~/Library/LaunchAgents\" ]; then\n    cp ${BUILD_LAUNCHAGENT_PATH} ${LAUNCHAGENT_PATH}\n    /usr/libexec/PlistBuddy -c \"Set :ProgramArguments:0 \"${JAILFREE_PATH}\"\" \"${LAUNCHAGENT_PATH}\"\nfi";
 		};
-		3059436B161307230028BA1B /* Crate Link for Frameworks */ = {
+		30C2960E16775037006EF09C /* Fill Info.plist */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Crate Link for Frameworks";
+			name = "Fill Info.plist";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "ln -fs Versions/Current/Frameworks \"${TARGET_BUILD_DIR}/${FULL_PRODUCT_NAME}\"\n";
+			shellScript = "source \"$SRCROOT/Makefile.config\" || exit 1\n\nPLIST=\"$BUILT_PRODUCTS_DIR/$INFOPLIST_PATH\"\n\n/usr/libexec/PlistBuddy -c \"Set CommitHash \\\"$commitHash\\\"\" -c \"Set BuildNumber \\\"$buildNumber\\\"\" -c \"Set CFBundleVersion \\\"$build_version\\\"\" -c \"Set CFBundleShortVersionString \\\"$version\\\"\" \"$PLIST\" || exit 2\n";
 		};
 		30C8B38C139503A800F49AA1 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
