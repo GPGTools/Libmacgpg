@@ -27,7 +27,9 @@
 
 @end
 
-@interface JailfreeTask :  NSObject <Jailfree>
+@interface JailfreeTask :  NSObject <Jailfree> {
+	NSXPCConnection *_xpcConnection;
+}
 
 - (void)testConnection:(void (^)(BOOL))reply;
 

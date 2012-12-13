@@ -15,7 +15,7 @@
 
 @implementation JailfreeTask
 
-@synthesize xpcConnection;
+@synthesize xpcConnection = _xpcConnection;
 
 - (void)testConnection:(void (^)(BOOL))reply {
 	reply(YES);
