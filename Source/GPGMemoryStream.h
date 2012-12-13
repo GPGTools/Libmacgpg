@@ -14,7 +14,7 @@
 @interface GPGMemoryStream : GPGStream {
     NSMutableData *_data;
     NSData *_readableData;
-    unsigned long long _readPos;
+    NSUInteger _readPos;
 }
 
 // return a new, autoreleased memory stream

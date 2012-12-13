@@ -64,9 +64,13 @@
 - (BOOL)loadConfig {
 	NSError *error = nil;
 	NSString *configFile = [NSString stringWithContentsOfFile:path usedEncoding:nil error:&error];
+	
 	if (!configFile) {
-		GPGDebugLog(@"Can't load config (%@): %@", path, error);
-		return  NO;
+		if ([[NSFileManager defaultManager] fileExistsAtPath:path]) {
+			GPGDebugLog(@"Can't load config (%@): %@", path, error);
+			return  NO;
+		}
+		configFile = @"";
 	}
 	
     [config removeAllObjects];

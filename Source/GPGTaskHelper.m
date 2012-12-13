@@ -234,9 +234,7 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
     if(!_task.launchPath)
         @throw [GPGException exceptionWithReason:@"GPG not found!" errorCode:GPGErrorNotFound];
     
-#ifdef DEBUG
-    NSLog(@"$> %@ %@", _task.launchPath, [_task.arguments componentsJoinedByString:@" "]);
-#endif
+    GPGDebugLog(@"$> %@ %@", _task.launchPath, [_task.arguments componentsJoinedByString:@" "]);
     
     // Create read pipes for status and attribute information.
     [_task inheritPipeWithMode:O_RDONLY dup:3 name:@"status"];
@@ -558,7 +556,7 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
 
 - (void)processStatusWithKeyword:(NSString *)keyword value:(NSString *)value {
     
-    NSUInteger errorCode;
+    //NSUInteger errorCode; useless
     NSInteger code = [[[[self class] statusCodes] objectForKey:keyword] integerValue];
     if(!code)
         return;
@@ -589,8 +587,8 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
         case GPG_STATUS_MISSING_PASSPHRASE: {    
             self.userIDHint = nil;
             self.needPassphraseInfo = nil;
-            if(code == GPG_STATUS_MISSING_PASSPHRASE)
-                errorCode = GPGErrorCancelled;
+            //if(code == GPG_STATUS_MISSING_PASSPHRASE)
+             //   errorCode = GPGErrorCancelled; useless
             break;
         }
         case GPG_STATUS_GET_LINE:
@@ -787,7 +785,7 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
 		[result setObject:self.attributes forKey:@"attributes"];
 	if(self.output)
 		[result setObject:[self.output readAllData] forKey:@"output"];
-	[result setObject:[NSNumber numberWithUnsignedInt:self.exitStatus] forKey:@"exitcode"];
+	[result setObject:[NSNumber numberWithUnsignedInteger:self.exitStatus] forKey:@"exitcode"];
     
     return result;
 }

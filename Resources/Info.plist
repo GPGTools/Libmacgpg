@@ -18,11 +18,15 @@
 	<string>FMWK</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
-	<key>CFBundleVersion</key>
-	<string>0.2</string>
-	<key>CFBundleShortVersionString</key>
-	<string>0.2</string>
 	<key>NSPrincipalClass</key>
 	<string></string>
+	<key>BuildNumber</key>
+	<string>AUTOFILL</string>
+	<key>CommitHash</key>
+	<string>AUTOFILL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>AUTOFILL</string>
+	<key>CFBundleVersion</key>
+	<string>AUTOFILL</string>
 </dict>
 </plist>

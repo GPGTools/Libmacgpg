@@ -3,11 +3,11 @@
 
 extern NSString * const GPGKeysChangedNotification;
 
+@interface GPGWatcher : NSObject <DirectoryWatcherDelegate
 #if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
-@interface GPGWatcher : NSObject <DirectoryWatcherDelegate, Jail> {
-#else
-@interface GPGWatcher : NSObject <DirectoryWatcherDelegate> {	
+, Jail
 #endif
+> {
 	DirectoryWatcher *dirWatcher;
     // for pubring and secring
 	NSTimeInterval lastKnownChange; // Zeitpunkt der letzten Änderung durch eine Libmacgpg instanz.
@@ -41,5 +41,7 @@ extern NSString * const GPGKeysChangedNotification;
 - (id)initWithGpgHome:(NSString *)directoryPath;
 
 @property (nonatomic, assign) BOOL checkForSandbox;
+
++ (void)activateWithXPCConnection:(id)connection;
 
 @end

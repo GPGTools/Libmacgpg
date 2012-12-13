@@ -96,7 +96,7 @@ static char *BDSKCopyFileSystemRepresentation(NSString *str)
     NSMutableSet *closeInParent = [NSMutableSet set];
 	
     // File descriptors to close in the child process.
-    int pipeCount = inheritedPipes.count;    
+    int pipeCount = (int)inheritedPipes.count;
     lpxttask_fd fds[pipeCount];
     for(int i = 0; i < pipeCount; i++) {
         fds[i].fd = -1;
@@ -184,7 +184,7 @@ static char *BDSKCopyFileSystemRepresentation(NSString *str)
             }
             
             if(do_close && (unsigned)blockpipe[0] != j && j != 1)
-                close(j);
+                close((int)j);
         }
         
         
@@ -260,7 +260,7 @@ static char *BDSKCopyFileSystemRepresentation(NSString *str)
     // A CFMutableArray is used instead of a NSMutableArray due to the fact,
     // that NSMutableArrays copy added values and CFMutableArrays only retain them.
     [inheritedPipes addObject:[[NSPipe pipe] noSIGPIPE]];
-    [pipeInfo setValue:[NSNumber numberWithInt:inheritedPipes.count-1] forKey:@"pipeIdx"];
+    [pipeInfo setValue:[NSNumber numberWithInteger:inheritedPipes.count-1] forKey:@"pipeIdx"];
     // The pipe info is add to the pipe maps.
     // If a pipe already exists under that name, it's added to the list of pipes the
     // name is referring to.
