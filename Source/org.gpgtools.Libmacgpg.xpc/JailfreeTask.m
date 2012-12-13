@@ -14,7 +14,6 @@
 #import "GPGTaskHelper.h"
 
 @implementation JailfreeTask
-@dynamic xpcConnection;
 
 @synthesize xpcConnection;
 
