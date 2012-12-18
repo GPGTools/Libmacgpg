@@ -3,48 +3,44 @@
  
  Diese Datei ist Teil von Libmacgpg.
  
- Libmacgpg ist freie Software. Sie können es unter den Bedingungen 
- der GNU General Public License, wie von der Free Software Foundation 
- veröffentlicht, weitergeben und/oder modifizieren, entweder gemäß 
+ Libmacgpg ist freie Software. Sie können es unter den Bedingungen
+ der GNU General Public License, wie von der Free Software Foundation
+ veröffentlicht, weitergeben und/oder modifizieren, entweder gemäß
  Version 3 der Lizenz oder (nach Ihrer Option) jeder späteren Version.
  
- Die Veröffentlichung von Libmacgpg erfolgt in der Hoffnung, daß es Ihnen 
- von Nutzen sein wird, aber ohne irgendeine Garantie, sogar ohne die implizite 
- Garantie der Marktreife oder der Verwendbarkeit für einen bestimmten Zweck. 
+ Die Veröffentlichung von Libmacgpg erfolgt in der Hoffnung, daß es Ihnen
+ von Nutzen sein wird, aber ohne irgendeine Garantie, sogar ohne die implizite
+ Garantie der Marktreife oder der Verwendbarkeit für einen bestimmten Zweck.
  Details finden Sie in der GNU General Public License.
  
- Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem 
+ Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem
  Programm erhalten haben. Falls nicht, siehe <http://www.gnu.org/licenses/>.
-*/
+ */
 
 #import "GPGGlobals.h"
 #import "GPGTask.h"
 #import "GPGKey.h"
 
+
 @implementation NSData (GPGExtension)
 - (NSString *)gpgString {
-    NSString *retString;
-    
+	NSString *retString;
+	
 	if ([self length] == 0) {
+		GPGDebugLog(@"Used Encoding: Zero length");
 		return @"";
 	}
-	
-    int encodings[4] = {NSUTF8StringEncoding, NSISOLatin1StringEncoding, NSISOLatin2StringEncoding,
-                        NSASCIIStringEncoding};
-    for(int i = 0; i < 4; i++) {
-        retString = [[[NSString alloc] initWithData:self encoding:encodings[i]] autorelease];
-        if([retString length] > 0)
-            return retString;
-    }
-    
-    @throw [NSException exceptionWithName:@"GPGUnknownStringEncodingException" 
-                                   reason:@"It was not possible to recognize the string encoding." userInfo:nil];
-    
-/*	NSString *retString;
+
+	retString = [[NSString alloc] initWithData:self encoding:NSUTF8StringEncoding];
+	if (retString) {
+		GPGDebugLog(@"Used Encoding: UTF-8.");
+		return retString;
+	}
 	
 	// Löschen aller ungültigen Zeichen, damit die umwandlung nach UTF-8 funktioniert.
 	const uint8_t *inText = [self bytes];
 	if (!inText) {
+		GPGDebugLog(@"Used Encoding: nil");
 		return nil;
 	}
 	
@@ -92,18 +88,33 @@
 		}
 		*outPos = 0;
 		
-		retString = [[NSString alloc] initWithUTF8String:(char*)outText];
+		retString = [[[NSString alloc] initWithUTF8String:(char*)outText] autorelease];
 		
 		free(outText);
-	} else {
-		retString = [[NSString alloc] initWithData:self encoding:NSUTF8StringEncoding];
+		if (retString) {
+			GPGDebugLog(@"Used Encoding: Cleaned UTF-8.");
+			return retString;
+		}
+	}
+	// Ende der Säuberung.
+
+	
+	
+	int encodings[3] = {NSISOLatin1StringEncoding, NSISOLatin2StringEncoding, NSASCIIStringEncoding};
+	for(int i = 0; i < 3; i++) {
+		retString = [[[NSString alloc] initWithData:self encoding:encodings[i]] autorelease];
+		if([retString length] > 0) {
+			GPGDebugLog(@"Used Encoding: %i", encodings[i]);
+			return retString;
+		}
 	}
 	
-	GPGDebugLog(@"RET STRING: %@", retString);
 	if (retString == nil) {
-		retString = [[NSString alloc] initWithData:self encoding:NSISOLatin1StringEncoding];
+		@throw [NSException exceptionWithName:@"GPGUnknownStringEncodingException"
+									   reason:@"It was not possible to recognize the string encoding." userInfo:nil];
 	}
-	return [retString autorelease]; */
+	
+	return retString;
 }
 @end
 
@@ -161,7 +172,7 @@ break;
 					} else {
 						if (byte == 0) {
 							*(unescapedTextPos++) = '\\';
-							*(unescapedTextPos++) = '0';							
+							*(unescapedTextPos++) = '0';
 						} else {
 							*(unescapedTextPos++) = byte;
 						}
@@ -289,7 +300,7 @@ void *lm_memmem(const void *big, size_t big_len, const void *little, size_t litt
 #endif
 	if (little_len == 1) {
 		return memchr(big, *(const unsigned char *)little, big_len);
-	}	
+	}
 	const unsigned char *y = (const unsigned char *)big;
 	const unsigned char *x = (const unsigned char *)little;
 	size_t j, k, l;
