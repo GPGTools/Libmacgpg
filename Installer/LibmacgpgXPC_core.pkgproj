@@ -7,7 +7,7 @@
 		<key>PACKAGE_FILES</key>
 		<dict>
 			<key>DEFAULT_INSTALL_LOCATION</key>
-			<string>/Library/Frameworks</string>
+			<string>/</string>
 			<key>HIERARCHY</key>
 			<dict>
 				<key>CHILDREN</key>
@@ -50,7 +50,41 @@
 						<array>
 							<dict>
 								<key>CHILDREN</key>
-								<array/>
+								<array>
+									<dict>
+										<key>CHILDREN</key>
+										<array>
+											<dict>
+												<key>CHILDREN</key>
+												<array/>
+												<key>GID</key>
+												<integer>80</integer>
+												<key>PATH</key>
+												<string>../build/Release/org.gpgtools.Libmacgpg.xpc</string>
+												<key>PATH_TYPE</key>
+												<integer>1</integer>
+												<key>PERMISSIONS</key>
+												<integer>493</integer>
+												<key>TYPE</key>
+												<integer>3</integer>
+												<key>UID</key>
+												<integer>0</integer>
+											</dict>
+										</array>
+										<key>GID</key>
+										<integer>80</integer>
+										<key>PATH</key>
+										<string>GPGTools</string>
+										<key>PATH_TYPE</key>
+										<integer>0</integer>
+										<key>PERMISSIONS</key>
+										<integer>493</integer>
+										<key>TYPE</key>
+										<integer>2</integer>
+										<key>UID</key>
+										<integer>0</integer>
+									</dict>
+								</array>
 								<key>GID</key>
 								<integer>80</integer>
 								<key>PATH</key>
@@ -98,24 +132,7 @@
 							</dict>
 							<dict>
 								<key>CHILDREN</key>
-								<array>
-									<dict>
-										<key>CHILDREN</key>
-										<array/>
-										<key>GID</key>
-										<integer>0</integer>
-										<key>PATH</key>
-										<string>../build/Release/Libmacgpg.framework</string>
-										<key>PATH_TYPE</key>
-										<integer>1</integer>
-										<key>PERMISSIONS</key>
-										<integer>493</integer>
-										<key>TYPE</key>
-										<integer>3</integer>
-										<key>UID</key>
-										<integer>0</integer>
-									</dict>
-								</array>
+								<array/>
 								<key>GID</key>
 								<integer>0</integer>
 								<key>PATH</key>
@@ -163,7 +180,24 @@
 							</dict>
 							<dict>
 								<key>CHILDREN</key>
-								<array/>
+								<array>
+									<dict>
+										<key>CHILDREN</key>
+										<array/>
+										<key>GID</key>
+										<integer>0</integer>
+										<key>PATH</key>
+										<string>../build/org.gpgtools.Libmacgpg.xpc.plist</string>
+										<key>PATH_TYPE</key>
+										<integer>1</integer>
+										<key>PERMISSIONS</key>
+										<integer>420</integer>
+										<key>TYPE</key>
+										<integer>3</integer>
+										<key>UID</key>
+										<integer>0</integer>
+									</dict>
+								</array>
 								<key>GID</key>
 								<integer>0</integer>
 								<key>PATH</key>
@@ -472,7 +506,12 @@
 		<key>PACKAGE_SCRIPTS</key>
 		<dict>
 			<key>POSTINSTALL_PATH</key>
-			<dict/>
+			<dict>
+				<key>PATH</key>
+				<string>../Dependencies/GPGTools_Core/scripts/libmacgpg-xpc-activate.sh</string>
+				<key>PATH_TYPE</key>
+				<integer>1</integer>
+			</dict>
 			<key>PREINSTALL_PATH</key>
 			<dict/>
 			<key>RESOURCES</key>
@@ -485,9 +524,9 @@
 			<key>CONCLUSION_ACTION</key>
 			<integer>0</integer>
 			<key>IDENTIFIER</key>
-			<string>org.gpgtools.Libmacgpg.pkg</string>
+			<string>org.gpgtools.Libmacgpg.xpc.pkg</string>
 			<key>NAME</key>
-			<string>Libmacgpg</string>
+			<string>Libmacgpg XPC</string>
 			<key>OVERWRITE_PERMISSIONS</key>
 			<false/>
 			<key>VERSION</key>
@@ -695,7 +734,7 @@
 				</dict>
 			</array>
 			<key>NAME</key>
-			<string>Libmacgpg_core</string>
+			<string>LibmacgpgXPC_core</string>
 		</dict>
 	</dict>
 	<key>TYPE</key>
