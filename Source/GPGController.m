@@ -1768,6 +1768,41 @@ BOOL gpgConfigReaded = NO;
 	@try {
 		[self operationDidStart];
 		
+		pattern = [pattern stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+		NSCharacterSet *noHexCharSet = [[NSCharacterSet characterSetWithCharactersInString:@"0123456789ABCDEFabcdef"] invertedSet];
+		NSString *stringToCheck = nil;
+		
+		switch ([pattern length]) {
+			case 8:
+			case 16:
+			case 32:
+			case 40:
+				stringToCheck = pattern;
+				break;
+			case 9:
+			case 17:
+			case 33:
+			case 41:
+				if ([pattern hasPrefix:@"0"]) {
+					stringToCheck = [pattern substringFromIndex:1];
+				}
+				break;
+			case 10:
+			case 18:
+			case 34:
+			case 42:
+				if ([pattern hasPrefix:@"0x"]) {
+					stringToCheck = [pattern substringFromIndex:2];
+				}
+				break;
+		}
+		if (stringToCheck && [stringToCheck rangeOfCharacterFromSet:noHexCharSet].length == 0) {
+			pattern = [@"0x" stringByAppendingString:stringToCheck];
+		}
+
+		
+		
+		
 		gpgTask = [GPGTask gpgTask];
 		[self addArgumentsForOptions];
 		gpgTask.batchMode = YES;
