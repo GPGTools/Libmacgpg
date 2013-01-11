@@ -1,6 +1,6 @@
 PROJECT = Libmacgpg
 TARGET = Libmacgpg
-CONFIG = Release
+PRODUCT = Libmacgpg.framework
 TEST_TARGET = UnitTest
 
 
@@ -15,3 +15,5 @@ update: update-pinentry
 clean-all::
 	$(MAKE) -C Dependencies/pinentry-mac clean #change to clean-all when pinentry is updated.
 
+$(PRODUCT): Source/* Resources/* Resources/*/* Libmacgpg.xcodeproj
+	@xcodebuild -project $(PROJECT).xcodeproj -target $(TARGET) -configuration $(CONFIG) build $(XCCONFIG)
