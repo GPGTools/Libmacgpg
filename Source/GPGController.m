@@ -1796,6 +1796,8 @@ BOOL gpgConfigReaded = NO;
 				}
 				break;
 		}
+		
+		
 		if (stringToCheck && [stringToCheck rangeOfCharacterFromSet:noHexCharSet].length == 0) {
 			pattern = [@"0x" stringByAppendingString:stringToCheck];
 		}
