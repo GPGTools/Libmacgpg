@@ -524,7 +524,7 @@
 			<key>CONCLUSION_ACTION</key>
 			<integer>0</integer>
 			<key>IDENTIFIER</key>
-			<string>org.gpgtools.Libmacgpg.xpc.pkg</string>
+			<string>org.gpgtools.libmacgpg.xpc.pkg</string>
 			<key>NAME</key>
 			<string>Libmacgpg XPC</string>
 			<key>OVERWRITE_PERMISSIONS</key>
