@@ -12,8 +12,10 @@ update-pinentry:
 
 update: update-pinentry
 
-clean-all::
+clean-pinentry:
 	$(MAKE) -C Dependencies/pinentry-mac clean #change to clean-all when pinentry is updated.
+
+clean-all: clean-pinentry
 
 $(PRODUCT): Source/* Resources/* Resources/*/* Libmacgpg.xcodeproj
 	@xcodebuild -project $(PROJECT).xcodeproj -target $(TARGET) -configuration $(CONFIG) build $(XCCONFIG)
