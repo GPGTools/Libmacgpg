@@ -12,10 +12,10 @@
 				<key>NAME</key>
 				<string>Libmacgpg XPC</string>
 			</dict>
-			<key>PATH</key>
+			<key>PATH</key>cd 
 			<dict>
 				<key>PATH</key>
-				<string>../build/LibmacgpgXPC_core.pkg</string>
+				<string>../build/LibmacgpgXPC_Core.pkg</string>
 				<key>PATH_TYPE</key>
 				<integer>1</integer>
 			</dict>
@@ -35,7 +35,7 @@
 			<key>PATH</key>
 			<dict>
 				<key>PATH</key>
-				<string>../build/Libmacgpg_core.pkg</string>
+				<string>../build/Libmacgpg_Core.pkg</string>
 				<key>PATH_TYPE</key>
 				<integer>1</integer>
 			</dict>
