@@ -12,7 +12,7 @@
 				<key>NAME</key>
 				<string>Libmacgpg XPC</string>
 			</dict>
-			<key>PATH</key>cd 
+			<key>PATH</key> 
 			<dict>
 				<key>PATH</key>
 				<string>../build/LibmacgpgXPC_Core.pkg</string>
