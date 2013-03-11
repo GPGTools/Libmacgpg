@@ -1,11 +1,12 @@
 #import <Foundation/Foundation.h>
 #import <Security/Security.h>
+#import <openssl/x509.h>
+#import <xar/xar.h>
 
-int checkPackage(NSString *pkgPath);
-int installPackage(NSString *pkgPath, NSString *xmlPath);
+BOOL checkPackage(NSString *pkgPath);
+BOOL installPackage(NSString *pkgPath, NSString *xmlPath);
 
 const char *helpText = "This tool checks the signature of an pkg file and installs it.\nYou can specify a xml-file to override the standard choices.";
-
 
 
 
@@ -34,14 +35,12 @@ int main(int argc, const char *argv[]) {
 		}
 		
 		
-		int result = checkPackage(pkgPath);
-		if (result != 0) {
-			return result;
+		if (!checkPackage(pkgPath)) {
+			return 3;
 		}
 		
-		result = installPackage(pkgPath, xmlPath);
-		if (result != 0) {
-			return result;
+		if (!installPackage(pkgPath, xmlPath)) {
+			return 4;
 		}
 
 	}
@@ -50,56 +49,65 @@ int main(int argc, const char *argv[]) {
 
 
 
-int checkPackage(NSString *pkgPath) {
-	//Check package validity
-	NSTask *task = [[NSTask new] autorelease];
-	NSPipe *pipe = [NSPipe pipe];
-	task.launchPath = @"/usr/sbin/pkgutil";
-	task.arguments = [NSArray arrayWithObjects:@"--check-signature", pkgPath, nil];
-	task.standardOutput = pipe;
-	[task launch];
+BOOL checkPackage(NSString *pkgPath) {
+	xar_t pkg;
+	xar_signature_t signature;
+	const char *signatureType;
+	const uint8_t *data;
+	uint32_t length, plainLength, signLength;
+	X509 *certificate;
+	uint8_t *plainData, *signData;
+	EVP_PKEY *pubkey;
+	uint8_t hash[20];
+	// This is the hash of the GPGTools installer certificate.
+	uint8_t goodHash[] = {0xD9, 0xD5, 0xFD, 0x43, 0x9C, 0x95, 0x16, 0xEF, 0xC7, 0x3A, 0x0E, 0x4A, 0xD0, 0xF2, 0xC5, 0xDB, 0x9E, 0xA0, 0xE3, 0x10};
 	
-	NSData *output = [[pipe fileHandleForReading] readDataToEndOfFile];
-	NSString *text = [[[NSString alloc] initWithData:output encoding:NSUTF8StringEncoding] autorelease];
 	
-	
-	// Search certificate fingerprint.
-	NSRange range = [text rangeOfString:@"\n       SHA1 fingerprint: "];
-	if (range.location == 0 || range.location == NSNotFound) {
-		printf("The package isn't valid signed!\n");
-		return 3;
+	if ((pkg = xar_open([pkgPath UTF8String], READ)) == nil) {
+		return NO; // Unable to open the pkg.
 	}
 	
+	signature = xar_signature_first(pkg);
 	
-	// Get SHA1 fingerprint.
-	range.location += 26;
-	range.length = 59;
-	
-	NSString *sha1;
-	@try {
-		sha1 = [text substringWithRange:range];
-	}
-	@catch (NSException *exception) {
-		printf("Can't get cerificate from package!\n");
-		return 3;
+	signatureType = xar_signature_type(signature);
+	if (!signatureType || strncmp(signatureType, "RSA", 3)) {
+		return NO; // Not a RSA signature.
 	}
 	
-	sha1 = [sha1 stringByReplacingOccurrencesOfString:@" " withString:@""];
-	printf("SHA1 certificate fingerprint: %s\n", [sha1 UTF8String]);
-	
-	
-	// Check certificate.
-	NSSet *validCertificates = [NSSet setWithObjects:@"D9D5FD439C9516EFC73A0E4AD0F2C5DB9EA0E310", nil];
-	if (![validCertificates member:sha1]) {
-		printf("Certificate isn't in the list of valid certificates!\n");
-		return 4;
+	if (xar_signature_get_x509certificate_count(signature) < 1) {
+		return NO; // No certificate found.
 	}
-
-	return 0;
+	
+	if (xar_signature_get_x509certificate_data(signature, 0, &data, &length) == -1) {
+		return NO; // Unable to extract the certificate data.
+	}
+	
+	SHA1(data, length, (uint8_t *)&hash);
+	
+	if (memcmp(hash, goodHash, 20) != 0) {
+		return NO; // Not the GPGTools certificate!
+	}
+	
+	certificate = d2i_X509(nil, &data, length);
+	if (xar_signature_copy_signed_data(signature, &plainData, &plainLength, &signData, &signLength, nil) != 0 || plainLength != 20) {
+		return NO; // Unable to copy signed data || not SHA1.
+	}
+	
+	pubkey = X509_get_pubkey(certificate);
+	if (!pubkey || pubkey->type != EVP_PKEY_RSA || !pubkey->pkey.rsa) {
+		return NO; // No pubkey || not RSA || no RSA.
+	}
+	
+	// The verfication.
+	if (RSA_verify(NID_sha1, plainData, plainLength, signData, signLength, pubkey->pkey.rsa) != 1) {
+		return NO; // Verification failed!
+	}
+	
+	return YES;
 }
 
 
-int installPackage(NSString *pkgPath, NSString *xmlPath) {
+BOOL installPackage(NSString *pkgPath, NSString *xmlPath) {
 	// Run the installer command.
 	NSString *commandString;
 	if (xmlPath) {
@@ -122,7 +130,7 @@ int installPackage(NSString *pkgPath, NSString *xmlPath) {
 	}
 	
 	
-	return result;
+	return !!result;
 }
 
 
