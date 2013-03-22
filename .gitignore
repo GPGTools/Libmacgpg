@@ -12,3 +12,4 @@
 build/
 xcuserdata
 *.moved-aside
+Dependencies/GPGTools_Core
