@@ -1,7 +1,7 @@
 /* GPGTaskHelper.h created by Lukas Pitschl (@lukele) on Thu 02-Jun-2012 */
 
 /*
- * Copyright (c) 2000-2012, GPGTools Project Team <gpgtools-org@lists.gpgtools.org>
+ * Copyright (c) 2000-2013, GPGTools Project Team <gpgtools-org@lists.gpgtools.org>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
