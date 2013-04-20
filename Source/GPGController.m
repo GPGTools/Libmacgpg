@@ -2392,6 +2392,8 @@ BOOL gpgConfigReaded = NO;
 	self.lastSignature = nil;
 	[asyncProxy release];
 	[identifier release];
+	[error release];
+	error = nil;
 	
 	[super dealloc];
 }

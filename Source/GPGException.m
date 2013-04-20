@@ -109,6 +109,8 @@ noLibgpgError:
 
 - (void)dealloc {
 	[description release];
+	[gpgTask release];
+	gpgTask = nil;
 	[super dealloc];
 }
 

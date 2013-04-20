@@ -121,6 +121,10 @@
 - (void)dealloc {
 	self.keyID = nil;
 	self.shortKeyID = nil;
+	
+	[capabilities release];
+	capabilities = nil;
+	
 	[super dealloc];
 }
 

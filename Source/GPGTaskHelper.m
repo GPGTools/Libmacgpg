@@ -90,7 +90,7 @@ void withAutoreleasePool(basic_block_t block)
 @property (nonatomic, retain, readwrite) NSData *status;
 @property (nonatomic, retain, readwrite) NSData *errors;
 @property (nonatomic, retain, readwrite) NSData *attributes;
-@property (nonatomic, readonly) LPXTTask *task;
+@property (nonatomic, retain, readonly) LPXTTask *task;
 @property (nonatomic, retain) NSDictionary *userIDHint;
 @property (nonatomic, retain) NSDictionary *needPassphraseInfo;
 
@@ -257,7 +257,8 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
     __block NSData *stderrData = nil;
     __block NSData *statusData = nil;
     __block NSData *attributeData = nil;
-    
+    __block LPXTTask *task = _task;
+	
     __block NSObject *lock = [[[NSObject alloc] init] autorelease];
     
     _task.parentTask = ^{
@@ -285,7 +286,7 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
         dispatch_group_async(collectorGroup, queue, ^{
             runBlockAndRecordExceptionSyncronized(^{
                 NSData *data;
-                while((data = [[[object.task inheritedPipeWithName:@"stdout"] fileHandleForReading] readDataOfLength:kDataBufferSize]) &&  [data length] > 0) {
+                while((data = [[[task inheritedPipeWithName:@"stdout"] fileHandleForReading] readDataOfLength:kDataBufferSize]) &&  [data length] > 0) {
                     withAutoreleasePool(^{
                         [object.output writeData:data];
                     });
@@ -295,15 +296,15 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
         
         dispatch_group_async(collectorGroup, queue, ^{
             runBlockAndRecordExceptionSyncronized(^{
-                stderrData = [[[[object.task inheritedPipeWithName:@"stderr"] fileHandleForReading] readDataToEndOfFile] retain];
+                stderrData = [[[[task inheritedPipeWithName:@"stderr"] fileHandleForReading] readDataToEndOfFile] retain];
             }, &lock, &blockException);
         });
         
-        if(self.readAttributes) {
+        if(object.readAttributes) {
             // Optionally get attribute data.
             dispatch_group_async(collectorGroup, queue, ^{
                 runBlockAndRecordExceptionSyncronized(^{
-                    attributeData = [[[[object.task inheritedPipeWithName:@"attribute"] fileHandleForReading] readDataToEndOfFile] retain];
+                    attributeData = [[[[task inheritedPipeWithName:@"attribute"] fileHandleForReading] readDataToEndOfFile] retain];
                 }, &lock, &blockException);
             });
         }
@@ -328,15 +329,21 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
     if(blockException)
         @throw blockException;
     
-    self.status = statusData;
-    self.errors = stderrData;
+	self.status = statusData;
+    [statusData release];
+	self.errors = stderrData;
+	[stderrData release];
     self.attributes = attributeData;
+	[attributeData release];
     
     _exitStatus = _task.terminationStatus;
     
     if(_cancelled)
         _exitStatus = GPGErrorCancelled;
     
+	[_task release];
+	_task = nil;
+	
     return _exitStatus;
 }
 

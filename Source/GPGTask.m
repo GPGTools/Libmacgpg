@@ -385,7 +385,7 @@ char partCountForStatusCode[GPG_STATUS_COUNT];
 		taskHelper.timeout = self.timeout;
     
     if(!outStream)
-        outStream = [[GPGMemoryStream memoryStream] retain];
+        self.outStream = [GPGMemoryStream memoryStream];
     
     taskHelper.output = self.outStream;
     taskHelper.inData = inDatas;
@@ -409,7 +409,9 @@ char partCountForStatusCode[GPG_STATUS_COUNT];
         self.errData = taskHelper.errors;
     }
     @catch (NSException *exception) {
-        @throw exception;
+        [taskHelper release];
+		taskHelper = nil;
+		@throw exception;
     }
     
     if([delegate respondsToSelector:@selector(gpgTaskDidTerminate:)])
@@ -417,6 +419,9 @@ char partCountForStatusCode[GPG_STATUS_COUNT];
     
     isRunning = NO;
     
+	[taskHelper release];
+	taskHelper = nil;
+	
     return exitcode;
 }
 

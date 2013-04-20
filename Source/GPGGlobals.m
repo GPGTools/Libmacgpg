@@ -34,7 +34,7 @@
 	retString = [[NSString alloc] initWithData:self encoding:NSUTF8StringEncoding];
 	if (retString) {
 		GPGDebugLog(@"Used Encoding: UTF-8.");
-		return retString;
+		return [retString autorelease];
 	}
 	
 	// Löschen aller ungültigen Zeichen, damit die umwandlung nach UTF-8 funktioniert.
