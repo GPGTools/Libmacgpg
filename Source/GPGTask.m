@@ -377,7 +377,7 @@ char partCountForStatusCode[GPG_STATUS_COUNT];
     if (cancelled)
 		return GPGErrorCancelled;
     
-    __block typeof(self) cself = self;
+    __block GPGTask* cself = self;
     taskHelper = [[GPGTaskHelper alloc] initWithArguments:defaultArguments];
     if([delegate isKindOfClass:[GPGController class]])
 		taskHelper.timeout = ((GPGController *)delegate).timeout;
@@ -464,9 +464,9 @@ char partCountForStatusCode[GPG_STATUS_COUNT];
 			myParts = parts;
 		}
 		
-		NSMutableArray *value = [statusDict objectForKey:keyword];
-		if (value) {
-			[value addObject:myParts];
+		NSMutableArray *statusValue = [statusDict objectForKey:keyword];
+		if (statusValue) {
+			[statusValue addObject:myParts];
 		} else {
 			[statusDict setObject:[NSMutableArray arrayWithObject:myParts] forKey:keyword];
 		}
