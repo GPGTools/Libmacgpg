@@ -30,6 +30,8 @@
 		1B5BE6751618AD3800EEC20F /* NSBundle+Sandbox.m in Sources */ = {isa = PBXBuildFile; fileRef = 1BCE0CD01617A3DF0026DCFF /* NSBundle+Sandbox.m */; };
 		1B72F741157AE89600101194 /* NSPipe+NoSigPipe.h in Headers */ = {isa = PBXBuildFile; fileRef = 1B72F73F157AE89600101194 /* NSPipe+NoSigPipe.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1B72F742157AE89600101194 /* NSPipe+NoSigPipe.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B72F740157AE89600101194 /* NSPipe+NoSigPipe.m */; };
+		1B89B68E1726F8FD004863FC /* PLWeakCompatibilityStubs.h in Headers */ = {isa = PBXBuildFile; fileRef = 1B89B68C1726F8FD004863FC /* PLWeakCompatibilityStubs.h */; };
+		1B89B68F1726F8FD004863FC /* PLWeakCompatibilityStubs.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B89B68D1726F8FD004863FC /* PLWeakCompatibilityStubs.m */; };
 		1B9DB26A15784DB700488353 /* GPGTaskHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 1B9DB26815784DB700488353 /* GPGTaskHelper.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1B9DB26B15784DB700488353 /* GPGTaskHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B9DB26915784DB700488353 /* GPGTaskHelper.m */; };
 		1BA5FE5B1619BE6700FC6A2C /* JailfreeTask.h in Headers */ = {isa = PBXBuildFile; fileRef = 1BA5FE5A1619BE6700FC6A2C /* JailfreeTask.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -190,6 +192,8 @@
 		1B53AB1E1615241F00F4ECB2 /* JailfreeTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JailfreeTask.m; sourceTree = "<group>"; };
 		1B72F73F157AE89600101194 /* NSPipe+NoSigPipe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSPipe+NoSigPipe.h"; sourceTree = "<group>"; };
 		1B72F740157AE89600101194 /* NSPipe+NoSigPipe.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSPipe+NoSigPipe.m"; sourceTree = "<group>"; };
+		1B89B68C1726F8FD004863FC /* PLWeakCompatibilityStubs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLWeakCompatibilityStubs.h; sourceTree = "<group>"; };
+		1B89B68D1726F8FD004863FC /* PLWeakCompatibilityStubs.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PLWeakCompatibilityStubs.m; sourceTree = "<group>"; };
 		1B9DB26815784DB700488353 /* GPGTaskHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGTaskHelper.h; sourceTree = "<group>"; };
 		1B9DB26915784DB700488353 /* GPGTaskHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGTaskHelper.m; sourceTree = "<group>"; };
 		1BA5FE5A1619BE6700FC6A2C /* JailfreeTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JailfreeTask.h; path = Source/org.gpgtools.Libmacgpg.xpc/JailfreeTask.h; sourceTree = "<group>"; };
@@ -465,6 +469,8 @@
 		1B72F73E157AE85B00101194 /* Additions */ = {
 			isa = PBXGroup;
 			children = (
+				1B89B68C1726F8FD004863FC /* PLWeakCompatibilityStubs.h */,
+				1B89B68D1726F8FD004863FC /* PLWeakCompatibilityStubs.m */,
 				1B72F73F157AE89600101194 /* NSPipe+NoSigPipe.h */,
 				1B72F740157AE89600101194 /* NSPipe+NoSigPipe.m */,
 				1BCE0CCF1617A3DF0026DCFF /* NSBundle+Sandbox.h */,
@@ -642,6 +648,7 @@
 				451D8829156A7AD900A0B890 /* GPGStream.h in Headers */,
 				451D882D156A7CA300A0B890 /* GPGMemoryStream.h in Headers */,
 				451D8831156A7E4900A0B890 /* GPGFileStream.h in Headers */,
+				1B89B68E1726F8FD004863FC /* PLWeakCompatibilityStubs.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -962,6 +969,7 @@
 				1B9DB26B15784DB700488353 /* GPGTaskHelper.m in Sources */,
 				1B72F742157AE89600101194 /* NSPipe+NoSigPipe.m in Sources */,
 				1BCE0CD21617A3DF0026DCFF /* NSBundle+Sandbox.m in Sources */,
+				1B89B68F1726F8FD004863FC /* PLWeakCompatibilityStubs.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1137,6 +1145,10 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = (
+					"-Xclang",
+					"-fobjc-runtime-has-weak",
+				);
 				SDKROOT = macosx;
 			};
 			name = Debug;
@@ -1159,6 +1171,10 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				OTHER_CFLAGS = (
+					"-Xclang",
+					"-fobjc-runtime-has-weak",
+				);
 				SDKROOT = macosx;
 			};
 			name = Release;

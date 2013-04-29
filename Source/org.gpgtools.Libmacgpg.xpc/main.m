@@ -25,7 +25,6 @@
     
 	newConnection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Jail)];
     exportedObject.xpcConnection = newConnection;
-	[exportedObject release];
     
     [newConnection resume];
     return YES;
@@ -43,7 +42,6 @@ int main(int argc, const char *argv[])
     [serviceListener resume];
     
     [[NSRunLoop mainRunLoop] run];
-    [delegate release];
 	
     return 0;
 }

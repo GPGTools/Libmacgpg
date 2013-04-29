@@ -27,39 +27,39 @@
     GPGTaskHelper *task = [[GPGTaskHelper alloc] initWithArguments:arguments];
     
     // Setup the task.
-    task.output = [GPGMemoryStream memoryStream];
-    NSMutableArray *inData = [NSMutableArray array];
+	GPGMemoryStream *outputStream = [[GPGMemoryStream alloc] init];
+    task.output = outputStream;
+	
+    NSMutableArray *inData = [[NSMutableArray alloc] init];
     [data enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        GPGMemoryStream *stream = [GPGMemoryStream memoryStream];
-        [stream writeData:obj];
+        GPGMemoryStream *stream = [[GPGMemoryStream alloc] initForReading:obj];
         [inData addObject:stream];
     }];
     task.inData = inData;
-    __block NSXPCConnection *connection = self.xpcConnection;
-    __block typeof(task) btask = task;
+	id <Jail> remoteProxy = [_xpcConnection remoteObjectProxy];
+    typeof(task) __weak weakTask = task;
     task.processStatus = (lp_process_status_t)^(NSString *keyword, NSString *value) {
-        [[connection remoteObjectProxy] processStatusWithKey:keyword value:value reply:^(NSData *response) {
+        [remoteProxy processStatusWithKey:keyword value:value reply:^(NSData *response) {
+			GPGTaskHelper *strongTask = weakTask;
             if(response)
-                [btask respond:response];
+                [strongTask respond:response];
         }];
     };
     task.progressHandler = ^(NSUInteger processedBytes, NSUInteger totalBytes) {
-        [[connection remoteObjectProxy] progress:processedBytes total:totalBytes];
+        [remoteProxy progress:processedBytes total:totalBytes];
     };
     task.readAttributes = readAttributes;
     task.checkForSandbox = NO;
     
     @try {
-        xpc_transaction_begin();
+		xpc_transaction_begin();
         // Start the task.
         [task run];
         // After completion, collect the result and send it back in the reply block.
         NSDictionary *result = [task copyResult];
         
 		reply(result);
-		
-		//[result release];
-    }
+	}
     @catch (NSException *exception) {
         // Create error here.
         
@@ -71,8 +71,7 @@
 		reply([NSDictionary dictionaryWithObjectsAndKeys:exceptionInfo, @"exception", nil]);
     }
     @finally {
-        xpc_transaction_end();
-        [task release];
+		xpc_transaction_end();
     }
 }
 
