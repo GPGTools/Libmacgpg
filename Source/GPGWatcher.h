@@ -1,4 +1,4 @@
-#import "JailfreeTask.h"
+#import "JailfreeProtocol.h"
 #import "DirectoryWatcher.h"
 
 extern NSString * const GPGKeysChangedNotification;

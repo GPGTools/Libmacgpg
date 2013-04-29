@@ -10,8 +10,8 @@
 		1B3D657A1565C60100D93BBE /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1B3D64DF1565BC6600D93BBE /* Foundation.framework */; };
 		1B46CFA2161531DC00CF9C5F /* org.gpgtools.Libmacgpg.xpc.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1B46CFA1161531DC00CF9C5F /* org.gpgtools.Libmacgpg.xpc.plist */; };
 		1B46CFCE161555DF00CF9C5F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1B3D64DF1565BC6600D93BBE /* Foundation.framework */; };
-		1B46CFD1161555DF00CF9C5F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B46CFD0161555DF00CF9C5F /* main.m */; };
-		1B46CFD9161559EB00CF9C5F /* JailfreeTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B53AB1E1615241F00F4ECB2 /* JailfreeTask.m */; };
+		1B46CFD1161555DF00CF9C5F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B46CFD0161555DF00CF9C5F /* main.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		1B46CFD9161559EB00CF9C5F /* JailfreeTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B53AB1E1615241F00F4ECB2 /* JailfreeTask.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		1B46CFDF1615755D00CF9C5F /* GPGMemoryStream.m in Sources */ = {isa = PBXBuildFile; fileRef = 451D882C156A7CA300A0B890 /* GPGMemoryStream.m */; };
 		1B46CFE01615756600CF9C5F /* GPGTaskHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B9DB26915784DB700488353 /* GPGTaskHelper.m */; };
 		1B46CFE11615757500CF9C5F /* GPGException.m in Sources */ = {isa = PBXBuildFile; fileRef = 30A70EE413EF328000EE9CD9 /* GPGException.m */; };
@@ -34,6 +34,10 @@
 		1B89B68F1726F8FD004863FC /* PLWeakCompatibilityStubs.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B89B68D1726F8FD004863FC /* PLWeakCompatibilityStubs.m */; };
 		1B9DB26A15784DB700488353 /* GPGTaskHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 1B9DB26815784DB700488353 /* GPGTaskHelper.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1B9DB26B15784DB700488353 /* GPGTaskHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B9DB26915784DB700488353 /* GPGTaskHelper.m */; };
+		1B9FF21017257A69004FB017 /* GPGTaskHelperXPC.h in Headers */ = {isa = PBXBuildFile; fileRef = 1B9FF20E17257A69004FB017 /* GPGTaskHelperXPC.h */; };
+		1B9FF21117257A69004FB017 /* GPGTaskHelperXPC.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B9FF20F17257A69004FB017 /* GPGTaskHelperXPC.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		1B9FF2131726119B004FB017 /* GPGTaskHelperXPC.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B9FF20F17257A69004FB017 /* GPGTaskHelperXPC.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		1B9FF21517261470004FB017 /* JailfreeProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 1B9FF21417261470004FB017 /* JailfreeProtocol.h */; };
 		1BA5FE5B1619BE6700FC6A2C /* JailfreeTask.h in Headers */ = {isa = PBXBuildFile; fileRef = 1BA5FE5A1619BE6700FC6A2C /* JailfreeTask.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1BC7A50013D300A600AE57BA /* LPXTTask.h in Headers */ = {isa = PBXBuildFile; fileRef = 1BC7A4FE13D300A600AE57BA /* LPXTTask.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1BC7A50113D300A600AE57BA /* LPXTTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 1BC7A4FF13D300A600AE57BA /* LPXTTask.m */; };
@@ -196,7 +200,10 @@
 		1B89B68D1726F8FD004863FC /* PLWeakCompatibilityStubs.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PLWeakCompatibilityStubs.m; sourceTree = "<group>"; };
 		1B9DB26815784DB700488353 /* GPGTaskHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGTaskHelper.h; sourceTree = "<group>"; };
 		1B9DB26915784DB700488353 /* GPGTaskHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGTaskHelper.m; sourceTree = "<group>"; };
-		1BA5FE5A1619BE6700FC6A2C /* JailfreeTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JailfreeTask.h; path = Source/org.gpgtools.Libmacgpg.xpc/JailfreeTask.h; sourceTree = "<group>"; };
+		1B9FF20E17257A69004FB017 /* GPGTaskHelperXPC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGTaskHelperXPC.h; sourceTree = "<group>"; };
+		1B9FF20F17257A69004FB017 /* GPGTaskHelperXPC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGTaskHelperXPC.m; sourceTree = "<group>"; };
+		1B9FF21417261470004FB017 /* JailfreeProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JailfreeProtocol.h; path = Source/JailfreeProtocol.h; sourceTree = "<group>"; };
+		1BA5FE5A1619BE6700FC6A2C /* JailfreeTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JailfreeTask.h; sourceTree = "<group>"; };
 		1BC7A4FE13D300A600AE57BA /* LPXTTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LPXTTask.h; sourceTree = "<group>"; };
 		1BC7A4FF13D300A600AE57BA /* LPXTTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LPXTTask.m; sourceTree = "<group>"; };
 		1BCE0CCF1617A3DF0026DCFF /* NSBundle+Sandbox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSBundle+Sandbox.h"; sourceTree = "<group>"; };
@@ -433,6 +440,8 @@
 				451D882C156A7CA300A0B890 /* GPGMemoryStream.m */,
 				451D882F156A7E4900A0B890 /* GPGFileStream.h */,
 				451D8830156A7E4900A0B890 /* GPGFileStream.m */,
+				1B9FF20E17257A69004FB017 /* GPGTaskHelperXPC.h */,
+				1B9FF20F17257A69004FB017 /* GPGTaskHelperXPC.m */,
 			);
 			name = Classes;
 			path = Source;
@@ -441,6 +450,7 @@
 		1B46CFCF161555DF00CF9C5F /* org.gpgtools.Libmacgpg.xpc */ = {
 			isa = PBXGroup;
 			children = (
+				1BA5FE5A1619BE6700FC6A2C /* JailfreeTask.h */,
 				1B53AB1E1615241F00F4ECB2 /* JailfreeTask.m */,
 				1B46CFD0161555DF00CF9C5F /* main.m */,
 				1B46CFA1161531DC00CF9C5F /* org.gpgtools.Libmacgpg.xpc.plist */,
@@ -461,7 +471,7 @@
 		1B53AB201615254D00F4ECB2 /* Interfaces */ = {
 			isa = PBXGroup;
 			children = (
-				1BA5FE5A1619BE6700FC6A2C /* JailfreeTask.h */,
+				1B9FF21417261470004FB017 /* JailfreeProtocol.h */,
 			);
 			name = Interfaces;
 			sourceTree = "<group>";
@@ -648,6 +658,8 @@
 				451D8829156A7AD900A0B890 /* GPGStream.h in Headers */,
 				451D882D156A7CA300A0B890 /* GPGMemoryStream.h in Headers */,
 				451D8831156A7E4900A0B890 /* GPGFileStream.h in Headers */,
+				1B9FF21017257A69004FB017 /* GPGTaskHelperXPC.h in Headers */,
+				1B9FF21517261470004FB017 /* JailfreeProtocol.h in Headers */,
 				1B89B68E1726F8FD004863FC /* PLWeakCompatibilityStubs.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -885,6 +897,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1B9FF2131726119B004FB017 /* GPGTaskHelperXPC.m in Sources */,
 				1B5BE6751618AD3800EEC20F /* NSBundle+Sandbox.m in Sources */,
 				1BDA56BA1618A7EE00185C72 /* DirectoryWatcher.m in Sources */,
 				1BDA56B81618A7E100185C72 /* GPGWatcher.m in Sources */,
@@ -969,6 +982,7 @@
 				1B9DB26B15784DB700488353 /* GPGTaskHelper.m in Sources */,
 				1B72F742157AE89600101194 /* NSPipe+NoSigPipe.m in Sources */,
 				1BCE0CD21617A3DF0026DCFF /* NSBundle+Sandbox.m in Sources */,
+				1B9FF21117257A69004FB017 /* GPGTaskHelperXPC.m in Sources */,
 				1B89B68F1726F8FD004863FC /* PLWeakCompatibilityStubs.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

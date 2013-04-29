@@ -1,7 +1,6 @@
 #import "GPGWatcher.h"
 #import "GPGGlobals.h"
 #import "GPGOptions.h"
-#import "JailfreeTask.h"
 #import "NSBundle+Sandbox.h"
 
 NSString * const GPGKeysChangedNotification = @"GPGKeysChangedNotification";

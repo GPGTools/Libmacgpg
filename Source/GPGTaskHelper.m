@@ -35,12 +35,16 @@
 #import "NSPipe+NoSigPipe.h"
 #import "NSBundle+Sandbox.h"
 #import "GPGException.h"
-#import "JailfreeTask.h"
+#import "JailfreeProtocol.h"
+#if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
+#import "GPGTaskHelperXPC.h"
+#endif
 
 static const NSUInteger kDataBufferSize = 65536; 
 
 typedef void (^basic_block_t)(void);
 
+#pragma mark Helper methods
 /**
  Helper method to run a block and intercept any exceptions.
  Copies the exceptions into the given blockException reference.
@@ -85,6 +89,8 @@ void withAutoreleasePool(basic_block_t block)
     }
 }
 
+#pragma mark GPGTaskHelper
+
 @interface GPGTaskHelper ()
 
 @property (nonatomic, retain, readwrite) NSData *status;
@@ -114,8 +120,8 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
 	
 	NSString *envPATH = [[[NSProcessInfo processInfo] environment] objectForKey:@"PATH"];
 	if (envPATH) {
-		NSArray *searchPaths = [envPATH componentsSeparatedByString:@":"];
-		foundPath = [self findExecutableWithName:executable atPaths:searchPaths];
+		NSArray *newSearchPaths = [envPATH componentsSeparatedByString:@":"];
+		foundPath = [self findExecutableWithName:executable atPaths:newSearchPaths];
 		if (foundPath) {
 			return foundPath;
 		}		
@@ -210,7 +216,7 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
         sandboxed = [bundle ob_isSandboxed];
 #endif
     });
-    return sandboxed;
+	return sandboxed;
 #else
 	return NO;
 #endif
@@ -253,7 +259,7 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
     [dupList release];
     
     __block NSException *blockException = nil;
-    __block typeof(self) object = self;
+    __block GPGTaskHelper *object = self;
     __block NSData *stderrData = nil;
     __block NSData *statusData = nil;
     __block NSData *attributeData = nil;
@@ -288,7 +294,7 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
                 NSData *data;
                 while((data = [[[task inheritedPipeWithName:@"stdout"] fileHandleForReading] readDataOfLength:kDataBufferSize]) &&  [data length] > 0) {
                     withAutoreleasePool(^{
-                        [object.output writeData:data];
+                        [object->_output writeData:data];
                     });
                 }
             }, &lock, &blockException);
@@ -361,110 +367,58 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
 #if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
 	// This code is only necessary for >= 10.8, don't even bother compiling it
 	// on older platforms. Wouldn't anyway.
+	// XPC name: org.gpgtools.Libmacgpg.jailfree.xpc_OpenStep
+    
+	__block GPGTaskHelper * weakSelf = self;
+	
+	GPGTaskHelperXPC *xpcTask = [[GPGTaskHelperXPC alloc] initWithTimeout:_timeout];
+	xpcTask.progressHandler = ^(NSUInteger processedBytes, NSUInteger total) {
+		if(weakSelf.progressHandler)
+			weakSelf.progressHandler(processedBytes, total);
+	};
+	xpcTask.processStatus = ^NSData *(NSString *keyword, NSString *value) {
+		if(!self.processStatus)
+			return nil;
+		
+		NSData *response = weakSelf.processStatus(keyword, value);
+		return response;
+	};
 
-    // The semaphore is used to wait for the reply from the xpc
-    // service.
-    // XPC name: org.gpgtools.Libmacgpg.jailfree.xpc_OpenStep
-    
-    _sandboxHelper = [[NSXPCConnection alloc] initWithMachServiceName:JAILFREE_XPC_MACH_NAME options:0];
-    _sandboxHelper.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Jailfree)];
-    _sandboxHelper.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Jail)];
-    _sandboxHelper.exportedObject = self;
-    
-    [_sandboxHelper resume];
-    
-    __block GPGTaskHelper *this = self;
-    
-    // GPGStream has to be converted to NSData first.
-    NSMutableArray *convertedInData = [NSMutableArray array];
-    [self.inData enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        [convertedInData addObject:[obj readAllData]];
-    }];
-    
-    __block NSException *connectionError = nil;
-    __block NSException *taskHelperException = nil;
-    
-	__block typeof(_sandboxHelper) _bsandboxHelper = _sandboxHelper;
-    
-    // Test the connection to assure it's available with a super small timeout.
-	// Apple should exactly throw an exception if the mach lookup fails.
-	// For some reason, they don't... :-(
-	__block dispatch_semaphore_t testLock = dispatch_semaphore_create(0);
-	dispatch_time_t testTimeout = dispatch_time(DISPATCH_TIME_NOW, GPGTASKHELPER_DISPATCH_TIMEOUT_ALMOST_INSTANTLY);
-	
-	__block BOOL xpcReady = NO;
-	[[_sandboxHelper remoteObjectProxyWithErrorHandler:^(NSError *error) {
-		NSString *description = [error description];
-		NSString *explanation = [NSString stringWithFormat:@"[GPGMail] XPC test connection failed - reason: %@", description];
-		
-        connectionError = [[NSException exceptionWithName:@"XPCConnectionError" reason:explanation userInfo:nil] retain];
-		
-		NSLog(@"%@", explanation);
-		dispatch_semaphore_signal(testLock);
-	}] testConnection:^(BOOL success) {
-		xpcReady = YES;
-		dispatch_semaphore_signal(testLock);
-	}];
-	
-	dispatch_semaphore_wait(testLock, testTimeout);
-	dispatch_release(testLock);
-	
-	__block dispatch_semaphore_t lock = dispatch_semaphore_create(0);
-    dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, _timeout);
-	
-	if(xpcReady) {
-		[[_sandboxHelper remoteObjectProxyWithErrorHandler:^(NSError *error) {
-			NSString *description = [error description];
-			NSString *explanation = [NSString stringWithFormat:@"[GPGMail] Failed to invoke XPC method - reason: %@", description];
-			
-			connectionError = [[NSException exceptionWithName:@"XPCConnectionError" reason:explanation userInfo:nil] retain];
-			
-			NSLog(@"%@", explanation);
-			dispatch_semaphore_signal(lock);
-		}] launchGPGWithArguments:self.arguments data:convertedInData readAttributes:self.readAttributes reply:^(NSDictionary *result) {
-			// Invalidate the connection, it's no longer necessary to keep it around.
-			if([result objectForKey:@"exception"]) {
-				NSDictionary *exceptionInfo = [result objectForKey:@"exception"];
-				id exception = nil;
-				if(![exceptionInfo objectForKey:@"errorCode"]) {
-					exception = [NSException exceptionWithName:[exceptionInfo objectForKey:@"name"] reason:[exceptionInfo objectForKey:@"reason"] userInfo:nil];
-				}
-				else {
-					exception = [GPGException exceptionWithReason:[exceptionInfo objectForKey:@"reason"] errorCode:[[exceptionInfo objectForKey:@"errorCode"] unsignedIntValue]];
-				}
-				
-				taskHelperException = [exception retain];
-				NSLog(@"[GPGMail] Task helper Exception: %@", taskHelperException);
-				[_bsandboxHelper invalidate];
-				dispatch_semaphore_signal(lock);
-				
-				return;
-			}
-			
-			this.status = [result objectForKey:@"status"];
-			this.attributes = [result objectForKey:@"attributes"];
-			this.errors = [result objectForKey:@"errors"];
-			this.exitStatus = [[result objectForKey:@"exitcode"] intValue];
-			if([result objectForKey:@"output"])
-				[this.output writeData:[result objectForKey:@"output"]];
-			[_bsandboxHelper invalidate];
-			dispatch_semaphore_signal(lock);
-		}];
-		
-		dispatch_semaphore_wait(lock, timeout);
-		dispatch_release(lock);
-	}
-	else {
+	if(![xpcTask test]) {
+		[xpcTask shutdown];
+		[xpcTask release];
 		NSLog(@"[GPGMail] XPC test connection failed - reason: org.gpgtools.Libmacgpg.xpc isn't available.\nPlease try to run the following command in Terminal:\nlaunchctl load /Library/LaunchAgents/org.gpgtools.Libmacgpg.xpc.plist\n");
+		return -1;
 	}
-    
-    if(connectionError)
-        @throw connectionError;
-    
-    if(taskHelperException)
-        @throw taskHelperException;
-    
-    return self.exitStatus;
+	
+	NSMutableArray *inputData = [[NSMutableArray alloc] init];
+	[_inData enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+		[inputData addObject:[((GPGMemoryStream *)obj) readAllData]];
+	}];
+	[_inData release];
+	_inData = nil;
+	
+	NSDictionary *result = [xpcTask launchGPGWithArguments:self.arguments data:inputData readAttributes:self.readAttributes];
+	
+	[inputData release];
+	
+	if(result[@"output"])
+		[_output writeData:result[@"output"]];
+	[_output release];
+	_output = nil;
+	
+	if(result[@"status"])
+		self.status = result[@"status"];
+	if(result[@"attributes"])
+		self.attributes = result[@"attributes"];
+	if(result[@"errors"])
+		self.errors = result[@"errors"];
+	self.exitStatus = [result[@"exitStatus"] intValue];
+	
+	[xpcTask shutdown];
+	[xpcTask release];
+	
+	return [result[@"exitStatus"] intValue];
 #else
 	NSLog(@"This should never be called on OS X < 10.8? Please report to team@gpgtools.org if you're seeing this message.");
 #endif
@@ -518,7 +472,7 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
     NSData *currentData = nil;
     NSMutableData *statusData = [NSMutableData data]; 
     NSData *NL = [@"\n" dataUsingEncoding:NSASCIIStringEncoding];
-    __block typeof(self) this = self;
+    __block GPGTaskHelper *this = self;
 	while((currentData = [[statusPipe fileHandleForReading] availableData])&& [currentData length]) {
         [statusData appendData:currentData];
         [line appendString:[[[NSString alloc] initWithData:currentData encoding:NSUTF8StringEncoding] autorelease]];
@@ -895,7 +849,8 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
     _inData = nil;
     [_arguments release];
     _arguments = nil;
-    [_output release];
+    if(_output)
+		[_output release];
     _output = nil;
     [_status release];
     _status = nil;

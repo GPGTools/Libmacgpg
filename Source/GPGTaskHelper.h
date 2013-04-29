@@ -41,14 +41,14 @@
 */
 
 #import <Foundation/Foundation.h>
-#import "JailfreeTask.h"
+#import "JailfreeProtocol.h"
 
-@class LPXTTask, GPGStream;
+@class LPXTTask, GPGStream, GPGTaskHelperXPC;
 
 typedef NSData *  (^lp_process_status_t)(NSString *keyword, NSString *value);
 typedef void (^lp_progress_handler_t)(NSUInteger processedBytes, NSUInteger totalBytes);
 
-static NSString *GPG_STATUS_PREFIX = @"[GNUPG:] ";
+#define GPG_STATUS_PREFIX @"[GNUPG:] "
 
 #define GPGTASKHELPER_DISPATCH_TIMEOUT_ALMOST_INSTANTLY NSEC_PER_SEC / ((long long)1.6) // Should be 625ms (decrease to 500ms after further testing.).
 #define GPGTASKHELPER_DISPATCH_TIMEOUT_QUICKLY NSEC_PER_SEC * 5
