@@ -25,9 +25,9 @@
 	NSString *hashID;
 	NSInteger status;
 }
-@property (readonly, retain) NSImage *image;
-@property (readonly, retain) NSString *hashID;
-@property (readonly) NSInteger status;
+@property (nonatomic, readonly, retain) NSImage *image;
+@property (nonatomic, readonly, retain) NSString *hashID;
+@property (nonatomic, readonly) NSInteger status;
 
 - (id)initWithImage:(NSImage *)aImage hashID:(NSString *)aHashID status:(NSInteger)aStatus;
 

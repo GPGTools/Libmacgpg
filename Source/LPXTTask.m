@@ -98,7 +98,7 @@ static char *BDSKCopyFileSystemRepresentation(NSString *str)
     // File descriptors to close in the child process.
     int pipeCount = (int)inheritedPipes.count;
     lpxttask_fd fds[pipeCount];
-    for(int i = 0; i < pipeCount; i++) {
+    for(i = 0; i < pipeCount; i++) {
         fds[i].fd = -1;
         fds[i].dupfd = -1;
     }
@@ -138,7 +138,7 @@ static char *BDSKCopyFileSystemRepresentation(NSString *str)
             return NSOrderedSame;
     }];
     
-    for(int i = 0; i < [fdArray count]; i++) {
+    for(i = 0; i < [fdArray count]; i++) {
         fds[i].fd = [[[fdArray objectAtIndex:i] objectAtIndex:0] intValue];
         fds[i].dupfd = [[[fdArray objectAtIndex:i] objectAtIndex:1] intValue];
     }
@@ -165,7 +165,7 @@ static char *BDSKCopyFileSystemRepresentation(NSString *str)
         // set process group for killpg()
         (void)setpgid(getpid(), getpid());
         
-        for(int i = 0; i < pipeCount; i++) {
+        for(i = 0; i < pipeCount; i++) {
             // If dupfd is set, close invoke dup2. This closes
             // the original fd and duplicates to the new fd.
             if(fds[i].fd > -1 && fds[i].dupfd > -1) {
@@ -177,7 +177,7 @@ static char *BDSKCopyFileSystemRepresentation(NSString *str)
         int do_close = 1;
         for (rlim_t j = 0; j < maxOpenFiles; j++) {
             do_close = 1;
-            for(int i = 0; i < pipeCount; i++) {
+            for(i = 0; i < pipeCount; i++) {
                 if((unsigned)fds[i].dupfd == j || (unsigned)fds[i].fd == j) {
                     do_close = 0;
                 }

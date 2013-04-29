@@ -45,7 +45,7 @@
 
 
 @interface GPGController ()
-@property (retain) GPGSignature *lastSignature;
+@property (nonatomic, retain) GPGSignature *lastSignature;
 - (void)updateKeysWithDict:(NSDictionary *)aDict;
 - (void)addArgumentsForKeyserver;
 - (void)addArgumentsForSignerKeys;

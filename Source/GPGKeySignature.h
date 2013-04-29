@@ -43,20 +43,20 @@
 	BOOL local;
 }
 
-@property (readonly) BOOL local;
-@property (readonly) BOOL revocationSignature;
-@property (readonly) GPGPublicKeyAlgorithm algorithm;
-@property (readonly) int signatureClass;
-@property (readonly, copy) NSString *type;
-@property (readonly, retain) NSString *userID;
-@property (readonly, retain) NSString *name;
-@property (readonly, retain) NSString *email;
-@property (readonly, retain) NSString *comment;
-@property (readonly, retain) NSString *keyID;
-@property (readonly, retain) NSString *shortKeyID;
-@property (readonly, retain) NSString *description;
-@property (readonly, retain) NSDate *creationDate;
-@property (readonly, retain) NSDate *expirationDate;
+@property (nonatomic, readonly) BOOL local;
+@property (nonatomic, readonly) BOOL revocationSignature;
+@property (nonatomic, readonly) GPGPublicKeyAlgorithm algorithm;
+@property (nonatomic, readonly) int signatureClass;
+@property (nonatomic, readonly, copy) NSString *type;
+@property (nonatomic, readonly, retain) NSString *userID;
+@property (nonatomic, readonly, retain) NSString *name;
+@property (nonatomic, readonly, retain) NSString *email;
+@property (nonatomic, readonly, retain) NSString *comment;
+@property (nonatomic, readonly, retain) NSString *keyID;
+@property (nonatomic, readonly, retain) NSString *shortKeyID;
+@property (nonatomic, readonly, retain) NSString *description;
+@property (nonatomic, readonly, retain) NSDate *creationDate;
+@property (nonatomic, readonly, retain) NSDate *expirationDate;
 
 
 + (NSArray *)signaturesWithListing:(NSArray *)listing;

@@ -69,10 +69,10 @@ void eventStreamCallBack(ConstFSEventStreamRef streamRef, void *clientCallBackIn
 }
 
 
-- (double)latency {
+- (NSUInteger)latency {
 	return latency;
 }
-- (void)setLatency:(double)value {
+- (void)setLatency:(NSUInteger)value {
 	if (value != latency) {
 		latency = value;
 		[self updateStream];

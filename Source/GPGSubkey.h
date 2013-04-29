@@ -29,16 +29,16 @@
 	NSString *fingerprint;
 }
 
-@property NSInteger index;
-@property (readonly, assign) GPGKey *primaryKey;
-@property (readonly, retain) NSString *fingerprint;
-@property (readonly) NSString *type;
+@property (nonatomic) NSInteger index;
+@property (nonatomic, readonly, assign) GPGKey *primaryKey;
+@property (nonatomic, readonly, retain) NSString *fingerprint;
+@property (nonatomic, readonly) NSString *type;
 
 //Dummys
-@property (readonly) id children;
-@property (readonly) id name;
-@property (readonly) id email;
-@property (readonly) id comment;
+@property (nonatomic, readonly) id children;
+@property (nonatomic, readonly) id name;
+@property (nonatomic, readonly) id email;
+@property (nonatomic, readonly) id comment;
 
 
 

@@ -34,7 +34,7 @@ typedef uint8_t BoolAnswer;
 	NSUInteger index;
 }
 
-@property uint8_t defaultBoolAnswer;
+@property (nonatomic) uint8_t defaultBoolAnswer;
 
 
 - (void)addCmd:(NSString *)cmd prompt:(NSString *)prompt;

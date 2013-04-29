@@ -72,13 +72,13 @@ NSString *GPGExceptionName = @"GPGException";
         goto noLibgpgError;
     }
 
-	unsigned int (*gpg_err_init)() = dlsym(libHandle, "gpg_err_init");
+	unsigned int (*gpg_err_init)() = (unsigned int (*)())dlsym(libHandle, "gpg_err_init");
 	if (!gpg_err_init) {
 		GPGDebugLog(@"[%@] %s", [self className], dlerror());
         goto noLibgpgError;
 	}
 
-	const char *(*gpg_strerror)(unsigned int) = dlsym(libHandle, "gpg_strerror");
+	const char *(*gpg_strerror)(unsigned int) = (const char *(*)(unsigned int))dlsym(libHandle, "gpg_strerror");
 	if (!gpg_strerror) {
 		GPGDebugLog(@"[%@] %s", [self className], dlerror());
         goto noLibgpgError;

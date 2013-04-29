@@ -22,14 +22,14 @@
 
 @interface GPGRemoteKey ()
 
-@property GPGPublicKeyAlgorithm algorithm;
-@property NSUInteger length;
-@property BOOL expired;
-@property BOOL revoked;
-@property (retain) NSString *keyID;
-@property (retain) NSDate *creationDate;
-@property (retain) NSDate *expirationDate;
-@property (retain) NSArray *userIDs;
+@property (nonatomic) GPGPublicKeyAlgorithm algorithm;
+@property (nonatomic) NSUInteger length;
+@property (nonatomic) BOOL expired;
+@property (nonatomic) BOOL revoked;
+@property (nonatomic, retain) NSString *keyID;
+@property (nonatomic, retain) NSDate *creationDate;
+@property (nonatomic, retain) NSDate *expirationDate;
+@property (nonatomic, retain) NSArray *userIDs;
 
 @end
 

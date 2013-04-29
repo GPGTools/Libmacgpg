@@ -42,21 +42,21 @@
 	BOOL secret;
 }
 
-@property (readonly, retain) NSMutableArray *photos;
-@property (readonly, retain) NSString *textForFilter; //In diesem String stehen die verschiedenen Informationen über den Schlüssel, damit das Filtern schnell funktioniert.
-@property (readonly, retain) NSString *allFingerprints;
-@property (readonly, retain) NSString *fingerprint;
-@property (readonly) GPGValidity ownerTrust;
-@property (readonly) BOOL secret;
+@property (nonatomic, readonly, retain) NSMutableArray *photos;
+@property (nonatomic, readonly, retain) NSString *textForFilter; //In diesem String stehen die verschiedenen Informationen über den Schlüssel, damit das Filtern schnell funktioniert.
+@property (nonatomic, readonly, retain) NSString *allFingerprints;
+@property (nonatomic, readonly, retain) NSString *fingerprint;
+@property (nonatomic, readonly) GPGValidity ownerTrust;
+@property (nonatomic, readonly) BOOL secret;
 //@property (readonly) BOOL safe; //Gibt an ob der Schlüssel sicher ist. (Länge > 1024 Bit, kein MD5 oder SHA-1)
-@property (readonly) GPGUserID *primaryUserID;
-@property (readonly) GPGKey *primaryKey;
-@property (readonly) NSString *type;
-@property (readonly) NSInteger index;
-@property (readonly) NSString *userID;
-@property (readonly) NSString *name;
-@property (readonly) NSString *email;
-@property (readonly) NSString *comment;
+@property (nonatomic, readonly) GPGUserID *primaryUserID;
+@property (nonatomic, readonly) GPGKey *primaryKey;
+@property (nonatomic, readonly) NSString *type;
+@property (nonatomic, readonly) NSInteger index;
+@property (nonatomic, readonly) NSString *userID;
+@property (nonatomic, readonly) NSString *name;
+@property (nonatomic, readonly) NSString *email;
+@property (nonatomic, readonly) NSString *comment;
 
 - (void)setChildren:(NSMutableArray *)value;
 - (NSArray *)children;

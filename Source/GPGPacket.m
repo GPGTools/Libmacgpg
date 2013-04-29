@@ -258,7 +258,7 @@ const int clearTextEndMarkLength = 29;
 			
 			uint8_t bytesForSHA1[length + 3];
 			bytesForSHA1[0] = 0x99;
-			uint16_t temp = length;
+			uint16_t temp = (uint16_t)length;
 			bytesForSHA1[1] = ((uint8_t*)&temp)[1];
 			bytesForSHA1[2] = ((uint8_t*)&temp)[0];
 			memcpy(bytesForSHA1+3, packetStart, length);

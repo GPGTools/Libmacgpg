@@ -24,21 +24,21 @@
 
 @interface GPGSignature () <GPGUserIDProtocol>
 
-@property GPGErrorCode status;
-@property GPGValidity trust;
-@property BOOL hasFilled;
-@property int version;
-@property int publicKeyAlgorithm;
-@property int hashAlgorithm;
-@property (retain) NSString *fingerprint;
-@property (retain) NSString *primaryFingerprint;
-@property (retain) NSString *userID;
-@property (retain) NSString *name;
-@property (retain) NSString *email;
-@property (retain) NSString *comment;
-@property (retain) NSDate *creationDate;
-@property (retain) NSDate *expirationDate;
-@property (retain) NSString *signatureClass;
+@property (nonatomic) GPGErrorCode status;
+@property (nonatomic) GPGValidity trust;
+@property (nonatomic) BOOL hasFilled;
+@property (nonatomic) int version;
+@property (nonatomic) int publicKeyAlgorithm;
+@property (nonatomic) int hashAlgorithm;
+@property (nonatomic, retain) NSString *fingerprint;
+@property (nonatomic, retain) NSString *primaryFingerprint;
+@property (nonatomic, retain) NSString *userID;
+@property (nonatomic, retain) NSString *name;
+@property (nonatomic, retain) NSString *email;
+@property (nonatomic, retain) NSString *comment;
+@property (nonatomic, retain) NSDate *creationDate;
+@property (nonatomic, retain) NSDate *expirationDate;
+@property (nonatomic, retain) NSString *signatureClass;
 
 - (void)getKeyIDAndUserIDFromPrompt:(NSString *)prompt;
 

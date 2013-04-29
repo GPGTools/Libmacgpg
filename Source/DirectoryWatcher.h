@@ -12,7 +12,7 @@
 }
 
 @property (assign) NSObject <DirectoryWatcherDelegate> *delegate;
-@property double latency;
+@property NSUInteger latency;
 
 
 + (id)directoryWatcherWithPath:(NSString *)path;

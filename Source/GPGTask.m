@@ -35,10 +35,10 @@ static const NSUInteger kDataBufferSize = 65536;
 
 @interface GPGTask ()
 
-@property (retain) NSData *errData;
-@property (retain) NSData *statusData;
-@property (retain) NSData *attributeData;
-@property int errorCode;
+@property (nonatomic, retain) NSData *errData;
+@property (nonatomic, retain) NSData *statusData;
+@property (nonatomic, retain) NSData *attributeData;
+@property (nonatomic) int errorCode;
 
 + (void)initializeStatusCodes;
 - (void)unsetErrorCode:(int)value;

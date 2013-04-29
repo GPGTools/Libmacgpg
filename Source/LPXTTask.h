@@ -43,10 +43,10 @@ typedef void (^lpxt_task_t)(void);
 - (NSArray *)inheritedPipesWithName:(NSString *)name;
 - (void)removeInheritedPipeWithName:(NSString *)name;
 
-@property (retain) NSArray *arguments;
-@property (copy) NSString *launchPath;
-@property (readonly) int terminationStatus;
-@property (copy) lpxt_task_t parentTask;
+@property (nonatomic, retain) NSArray *arguments;
+@property (nonatomic, copy) NSString *launchPath;
+@property (nonatomic, readonly) int terminationStatus;
+@property (nonatomic, copy) lpxt_task_t parentTask;
 
 - (void)cancel;
 

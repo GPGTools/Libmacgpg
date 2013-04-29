@@ -22,9 +22,9 @@
 
 @interface GPGPhotoID ()
 
-@property (retain) NSImage *image;
-@property (retain) NSString *hashID;
-@property NSInteger status;
+@property (nonatomic, retain) NSImage *image;
+@property (nonatomic, retain) NSString *hashID;
+@property (nonatomic) NSInteger status;
 
 @end
 

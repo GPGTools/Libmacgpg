@@ -35,12 +35,12 @@
 }
 
 // Get or set the option key 
-@property(copy, readwrite) NSString *key;
+@property (nonatomic, copy, readwrite) NSString *key;
 
 // Get or set a value indicating whether the option is active;
 // (If not active, the option may still exist in configuration, but in a deactivated
 // state—e.g., prefixed by a '#')
-@property (setter=setIsActive:) BOOL isActive;
+@property (nonatomic, setter=setIsActive:) BOOL isActive;
 
 // Designated initializer. isActive will be FALSE
 - (id) initForKey:(NSString *)key;

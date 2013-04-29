@@ -359,8 +359,8 @@ typedef enum {
 	NSString *description;
 }
 
-@property (readonly, retain) GPGTask *gpgTask;
-@property (readonly) GPGErrorCode errorCode;
+@property (nonatomic, readonly, retain) GPGTask *gpgTask;
+@property (nonatomic, readonly) GPGErrorCode errorCode;
 
 extern NSString *GPGExceptionName;
 

@@ -7,7 +7,7 @@
 NSString * const GPGKeysChangedNotification = @"GPGKeysChangedNotification";
 
 @interface GPGWatcher ()
-@property (retain) NSMutableDictionary *changeDates;
+@property (nonatomic, retain) NSMutableDictionary *changeDates;
 - (NSString *)gpgCurrentHome;
 - (void)updateWatcher;
 - (void)timerFired:(NSTimer *)timer;

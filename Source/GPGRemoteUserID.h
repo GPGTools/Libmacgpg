@@ -29,12 +29,12 @@
 	NSDate *expirationDate;
 }
 
-@property (readonly, retain) NSString *userID;
-@property (readonly, retain) NSString *name;
-@property (readonly, retain) NSString *email;
-@property (readonly, retain) NSString *comment;
-@property (readonly, retain) NSDate *creationDate;
-@property (readonly, retain) NSDate *expirationDate;
+@property (nonatomic, readonly, retain) NSString *userID;
+@property (nonatomic, readonly, retain) NSString *name;
+@property (nonatomic, readonly, retain) NSString *email;
+@property (nonatomic, readonly, retain) NSString *comment;
+@property (nonatomic, readonly, retain) NSDate *creationDate;
+@property (nonatomic, readonly, retain) NSDate *expirationDate;
 
 
 + (id)userIDWithListing:(NSString *)listing;

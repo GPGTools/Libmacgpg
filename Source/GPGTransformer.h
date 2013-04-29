@@ -24,7 +24,7 @@
     BOOL _keepUnlocalized; // default NO; used for Unit Testing
 }
 // default NO
-@property (assign) BOOL keepUnlocalized;
+@property (nonatomic, assign) BOOL keepUnlocalized;
 
 - (id)transformedIntegerValue:(NSInteger)value;
 @end
@@ -33,11 +33,11 @@
     BOOL _keepUnlocalized; // default NO; used for Unit Testing
 }
 // default NO
-@property (assign) BOOL keepUnlocalized;
+@property (nonatomic, assign) BOOL keepUnlocalized;
 @end
 
 @interface SplitFormatter : NSFormatter {
 	NSInteger blockSize;
 }
-@property NSInteger blockSize;
+@property (nonatomic) NSInteger blockSize;
 @end

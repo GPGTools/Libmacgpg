@@ -41,21 +41,21 @@
 	
 	BOOL hasFilled;
 }
-@property (readonly) GPGErrorCode status;
-@property (readonly) GPGValidity trust;
-@property (readonly) BOOL hasFilled;
-@property (readonly) int version;
-@property (readonly) int publicKeyAlgorithm;
-@property (readonly) int hashAlgorithm;
-@property (retain, readonly) NSString *fingerprint;
-@property (retain, readonly) NSString *primaryFingerprint;
-@property (retain, readonly) NSString *userID;
-@property (retain, readonly) NSString *name;
-@property (retain, readonly) NSString *email;
-@property (retain, readonly) NSString *comment;
-@property (retain, readonly) NSDate *creationDate;
-@property (retain, readonly) NSDate *expirationDate;
-@property (retain, readonly) NSString *signatureClass;
+@property (nonatomic, readonly) GPGErrorCode status;
+@property (nonatomic, readonly) GPGValidity trust;
+@property (nonatomic, readonly) BOOL hasFilled;
+@property (nonatomic, readonly) int version;
+@property (nonatomic, readonly) int publicKeyAlgorithm;
+@property (nonatomic, readonly) int hashAlgorithm;
+@property (nonatomic, retain, readonly) NSString *fingerprint;
+@property (nonatomic, retain, readonly) NSString *primaryFingerprint;
+@property (nonatomic, retain, readonly) NSString *userID;
+@property (nonatomic, retain, readonly) NSString *name;
+@property (nonatomic, retain, readonly) NSString *email;
+@property (nonatomic, retain, readonly) NSString *comment;
+@property (nonatomic, retain, readonly) NSDate *creationDate;
+@property (nonatomic, retain, readonly) NSDate *expirationDate;
+@property (nonatomic, retain, readonly) NSString *signatureClass;
 
 
 - (void)addInfoFromStatusCode:(NSInteger)status andPrompt:(NSString *)prompt;

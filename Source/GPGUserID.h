@@ -42,33 +42,33 @@
 	NSString *comment;
 }
 
-@property NSInteger index;
-@property (readonly) NSString *type;
-@property (readonly) NSArray *signatures;
+@property (nonatomic) NSInteger index;
+@property (nonatomic, readonly) NSString *type;
+@property (nonatomic, readonly) NSArray *signatures;
 
-@property (readonly, assign) GPGKey *primaryKey;
+@property (nonatomic, readonly, assign) GPGKey *primaryKey;
 
-@property (readonly, retain) NSArray *cipherPreferences;
-@property (readonly, retain) NSArray *digestPreferences;
-@property (readonly, retain) NSArray *compressPreferences;
-@property (readonly, retain) NSArray *otherPreferences;
+@property (nonatomic, readonly, retain) NSArray *cipherPreferences;
+@property (nonatomic, readonly, retain) NSArray *digestPreferences;
+@property (nonatomic, readonly, retain) NSArray *compressPreferences;
+@property (nonatomic, readonly, retain) NSArray *otherPreferences;
 
-@property (readonly, retain) NSString *hashID;
+@property (nonatomic, readonly, retain) NSString *hashID;
 
-@property (readonly, retain) NSString *userID;
-@property (readonly, retain) NSString *name;
-@property (readonly, retain) NSString *email;
-@property (readonly, retain) NSString *comment;
+@property (nonatomic, readonly, retain) NSString *userID;
+@property (nonatomic, readonly, retain) NSString *name;
+@property (nonatomic, readonly, retain) NSString *email;
+@property (nonatomic, readonly, retain) NSString *comment;
 
 
 //Dummys
-@property (readonly) id children;
-@property (readonly) id keyID;
-@property (readonly) id shortKeyID;
-@property (readonly) id fingerprint;
-@property (readonly) id length;
-@property (readonly) id algorithm;
-@property (readonly) id capabilities;
+@property (nonatomic, readonly) id children;
+@property (nonatomic, readonly) id keyID;
+@property (nonatomic, readonly) id shortKeyID;
+@property (nonatomic, readonly) id fingerprint;
+@property (nonatomic, readonly) id length;
+@property (nonatomic, readonly) id algorithm;
+@property (nonatomic, readonly) id capabilities;
 
 
 - (id)initWithListing:(NSArray *)listing signatureListing:(NSArray *)sigListing parentKey:(GPGKey *)key;

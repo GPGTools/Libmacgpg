@@ -33,12 +33,12 @@
 	BOOL canAnyEncrypt, canAnySign, canAnyCertify, canAnyAuthenticate; //Capabilities of the key and the subkeys.
 }
 
-@property (readonly, retain) NSString *keyID;
-@property (readonly, retain) NSString *shortKeyID;
-@property (readonly, retain) NSString *capabilities;
-@property (readonly) GPGPublicKeyAlgorithm algorithm;
-@property (readonly) unsigned int length;
-@property (readonly) BOOL canEncrypt, canSign, canCertify, canAuthenticate, canAnyEncrypt, canAnySign, canAnyCertify, canAnyAuthenticate;
+@property (nonatomic, readonly, retain) NSString *keyID;
+@property (nonatomic, readonly, retain) NSString *shortKeyID;
+@property (nonatomic, readonly, retain) NSString *capabilities;
+@property (nonatomic, readonly) GPGPublicKeyAlgorithm algorithm;
+@property (nonatomic, readonly) unsigned int length;
+@property (nonatomic, readonly) BOOL canEncrypt, canSign, canCertify, canAuthenticate, canAnyEncrypt, canAnySign, canAnyCertify, canAnyAuthenticate;
 
 
 @end

@@ -31,14 +31,14 @@
 	NSArray *userIDs;
 }
 
-@property (readonly) GPGPublicKeyAlgorithm algorithm;
-@property (readonly) NSUInteger length;
-@property (readonly) BOOL expired;
-@property (readonly) BOOL revoked;
-@property (readonly, retain) NSString *keyID;
-@property (readonly, retain) NSDate *creationDate;
-@property (readonly, retain) NSDate *expirationDate;
-@property (readonly, retain) NSArray *userIDs;
+@property (nonatomic, readonly) GPGPublicKeyAlgorithm algorithm;
+@property (nonatomic, readonly) NSUInteger length;
+@property (nonatomic, readonly) BOOL expired;
+@property (nonatomic, readonly) BOOL revoked;
+@property (nonatomic, readonly, retain) NSString *keyID;
+@property (nonatomic, readonly, retain) NSDate *creationDate;
+@property (nonatomic, readonly, retain) NSDate *expirationDate;
+@property (nonatomic, readonly, retain) NSArray *userIDs;
 
 
 + (NSArray *)keysWithListing:(NSString *)listing;

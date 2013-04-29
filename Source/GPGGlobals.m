@@ -101,7 +101,7 @@
 	
 	
 	int encodings[3] = {NSISOLatin1StringEncoding, NSISOLatin2StringEncoding, NSASCIIStringEncoding};
-	for(int i = 0; i < 3; i++) {
+	for(i = 0; i < 3; i++) {
 		retString = [[[NSString alloc] initWithData:self encoding:encodings[i]] autorelease];
 		if([retString length] > 0) {
 			GPGDebugLog(@"Used Encoding: %i", encodings[i]);
@@ -174,7 +174,7 @@ break;
 							*(unescapedTextPos++) = '\\';
 							*(unescapedTextPos++) = '0';
 						} else {
-							*(unescapedTextPos++) = byte;
+							*(unescapedTextPos++) = (char)byte;
 						}
 						escapedText += 2;
 					}

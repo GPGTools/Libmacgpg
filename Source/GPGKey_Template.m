@@ -22,12 +22,12 @@
 
 @interface GPGKey_Template ()
 
-@property (retain) NSString *keyID;
-@property (retain) NSString *shortKeyID;
-@property (retain) NSString *capabilities;
-@property GPGPublicKeyAlgorithm algorithm;
-@property unsigned int length;
-@property BOOL canEncrypt, canSign, canCertify, canAuthenticate, canAnyEncrypt, canAnySign, canAnyCertify, canAnyAuthenticate, disabled;
+@property (nonatomic, retain) NSString *keyID;
+@property (nonatomic, retain) NSString *shortKeyID;
+@property (nonatomic, retain) NSString *capabilities;
+@property (nonatomic) GPGPublicKeyAlgorithm algorithm;
+@property (nonatomic) unsigned int length;
+@property (nonatomic) BOOL canEncrypt, canSign, canCertify, canAuthenticate, canAnyEncrypt, canAnySign, canAnyCertify, canAnyAuthenticate, disabled;
 
 @end
 

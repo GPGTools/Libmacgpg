@@ -69,26 +69,26 @@
 	NSUInteger timeout;
 }
 
-@property (readonly) BOOL cancelled;
-@property (readonly) BOOL isRunning;
-@property (readonly) NSDictionary *statusDict;
-@property BOOL progressInfo;
-@property BOOL batchMode;
-@property BOOL getAttributeData;
-@property (assign) NSObject <GPGTaskDelegate> *delegate;
-@property (retain) NSDictionary *userInfo;
-@property (readonly) NSInteger exitcode;
-@property (readonly) int errorCode;
+@property (nonatomic, readonly) BOOL cancelled;
+@property (nonatomic, readonly) BOOL isRunning;
+@property (nonatomic, readonly) NSDictionary *statusDict;
+@property (nonatomic) BOOL progressInfo;
+@property (nonatomic) BOOL batchMode;
+@property (nonatomic) BOOL getAttributeData;
+@property (nonatomic, assign) NSObject <GPGTaskDelegate> *delegate;
+@property (nonatomic, retain) NSDictionary *userInfo;
+@property (nonatomic, readonly) NSInteger exitcode;
+@property (nonatomic, readonly) int errorCode;
 // if not set before starting, GPGTask will use a GPGMemoryStream
-@property (retain) GPGStream *outStream;
-@property (readonly, retain) NSData *errData;
-@property (readonly, retain) NSData *statusData;
-@property (readonly, retain) NSData *attributeData;
-@property (readonly) NSString *outText;
-@property (readonly) NSString *errText;
-@property (readonly) NSString *statusText;
-@property (readonly) NSArray *arguments;
-@property (readonly) GPGTaskHelper *taskHelper; 
+@property (nonatomic, retain) GPGStream *outStream;
+@property (nonatomic, readonly, retain) NSData *errData;
+@property (nonatomic, readonly, retain) NSData *statusData;
+@property (nonatomic, readonly, retain) NSData *attributeData;
+@property (nonatomic, readonly) NSString *outText;
+@property (nonatomic, readonly) NSString *errText;
+@property (nonatomic, readonly) NSString *statusText;
+@property (nonatomic, readonly) NSArray *arguments;
+@property (nonatomic, readonly) GPGTaskHelper *taskHelper;
 @property (assign, nonatomic) NSUInteger timeout;
 
 + (NSString *)gpgAgentSocket;

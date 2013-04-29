@@ -243,10 +243,10 @@ void *lm_memmem(const void *big, size_t big_len, const void *little, size_t litt
 
 
 @protocol GPGUserIDProtocol
-@property (retain) NSString *userID;
-@property (retain) NSString *name;
-@property (retain) NSString *email;
-@property (retain) NSString *comment;
+@property (nonatomic, retain) NSString *userID;
+@property (nonatomic, retain) NSString *name;
+@property (nonatomic, retain) NSString *email;
+@property (nonatomic, retain) NSString *comment;
 @end
 
 
@@ -276,7 +276,7 @@ void *lm_memmem(const void *big, size_t big_len, const void *little, size_t litt
 @interface AsyncProxy : NSProxy {
 	NSObject *realObject;
 }
-@property (assign) NSObject *realObject;
+@property (nonatomic, assign) NSObject *realObject;
 + (id)proxyWithRealObject:(NSObject *)object;
 - (id)initWithRealObject:(NSObject *)realObject;
 - (id)init;

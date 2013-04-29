@@ -10,8 +10,8 @@
     NSMutableArray *contents;
     GPGOptionsDomain optionsDomain;
 }
-@property (retain, readonly) NSString *path;
-@property (readwrite) GPGOptionsDomain optionsDomain;
+@property (nonatomic, retain, readonly) NSString *path;
+@property (nonatomic, readwrite) GPGOptionsDomain optionsDomain;
 
 - (BOOL)saveConfig;
 - (NSString *)getContents;

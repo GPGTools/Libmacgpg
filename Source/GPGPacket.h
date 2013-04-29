@@ -33,14 +33,14 @@
 	uint8_t signatureType;
 }
 
-@property (readonly) GPGPacketType type;
-@property (readonly) NSData *data;
-@property (readonly) NSString *keyID;
-@property (readonly) NSString *fingerprint;
-@property (readonly) uint8_t publicKeyAlgorithm;
-@property (readonly) uint8_t symetricAlgorithm;
-@property (readonly) uint8_t hashAlgorithm;
-@property (readonly) uint8_t signatureType;
+@property (nonatomic, readonly) GPGPacketType type;
+@property (nonatomic, readonly) NSData *data;
+@property (nonatomic, readonly) NSString *keyID;
+@property (nonatomic, readonly) NSString *fingerprint;
+@property (nonatomic, readonly) uint8_t publicKeyAlgorithm;
+@property (nonatomic, readonly) uint8_t symetricAlgorithm;
+@property (nonatomic, readonly) uint8_t hashAlgorithm;
+@property (nonatomic, readonly) uint8_t signatureType;
 
 
 
