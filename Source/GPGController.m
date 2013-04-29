@@ -365,15 +365,16 @@ BOOL gpgConfigReaded = NO;
 		return nil;
 	}
 
-    GPGMemoryStream *output = [GPGMemoryStream memoryStream];
+    GPGMemoryStream *output = [[GPGMemoryStream alloc] init];
     GPGMemoryStream *input = [GPGMemoryStream memoryStreamForReading:data];
 
     [self operationDidStart];
     [self processTo:output data:input withEncryptSignMode:mode recipients:recipients hiddenRecipients:hiddenRecipients];
-	NSData *retVal = [output readAllData];
 	[self cleanAfterOperation];
-	[self operationDidFinishWithReturnValue:retVal];	
-	return retVal;
+	NSData *processedData = [output readAllData];
+	[self operationDidFinishWithReturnValue:processedData];
+	[output release];
+	return processedData;
 }
 
 - (void)processTo:(GPGStream *)output data:(GPGStream *)input withEncryptSignMode:(GPGEncryptSignMode)mode recipients:(NSObject<EnumerationList> *)recipients hiddenRecipients:(NSObject<EnumerationList> *)hiddenRecipients
@@ -450,14 +451,12 @@ BOOL gpgConfigReaded = NO;
 					break;
 			}			
 		}
-
 		gpgTask.outStream = output;
 		[gpgTask addInput:input];
 
 		if ([gpgTask start] != 0) {
 			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Encrypt/sign failed!") gpgTask:gpgTask];
-		}		
-		
+		}
 	} @catch (NSException *e) {
 		[self handleException:e];
 	}	
@@ -2170,7 +2169,7 @@ BOOL gpgConfigReaded = NO;
 }
 - (void)operationDidFinishWithReturnValue:(id)value {
 	if (runningOperations == 0) {
-		lastReturnValue = value;
+		self.lastReturnValue = value;
 		if ([delegate respondsToSelector:@selector(gpgController:operationDidFinishWithReturnValue:)]) {
 			[delegate gpgController:self operationDidFinishWithReturnValue:value];
 		}		
@@ -2394,6 +2393,12 @@ BOOL gpgConfigReaded = NO;
 	[identifier release];
 	[error release];
 	error = nil;
+	[lastReturnValue release];
+	lastReturnValue = nil;
+	[proxyServer release];
+	proxyServer = nil;
+	[undoManager release];
+	undoManager = nil;
 	
 	[super dealloc];
 }

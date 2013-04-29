@@ -288,7 +288,7 @@ char partCountForStatusCode[GPG_STATUS_COUNT];
 	[arguments release];
 	self.userInfo = nil;
 	
-    [outStream release];
+	[outStream release];
 	[errData release];
 	[statusData release];
 	[attributeData release];
@@ -387,7 +387,7 @@ char partCountForStatusCode[GPG_STATUS_COUNT];
     if(!outStream)
         self.outStream = [GPGMemoryStream memoryStream];
     
-    taskHelper.output = self.outStream;
+    taskHelper.output = outStream;
     taskHelper.inData = inDatas;
     taskHelper.processStatus = (lp_process_status_t)^(NSString *keyword, NSString *value){
         return [cself processStatusWithKeyword:keyword value:value];
