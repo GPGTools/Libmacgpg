@@ -402,23 +402,23 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
 	
 	[inputData release];
 	
-	if(result[@"output"])
-		[_output writeData:result[@"output"]];
+	if([result objectForKey:@"output"])
+		[_output writeData:[result objectForKey:@"output"]];
 	[_output release];
 	_output = nil;
 	
-	if(result[@"status"])
-		self.status = result[@"status"];
-	if(result[@"attributes"])
-		self.attributes = result[@"attributes"];
-	if(result[@"errors"])
-		self.errors = result[@"errors"];
-	self.exitStatus = [result[@"exitStatus"] intValue];
+	if([result objectForKey:@"status"])
+		self.status = [result objectForKey:@"status"];
+	if([result objectForKey:@"attributes"])
+		self.attributes = [result objectForKey:@"attributes"];
+	if([result objectForKey:@"errors"])
+		self.errors = [result objectForKey:@"errors"];
+	self.exitStatus = [[result objectForKey:@"exitStatus"] intValue];
 	
 	[xpcTask shutdown];
 	[xpcTask release];
 	
-	return [result[@"exitStatus"] intValue];
+	return [[result objectForKey:@"exitStatus"] intValue];
 #else
 	NSLog(@"This should never be called on OS X < 10.8? Please report to team@gpgtools.org if you're seeing this message.");
 #endif

@@ -12,6 +12,7 @@
 @implementation GPGConf
 @synthesize path;
 @synthesize optionsDomain;
+@synthesize sandboxed=_sandboxed;
 
 - (id)valueForKey:(NSString *)key {
     GPGStdSetting *setting = [config objectForKey:key];

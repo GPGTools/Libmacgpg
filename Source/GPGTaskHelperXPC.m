@@ -44,6 +44,8 @@
 
 @implementation GPGTaskHelperXPC
 
+@synthesize connection=_connection, timeout=_timeout, taskLock=_taskLock, testLock=_testLock, progressHandler=_progressHandler, processStatus=_processStatus;
+
 - (id)initWithTimeout:(NSUInteger)aTimeout {
 	self = [super init];
 	if(self) {
@@ -66,21 +68,21 @@
 	dispatch_time_t testTimeout = dispatch_time(DISPATCH_TIME_NOW, GPGTASKHELPER_DISPATCH_TIMEOUT_ALMOST_INSTANTLY);
 	
 	__block BOOL success = NO;
-	
-	dispatch_semaphore_t __weak weakTestLock = _testLock;
+	GPGTaskHelperXPC * __block weakSelf = self;
 	
 	[[_connection remoteObjectProxyWithErrorHandler:^(NSError *error) {
 		NSString *description = [error description];
 		NSString *explanation = [[NSString alloc] initWithFormat:@"[GPGMail] XPC test connection failed - reason: %@", description];
 		
-		connectionError = [NSException exceptionWithName:@"XPCConnectionError" reason:explanation userInfo:nil];
+		connectionError = [[NSException exceptionWithName:@"XPCConnectionError" reason:explanation userInfo:nil] retain];
 		
 		NSLog(@"%@", explanation);
+		[explanation release];
 		
-		dispatch_semaphore_signal(weakTestLock);
+		dispatch_semaphore_signal(weakSelf.testLock);
 	}] testConnection:^(BOOL result) {
 		success = YES;
-		dispatch_semaphore_signal(weakTestLock);
+		dispatch_semaphore_signal(weakSelf.testLock);
 	}];
 	
 	dispatch_semaphore_wait(_testLock, testTimeout);
@@ -90,58 +92,61 @@
 
 - (NSDictionary *)launchGPGWithArguments:(NSArray *)arguments data:(NSArray *)data readAttributes:(BOOL)readAttributes {
 	dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, _timeout);
-	dispatch_semaphore_t __weak weakTaskLock = _taskLock;
+	GPGTaskHelperXPC * __block weakSelf = self;
 	
-	NSException * __block connectionError;
-	NSException * __block taskError;
+	NSException * __block connectionError = nil;
+	NSException * __block taskError = nil;
 	NSMutableDictionary *result = [[NSMutableDictionary alloc] initWithCapacity:0];
-	
-	
 	
 	[[_connection remoteObjectProxyWithErrorHandler:^(NSError *error) {
 		NSString *explanation = [NSString stringWithFormat:@"[GPGMail] Failed to invoke XPC method - reason: %@", [error description]];
 		
-		connectionError = [NSException exceptionWithName:@"XPCConnectionError" reason:explanation userInfo:nil];
+		connectionError = [[NSException exceptionWithName:@"XPCConnectionError" reason:explanation userInfo:nil] retain];
 		
 		NSLog(@"%@", explanation);
-		dispatch_semaphore_signal(weakTaskLock);
+		dispatch_semaphore_signal(weakSelf.taskLock);
 	}] launchGPGWithArguments:arguments data:data readAttributes:readAttributes reply:^(NSDictionary *info) {
 		if([result objectForKey:@"exception"]) {
-			NSDictionary *exceptionInfo = result[@"exception"];
+			NSDictionary *exceptionInfo = [result objectForKey:@"exception"];
 			NSException *exception = nil;
-			if(!exceptionInfo[@"errorCode"]) {
-				exception = [NSException exceptionWithName:exceptionInfo[@"name"] reason:exceptionInfo[@"reason"] userInfo:nil];
+			if(![exceptionInfo objectForKey:@"errorCode"]) {
+				exception = [NSException exceptionWithName:[exceptionInfo objectForKey:@"name"] reason:[exceptionInfo objectForKey:@"reason"] userInfo:nil];
 			}
 			else {
-				exception = [GPGException exceptionWithReason:exceptionInfo[@"reason"] errorCode:[exceptionInfo[@"errorCode"] unsignedIntValue]];
+				exception = [GPGException exceptionWithReason:[exceptionInfo objectForKey:@"reason"] errorCode:[[exceptionInfo objectForKey:@"errorCode"] unsignedIntValue]];
 			}
 			
-			taskError = exception;
+			taskError = [exception retain];
 			NSLog(@"[GPGMail] Failed to execute GPG task - %@", taskError);
-			dispatch_semaphore_signal(weakTaskLock);
+			dispatch_semaphore_signal(weakSelf.taskLock);
 
 			return;
 		}
 		
-		result[@"status"] = info[@"status"];
-		if(info[@"attributes"])
-			result[@"attributes"] = info[@"attributes"];
-		result[@"errors"] = info[@"errors"];
-		result[@"exitStatus"] = info[@"exitcode"];
-		result[@"output"] = info[@"output"];
+		[result setObject:[info objectForKey:@"status"] forKey:@"status"];
+		if([info objectForKey:@"attributes"])
+			[result setObject:[info objectForKey:@"attributes"] forKey:@"attributes"];
+		[result setObject:[info objectForKey:@"errors"] forKey:@"errors"];
+		[result setObject:[info objectForKey:@"exitcode"] forKey:@"exitStatus"];
+		[result setObject:[info objectForKey:@"output"] forKey:@"output"];
 		
-		dispatch_semaphore_signal(weakTaskLock);
+		dispatch_semaphore_signal(weakSelf.taskLock);
 	}];
 	
 	dispatch_semaphore_wait(_taskLock, timeout);
 	
-	if(connectionError)
+	if(connectionError) {
+		[result release];
 		@throw connectionError;
+	}
+		
 	
-	if(taskError)
+	if(taskError) {
+		[result release];
 		@throw taskError;
+	}
 	
-	return result;
+	return [result autorelease];
 }
 
 - (void)processStatusWithKey:(NSString *)keyword value:(NSString *)value reply:(void (^)(NSData *))reply {
@@ -159,7 +164,7 @@
 
 - (NSString *)loadConfigFileAtPath:(NSString *)path {
 	dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, _timeout);
-	dispatch_semaphore_t __weak weakTaskLock = _taskLock;
+	GPGTaskHelperXPC * __block weakSelf = self;
 	
 	NSException * __block connectionError;
 	
@@ -168,25 +173,25 @@
 	[[_connection remoteObjectProxyWithErrorHandler:^(NSError *error) {
 		NSString *explanation = [NSString stringWithFormat:@"[GPGMail] Failed to invoke XPC method %@ - reason: %@", NSStringFromSelector(_cmd), [error description]];
 		
-		connectionError = [NSException exceptionWithName:@"XPCConnectionError" reason:explanation userInfo:nil];
+		connectionError = [[NSException exceptionWithName:@"XPCConnectionError" reason:explanation userInfo:nil] retain];
 		
 		NSLog(@"%@", explanation);
-		dispatch_semaphore_signal(weakTaskLock);
+		dispatch_semaphore_signal(weakSelf.taskLock);
 	}] loadConfigFileAtPath:path reply:^(NSString *content) {
 		if(content)
 			[result appendString:content];
 		
-		dispatch_semaphore_signal(weakTaskLock);
+		dispatch_semaphore_signal(weakSelf.taskLock);
 	}];
 	
-	dispatch_semaphore_wait(weakTaskLock, timeout);
+	dispatch_semaphore_wait(_taskLock, timeout);
 	
-	return result;
+	return [result autorelease];
 }
 
 - (NSDictionary *)loadUserDefaultsForName:(NSString *)domainName {
 	dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, _timeout);
-	dispatch_semaphore_t __weak weakTaskLock = _taskLock;
+	GPGTaskHelperXPC * __block weakSelf = self;
 	
 	NSException * __block connectionError;
 	
@@ -195,51 +200,43 @@
 	[[_connection remoteObjectProxyWithErrorHandler:^(NSError *error) {
 		NSString *explanation = [NSString stringWithFormat:@"[GPGMail] Failed to invoke XPC method %@ - reason: %@", NSStringFromSelector(_cmd), [error description]];
 		
-		connectionError = [NSException exceptionWithName:@"XPCConnectionError" reason:explanation userInfo:nil];
+		connectionError = [[NSException exceptionWithName:@"XPCConnectionError" reason:explanation userInfo:nil] retain];
 		
 		NSLog(@"%@", explanation);
-		dispatch_semaphore_signal(weakTaskLock);
+		dispatch_semaphore_signal(weakSelf.taskLock);
 	}] loadUserDefaultsForName:domainName reply:^(NSDictionary *defaults) {
 		if(defaults)
 			[result addEntriesFromDictionary:defaults];
 		
-		dispatch_semaphore_signal(weakTaskLock);
+		dispatch_semaphore_signal(weakSelf.taskLock);
 	}];
 	
-	dispatch_semaphore_wait(weakTaskLock, timeout);
+	dispatch_semaphore_wait(_taskLock, timeout);
 	
-	return result;
+	return [result autorelease];
 }
 
 - (void)setUserDefaults:(NSDictionary *)domain forName:(NSString *)domainName {
 	dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, _timeout);
-	#if __has_feature(objc_arc)
-	NSLog(@"Heck Yes, ARC is on!");
-	#endif
-	#if OS_OBJECT_USE_OBJC
-	NSLog(@"__weak should be just fine.");
-	#else
-	NSLog(@"Naah __weak ain't available");
-	#endif
-	dispatch_semaphore_t __weak weakTaskLock = _taskLock;
-	
+	GPGTaskHelperXPC * __block weakSelf = self;
+		
 	NSException * __block connectionError;
 	__block BOOL success = NO;
 	
 	[[_connection remoteObjectProxyWithErrorHandler:^(NSError *error) {
 		NSString *explanation = [NSString stringWithFormat:@"[GPGMail] Failed to invoke XPC method %@ - reason: %@", NSStringFromSelector(_cmd), [error description]];
 		
-		connectionError = [NSException exceptionWithName:@"XPCConnectionError" reason:explanation userInfo:nil];
+		connectionError = [[NSException exceptionWithName:@"XPCConnectionError" reason:explanation userInfo:nil] retain];
 		
 		NSLog(@"%@", explanation);
-		dispatch_semaphore_signal(weakTaskLock);
+		dispatch_semaphore_signal(weakSelf.taskLock);
 	}] setUserDefaults:domain forName:domainName reply:^(BOOL result) {
 		success = result;
 				
-		dispatch_semaphore_signal(weakTaskLock);
+		dispatch_semaphore_signal(weakSelf.taskLock);
 	}];
 	
-	dispatch_semaphore_wait(weakTaskLock, timeout);
+	dispatch_semaphore_wait(_taskLock, timeout);
 }
 
 
@@ -248,10 +245,18 @@
 	_connection.remoteObjectInterface = nil;
 	_connection.exportedObject = nil;
 	_connection.exportedInterface = nil;
+	[_connection release];
 	_connection = nil;
 	
+	dispatch_release(_taskLock);
 	_taskLock = nil;
+	dispatch_release(_testLock);
 	_testLock = nil;
+	
+	Block_release(_processStatus);
+	_processStatus = nil;
+	Block_release(_progressHandler);
+	_progressHandler = nil;
 }
 
 @end

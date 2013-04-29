@@ -34,6 +34,8 @@
 
 @implementation GPGUserDefaults
 
+@synthesize sandboxed=_sandboxed, target=_target;
+
 + (GPGUserDefaults *)standardUserDefaults {
 	static GPGUserDefaults *_sharedInstance;
 	static dispatch_once_t onceToken;

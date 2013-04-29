@@ -29,7 +29,10 @@
 
 #import <Foundation/Foundation.h>
 
-@interface GPGUserDefaults : NSObject
+@interface GPGUserDefaults : NSObject {
+	NSUserDefaults *_target;
+	BOOL _sandboxed;
+}
 
 + (GPGUserDefaults *)standardUserDefaults;
 - (NSDictionary *)persistentDomainForName:(NSString *)domainName;

@@ -46,7 +46,14 @@
 #import <Foundation/Foundation.h>
 #import "JailfreeProtocol.h"
 
-@interface GPGTaskHelperXPC : NSObject <Jail>
+@interface GPGTaskHelperXPC : NSObject <Jail> {
+	NSData *(^_processStatus)(NSString *keyword, NSString *value);
+	void (^_progressHandler)(NSUInteger processedBytes, NSUInteger totalBytes);
+	NSUInteger _timeout;
+	NSXPCConnection *_connection;
+	dispatch_semaphore_t _taskLock;
+	dispatch_semaphore_t _testLock;
+}
 
 - (id)initWithTimeout:(NSUInteger)aTimeout;
 - (BOOL)test;

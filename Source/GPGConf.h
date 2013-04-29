@@ -9,6 +9,7 @@
     // If a GPGStdSetting, then it will be mapped in ->config
     NSMutableArray *contents;
     GPGOptionsDomain optionsDomain;
+	BOOL _sandboxed;
 }
 @property (nonatomic, retain, readonly) NSString *path;
 @property (nonatomic, readwrite) GPGOptionsDomain optionsDomain;
