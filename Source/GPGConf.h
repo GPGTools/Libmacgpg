@@ -12,6 +12,7 @@
 }
 @property (nonatomic, retain, readonly) NSString *path;
 @property (nonatomic, readwrite) GPGOptionsDomain optionsDomain;
+@property (nonatomic, assign) BOOL sandboxed;
 
 - (BOOL)saveConfig;
 - (NSString *)getContents;

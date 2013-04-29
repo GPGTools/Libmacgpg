@@ -19,11 +19,16 @@
  Diese Datei basiert auf GPGOptions.m von MacGPGME.
 */
 
-
+#import "NSBundle+Sandbox.h"
+#include <unistd.h>
+#include <sys/types.h>
+#include <pwd.h>
+#include <assert.h>
 #import "GPGOptions.h"
 #import "GPGConf.h"
 #import <SystemConfiguration/SystemConfiguration.h>
 #import "GPGGlobals.h"
+#import "GPGUserDefaults.h"
 
 NSString * const GPGOptionsChangedNotification = @"GPGOptionsChangedNotification";
 NSString * const GPGConfigurationModifiedNotification = @"GPGConfigurationModifiedNotification";
@@ -229,7 +234,7 @@ static NSString * const kGpgAgentConfKVKey = @"gpgAgentConf";
 	if (self.standardDefaults) {
 		return [self.standardDefaults objectForKey:key];
 	} else {
-		return [[NSUserDefaults standardUserDefaults] objectForKey:key];
+		return [[GPGUserDefaults standardUserDefaults] objectForKey:key];
 	}
 }
 - (void)setValueInStandardDefaults:(id)value forKey:(NSString *)key {
@@ -245,21 +250,21 @@ static NSString * const kGpgAgentConfKVKey = @"gpgAgentConf";
 			[self valueChanged:value forKey:key inDomain:GPGDomain_standard];
 		}
 	} else {
-		[[NSUserDefaults standardUserDefaults] setObject:value forKey:key];
+		[[GPGUserDefaults standardUserDefaults] setObject:value forKey:key];
 		[self valueChanged:value forKey:key inDomain:GPGDomain_standard];
 	}
 }
 - (void)saveStandardDefaults {
 	if (self.standardDefaults) {
-		[[NSUserDefaults standardUserDefaults] setPersistentDomain:self.standardDefaults forName:standardDomain];
+		[[GPGUserDefaults standardUserDefaults] setPersistentDomain:self.standardDefaults forName:standardDomain];
 	} else {
-		[[NSUserDefaults standardUserDefaults] synchronize];
+		[[GPGUserDefaults standardUserDefaults] synchronize];
 	}
 }
 - (NSMutableDictionary *)standardDefaults {
 	if (standardDomain) {
 		if (!standardDefaults) {
-			standardDefaults = [[NSMutableDictionary alloc] initWithDictionary:[[NSUserDefaults standardUserDefaults] persistentDomainForName:standardDomain]];
+			standardDefaults = [[NSMutableDictionary alloc] initWithDictionary:[[GPGUserDefaults standardUserDefaults] persistentDomainForName:standardDomain]];
 		}
 		return [[standardDefaults retain] autorelease];
 	}
@@ -283,11 +288,11 @@ static NSString * const kGpgAgentConfKVKey = @"gpgAgentConf";
 	}
 }
 - (void)saveCommonDefaults {
-	[[NSUserDefaults standardUserDefaults] setPersistentDomain:commonDefaults forName:commonDefaultsDomain];
+	[[GPGUserDefaults standardUserDefaults] setPersistentDomain:commonDefaults forName:commonDefaultsDomain];
 }
 - (NSMutableDictionary *)commonDefaults {
 	if (!commonDefaults) {
-		commonDefaults = [[NSMutableDictionary alloc] initWithDictionary:[[NSUserDefaults standardUserDefaults] persistentDomainForName:commonDefaultsDomain]];
+		commonDefaults = [[NSMutableDictionary alloc] initWithDictionary:[[GPGUserDefaults standardUserDefaults] persistentDomainForName:commonDefaultsDomain]];
 	}
 	return [[commonDefaults retain] autorelease];
 }
@@ -334,7 +339,12 @@ static NSString * const kGpgAgentConfKVKey = @"gpgAgentConf";
 }
 - (NSMutableDictionary *)environment {
 	if (!environment) {
-		environment = [[NSMutableDictionary alloc] initWithContentsOfFile:environmentPlistPath];
+		// Environment.plist is no longer supported in 10.7+, so let's
+		// drop support for it, if we're sandboxed.
+		environment = nil;
+		if(!self.sandboxed) {
+			environment = [[NSMutableDictionary alloc] initWithContentsOfFile:environmentPlistPath];
+		}
 		if (!environment) {
 			environment = [[NSMutableDictionary alloc] init];
 		}
@@ -393,6 +403,13 @@ static NSString * const kGpgAgentConfKVKey = @"gpgAgentConf";
 	NSString *path = [self valueInEnvironmentForKey:@"GNUPGHOME"];
 	if (!path) {
 		path = [NSHomeDirectory() stringByAppendingPathComponent:@".gnupg"];
+		// Find the real path, in case we're sandboxed.
+		struct passwd *pw = getpwuid(getuid());
+		if(pw != NULL) {
+			NSString *realPath = [[NSString stringWithUTF8String:pw->pw_dir] stringByAppendingPathComponent:@".gnupg"];
+			if(![path isEqualToString:realPath])
+				path = realPath;
+		}
 	}
 	return path;
 }
@@ -763,6 +780,24 @@ void SystemConfigurationDidChange(SCPreferencesRef prefs, SCPreferencesNotificat
 	[gpgAgentConf release];
     [syncRoot release];
     [super dealloc];
+}
+
+- (BOOL)sandboxed {
+#if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
+    static BOOL sandboxed;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+#ifdef USE_XPCSERVICE
+        sandboxed = USE_XPCSERVICE ? YES : NO;
+#else
+        NSBundle *bundle = [NSBundle mainBundle];
+        sandboxed = [bundle ob_isSandboxed];
+#endif
+    });
+	return sandboxed;
+#else
+	return NO;
+#endif
 }
 
 @end

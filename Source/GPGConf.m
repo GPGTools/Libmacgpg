@@ -1,3 +1,5 @@
+#import "NSBundle+Sandbox.h"
+#import "GPGTaskHelperXPC.h"
 #import "GPGConf.h"
 #import "GPGConfReader.h"
 #import "GPGStdSetting.h"
@@ -62,15 +64,21 @@
 }
 
 - (BOOL)loadConfig {
-	NSError *error = nil;
-	NSString *configFile = [NSString stringWithContentsOfFile:path usedEncoding:nil error:&error];
-	
-	if (!configFile) {
-		if ([[NSFileManager defaultManager] fileExistsAtPath:path]) {
-			GPGDebugLog(@"Can't load config (%@): %@", path, error);
-			return  NO;
+	NSString *configFile = nil;
+	if(self.sandboxed) {
+		configFile = [self loadConfigFileXPC];
+	}
+	else {
+		NSError *error = nil;
+		configFile = [NSString stringWithContentsOfFile:path usedEncoding:nil error:&error];
+		
+		if (!configFile) {
+			if ([[NSFileManager defaultManager] fileExistsAtPath:path]) {
+				GPGDebugLog(@"Can't load config (%@): %@", path, error);
+				return  NO;
+			}
+			configFile = @"";
 		}
-		configFile = @"";
 	}
 	
     [config removeAllObjects];
@@ -135,6 +143,26 @@
 	return YES;
 }
 
+- (NSString *)loadConfigFileXPC {
+	GPGTaskHelperXPC *taskHelper = [[GPGTaskHelperXPC alloc] initWithTimeout:GPGTASKHELPER_DISPATCH_TIMEOUT_LOADS_OF_DATA];
+	NSString *content = nil;
+	if(![taskHelper test]) {
+		[taskHelper release];
+		return nil;
+	}
+	
+	@try {
+		content = [taskHelper loadConfigFileAtPath:path];
+	}
+	@catch (NSException *exception) {
+	}
+	@finally {
+		[taskHelper release];
+	}
+	
+	return content;
+}
+
 + (id)confWithPath:(NSString *)aPath {
 	return [[[[self class] alloc] initWithPath:aPath] autorelease];
 }
@@ -168,6 +196,24 @@
 	[contents release];
 	self.path = nil;
     [super dealloc];
+}
+
+- (BOOL)sandboxed {
+#if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
+    static BOOL sandboxed;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+#ifdef USE_XPCSERVICE
+        sandboxed = USE_XPCSERVICE ? YES : NO;
+#else
+        NSBundle *bundle = [NSBundle mainBundle];
+        sandboxed = [bundle ob_isSandboxed];
+#endif
+    });
+	return sandboxed;
+#else
+	return NO;
+#endif
 }
 
 @end

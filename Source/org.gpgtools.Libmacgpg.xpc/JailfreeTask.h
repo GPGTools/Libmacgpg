@@ -6,26 +6,8 @@
 //  Created by Lukas Pitschl on 28.09.12.
 //
 //
-
+#import "JailfreeProtocol.h"
 #import <Foundation/Foundation.h>
-
-@protocol Jailfree <NSObject>
-
-- (void)testConnection:(void (^)(BOOL))reply;
-- (void)launchGPGWithArguments:(NSArray *)arguments data:(NSArray *)data readAttributes:(BOOL)readAttributes reply:(void (^)(NSDictionary *))reply;
-
-- (void)startGPGWatcher;
-
-@end
-
-@protocol Jail <NSObject>
-
-@optional
-- (void)processStatusWithKey:(NSString *)keyword value:(NSString *)value reply:(void (^)(NSData *response))reply;
-- (void)progress:(NSUInteger)processedBytes total:(NSUInteger)total;
-- (void)postNotificationName:(NSString *)name object:(NSString *)object;
-
-@end
 
 @interface JailfreeTask :  NSObject <Jailfree> {
 	NSXPCConnection * __weak _xpcConnection;
@@ -38,6 +20,12 @@
 
 #pragma mark - GPGWatcher RPC methods
 - (void)startGPGWatcher;
+
+#pragma mark - Methods read from 
+- (void)loadConfigFileAtPath:(NSString *)path reply:(void (^)(NSString *))reply;
+- (void)loadUserDefaultsForName:(NSString *)domainName reply:(void (^)(NSDictionary *))reply;
+- (void)setUserDefaults:(NSDictionary *)domain forName:(NSString *)domainName reply:(void (^)(BOOL result))reply;
+
 
 @property (weak) NSXPCConnection *xpcConnection;
 
