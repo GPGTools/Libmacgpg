@@ -46,6 +46,14 @@
 		1BC7A50113D300A600AE57BA /* LPXTTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 1BC7A4FF13D300A600AE57BA /* LPXTTask.m */; };
 		1BCE0CD11617A3DF0026DCFF /* NSBundle+Sandbox.h in Headers */ = {isa = PBXBuildFile; fileRef = 1BCE0CCF1617A3DF0026DCFF /* NSBundle+Sandbox.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1BCE0CD21617A3DF0026DCFF /* NSBundle+Sandbox.m in Sources */ = {isa = PBXBuildFile; fileRef = 1BCE0CD01617A3DF0026DCFF /* NSBundle+Sandbox.m */; };
+		1BD78BA01726B2830005F251 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
+		1BD78BA61726B2830005F251 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 1BD78BA41726B2830005F251 /* InfoPlist.strings */; };
+		1BD78BA81726B2830005F251 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 1BD78BA71726B2830005F251 /* main.m */; };
+		1BD78BAC1726B2830005F251 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 1BD78BAA1726B2830005F251 /* Credits.rtf */; };
+		1BD78BAF1726B2830005F251 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1BD78BAE1726B2830005F251 /* AppDelegate.m */; };
+		1BD78BB21726B2830005F251 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1BD78BB01726B2830005F251 /* MainMenu.xib */; };
+		1BD78BBA1726B6060005F251 /* Libmacgpg.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DC2EF5B0486A6940098B216 /* Libmacgpg.framework */; };
+		1BD78BBC1726B6230005F251 /* Libmacgpg.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 8DC2EF5B0486A6940098B216 /* Libmacgpg.framework */; };
 		1BDA56B81618A7E100185C72 /* GPGWatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 3048830E1462B22000F2E5F4 /* GPGWatcher.m */; };
 		1BDA56BA1618A7EE00185C72 /* DirectoryWatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 3048830A1462B11700F2E5F4 /* DirectoryWatcher.m */; };
 		1BDA56BC1618A94300185C72 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4591C4D314F86D38007F6D47 /* AppKit.framework */; };
@@ -140,6 +148,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		1BD78BB81726B5190005F251 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8DC2EF4F0486A6940098B216;
+			remoteInfo = Libmacgpg;
+		};
 		1BE4B5CC1617673D00C3CC7A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
@@ -178,6 +193,16 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		1BD78BBB1726B6150005F251 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				1BD78BBC1726B6230005F251 /* Libmacgpg.framework in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		30DF7CB616D39EAA00C8225C /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -213,6 +238,15 @@
 		1BC7A4FF13D300A600AE57BA /* LPXTTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LPXTTask.m; sourceTree = "<group>"; };
 		1BCE0CCF1617A3DF0026DCFF /* NSBundle+Sandbox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSBundle+Sandbox.h"; sourceTree = "<group>"; };
 		1BCE0CD01617A3DF0026DCFF /* NSBundle+Sandbox.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSBundle+Sandbox.m"; sourceTree = "<group>"; };
+		1BD78B9F1726B2820005F251 /* LeakFinder.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LeakFinder.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1BD78BA31726B2830005F251 /* LeakFinder-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "LeakFinder-Info.plist"; sourceTree = "<group>"; };
+		1BD78BA51726B2830005F251 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		1BD78BA71726B2830005F251 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		1BD78BA91726B2830005F251 /* LeakFinder-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "LeakFinder-Prefix.pch"; sourceTree = "<group>"; };
+		1BD78BAB1726B2830005F251 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
+		1BD78BAD1726B2830005F251 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		1BD78BAE1726B2830005F251 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		1BD78BB11726B2830005F251 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		3002C04316EE388B00D57C1E /* libcrypto.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcrypto.dylib; path = usr/lib/libcrypto.dylib; sourceTree = SDKROOT; };
 		3002C04516EE389100D57C1E /* libxar.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxar.dylib; path = usr/lib/libxar.dylib; sourceTree = SDKROOT; };
 		3026F4AE13A203A000F3CA02 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
@@ -324,6 +358,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		1BD78B9C1726B2820005F251 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1BD78BBA1726B6060005F251 /* Libmacgpg.framework in Frameworks */,
+				1BD78BA01726B2830005F251 /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		30C8B38B139503A800F49AA1 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -364,6 +407,7 @@
 				8DC2EF5B0486A6940098B216 /* Libmacgpg.framework */,
 				1B46CFCC161555DF00CF9C5F /* org.gpgtools.Libmacgpg.xpc */,
 				30DF7CB816D39EAA00C8225C /* installerHelper */,
+				1BD78B9F1726B2820005F251 /* LeakFinder.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -378,6 +422,7 @@
 				089C1665FE841158C02AAC07 /* Resources */,
 				1B46CFCF161555DF00CF9C5F /* org.gpgtools.Libmacgpg.xpc */,
 				30DF7CBA16D39EAA00C8225C /* installerHelper */,
+				1BD78BA11726B2830005F251 /* LeakFinder */,
 				0867D69AFE84028FC02AAC07 /* Frameworks */,
 				034768DFFF38A50411DB9C8B /* Products */,
 				30C8B399139504DC00F49AA1 /* UnitTest */,
@@ -492,6 +537,29 @@
 				1BCE0CD01617A3DF0026DCFF /* NSBundle+Sandbox.m */,
 			);
 			name = Additions;
+			sourceTree = "<group>";
+		};
+		1BD78BA11726B2830005F251 /* LeakFinder */ = {
+			isa = PBXGroup;
+			children = (
+				1BD78BAD1726B2830005F251 /* AppDelegate.h */,
+				1BD78BAE1726B2830005F251 /* AppDelegate.m */,
+				1BD78BB01726B2830005F251 /* MainMenu.xib */,
+				1BD78BA21726B2830005F251 /* Supporting Files */,
+			);
+			path = LeakFinder;
+			sourceTree = "<group>";
+		};
+		1BD78BA21726B2830005F251 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				1BD78BA31726B2830005F251 /* LeakFinder-Info.plist */,
+				1BD78BA41726B2830005F251 /* InfoPlist.strings */,
+				1BD78BA71726B2830005F251 /* main.m */,
+				1BD78BA91726B2830005F251 /* LeakFinder-Prefix.pch */,
+				1BD78BAA1726B2830005F251 /* Credits.rtf */,
+			);
+			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
 		302AA377133605FE0022A371 /* GPGKey */ = {
@@ -694,6 +762,25 @@
 			productReference = 1B46CFCC161555DF00CF9C5F /* org.gpgtools.Libmacgpg.xpc */;
 			productType = "com.apple.product-type.tool";
 		};
+		1BD78B9E1726B2820005F251 /* LeakFinder */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1BD78BB51726B2830005F251 /* Build configuration list for PBXNativeTarget "LeakFinder" */;
+			buildPhases = (
+				1BD78B9B1726B2820005F251 /* Sources */,
+				1BD78B9C1726B2820005F251 /* Frameworks */,
+				1BD78B9D1726B2820005F251 /* Resources */,
+				1BD78BBB1726B6150005F251 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1BD78BB91726B5190005F251 /* PBXTargetDependency */,
+			);
+			name = LeakFinder;
+			productName = LeakFinder;
+			productReference = 1BD78B9F1726B2820005F251 /* LeakFinder.app */;
+			productType = "com.apple.product-type.application";
+		};
 		30C8B38D139503A800F49AA1 /* UnitTest */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 30C8B392139503A900F49AA1 /* Build configuration list for PBXNativeTarget "UnitTest" */;
@@ -788,6 +875,7 @@
 				30C8B38D139503A800F49AA1 /* UnitTest */,
 				1B46CFCB161555DF00CF9C5F /* org.gpgtools.Libmacgpg.xpc */,
 				30DF7CB716D39EAA00C8225C /* installerHelper */,
+				1BD78B9E1726B2820005F251 /* LeakFinder */,
 			);
 		};
 /* End PBXProject section */
@@ -803,6 +891,16 @@
 /* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
+		1BD78B9D1726B2820005F251 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1BD78BA61726B2830005F251 /* InfoPlist.strings in Resources */,
+				1BD78BAC1726B2830005F251 /* Credits.rtf in Resources */,
+				1BD78BB21726B2830005F251 /* MainMenu.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		30C8B389139503A800F49AA1 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -928,6 +1026,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		1BD78B9B1726B2820005F251 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1BD78BA81726B2830005F251 /* main.m in Sources */,
+				1BD78BAF1726B2830005F251 /* AppDelegate.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		30C8B38A139503A800F49AA1 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1000,6 +1107,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		1BD78BB91726B5190005F251 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8DC2EF4F0486A6940098B216 /* Libmacgpg */;
+			targetProxy = 1BD78BB81726B5190005F251 /* PBXContainerItemProxy */;
+		};
 		1BE4B5CD1617673D00C3CC7A /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 1B46CFCB161555DF00CF9C5F /* org.gpgtools.Libmacgpg.xpc */;
@@ -1023,6 +1135,30 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
+		1BD78BA41726B2830005F251 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				1BD78BA51726B2830005F251 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		1BD78BAA1726B2830005F251 /* Credits.rtf */ = {
+			isa = PBXVariantGroup;
+			children = (
+				1BD78BAB1726B2830005F251 /* en */,
+			);
+			name = Credits.rtf;
+			sourceTree = "<group>";
+		};
+		1BD78BB01726B2830005F251 /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				1BD78BB11726B2830005F251 /* en */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
 		30516556142281270038AAF0 /* Localizable.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -1079,6 +1215,79 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		1BD78BB31726B2830005F251 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = "\"$(SRCROOT)/build/Debug\"";
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_ENABLE_OBJC_GC = unsupported;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "LeakFinder/LeakFinder-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+					"USE_XPCSERVICE=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				INFOPLIST_FILE = "LeakFinder/LeakFinder-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks /Library/Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				New_Setting = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				VALID_ARCHS = x86_64;
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		1BD78BB41726B2830005F251 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				FRAMEWORK_SEARCH_PATHS = "\"$(SRCROOT)/build/Debug\"";
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_ENABLE_OBJC_GC = unsupported;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "LeakFinder/LeakFinder-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = "USE_XPCSERVICE=1";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				INFOPLIST_FILE = "LeakFinder/LeakFinder-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks /Library/Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				New_Setting = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				VALID_ARCHS = x86_64;
+				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
 		};
@@ -1330,6 +1539,15 @@
 			buildConfigurations = (
 				1B46CFD7161555DF00CF9C5F /* Debug */,
 				1B46CFD8161555DF00CF9C5F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1BD78BB51726B2830005F251 /* Build configuration list for PBXNativeTarget "LeakFinder" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1BD78BB31726B2830005F251 /* Debug */,
+				1BD78BB41726B2830005F251 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
