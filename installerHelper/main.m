@@ -126,7 +126,12 @@ BOOL installPackage(NSString *pkgPath, NSString *xmlPath) {
 		result = system(command);
 		setuid(uid);
 	} else {
-		printf("This tool needs the setuid-bit to be set and the owner must be root!\n");
+		printf("This tool needs the setuid-bit to be set and the owner must be root!\nStart a normal installation using the GUI.\n");
+		
+		commandString = [NSString stringWithFormat:@"/usr/bin/open -Wnb com.apple.installer \"%@\"", pkgPath];
+		command = [commandString UTF8String];
+		
+		result = system(command);
 	}
 	
 	
