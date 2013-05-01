@@ -97,7 +97,7 @@ static NSString * const kGpgAgentConfKVKey = @"gpgAgentConf";
 	[self setValue:value forKey:key];
 }
 - (id)objectForKey:(NSString *)key {
-	return [self objectForKey:key];
+	return [self valueForKey:key];
 }
 
 - (void)setInteger:(NSInteger)value forKey:(NSString *)key {
