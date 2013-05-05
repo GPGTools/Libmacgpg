@@ -209,6 +209,7 @@ BOOL gpgConfigReaded = NO;
 	keyserverTimeout = 10;
 	asyncProxy = [[AsyncProxy alloc] initWithRealObject:self];
 	timeout = GPGTASKHELPER_DISPATCH_TIMEOUT_LOADS_OF_DATA;
+	useDefaultComments = YES;
 	
 	[GPGWatcher activate];
 	
