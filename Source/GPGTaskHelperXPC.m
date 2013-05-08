@@ -13,7 +13,7 @@
  *     * Redistributions in binary form must reproduce the above copyright
  *       notice, this list of conditions and the following disclaimer in the
  *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of GPGTools Team nor the names of GPGMail
+ *     * Neither the name of GPGTools Team nor the names of Libmacgpg
  *       contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
  *
@@ -63,6 +63,10 @@
 	return self;
 }
 
+- (id)init {
+	return [self initWithTimeout:NSEC_PER_SEC * 2];
+}
+
 - (BOOL)test {
 	__block NSException *connectionError;
 	dispatch_time_t testTimeout = dispatch_time(DISPATCH_TIME_NOW, GPGTASKHELPER_DISPATCH_TIMEOUT_ALMOST_INSTANTLY);
@@ -72,7 +76,7 @@
 	
 	[[_connection remoteObjectProxyWithErrorHandler:^(NSError *error) {
 		NSString *description = [error description];
-		NSString *explanation = [[NSString alloc] initWithFormat:@"[GPGMail] XPC test connection failed - reason: %@", description];
+		NSString *explanation = [[NSString alloc] initWithFormat:@"[Libmacgpg] XPC test connection failed - reason: %@", description];
 		
 		connectionError = [[NSException exceptionWithName:@"XPCConnectionError" reason:explanation userInfo:nil] retain];
 		
@@ -99,7 +103,7 @@
 	NSMutableDictionary *result = [[NSMutableDictionary alloc] initWithCapacity:0];
 	
 	[[_connection remoteObjectProxyWithErrorHandler:^(NSError *error) {
-		NSString *explanation = [NSString stringWithFormat:@"[GPGMail] Failed to invoke XPC method - reason: %@", [error description]];
+		NSString *explanation = [NSString stringWithFormat:@"[Libmacgpg] Failed to invoke XPC method - reason: %@", [error description]];
 		
 		connectionError = [[NSException exceptionWithName:@"XPCConnectionError" reason:explanation userInfo:nil] retain];
 		
@@ -117,7 +121,7 @@
 			}
 			
 			taskError = [exception retain];
-			NSLog(@"[GPGMail] Failed to execute GPG task - %@", taskError);
+			NSLog(@"[Libmacgpg] Failed to execute GPG task - %@", taskError);
 			dispatch_semaphore_signal(weakSelf.taskLock);
 
 			return;
@@ -171,7 +175,7 @@
 	NSMutableString *result = [[NSMutableString alloc] init];
 	
 	[[_connection remoteObjectProxyWithErrorHandler:^(NSError *error) {
-		NSString *explanation = [NSString stringWithFormat:@"[GPGMail] Failed to invoke XPC method %@ - reason: %@", NSStringFromSelector(_cmd), [error description]];
+		NSString *explanation = [NSString stringWithFormat:@"[Libmacgpg] Failed to invoke XPC method %@ - reason: %@", NSStringFromSelector(_cmd), [error description]];
 		
 		connectionError = [[NSException exceptionWithName:@"XPCConnectionError" reason:explanation userInfo:nil] retain];
 		
@@ -198,7 +202,7 @@
 	NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
 	
 	[[_connection remoteObjectProxyWithErrorHandler:^(NSError *error) {
-		NSString *explanation = [NSString stringWithFormat:@"[GPGMail] Failed to invoke XPC method %@ - reason: %@", NSStringFromSelector(_cmd), [error description]];
+		NSString *explanation = [NSString stringWithFormat:@"[Libmacgpg] Failed to invoke XPC method %@ - reason: %@", NSStringFromSelector(_cmd), [error description]];
 		
 		connectionError = [[NSException exceptionWithName:@"XPCConnectionError" reason:explanation userInfo:nil] retain];
 		
@@ -224,7 +228,7 @@
 	__block BOOL success = NO;
 	
 	[[_connection remoteObjectProxyWithErrorHandler:^(NSError *error) {
-		NSString *explanation = [NSString stringWithFormat:@"[GPGMail] Failed to invoke XPC method %@ - reason: %@", NSStringFromSelector(_cmd), [error description]];
+		NSString *explanation = [NSString stringWithFormat:@"[Libmacgpg] Failed to invoke XPC method %@ - reason: %@", NSStringFromSelector(_cmd), [error description]];
 		
 		connectionError = [[NSException exceptionWithName:@"XPCConnectionError" reason:explanation userInfo:nil] retain];
 		
@@ -236,6 +240,27 @@
 		dispatch_semaphore_signal(weakSelf.taskLock);
 	}];
 	
+	dispatch_semaphore_wait(_taskLock, timeout);
+}
+
+
+- (void)launchGeneralTask:(NSString *)path withArguments:(NSArray *)arguments {
+	dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, _timeout);
+	GPGTaskHelperXPC * __block weakSelf = self;
+	NSException * __block connectionError;
+	
+	
+	[[_connection remoteObjectProxyWithErrorHandler:^(NSError *error) {
+		NSString *explanation = [NSString stringWithFormat:@"[Libmacgpg] Failed to invoke XPC method %@ - reason: %@", NSStringFromSelector(_cmd), [error description]];
+		
+		connectionError = [[NSException exceptionWithName:@"XPCConnectionError" reason:explanation userInfo:nil] retain];
+		
+		NSLog(@"%@", explanation);
+		dispatch_semaphore_signal(weakSelf.taskLock);
+	}] launchGeneralTask:path withArguments:arguments reply:^(BOOL result) {
+		dispatch_semaphore_signal(weakSelf.taskLock);
+	}];
+	 
 	dispatch_semaphore_wait(_taskLock, timeout);
 }
 

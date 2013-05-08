@@ -204,7 +204,7 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
 	return pinentryPath;
 }
 
-- (BOOL)sandboxed {
++ (BOOL)sandboxed {
 #if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
     static BOOL sandboxed;
     static dispatch_once_t onceToken;
@@ -425,7 +425,7 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
 }
 
 - (NSUInteger)run {
-    if(self.checkForSandbox && [self sandboxed])
+    if(self.checkForSandbox && [[self class] sandboxed])
         return [self _runInSandbox];
     else
         return [self _run];
@@ -877,5 +877,16 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
 	
 	[super dealloc];
 }
+
++ (void)launchGeneralTask:(NSString *)path withArguments:(NSArray *)arguments {
+	if ([self sandboxed]) {
+		GPGTaskHelperXPC *xpcTask = [GPGTaskHelperXPC new];
+		[xpcTask launchGeneralTask:path withArguments:arguments];
+		[xpcTask release];
+	} else {
+		[NSTask launchedTaskWithLaunchPath:path arguments:arguments];
+	}
+}
+
 
 @end
