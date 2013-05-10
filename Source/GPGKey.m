@@ -242,6 +242,15 @@
 				if (photoHash && ![thePhotos containsObject:photoHash]) {
 					NSImage *aPhoto = [[NSImage alloc] initWithData:[attributeData subdataWithRange:(NSRange) {pos + 16, dataLength - 16}]];
 					if (aPhoto) {
+						NSImageRep *imageRep = [[aPhoto representations] objectAtIndex:0];
+						NSSize size = imageRep.size;
+						if (size.width != imageRep.pixelsWide || size.height != imageRep.pixelsHigh) {
+							size.width = imageRep.pixelsWide;
+							size.height = imageRep.pixelsHigh;
+							imageRep.size = size;
+						}
+						
+						
 						GPGPhotoID *photoID = [[GPGPhotoID alloc] initWithImage:aPhoto hashID:photoHash status:photoStatus];
 						
 						[thePhotos addObject:photoID];
