@@ -248,6 +248,7 @@
 							size.width = imageRep.pixelsWide;
 							size.height = imageRep.pixelsHigh;
 							imageRep.size = size;
+							[aPhoto setSize:size];
 						}
 						
 						
