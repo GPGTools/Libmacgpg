@@ -83,13 +83,17 @@
 		NSLog(@"%@", explanation);
 		[explanation release];
 		
-		dispatch_semaphore_signal(weakSelf.testLock);
+		if(weakSelf && weakSelf->_testLock != NULL)
+			dispatch_semaphore_signal(weakSelf->_testLock);
 	}] testConnection:^(BOOL result) {
 		success = YES;
-		dispatch_semaphore_signal(weakSelf.testLock);
+		if(weakSelf && weakSelf->_testLock != NULL)
+			dispatch_semaphore_signal(weakSelf->_testLock);
 	}];
 	
 	dispatch_semaphore_wait(_testLock, testTimeout);
+	dispatch_release(_testLock);
+	_testLock = nil;
 	
 	return success;
 }
@@ -108,7 +112,8 @@
 		connectionError = [[NSException exceptionWithName:@"XPCConnectionError" reason:explanation userInfo:nil] retain];
 		
 		NSLog(@"%@", explanation);
-		dispatch_semaphore_signal(weakSelf.taskLock);
+		if(weakSelf && weakSelf->_taskLock != NULL)
+			dispatch_semaphore_signal(weakSelf->_taskLock);
 	}] launchGPGWithArguments:arguments data:data readAttributes:readAttributes reply:^(NSDictionary *info) {
 		if([result objectForKey:@"exception"]) {
 			NSDictionary *exceptionInfo = [result objectForKey:@"exception"];
@@ -122,7 +127,8 @@
 			
 			taskError = [exception retain];
 			NSLog(@"[Libmacgpg] Failed to execute GPG task - %@", taskError);
-			dispatch_semaphore_signal(weakSelf.taskLock);
+			if(weakSelf && weakSelf->_taskLock != NULL)
+				dispatch_semaphore_signal(weakSelf->_taskLock);
 
 			return;
 		}
@@ -180,12 +186,14 @@
 		connectionError = [[NSException exceptionWithName:@"XPCConnectionError" reason:explanation userInfo:nil] retain];
 		
 		NSLog(@"%@", explanation);
-		dispatch_semaphore_signal(weakSelf.taskLock);
+		if(weakSelf && weakSelf->_taskLock != NULL)
+			dispatch_semaphore_signal(weakSelf->_taskLock);
 	}] loadConfigFileAtPath:path reply:^(NSString *content) {
 		if(content)
 			[result appendString:content];
 		
-		dispatch_semaphore_signal(weakSelf.taskLock);
+		if(weakSelf && weakSelf->_taskLock != NULL)
+			dispatch_semaphore_signal(weakSelf->_taskLock);
 	}];
 	
 	dispatch_semaphore_wait(_taskLock, timeout);
@@ -207,12 +215,14 @@
 		connectionError = [[NSException exceptionWithName:@"XPCConnectionError" reason:explanation userInfo:nil] retain];
 		
 		NSLog(@"%@", explanation);
-		dispatch_semaphore_signal(weakSelf.taskLock);
+		if(weakSelf && weakSelf->_taskLock != NULL)
+			dispatch_semaphore_signal(weakSelf->_taskLock);
 	}] loadUserDefaultsForName:domainName reply:^(NSDictionary *defaults) {
 		if(defaults)
 			[result addEntriesFromDictionary:defaults];
 		
-		dispatch_semaphore_signal(weakSelf.taskLock);
+		if(weakSelf && weakSelf->_taskLock != NULL)
+			dispatch_semaphore_signal(weakSelf->_taskLock);
 	}];
 	
 	dispatch_semaphore_wait(_taskLock, timeout);
@@ -233,11 +243,13 @@
 		connectionError = [[NSException exceptionWithName:@"XPCConnectionError" reason:explanation userInfo:nil] retain];
 		
 		NSLog(@"%@", explanation);
-		dispatch_semaphore_signal(weakSelf.taskLock);
+		if(weakSelf && weakSelf->_taskLock != NULL)
+			dispatch_semaphore_signal(weakSelf->_taskLock);
 	}] setUserDefaults:domain forName:domainName reply:^(BOOL result) {
 		success = result;
-				
-		dispatch_semaphore_signal(weakSelf.taskLock);
+		
+		if(weakSelf && weakSelf->_taskLock != NULL)
+			dispatch_semaphore_signal(weakSelf->_taskLock);
 	}];
 	
 	dispatch_semaphore_wait(_taskLock, timeout);
@@ -256,9 +268,11 @@
 		connectionError = [[NSException exceptionWithName:@"XPCConnectionError" reason:explanation userInfo:nil] retain];
 		
 		NSLog(@"%@", explanation);
-		dispatch_semaphore_signal(weakSelf.taskLock);
+		if(weakSelf && weakSelf->_taskLock != NULL)
+			dispatch_semaphore_signal(weakSelf->_taskLock);
 	}] launchGeneralTask:path withArguments:arguments reply:^(BOOL result) {
-		dispatch_semaphore_signal(weakSelf.taskLock);
+		if(weakSelf && weakSelf->_taskLock != NULL)
+			dispatch_semaphore_signal(weakSelf->_taskLock);
 	}];
 	 
 	dispatch_semaphore_wait(_taskLock, timeout);
@@ -273,9 +287,11 @@
 	[_connection release];
 	_connection = nil;
 	
-	dispatch_release(_taskLock);
+	if(_taskLock)
+		dispatch_release(_taskLock);
 	_taskLock = nil;
-	dispatch_release(_testLock);
+	if(_testLock)
+		dispatch_release(_testLock);
 	_testLock = nil;
 	
 	Block_release(_processStatus);
