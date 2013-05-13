@@ -195,7 +195,7 @@ const int clearTextEndMarkLength = 29;
 			if (readUint8 != 3) {
 				abortSwitch;
 			}
-			keyID = [[NSString alloc] initWithFormat:@"%qX", readUint64];
+			keyID = [[NSString alloc] initWithFormat:@"%016qX", readUint64];
 			publicKeyAlgorithm = readUint8;
 			break;
 		case GPGSignaturePacket:
@@ -241,7 +241,7 @@ const int clearTextEndMarkLength = 29;
 			signatureType = readUint8;
 			hashAlgorithm = readUint8;
 			publicKeyAlgorithm = readUint8;
-			keyID = [[NSString alloc] initWithFormat:@"%qX", readUint64];
+			keyID = [[NSString alloc] initWithFormat:@"%016qX", readUint64];
 			break;
 		case GPGPublicKeyPacket:
 		case GPGPublicSubkeyPacket:
