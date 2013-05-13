@@ -47,8 +47,6 @@ static NSMutableCharacterSet *commentChars_;
         [settingTypeMap_ setObject:[GPGArraySetting class] forKey:@"auto-key-locate"];
         [settingTypeMap_ setObject:[GPGLinesSetting class] forKey:@"comment"];
         [settingTypeMap_ setObject:[GPGDictSetting class] forKey:@"group"];
-        // "keyserver-options" is actually a dictionary, unlike other "-options"
-        [settingTypeMap_ setObject:[GPGDictSetting class] forKey:@"keyserver-options"];
         // "no-auto-key-locate" is not the inverse of "auto-key-locate parameters"
         [settingTypeMap_ setObject:[GPGStdSetting class] forKey:@"no-auto-key-locate"];
         // "no-options" is boolean

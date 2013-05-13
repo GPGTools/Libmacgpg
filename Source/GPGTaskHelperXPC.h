@@ -58,6 +58,7 @@
 - (id)initWithTimeout:(NSUInteger)aTimeout;
 - (BOOL)test;
 - (NSDictionary *)launchGPGWithArguments:(NSArray *)arguments data:(NSArray *)data readAttributes:(BOOL)readAttributes;
+- (void)launchGeneralTask:(NSString *)path withArguments:(NSArray *)arguments;
 - (void)shutdown;
 - (NSString *)loadConfigFileAtPath:(NSString *)path;
 - (NSDictionary *)loadUserDefaultsForName:(NSString *)domainName;

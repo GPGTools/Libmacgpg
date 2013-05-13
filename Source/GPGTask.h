@@ -118,4 +118,6 @@
 
 - (void)logDataContent:(NSData *)data message:(NSString *)message;
 
++ (void)launchGeneralTask:(NSString *)path withArguments:(NSArray *)arguments;
+
 @end

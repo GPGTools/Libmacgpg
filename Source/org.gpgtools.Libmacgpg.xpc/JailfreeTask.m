@@ -13,6 +13,11 @@
 #import "GPGException.h"
 #import "GPGTaskHelper.h"
 
+@interface JailfreeTask ()
+- (BOOL)isCodeSignatureValidAtPath:(NSString *)path;
+@end
+
+
 @implementation JailfreeTask
 
 @synthesize xpcConnection = _xpcConnection;
@@ -75,6 +80,16 @@
     }
 }
 
+- (void)launchGeneralTask:(NSString *)path withArguments:(NSArray *)arguments reply:(void (^)(BOOL))reply {
+	if ([self isCodeSignatureValidAtPath:path]) {
+		[NSTask launchedTaskWithLaunchPath:path arguments:arguments];
+		reply(YES);
+	} else {
+		NSLog(@"No valid signature at path: %@", path);
+		reply(NO);
+	}
+}
+
 - (void)startGPGWatcher {
     [GPGWatcher activateWithXPCConnection:self.xpcConnection];
 }
@@ -114,6 +129,42 @@
 	
 	reply(YES);
 }
+
+
+
+
+
+
+
+// Helper methods
+
+- (BOOL)isCodeSignatureValidAtPath:(NSString *)path  {
+    OSStatus result;
+    SecRequirementRef requirement = nil;
+    SecStaticCodeRef staticCode = nil;
+        
+    result = SecStaticCodeCreateWithPath((__bridge CFURLRef)[NSURL fileURLWithPath:path], 0, &staticCode);
+    if (result) {
+        goto finally;
+    }
+	
+	result = SecRequirementCreateWithString(CFSTR("anchor apple generic and cert leaf = H\"233B4E43187B51BF7D6711053DD652DDF54B43BE\""), 0, &requirement);
+	if (result) {
+        goto finally;
+    }
+
+	result = SecStaticCodeCheckValidity(staticCode, 0, requirement);
+    
+finally:
+    if (staticCode) CFRelease(staticCode);
+    if (requirement) CFRelease(requirement);
+    return result == 0;
+}
+
+
+
+
+
 
 @end
 #endif

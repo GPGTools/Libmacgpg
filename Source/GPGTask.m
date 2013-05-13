@@ -519,6 +519,12 @@ char partCountForStatusCode[GPG_STATUS_COUNT];
     [tmpString release];
 }
 
+
++ (void)launchGeneralTask:(NSString *)path withArguments:(NSArray *)arguments {
+	[GPGTaskHelper launchGeneralTask:path withArguments:arguments];
+}
+
+
 @end
 
 
