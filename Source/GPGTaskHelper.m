@@ -554,7 +554,8 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
         case GPG_STATUS_MISSING_PASSPHRASE: {    
             self.userIDHint = nil;
             self.needPassphraseInfo = nil;
-			_pinentryCancelled = YES;
+			if(code == GPG_STATUS_MISSING_PASSPHRASE)
+				_pinentryCancelled = YES;
             break;
         }
         case GPG_STATUS_GET_LINE:
