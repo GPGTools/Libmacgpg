@@ -28,8 +28,7 @@
 
 - (void)launchGPGWithArguments:(NSArray *)arguments data:(NSArray *)data readAttributes:(BOOL)readAttributes reply:(void (^)(NSDictionary *))reply {
     
-	NSLog(@"Launching a new GPG task (only on >= 10.8)");
-    GPGTaskHelper *task = [[GPGTaskHelper alloc] initWithArguments:arguments];
+	GPGTaskHelper *task = [[GPGTaskHelper alloc] initWithArguments:arguments];
     
     // Setup the task.
 	GPGMemoryStream *outputStream = [[GPGMemoryStream alloc] init];
@@ -95,8 +94,6 @@
 }
 
 - (void)loadConfigFileAtPath:(NSString *)path reply:(void (^)(NSString *))reply {
-	NSLog(@"Loading the gnupg config file");
-	
 	NSArray *allowedConfigs = @[@"gpg.conf", @"gpg-agent.conf"];
 	
 	if(![allowedConfigs containsObject:[path lastPathComponent]])
@@ -105,7 +102,6 @@
 	NSError * __autoreleasing error = nil;
  	NSString *configFile = [[NSString alloc] initWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&error];
 	if(!configFile) {
-		NSLog(@"Failed to load gpg.conf: %@", error);
 		reply(nil);
 	}
 	
@@ -113,18 +109,12 @@
 }
 
 - (void)loadUserDefaultsForName:(NSString *)domainName reply:(void (^)(NSDictionary *))reply {
-	NSLog(@"Loading user defaults");
-	
 	NSDictionary *defaults = [[NSUserDefaults standardUserDefaults] persistentDomainForName:domainName];
-	
-	NSLog(@"User defaults for domain: %@\n\t:%@", domainName, defaults);
 	
 	reply(defaults);
 }
 
 - (void)setUserDefaults:(NSDictionary *)domain forName:(NSString *)domainName reply:(void (^)(BOOL))reply {
-	NSLog(@"Save new user defaults for domain %@: %@", domainName, domain);
-	
 	[[NSUserDefaults standardUserDefaults] setPersistentDomain:domain forName:domainName];
 	
 	reply(YES);
