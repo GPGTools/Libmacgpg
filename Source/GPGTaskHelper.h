@@ -76,6 +76,7 @@ typedef void (^lp_progress_handler_t)(NSUInteger processedBytes, NSUInteger tota
     lp_progress_handler_t _progressHandler;
     NSMutableDictionary *_processedBytesMap;
     NSUInteger _processedBytes;
+	BOOL _pinentryCancelled;
     BOOL _cancelled;
     BOOL _checkForSandbox;
 #if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
