@@ -27,6 +27,8 @@
 - (void)loadUserDefaultsForName:(NSString *)domainName reply:(void (^)(NSDictionary *))reply;
 - (void)setUserDefaults:(NSDictionary *)domain forName:(NSString *)domainName reply:(void (^)(BOOL result))reply;
 
+- (void)isPassphraseForKeyInGPGAgentCache:(NSString *)key reply:(void (^)(BOOL))reply;
+
 @property (weak) NSXPCConnection *xpcConnection;
 
 @end

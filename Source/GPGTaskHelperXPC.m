@@ -278,6 +278,37 @@
 	dispatch_semaphore_wait(_taskLock, timeout);
 }
 
+- (BOOL)isPassphraseForKeyInGPGAgentCache:(NSString *)key {
+	dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, _timeout);
+	GPGTaskHelperXPC * __block weakSelf = self;
+	NSException * __block connectionError = nil;
+	BOOL __block inCache = NO;
+	
+	[[_connection remoteObjectProxyWithErrorHandler:^(NSError *error) {
+		NSString *explanation = [NSString stringWithFormat:@"[Libmacgpg] Failed to invoke XPC method %@ - reason: %@", NSStringFromSelector(_cmd), [error description]];
+		
+		connectionError = [[NSException exceptionWithName:@"XPCConnectionError" reason:explanation userInfo:nil] retain];
+		
+		NSLog(@"%@", explanation);
+		if(weakSelf && weakSelf->_taskLock != NULL)
+			dispatch_semaphore_signal(weakSelf->_taskLock);
+	}] isPassphraseForKeyInGPGAgentCache:key reply:^(BOOL result) {
+		inCache = result;
+		
+		if(weakSelf && weakSelf->_taskLock != NULL)
+			dispatch_semaphore_signal(weakSelf->_taskLock);
+	}];
+	
+	dispatch_semaphore_wait(_taskLock, timeout);
+	
+	if(connectionError) {
+		[connectionError release];
+		return NO;
+	}
+	
+	return inCache;
+}
+
 
 - (void)shutdown {
 	[_connection invalidate];

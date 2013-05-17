@@ -39,6 +39,7 @@
 - (void)loadConfigFileAtPath:(NSString *)path reply:(void (^)(NSString *))reply;
 - (void)loadUserDefaultsForName:(NSString *)domainName reply:(void (^)(NSDictionary *))reply;
 - (void)setUserDefaults:(NSDictionary *)domain forName:(NSString *)domainName reply:(void (^)(BOOL result))reply;
+- (void)isPassphraseForKeyInGPGAgentCache:(NSString *)key reply:(void (^)(BOOL result))reply;
 
 @end
 

@@ -40,6 +40,14 @@
 #import "GPGTaskHelperXPC.h"
 #endif
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/un.h>
+
 static const NSUInteger kDataBufferSize = 65536; 
 
 typedef void (^basic_block_t)(void);
@@ -842,6 +850,89 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
                             nil];
     });
     return GPG_STATUS_CODES;
+}
+
++ (BOOL)isGPGAgentSocket:(NSString *)socketPath {
+	socketPath = [socketPath stringByResolvingSymlinksInPath];
+	NSDictionary *attributes = [[NSFileManager defaultManager] attributesOfItemAtPath:socketPath error:nil];
+	if ([[attributes fileType] isEqualToString:NSFileTypeSocket]) {
+		return YES;
+	}
+	return NO;
+}
+
++ (NSString *)gpgAgentSocket {
+	NSString *socketPath = [[GPGOptions sharedOptions] valueForKey:@"GPG_AGENT_INFO" inDomain:GPGDomain_environment];
+	NSRange range;
+	if (socketPath && (range = [socketPath rangeOfString:@":"]).length > 0) {
+		socketPath = [socketPath substringToIndex:range.location - 1];
+		if ([self isGPGAgentSocket:socketPath]) {
+			return socketPath;
+		}
+	}
+	socketPath = [[[GPGOptions sharedOptions] gpgHome] stringByAppendingPathComponent:@"S.gpg-agent"];
+	if ([self isGPGAgentSocket:socketPath]) {
+		return socketPath;
+	}
+	return nil;
+}
+
++ (BOOL)isPassphraseInGPGAgentCache:(id)key {
+	if(![key respondsToSelector:@selector(description)])
+		return NO;
+	
+	NSString *socketPath = [GPGTaskHelper gpgAgentSocket];
+	if (socketPath) {
+		int sock;
+		if ((sock = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
+			perror("socket");
+			return NO;
+		}
+		
+		unsigned long length = [socketPath lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + 2;
+		char addressInfo[length];
+		addressInfo[0] = AF_UNIX;
+		addressInfo[1] = 0;
+		strcpy(addressInfo+2, [socketPath UTF8String]);
+		
+		
+		if (connect(sock, (const struct sockaddr *)addressInfo, (socklen_t)length ) == -1) {
+			perror("connect");
+			goto closeSocket;
+		}
+		
+		
+		struct timeval socketTimeout;
+		socketTimeout.tv_usec = 0;
+		socketTimeout.tv_sec = 2;
+		setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &socketTimeout, sizeof(socketTimeout));
+		
+		
+		char buffer[100];
+		if (recv(sock, buffer, 100, 0) > 2) {
+			if (strncmp(buffer, "OK", 2)) {
+				GPGDebugLog(@"No OK from gpg-agent.");
+				goto closeSocket;
+			}
+			NSString *command = [NSString stringWithFormat:@"GET_PASSPHRASE --no-ask %@ . . .\n", key];
+			send(sock, [command UTF8String], [command lengthOfBytesUsingEncoding:NSUTF8StringEncoding], 0);
+			
+			int pos = 0;
+			while ((length = recv(sock, buffer+pos, 100-pos, 0)) > 0) {
+				pos += length;
+				if (strnstr(buffer, "OK", pos)) {
+					return YES;
+				} else if (strnstr(buffer, "ERR", pos)) {
+					goto closeSocket;
+				}
+			}
+		} else {
+			return NO;
+		}
+	closeSocket:
+		close(sock);
+	}
+	return NO;
 }
 
 - (void)dealloc {

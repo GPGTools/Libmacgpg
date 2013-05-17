@@ -91,7 +91,6 @@
 @property (nonatomic, readonly) GPGTaskHelper *taskHelper;
 @property (assign, nonatomic) NSUInteger timeout;
 
-+ (NSString *)gpgAgentSocket;
 + (NSString *)nameOfStatusCode:(NSInteger)statusCode;
 
 - (void)addArgument:(NSString *)argument;

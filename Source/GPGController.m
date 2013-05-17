@@ -29,6 +29,9 @@
 #import "GPGWatcher.h"
 #import "GPGStream.h"
 #import "GPGMemoryStream.h"
+#if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
+#import "GPGTaskHelperXPC.h"
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -69,7 +72,7 @@
 
 
 @implementation GPGController
-@synthesize delegate, keyserver, keyserverTimeout, proxyServer, async, userInfo, useArmor, useTextMode, printVersion, useDefaultComments, trustAllKeys, signatures, lastSignature, gpgHome, verbose, autoKeyRetrieve, lastReturnValue, error, undoManager, hashAlgorithm, gpgTask, timeout;
+@synthesize delegate, keyserver, keyserverTimeout, proxyServer, async, userInfo, useArmor, useTextMode, printVersion, useDefaultComments, trustAllKeys, signatures, lastSignature, gpgHome, verbose, autoKeyRetrieve, lastReturnValue, error, undoManager, hashAlgorithm, gpgTask, timeout, sandboxed;
 
 NSString *gpgVersion = nil;
 NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil, *compressAlgorithm = nil;
@@ -1843,58 +1846,12 @@ BOOL gpgConfigReaded = NO;
 }
 
 - (BOOL)isPassphraseForKeyInGPGAgentCache:(NSObject <KeyFingerprint> *)key {
-	NSString *socketPath = [GPGTask gpgAgentSocket];
-	if (socketPath) {
-		int sock;
-		if ((sock = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
-			perror("socket");
-			return NO;
-		}
-
-		int length = [socketPath UTF8Length] + 2;
-		char addressInfo[length];
-		addressInfo[0] = AF_UNIX;
-		addressInfo[1] = 0;
-		strcpy(addressInfo+2, [socketPath UTF8String]);
-				
-		
-		if (connect(sock, (const struct sockaddr *)addressInfo, length ) == -1) {
-			perror("connect");
-			goto closeSocket;
-		}
-		
-		
-		struct timeval socketTimeout;
-		socketTimeout.tv_usec = 0;
-		socketTimeout.tv_sec = 2;
-		setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &socketTimeout, sizeof(socketTimeout));
-		
-		
-		char buffer[100];
-		if (recv(sock, buffer, 100, 0) > 2) {
-			if (strncmp(buffer, "OK", 2)) {
-				GPGDebugLog(@"No OK from gpg-agent.");
-				goto closeSocket;
-			}
-			NSString *command = [NSString stringWithFormat:@"GET_PASSPHRASE --no-ask %@ . . .\n", key];
-			send(sock, [command UTF8String], [command UTF8Length], 0);
-			
-			int pos = 0;
-			while ((length = recv(sock, buffer+pos, 100-pos, 0)) > 0) {
-				pos += length;
-				if (strnstr(buffer, "OK", pos)) {
-					return YES;
-				} else if (strnstr(buffer, "ERR", pos)) {
-					goto closeSocket;
-				}
-			}
-		} else {
-			return NO;
-		}
-	closeSocket:
-		close(sock);
+	if(self.sandboxed) {
+		GPGTaskHelperXPC *taskHelper = [[GPGTaskHelperXPC alloc] initWithTimeout:GPGTASKHELPER_DISPATCH_TIMEOUT_QUICKLY];
+		return [taskHelper isPassphraseForKeyInGPGAgentCache:[key description]];
 	}
-	return NO;
+
+	return [GPGTaskHelper isPassphraseInGPGAgentCache:(NSObject <KeyFingerprint> *)key];
 }
 
 - (NSInteger)indexOfUserID:(NSString *)hashID fromKey:(NSObject <KeyFingerprint> *)key {
@@ -2493,9 +2450,23 @@ BOOL gpgConfigReaded = NO;
 	}
 }
 
-
-
-
+- (BOOL)sandboxed {
+#if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
+    static BOOL sandboxed;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+#ifdef USE_XPCSERVICE
+        sandboxed = USE_XPCSERVICE ? YES : NO;
+#else
+        NSBundle *bundle = [NSBundle mainBundle];
+        sandboxed = [bundle ob_isSandboxed];
+#endif
+    });
+	return sandboxed;
+#else
+	return NO;
+#endif
+}
 
 @end
 

@@ -214,32 +214,6 @@ char partCountForStatusCode[GPG_STATUS_COUNT];
 
 }
 
-
-+ (BOOL)isGPGAgentSocket:(NSString *)socketPath {
-	socketPath = [socketPath stringByResolvingSymlinksInPath];	
-	NSDictionary *attributes = [[NSFileManager defaultManager] attributesOfItemAtPath:socketPath error:nil];
-	if ([[attributes fileType] isEqualToString:NSFileTypeSocket]) {
-		return YES;
-	}
-	return NO;
-}
-
-+ (NSString *)gpgAgentSocket {
-	NSString *socketPath = [[GPGOptions sharedOptions] valueForKey:@"GPG_AGENT_INFO" inDomain:GPGDomain_environment];
-	NSRange range;
-	if (socketPath && (range = [socketPath rangeOfString:@":"]).length > 0) {
-		socketPath = [socketPath substringToIndex:range.location - 1];
-		if ([self isGPGAgentSocket:socketPath]) {
-			return socketPath;
-		}
-	}
-	socketPath = [[[GPGOptions sharedOptions] gpgHome] stringByAppendingPathComponent:@"S.gpg-agent"];
-	if ([self isGPGAgentSocket:socketPath]) {
-		return socketPath;
-	}
-	return nil;
-}
-
 + (NSString *)nameOfStatusCode:(NSInteger)statusCode {
 	return [[statusCodes allKeysForObject:[NSNumber numberWithInteger:statusCode]] objectAtIndex:0];
 }

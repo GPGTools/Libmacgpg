@@ -130,11 +130,9 @@
 	reply(YES);
 }
 
-
-
-
-
-
+- (void)isPassphraseForKeyInGPGAgentCache:(NSString *)key reply:(void (^)(BOOL))reply {
+	reply([GPGTaskHelper isPassphraseInGPGAgentCache:key]);
+}
 
 // Helper methods
 

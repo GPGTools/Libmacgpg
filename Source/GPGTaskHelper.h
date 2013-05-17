@@ -41,6 +41,7 @@
 */
 
 #import <Foundation/Foundation.h>
+#import "GPGGlobals.h"
 #import "JailfreeProtocol.h"
 
 @class LPXTTask, GPGStream, GPGTaskHelperXPC;
@@ -125,5 +126,8 @@ typedef void (^lp_progress_handler_t)(NSUInteger processedBytes, NSUInteger tota
  Launch any task. (In sandbox, the task needs to be signed with GPGTools certificate).
  */
 + (void)launchGeneralTask:(NSString *)path withArguments:(NSArray *)arguments;
-	
+
++ (NSString *)gpgAgentSocket;
++ (BOOL)isPassphraseInGPGAgentCache:(id)key;
+
 @end

@@ -63,6 +63,7 @@
 - (NSString *)loadConfigFileAtPath:(NSString *)path;
 - (NSDictionary *)loadUserDefaultsForName:(NSString *)domainName;
 - (void)setUserDefaults:(NSDictionary *)domain forName:(NSString *)domainName;
+- (BOOL)isPassphraseForKeyInGPGAgentCache:(NSString *)key;
 
 @property (nonatomic, copy) NSData *(^processStatus)(NSString *keyword, NSString *value);
 @property (nonatomic, copy) void (^progressHandler)(NSUInteger processedBytes, NSUInteger totalBytes);
