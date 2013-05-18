@@ -79,10 +79,15 @@
     }
 }
 
-- (void)launchGeneralTask:(NSString *)path withArguments:(NSArray *)arguments reply:(void (^)(BOOL))reply {
+- (void)launchGeneralTask:(NSString *)path withArguments:(NSArray *)arguments wait:(BOOL)wait reply:(void (^)(BOOL))reply {
 	if ([self isCodeSignatureValidAtPath:path]) {
-		[NSTask launchedTaskWithLaunchPath:path arguments:arguments];
-		reply(YES);
+		NSTask *task = [NSTask launchedTaskWithLaunchPath:path arguments:arguments];
+		if (wait) {
+			[task waitUntilExit];
+			reply(task.terminationStatus == 0);
+		} else {
+			reply(YES);
+		}
 	} else {
 		NSLog(@"No valid signature at path: %@", path);
 		reply(NO);

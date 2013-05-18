@@ -117,6 +117,7 @@
 
 - (void)logDataContent:(NSData *)data message:(NSString *)message;
 
-+ (void)launchGeneralTask:(NSString *)path withArguments:(NSArray *)arguments;
++ (BOOL)launchGeneralTask:(NSString *)path withArguments:(NSArray *)arguments;
++ (BOOL)launchGeneralTask:(NSString *)path withArguments:(NSArray *)arguments wait:(BOOL)wait;
 
 @end

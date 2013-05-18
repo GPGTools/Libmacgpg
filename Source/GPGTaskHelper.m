@@ -967,14 +967,18 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
 	[super dealloc];
 }
 
-+ (void)launchGeneralTask:(NSString *)path withArguments:(NSArray *)arguments {
++ (BOOL)launchGeneralTask:(NSString *)path withArguments:(NSArray *)arguments wait:(BOOL)wait {
 	if ([self sandboxed]) {
-		GPGTaskHelperXPC *xpcTask = [GPGTaskHelperXPC new];
-		[xpcTask launchGeneralTask:path withArguments:arguments];
-		[xpcTask release];
+		GPGTaskHelperXPC *xpcTask = [[[GPGTaskHelperXPC alloc] initWithTimeout:GPGTASKHELPER_DISPATCH_TIMEOUT_LOADS_OF_DATA] autorelease];
+		return [xpcTask launchGeneralTask:path withArguments:arguments wait:wait];
 	} else {
-		[NSTask launchedTaskWithLaunchPath:path arguments:arguments];
+		NSTask *task = [NSTask launchedTaskWithLaunchPath:path arguments:arguments];
+		if (wait) {
+			[task waitUntilExit];
+			return task.terminationStatus == 0;
+		}
 	}
+	return YES;
 }
 
 

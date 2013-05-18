@@ -494,10 +494,13 @@ char partCountForStatusCode[GPG_STATUS_COUNT];
 }
 
 
-+ (void)launchGeneralTask:(NSString *)path withArguments:(NSArray *)arguments {
-	[GPGTaskHelper launchGeneralTask:path withArguments:arguments];
++ (BOOL)launchGeneralTask:(NSString *)path withArguments:(NSArray *)arguments {
+	return [self launchGeneralTask:path withArguments:arguments wait:NO];
 }
 
++ (BOOL)launchGeneralTask:(NSString *)path withArguments:(NSArray *)arguments wait:(BOOL)wait {
+	return [GPGTaskHelper launchGeneralTask:path withArguments:arguments wait:wait];
+}
 
 @end
 

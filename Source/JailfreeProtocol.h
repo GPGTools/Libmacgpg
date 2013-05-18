@@ -33,7 +33,7 @@
 
 - (void)testConnection:(void (^)(BOOL))reply;
 - (void)launchGPGWithArguments:(NSArray *)arguments data:(NSArray *)data readAttributes:(BOOL)readAttributes reply:(void (^)(NSDictionary *))reply;
-- (void)launchGeneralTask:(NSString *)path withArguments:(NSArray *)arguments reply:(void (^)(BOOL))reply;
+- (void)launchGeneralTask:(NSString *)path withArguments:(NSArray *)arguments wait:(BOOL)wait reply:(void (^)(BOOL))reply;
 
 - (void)startGPGWatcher;
 - (void)loadConfigFileAtPath:(NSString *)path reply:(void (^)(NSString *))reply;
