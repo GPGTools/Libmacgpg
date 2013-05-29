@@ -970,7 +970,17 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
 + (BOOL)launchGeneralTask:(NSString *)path withArguments:(NSArray *)arguments wait:(BOOL)wait {
 	if ([self sandboxed]) {
 		GPGTaskHelperXPC *xpcTask = [[[GPGTaskHelperXPC alloc] initWithTimeout:GPGTASKHELPER_DISPATCH_TIMEOUT_LOADS_OF_DATA] autorelease];
-		return [xpcTask launchGeneralTask:path withArguments:arguments wait:wait];
+		
+		if(![xpcTask test]) {
+			[xpcTask shutdown];
+			[xpcTask release];
+			return NO;
+		}
+		
+		BOOL succeeded = [xpcTask launchGeneralTask:path withArguments:arguments wait:wait];
+		[xpcTask shutdown];
+		[xpcTask release];
+		return succeeded;
 	} else {
 		NSTask *task = [NSTask launchedTaskWithLaunchPath:path arguments:arguments];
 		if (wait) {

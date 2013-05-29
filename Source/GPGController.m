@@ -1848,7 +1848,11 @@ BOOL gpgConfigReaded = NO;
 - (BOOL)isPassphraseForKeyInGPGAgentCache:(NSObject <KeyFingerprint> *)key {
 	if(self.sandboxed) {
 		GPGTaskHelperXPC *taskHelper = [[GPGTaskHelperXPC alloc] initWithTimeout:GPGTASKHELPER_DISPATCH_TIMEOUT_QUICKLY];
-		return [taskHelper isPassphraseForKeyInGPGAgentCache:[key description]];
+		BOOL inCache = [taskHelper isPassphraseForKeyInGPGAgentCache:[key description]];
+		[taskHelper shutdown];
+		[taskHelper release];
+		
+		return inCache;
 	}
 
 	return [GPGTaskHelper isPassphraseInGPGAgentCache:(NSObject <KeyFingerprint> *)key];

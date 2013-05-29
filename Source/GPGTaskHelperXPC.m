@@ -39,6 +39,7 @@
 @property (nonatomic) NSUInteger timeout;
 @property (nonatomic) dispatch_semaphore_t taskLock;
 @property (nonatomic) dispatch_semaphore_t testLock;
+@property (nonatomic) BOOL wasShutdown;
 
 @end
 
@@ -332,6 +333,15 @@
 	_processStatus = nil;
 	Block_release(_progressHandler);
 	_progressHandler = nil;
+	
+	self.wasShutdown = YES;
+}
+
+- (void)dealloc {
+	if(!self.wasShutdown)
+		[self shutdown];
+	
+	[super dealloc];
 }
 
 @end

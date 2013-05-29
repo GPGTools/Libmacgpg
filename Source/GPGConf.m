@@ -148,6 +148,7 @@
 	GPGTaskHelperXPC *taskHelper = [[GPGTaskHelperXPC alloc] initWithTimeout:GPGTASKHELPER_DISPATCH_TIMEOUT_LOADS_OF_DATA];
 	NSString *content = nil;
 	if(![taskHelper test]) {
+		[taskHelper shutdown];
 		[taskHelper release];
 		return nil;
 	}
@@ -158,6 +159,7 @@
 	@catch (NSException *exception) {
 	}
 	@finally {
+		[taskHelper shutdown];
 		[taskHelper release];
 	}
 	

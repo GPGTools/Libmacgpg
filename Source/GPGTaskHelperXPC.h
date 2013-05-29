@@ -53,6 +53,7 @@
 	NSXPCConnection *_connection;
 	dispatch_semaphore_t _taskLock;
 	dispatch_semaphore_t _testLock;
+	BOOL _wasShutdown;
 }
 
 - (id)initWithTimeout:(NSUInteger)aTimeout;
