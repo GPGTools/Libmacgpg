@@ -969,7 +969,7 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
 
 + (BOOL)launchGeneralTask:(NSString *)path withArguments:(NSArray *)arguments wait:(BOOL)wait {
 	if ([self sandboxed]) {
-		GPGTaskHelperXPC *xpcTask = [[[GPGTaskHelperXPC alloc] initWithTimeout:GPGTASKHELPER_DISPATCH_TIMEOUT_LOADS_OF_DATA] autorelease];
+		GPGTaskHelperXPC *xpcTask = [[GPGTaskHelperXPC alloc] initWithTimeout:GPGTASKHELPER_DISPATCH_TIMEOUT_LOADS_OF_DATA];
 		
 		if(![xpcTask test]) {
 			[xpcTask shutdown];
