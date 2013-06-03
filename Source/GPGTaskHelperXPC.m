@@ -45,7 +45,7 @@
 
 @implementation GPGTaskHelperXPC
 
-@synthesize connection=_connection, timeout=_timeout, taskLock=_taskLock, testLock=_testLock, progressHandler=_progressHandler, processStatus=_processStatus;
+@synthesize connection=_connection, timeout=_timeout, taskLock=_taskLock, testLock=_testLock, progressHandler=_progressHandler, processStatus=_processStatus, wasShutdown=_wasShutdown;
 
 - (id)initWithTimeout:(NSUInteger)aTimeout {
 	self = [super init];
