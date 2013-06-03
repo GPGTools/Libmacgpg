@@ -214,6 +214,33 @@ BOOL gpgConfigReaded = NO;
 	timeout = GPGTASKHELPER_DISPATCH_TIMEOUT_LOADS_OF_DATA;
 	useDefaultComments = YES;
 	
+	GPGOptions *options = [GPGOptions sharedOptions];
+	id value;
+	
+	if ((value = [options valueInGPGConfForKey:@"armor"])) {
+		GPGDebugLog(@"armor: %@", value);
+		useArmor = [value boolValue];
+	}
+	if ((value = [options valueInGPGConfForKey:@"emit-version"])) {
+		GPGDebugLog(@"emit-version: %@", value);
+		printVersion = [value boolValue];
+	}
+	if ((value = [options valueInGPGConfForKey:@"textmode"])) {
+		GPGDebugLog(@"textmode: %@", value);
+		useTextMode = [value boolValue];
+	}
+	if ((value = [options valueInGPGConfForKey:@"keyserver-options"])) {
+		GPGDebugLog(@"keyserver-options: %@", value);
+		if ([value respondsToSelector:@selector(containsObject:)]) {
+			if ([value containsObject:@"no-auto-key-retrieve"]) {
+				autoKeyRetrieve = NO;
+			} else if ([value containsObject:@"nauto-key-retrieve"]) {
+				autoKeyRetrieve = YES;
+			}
+		}
+	}
+	
+	
 	[GPGWatcher activate];
 	
 	[[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(keysHaveChanged:) name:GPGKeysChangedNotification object:nil];
