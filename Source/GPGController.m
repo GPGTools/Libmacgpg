@@ -485,7 +485,7 @@ BOOL gpgConfigReaded = NO;
 		gpgTask.outStream = output;
 		[gpgTask addInput:input];
 
-		if ([gpgTask start] != 0) {
+		if ([gpgTask start] != 0 && gpgTask.outData.length == 0) { // Check outData because gpg sometime returns an exitcode != 0, but the data is correct encrypted/signed. 
 			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Encrypt/sign failed!") gpgTask:gpgTask];
 		}
 	} @catch (NSException *e) {
