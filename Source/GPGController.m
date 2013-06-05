@@ -408,8 +408,7 @@ BOOL gpgConfigReaded = NO;
 	return processedData;
 }
 
-- (void)processTo:(GPGStream *)output data:(GPGStream *)input withEncryptSignMode:(GPGEncryptSignMode)mode recipients:(NSObject<EnumerationList> *)recipients hiddenRecipients:(NSObject<EnumerationList> *)hiddenRecipients
-{
+- (void)processTo:(GPGStream *)output data:(GPGStream *)input withEncryptSignMode:(GPGEncryptSignMode)mode recipients:(NSObject<EnumerationList> *)recipients hiddenRecipients:(NSObject<EnumerationList> *)hiddenRecipients {
     // asyncProxy not recognized here
 
 	@try {		
@@ -511,8 +510,7 @@ BOOL gpgConfigReaded = NO;
     return retVal;
 }
 
-- (void)decryptTo:(GPGStream *)output data:(GPGStream *)input
-{
+- (void)decryptTo:(GPGStream *)output data:(GPGStream *)input {
 	@try {
 		NSData *unarmored = [GPGPacket unArmorFrom:input clearText:nil];
         if (unarmored) {
@@ -552,8 +550,7 @@ BOOL gpgConfigReaded = NO;
     return [self verifySignatureOf:signatureInput originalData:originalInput];
 }
 
-- (NSArray *)verifySignatureOf:(GPGStream *)signatureInput originalData:(GPGStream *)originalInput
-{
+- (NSArray *)verifySignatureOf:(GPGStream *)signatureInput originalData:(GPGStream *)originalInput {
 	NSArray *retVal;
 	@try {
 		[self operationDidStart];
