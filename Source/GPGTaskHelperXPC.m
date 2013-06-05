@@ -116,8 +116,8 @@
 		if(weakSelf && weakSelf->_taskLock != NULL)
 			dispatch_semaphore_signal(weakSelf->_taskLock);
 	}] launchGPGWithArguments:arguments data:data readAttributes:readAttributes reply:^(NSDictionary *info) {
-		if([result objectForKey:@"exception"]) {
-			NSDictionary *exceptionInfo = [result objectForKey:@"exception"];
+		if([info objectForKey:@"exception"]) {
+			NSDictionary *exceptionInfo = [info objectForKey:@"exception"];
 			NSException *exception = nil;
 			if(![exceptionInfo objectForKey:@"errorCode"]) {
 				exception = [NSException exceptionWithName:[exceptionInfo objectForKey:@"name"] reason:[exceptionInfo objectForKey:@"reason"] userInfo:nil];
