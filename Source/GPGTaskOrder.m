@@ -58,32 +58,37 @@
 }
 
 
-- (void)addCmd:(NSString *)cmd prompt:(NSString *)prompt {
+- (void)addCmd:(NSString *)cmd prompt:(id)prompt {
 	[self addCmd:cmd prompt:prompt optional:NO];
 }
-- (void)addInt:(int)cmd prompt:(NSString *)prompt {
+- (void)addInt:(int)cmd prompt:(id)prompt {
 	[self addInt:cmd prompt:prompt optional:NO];
 }
-- (void)addOptionalCmd:(NSString *)cmd prompt:(NSString *)prompt {
+- (void)addOptionalCmd:(NSString *)cmd prompt:(id)prompt {
 	[self addCmd:cmd prompt:prompt optional:YES];
 }
-- (void)addOptionalInt:(int)cmd prompt:(NSString *)prompt {
+- (void)addOptionalInt:(int)cmd prompt:(id)prompt {
 	[self addInt:cmd prompt:prompt optional:YES];
 }
-- (void)addCmd:(NSString *)cmd prompt:(NSString *)prompt optional:(BOOL)optional {
+- (void)addCmd:(NSString *)cmd prompt:(id)prompt optional:(BOOL)optional {
 	[items addObject:[NSDictionary dictionaryWithObjectsAndKeys:cmd ? cmd : @"", @"cmd", prompt, @"prompt", [NSNumber numberWithBool:optional], @"optional", nil]];
 }
-- (void)addInt:(int)cmd prompt:(NSString *)prompt optional:(BOOL)optional {
+- (void)addInt:(int)cmd prompt:(id)prompt optional:(BOOL)optional {
 	[items addObject:[NSDictionary dictionaryWithObjectsAndKeys:[NSString stringWithFormat:@"%i\n", cmd], @"cmd", prompt, @"prompt", [NSNumber numberWithBool:optional], @"optional", nil]];
 }
 
 
 
 - (NSString *)cmdForPrompt:(NSString *)prompt statusCode:(NSInteger)statusCode {
+	Class stringClass = [NSString class];
+	Class arrayClass = [NSArray class];
+	
 	NSUInteger count = [items count];
 	for (NSUInteger i = index; i < count; i++) {
 		NSDictionary *item = [items objectAtIndex:i];
-		if ([[item objectForKey:@"prompt"] isEqualToString:prompt]) {
+		id myPrompt = [item objectForKey:@"prompt"];
+		
+		if (([myPrompt isKindOfClass:stringClass] && [myPrompt isEqualToString:prompt]) || ([myPrompt isKindOfClass:arrayClass] && [myPrompt containsObject:prompt])) {
 			index = i + 1;
 			return [item objectForKey:@"cmd"];
 		} else if ([[item objectForKey:@"optional"] boolValue] == NO) {

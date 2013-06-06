@@ -36,14 +36,15 @@ typedef uint8_t BoolAnswer;
 
 @property (nonatomic) uint8_t defaultBoolAnswer;
 
+// prompt is an NSString or NSArray!
+- (void)addCmd:(NSString *)cmd prompt:(id)prompt;
+- (void)addInt:(int)cmd prompt:(id)prompt;
+- (void)addOptionalCmd:(NSString *)cmd prompt:(id)prompt;
+- (void)addOptionalInt:(int)cmd prompt:(id)prompt;
+- (void)addCmd:(NSString *)cmd prompt:(id)prompt optional:(BOOL)optional;
+- (void)addInt:(int)cmd prompt:(id)prompt optional:(BOOL)optional;
 
-- (void)addCmd:(NSString *)cmd prompt:(NSString *)prompt;
-- (void)addInt:(int)cmd prompt:(NSString *)prompt;
-- (void)addOptionalCmd:(NSString *)cmd prompt:(NSString *)prompt;
-- (void)addOptionalInt:(int)cmd prompt:(NSString *)prompt;
-- (void)addCmd:(NSString *)cmd prompt:(NSString *)prompt optional:(BOOL)optional;
-- (void)addInt:(int)cmd prompt:(NSString *)prompt optional:(BOOL)optional;
-- (NSString *)cmdForPrompt:(NSString *)prompt statusCode:(NSInteger)statusCode;
+- (NSString *)cmdForPrompt:(id)prompt statusCode:(NSInteger)statusCode;
 
 + (id)order;
 + (id)orderWithYesToAll;

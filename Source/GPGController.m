@@ -1257,12 +1257,12 @@ BOOL gpgConfigReaded = NO;
 			NSArray *userIDsignatures = userID.signatures;
 			for (GPGKeySignature *aSignature in userIDsignatures) {
 				if (aSignature == signature) {
-					[order addCmd:@"y\n" prompt:@"keyedit.delsig.valid"];
+					[order addCmd:@"y\n" prompt:@[@"keyedit.delsig.valid", @"keyedit.delsig.invalid", @"keyedit.delsig.unknown"]];
 					if ([[signature keyID] isEqualToString:[key.description keyID]]) {
 						[order addCmd:@"y\n" prompt:@"keyedit.delsig.selfsig"];
 					}
 				} else {
-					[order addCmd:@"n\n" prompt:@"keyedit.delsig.valid"];
+					[order addCmd:@"n\n" prompt:@[@"keyedit.delsig.valid", @"keyedit.delsig.invalid", @"keyedit.delsig.unknown"]];
 				}
 			}
 			
