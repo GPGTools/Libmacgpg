@@ -958,7 +958,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "[[ \"$CONFIGURATION\" == \"Debug\" ]] || exit 0\n# Copy the Framework into ~/Library for testing with other libs.\nFRAMEWORKS_DIR=\"$HOME/Library/Frameworks\"\nFRAMEWORK_NAME=\"Libmacgpg.framework\"\n\n# ~/Library/Frameworks doesn't exist in most cases, create it.\nif [ ! -d \"$FRAMEWORKS_DIR\" ]; then\n   mkdir -p \"$FRAMEWORKS_DIR\"\nfi\n\n# Remove the Libmacgpg.framework in ~/Library\nif [ -d \"$FRAMEWORKS_DIR/$FRAMEWORK_NAME\" ]; then\n   rm \"$FRAMEWORKS_DIR/$FRAMEWORK_NAME\"\nfi\nln -s \"$BUILT_PRODUCTS_DIR/$FRAMEWORK_NAME\" \"$FRAMEWORKS_DIR/$FRAMEWORK_NAME\"\n";
+			shellScript = "[[ \"$CONFIGURATION\" == \"Debug\" ]] || exit 0\n# Copy the Framework into ~/Library for testing with other libs.\nFRAMEWORKS_DIR=\"$HOME/Library/Frameworks\"\nFRAMEWORK_NAME=\"Libmacgpg.framework\"\n\n# ~/Library/Frameworks doesn't exist in most cases, create it.\nif [ ! -d \"$FRAMEWORKS_DIR\" ]; then\n   mkdir -p \"$FRAMEWORKS_DIR\"\nfi\n\nln -Fs \"$BUILT_PRODUCTS_DIR/$FRAMEWORK_NAME\" \"$FRAMEWORKS_DIR/\"\n";
 		};
 		1BCE0CCB16176C920026DCFF /* Install XPC Launchd and Insert Mach Name */ = {
 			isa = PBXShellScriptBuildPhase;

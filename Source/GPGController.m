@@ -1120,11 +1120,11 @@ BOOL gpgConfigReaded = NO;
 	return statusText;
 }
 
-- (NSData *)exportKeys:(NSObject <EnumerationList> *)keys allowSecret:(BOOL)allowSec fullExport:(BOOL)fullExport {
+- (NSData *)exportKeys:(NSObject <EnumerationList> *)keys options:(GPGExportOptions)options {
 	NSData *exportedData = nil;
 	if (async && !asyncStarted) {
 		asyncStarted = YES;
-		[asyncProxy exportKeys:keys allowSecret:allowSec fullExport:fullExport];
+		[asyncProxy exportKeys:keys options:options];
 		return nil;
 	}
 	@try {
@@ -1133,10 +1133,32 @@ BOOL gpgConfigReaded = NO;
 		NSMutableArray *arguments = [NSMutableArray arrayWithCapacity:5];
 		[arguments addObject:@"--export"];
 		
-		if (fullExport) {
-			[arguments addObject:@"--export-options"];
-			[arguments addObject:@"export-local-sigs,export-sensitive-revkeys"];
+		NSMutableArray *exportOptions = [NSMutableArray array];
+		if (options & GPGExportAttributes) {
+			[exportOptions addObject:@"export-attributes"];
 		}
+		if (options & GPGExportClean) {
+			[exportOptions addObject:@"export-clean"];
+		}
+		if (options & GPGExportLocalSigs) {
+			[exportOptions addObject:@"export-local-sigs"];
+		}
+		if (options & GPGExportMinimal) {
+			[exportOptions addObject:@"export-minimal"];
+		}
+		if (options & GPGExportResetSubkeyPassword) {
+			[exportOptions addObject:@"export-reset-subkey-passwd"];
+		}
+		if (options & GPGExportSensitiveRevkeys) {
+			[exportOptions addObject:@"export-sensitive-revkeys"];
+		}
+
+		if (exportOptions.count) {
+			[arguments addObject:@"--export-options"];
+			[arguments addObject:[exportOptions componentsJoinedByString:@","]];
+		}
+		
+		
 		for (NSObject <KeyFingerprint> * key in keys) {
 			[arguments addObject:[key description]];
 		}
@@ -1154,7 +1176,7 @@ BOOL gpgConfigReaded = NO;
 		exportedData = [gpgTask outData];
 		
 		
-		if (allowSec) {
+		if (options & GPGExportSecretKeys) {
 			[arguments replaceObjectAtIndex:0 withObject:@"--export-secret-keys"];
 			gpgTask = [GPGTask gpgTask];
 			[self addArgumentsForOptions];
@@ -1174,8 +1196,12 @@ BOOL gpgConfigReaded = NO;
 		[self cleanAfterOperation];
 	}
 	
-	[self operationDidFinishWithReturnValue:exportedData];	
+	[self operationDidFinishWithReturnValue:exportedData];
 	return exportedData;
+}
+
+- (NSData *)exportKeys:(NSObject <EnumerationList> *)keys allowSecret:(BOOL)allowSec fullExport:(BOOL)fullExport {
+	return [self exportKeys:keys options:(fullExport ? GPGExportLocalSigs | GPGExportSensitiveRevkeys : 0) | (allowSec ? GPGExportSecretKeys : 0)];
 }
 
 

@@ -69,6 +69,16 @@ typedef enum {
 } GPGEncryptSignMode;
 
 typedef enum {
+	GPGExportAttributes = 1 << 0,
+	GPGExportClean = 1 << 1,
+	GPGExportLocalSigs = 1 << 2,
+	GPGExportMinimal = 1 << 3,
+	GPGExportResetSubkeyPassword = 1 << 4,
+	GPGExportSecretKeys = 1 << 5,
+	GPGExportSensitiveRevkeys = 1 << 6
+} GPGExportOptions;
+
+typedef enum {
 	GPGDeletePublicKey,
 	GPGDeleteSecretKey,
 	GPGDeletePublicAndSecretKey
