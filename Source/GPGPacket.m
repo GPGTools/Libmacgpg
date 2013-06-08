@@ -115,6 +115,37 @@ const int clearTextEndMarkLength = 29;
 }
 
 
++ (void)enumeratePacketsWithData:(NSData *)theData block:(void (^)(GPGPacket *packet, BOOL *stop))block {
+	theData = [self unArmor:theData];
+	if ([theData length] < 10) {
+		return;
+	}
+	const uint8_t *bytes = [theData bytes];
+	
+	
+	const uint8_t *endPos = bytes + [theData length];
+	const uint8_t *currentPos = bytes;
+	const uint8_t *nextPacketPos = 0;
+	BOOL stop = NO;
+	
+	while (currentPos < endPos) {
+		nextPacketPos = 0;
+		GPGPacket *packet = [[self alloc] initWithBytes:bytes length:endPos - currentPos nextPacketStart:&nextPacketPos];
+		if (packet) {
+			block(packet, &stop);
+			[packet release];
+			if (stop) {
+				return;
+			}
+		}
+		if (nextPacketPos <= currentPos) {
+			break;
+		}
+		currentPos = nextPacketPos;
+	}
+}
+
+
 - (id)initWithBytes:(const uint8_t *)bytes length:(NSUInteger)dataLength nextPacketStart:(const uint8_t **)nextPacket {
 	if (!(self = [super init])) {
 		return nil;

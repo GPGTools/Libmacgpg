@@ -45,6 +45,7 @@
 
 
 + (id)packetsWithData:(NSData *)data;
++ (void)enumeratePacketsWithData:(NSData *)theData block:(void (^)(GPGPacket *packet, BOOL *stop))block;
 + (BOOL)isArmored:(const uint8_t)byte;
 // if return nil, input stream is not armored; should be reset and used directly
 + (NSData *)unArmorFrom:(GPGStream *)input clearText:(NSData **)clearText;
