@@ -972,7 +972,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "[[ \"$CONFIGURATION\" == \"Debug\" ]] || exit 0\nUSER_LIBRARY=\"$HOME/Library\"\nJAILFREE_PLIST=\"${EXECUTABLE_NAME}.plist\"\nLAUNCHAGENT_PATH=\"${USER_LIBRARY}/LaunchAgents/${JAILFREE_PLIST}\"\nJAILFREE_PATH=\"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_NAME}\"\nBUILD_LAUNCHAGENT_PATH=\"${BUILD_DIR}/${JAILFREE_PLIST}\"\n\nif [ -d \"${USER_LIBRARY}/LaunchAgents\" ] && [ -w \"${USER_LIBRARY}/LaunchAgents\" ] && [ -x \"${USER_LIBRARY}/LaunchAgents\" ]; then\n    cp \"${BUILD_LAUNCHAGENT_PATH}\" \"${LAUNCHAGENT_PATH}\"\n    /usr/libexec/PlistBuddy -c \"Set :ProgramArguments:0 \"${JAILFREE_PATH}\"\" \"${LAUNCHAGENT_PATH}\"\nfi";
+			shellScript = "[[ \"$CONFIGURATION\" == \"Debug\" ]] || exit 0\nUSER_LIBRARY=\"$HOME/Library\"\nJAILFREE_PLIST=\"${EXECUTABLE_NAME}.plist\"\nLAUNCHAGENT_PATH=\"${USER_LIBRARY}/LaunchAgents/${JAILFREE_PLIST}\"\nJAILFREE_PATH=\"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_NAME}\"\nBUILD_LAUNCHAGENT_PATH=\"${BUILD_DIR}/${JAILFREE_PLIST}\"\n\nif [ -d \"${USER_LIBRARY}/LaunchAgents\" ] && [ -w \"${USER_LIBRARY}/LaunchAgents\" ] && [ -x \"${USER_LIBRARY}/LaunchAgents\" ]; then\n    cp \"${BUILD_LAUNCHAGENT_PATH}\" \"${LAUNCHAGENT_PATH}\"\n    /usr/libexec/PlistBuddy -c \"Set :ProgramArguments:0 \\\"${JAILFREE_PATH}\\\"\" \"${LAUNCHAGENT_PATH}\"\nfi";
 		};
 		30C2960E16775037006EF09C /* Fill Info.plist */ = {
 			isa = PBXShellScriptBuildPhase;
