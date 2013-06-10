@@ -99,7 +99,7 @@ const int clearTextEndMarkLength = 29;
 	
 	while (currentPos < endPos) {
 		nextPacketPos = 0;
-		GPGPacket *packet = [[self alloc] initWithBytes:bytes length:endPos - currentPos nextPacketStart:&nextPacketPos];
+		GPGPacket *packet = [[self alloc] initWithBytes:currentPos length:endPos - currentPos nextPacketStart:&nextPacketPos];
 		if (packet) {
 			[packets addObject:packet];
 			[packet release];
@@ -130,7 +130,7 @@ const int clearTextEndMarkLength = 29;
 	
 	while (currentPos < endPos) {
 		nextPacketPos = 0;
-		GPGPacket *packet = [[self alloc] initWithBytes:bytes length:endPos - currentPos nextPacketStart:&nextPacketPos];
+		GPGPacket *packet = [[self alloc] initWithBytes:currentPos length:endPos - currentPos nextPacketStart:&nextPacketPos];
 		if (packet) {
 			block(packet, &stop);
 			[packet release];
