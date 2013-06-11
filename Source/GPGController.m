@@ -49,6 +49,7 @@
 
 @interface GPGController ()
 @property (nonatomic, retain) GPGSignature *lastSignature;
+@property (nonatomic, retain) NSString *filename;
 - (void)updateKeysWithDict:(NSDictionary *)aDict;
 - (void)addArgumentsForKeyserver;
 - (void)addArgumentsForSignerKeys;
@@ -72,7 +73,7 @@
 
 
 @implementation GPGController
-@synthesize delegate, keyserver, keyserverTimeout, proxyServer, async, userInfo, useArmor, useTextMode, printVersion, useDefaultComments, trustAllKeys, signatures, lastSignature, gpgHome, verbose, autoKeyRetrieve, lastReturnValue, error, undoManager, hashAlgorithm, gpgTask, timeout, sandboxed;
+@synthesize delegate, keyserver, keyserverTimeout, proxyServer, async, userInfo, useArmor, useTextMode, printVersion, useDefaultComments, trustAllKeys, signatures, lastSignature, gpgHome, verbose, autoKeyRetrieve, lastReturnValue, error, undoManager, hashAlgorithm, gpgTask, timeout, sandboxed, filename;
 
 NSString *gpgVersion = nil;
 NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil, *compressAlgorithm = nil;
@@ -2138,6 +2139,13 @@ BOOL gpgConfigReaded = NO;
             hashAlgorithm = hashAlgo;
             break;
         }
+		case GPG_STATUS_PLAINTEXT: {
+            NSArray *promptComponents = [prompt componentsSeparatedByString:@" "];
+			if (promptComponents.count == 3) {
+				self.filename = [[promptComponents objectAtIndex:2] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+			}
+			break;
+		}
 	}
 	return nil;
 }

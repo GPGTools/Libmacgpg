@@ -44,6 +44,7 @@
 	NSMutableArray *signerKeys;
 	NSMutableArray *comments;
 	NSMutableArray *signatures;
+	NSString *filename; //May contain the filename after decryption.
 	NSString *keyserver;
 	NSUInteger keyserverTimeout;
 	NSString *proxyServer;
@@ -87,6 +88,7 @@
 @property (nonatomic, readonly) NSArray *signatures;
 @property (nonatomic, readonly) id lastReturnValue;
 @property (nonatomic, readonly) NSException *error;
+@property (nonatomic, readonly, retain) NSString *filename;
 @property (nonatomic, retain) NSString *keyserver;
 @property (nonatomic, retain) NSString *proxyServer;
 @property (nonatomic, retain) NSString *gpgHome;
