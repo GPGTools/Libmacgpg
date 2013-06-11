@@ -157,6 +157,9 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
             GPGPath = [GPGTaskHelper findExecutableWithName:@"gpg"];
         [GPGPath retain];
     });
+	if (!GPGPath) {
+		onceToken = 0;
+	}
     return GPGPath;
 }
 
