@@ -150,7 +150,7 @@ const int clearTextEndMarkLength = 29;
 	if (!(self = [super init])) {
 		return nil;
 	}
-	
+	description = nil;
 	
 	const uint8_t *readPos = bytes;
 	canRead(1);
@@ -346,6 +346,7 @@ endOfBuffer:
 	[data release];
 	[fingerprint release];
 	[keyID release];
+	[description release];
 	
 	[super dealloc];
 }
@@ -679,7 +680,13 @@ endOfBuffer:
 	return repairedData;
 }
 
+- (NSString *)description {
+	if (!description) {
+		description = [[NSString alloc] initWithFormat:@"GPGPacket type: %i, keyID %@", self.type, self.keyID];
+	}
 
+	return [[description retain] autorelease];
+}
 
 
 @end

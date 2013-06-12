@@ -31,6 +31,7 @@
 	uint8_t symetricAlgorithm;
 	uint8_t hashAlgorithm;
 	uint8_t signatureType;
+	NSString *description;
 }
 
 @property (nonatomic, readonly) GPGPacketType type;
