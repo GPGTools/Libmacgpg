@@ -21,9 +21,9 @@
 
 @interface GPGSuper_Template ()
 
-@property GPGValidity validity;
-@property BOOL expired ,disabled, invalid, revoked;
-@property (retain) NSDate *creationDate, *expirationDate;
+@property (nonatomic) GPGValidity validity;
+@property (nonatomic) BOOL expired ,disabled, invalid, revoked;
+@property (nonatomic, retain) NSDate *creationDate, *expirationDate;
 
 @end
 

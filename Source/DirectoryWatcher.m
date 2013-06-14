@@ -2,7 +2,7 @@
 
 
 @interface DirectoryWatcher ()
-@property (readonly) NSMutableSet *pathsToWatch;
+@property (nonatomic, readonly) NSMutableSet *pathsToWatch;
 - (void)updateStream;
 void eventStreamCallBack(ConstFSEventStreamRef streamRef, void *clientCallBackInfo, size_t numEvents, void *eventPaths, const FSEventStreamEventFlags eventFlags[], const FSEventStreamEventId eventIds[]);
 @end

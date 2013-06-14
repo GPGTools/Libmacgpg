@@ -107,7 +107,7 @@
 @property (nonatomic, readonly) NSDictionary *statusDict;
 @property (nonatomic, readonly) GPGHashAlgorithm hashAlgorithm;
 @property (nonatomic, readonly) GPGTask *gpgTask;
-@property (assign, nonatomic) NSUInteger timeout;
+@property (nonatomic, assign) NSUInteger timeout;
 @property (nonatomic, assign) BOOL sandboxed;
 
 + (NSString *)gpgVersion;

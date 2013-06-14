@@ -22,20 +22,20 @@
 
 @interface GPGKeySignature () <GPGUserIDProtocol>
 
-@property BOOL local;
-@property BOOL revocationSignature;
-@property int signatureClass;
-@property (copy) NSString *type;
-@property (retain) NSString *userID;
-@property (retain) NSString *name;
-@property (retain) NSString *email;
-@property (retain) NSString *comment;
-@property (retain) NSString *keyID;
-@property (retain) NSString *shortKeyID;
-@property (retain) NSString *description;
-@property GPGPublicKeyAlgorithm algorithm;
-@property (retain) NSDate *creationDate;
-@property (retain) NSDate *expirationDate;
+@property (nonatomic) BOOL local;
+@property (nonatomic) BOOL revocationSignature;
+@property (nonatomic) int signatureClass;
+@property (nonatomic, copy) NSString *type;
+@property (nonatomic, retain) NSString *userID;
+@property (nonatomic, retain) NSString *name;
+@property (nonatomic, retain) NSString *email;
+@property (nonatomic, retain) NSString *comment;
+@property (nonatomic, retain) NSString *keyID;
+@property (nonatomic, retain) NSString *shortKeyID;
+@property (nonatomic, retain) NSString *description;
+@property (nonatomic) GPGPublicKeyAlgorithm algorithm;
+@property (nonatomic, retain) NSDate *creationDate;
+@property (nonatomic, retain) NSDate *expirationDate;
 
 @end
 

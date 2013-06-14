@@ -96,7 +96,7 @@ typedef void (^lp_progress_handler_t)(NSUInteger processedBytes, NSUInteger tota
 @property (nonatomic, assign) BOOL readAttributes;
 @property (nonatomic, copy) lp_progress_handler_t progressHandler;
 @property (nonatomic, assign) BOOL checkForSandbox;
-@property (assign, nonatomic) NSUInteger timeout;
+@property (nonatomic, assign) NSUInteger timeout;
 
 /**
  Configure a new GPG 2 process and pass all command line arguments

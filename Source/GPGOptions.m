@@ -34,9 +34,9 @@ NSString * const GPGOptionsChangedNotification = @"GPGOptionsChangedNotification
 NSString * const GPGConfigurationModifiedNotification = @"GPGConfigurationModifiedNotification";
 
 @interface GPGOptions ()
-@property (readonly) NSMutableDictionary *environment;
-@property (readonly) NSMutableDictionary *commonDefaults;
-@property (readonly) NSMutableDictionary *standardDefaults;
+@property (nonatomic, readonly) NSMutableDictionary *environment;
+@property (nonatomic, readonly) NSMutableDictionary *commonDefaults;
+@property (nonatomic, readonly) NSMutableDictionary *standardDefaults;
 - (GPGConf *)gpgConf;
 - (GPGConf *)gpgAgentConf;
 + (GPGOptionsDomain)domainForKey:(NSString *)key;

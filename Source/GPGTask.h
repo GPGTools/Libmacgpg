@@ -89,7 +89,7 @@
 @property (nonatomic, readonly) NSString *statusText;
 @property (nonatomic, readonly) NSArray *arguments;
 @property (nonatomic, readonly) GPGTaskHelper *taskHelper;
-@property (assign, nonatomic) NSUInteger timeout;
+@property (nonatomic, assign) NSUInteger timeout;
 
 + (NSString *)nameOfStatusCode:(NSInteger)statusCode;
 

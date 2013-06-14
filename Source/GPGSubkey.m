@@ -22,8 +22,8 @@
 
 @interface GPGSubkey ()
 
-@property (assign) GPGKey *primaryKey;
-@property (retain) NSString *fingerprint;
+@property (nonatomic, assign) GPGKey *primaryKey;
+@property (nonatomic, retain) NSString *fingerprint;
 
 @end
 

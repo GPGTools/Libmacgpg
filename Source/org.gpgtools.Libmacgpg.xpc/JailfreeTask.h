@@ -29,7 +29,7 @@
 
 - (void)isPassphraseForKeyInGPGAgentCache:(NSString *)key reply:(void (^)(BOOL))reply;
 
-@property (weak) NSXPCConnection *xpcConnection;
+@property (nonatomic, weak) NSXPCConnection *xpcConnection;
 
 @end
 #endif

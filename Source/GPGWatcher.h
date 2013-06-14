@@ -28,11 +28,11 @@ extern NSString * const GPGKeysChangedNotification;
 }
 
 // default is 1.0
-@property (assign, nonatomic) NSTimeInterval toleranceBefore;
+@property (nonatomic, assign) NSTimeInterval toleranceBefore;
 // default is 1.0
-@property (assign, nonatomic) NSTimeInterval toleranceAfter;
+@property (nonatomic, assign) NSTimeInterval toleranceAfter;
 #if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
-@property (assign, nonatomic) NSXPCConnection *jailfree;
+@property (nonatomic, assign) NSXPCConnection *jailfree;
 #endif
 + (id)sharedInstance;
 + (void)activate;

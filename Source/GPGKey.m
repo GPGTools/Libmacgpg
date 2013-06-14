@@ -23,12 +23,12 @@
 
 @interface GPGKey ()
 
-@property (retain) NSMutableArray *photos;
-@property (retain) NSString *textForFilter;
-@property (retain) NSString *allFingerprints;
-@property (retain) NSString *fingerprint;
-@property GPGValidity ownerTrust;
-@property BOOL secret;
+@property (nonatomic, retain) NSMutableArray *photos;
+@property (nonatomic, retain) NSString *textForFilter;
+@property (nonatomic, retain) NSString *allFingerprints;
+@property (nonatomic, retain) NSString *fingerprint;
+@property (nonatomic) GPGValidity ownerTrust;
+@property (nonatomic) BOOL secret;
 
 
 - (void)updateFilterText;

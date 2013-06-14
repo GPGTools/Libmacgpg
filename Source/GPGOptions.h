@@ -50,13 +50,13 @@ typedef enum {
     id syncRoot;
 }
 
-@property (readonly) NSString *httpProxy;
-@property (readonly) NSString *gpgHome;
-@property (readonly) NSArray *keyservers;
-@property (retain) NSString *keyserver;
-@property BOOL autoSave;
-@property (retain) NSString *standardDomain;
-@property (readonly) BOOL debugLog;
+@property (nonatomic, readonly) NSString *httpProxy;
+@property (nonatomic, readonly) NSString *gpgHome;
+@property (nonatomic, readonly) NSArray *keyservers;
+@property (nonatomic, retain) NSString *keyserver;
+@property (nonatomic) BOOL autoSave;
+@property (nonatomic, retain) NSString *standardDomain;
+@property (nonatomic, readonly) BOOL debugLog;
 @property (nonatomic, assign) BOOL sandboxed;
 
 + (BOOL)debugLog;

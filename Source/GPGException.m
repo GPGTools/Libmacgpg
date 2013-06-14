@@ -3,8 +3,8 @@
 #import <dlfcn.h>
 
 @interface GPGException ()
-@property (retain) GPGTask *gpgTask;
-@property GPGErrorCode errorCode;
+@property (nonatomic, retain) GPGTask *gpgTask;
+@property (nonatomic) GPGErrorCode errorCode;
 @end
 
 

@@ -25,12 +25,12 @@
 
 @interface GPGUserID () <GPGUserIDProtocol>
 
-@property (assign) GPGKey *primaryKey;
-@property (retain) NSString *hashID;
-@property (retain) NSString *userID;
-@property (retain) NSString *name;
-@property (retain) NSString *email;
-@property (retain) NSString *comment;
+@property (nonatomic, assign) GPGKey *primaryKey;
+@property (nonatomic, retain) NSString *hashID;
+@property (nonatomic, retain) NSString *userID;
+@property (nonatomic, retain) NSString *name;
+@property (nonatomic, retain) NSString *email;
+@property (nonatomic, retain) NSString *comment;
 
 @end
 

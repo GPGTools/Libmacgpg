@@ -12,7 +12,7 @@
 
 - (IBAction)doEncrypt:(id)sender;
 
-@property (assign) IBOutlet NSWindow *window;
-@property (assign) IBOutlet NSButton *encryptButton;
+@property (nonatomic, assign) IBOutlet NSWindow *window;
+@property (nonatomic, assign) IBOutlet NSButton *encryptButton;
 
 @end

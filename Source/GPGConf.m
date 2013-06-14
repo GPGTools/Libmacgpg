@@ -6,7 +6,7 @@
 #import "GPGGlobals.h"
 
 @interface GPGConf ()
-@property (retain) NSString *path;
+@property (nonatomic, retain) NSString *path;
 @end
 
 @implementation GPGConf
