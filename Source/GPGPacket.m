@@ -155,6 +155,10 @@ const int clearTextEndMarkLength = 29;
 	const uint8_t *readPos = bytes;
 	canRead(1);
 	
+	if (!(bytes[0] & 0x80)) {
+		[self release];
+		return nil;
+	}
 	
 	BOOL newFormat = bytes[0] & 0x40;
 	unsigned int length;
