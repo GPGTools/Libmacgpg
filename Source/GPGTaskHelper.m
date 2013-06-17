@@ -606,11 +606,8 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
             
             break;
         }
-            
-        default:
-            self.processStatus(keyword, value);
-            break;
     }
+	self.processStatus(keyword, value);
 }
 
 - (void)getPassphraseAndForward {

@@ -423,6 +423,13 @@ char partCountForStatusCode[GPG_STATUS_COUNT];
 		case GPG_STATUS_DECRYPTION_OKAY:
 			[self unsetErrorCode:GPGErrorNoSecretKey];
 			break;
+		case GPG_STATUS_BAD_PASSPHRASE:
+			self.errorCode = GPGErrorBadPassphrase;
+			break;
+		case GPG_STATUS_MISSING_PASSPHRASE:
+		case GPG_STATUS_GOOD_PASSPHRASE:
+			[self unsetErrorCode:GPGErrorBadPassphrase];
+			break;
     }
 	
 	//Fill statusDict.
