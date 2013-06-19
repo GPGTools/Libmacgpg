@@ -248,7 +248,7 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
     _task.launchPath = [GPGTaskHelper GPGPath];
     _task.arguments = self.arguments;
     
-    if(!_task.launchPath)
+    if(!_task.launchPath || ![[NSFileManager defaultManager] isExecutableFileAtPath:_task.launchPath])
         @throw [GPGException exceptionWithReason:@"GPG not found!" errorCode:GPGErrorNotFound];
     
     GPGDebugLog(@"$> %@ %@", _task.launchPath, [_task.arguments componentsJoinedByString:@" "]);
