@@ -69,34 +69,8 @@
 }
 
 - (BOOL)test {
-	__block NSException *connectionError;
-	dispatch_time_t testTimeout = dispatch_time(DISPATCH_TIME_NOW, GPGTASKHELPER_DISPATCH_TIMEOUT_ALMOST_INSTANTLY);
-	
-	__block BOOL success = NO;
-	GPGTaskHelperXPC * __block weakSelf = self;
-	
-	[[_connection remoteObjectProxyWithErrorHandler:^(NSError *error) {
-		NSString *description = [error description];
-		NSString *explanation = [[NSString alloc] initWithFormat:@"[Libmacgpg] XPC test connection failed - reason: %@", description];
-		
-		connectionError = [[NSException exceptionWithName:@"XPCConnectionError" reason:explanation userInfo:nil] retain];
-		
-		NSLog(@"%@", explanation);
-		[explanation release];
-		
-		if(weakSelf && weakSelf->_testLock != NULL)
-			dispatch_semaphore_signal(weakSelf->_testLock);
-	}] testConnection:^(BOOL result) {
-		success = YES;
-		if(weakSelf && weakSelf->_testLock != NULL)
-			dispatch_semaphore_signal(weakSelf->_testLock);
-	}];
-	
-	dispatch_semaphore_wait(_testLock, testTimeout);
-	dispatch_release(_testLock);
-	_testLock = nil;
-	
-	return success;
+	// TODO: This method will be removed soon and all the code calling it.
+	return YES;
 }
 
 - (NSDictionary *)launchGPGWithArguments:(NSArray *)arguments data:(NSArray *)data readAttributes:(BOOL)readAttributes {
