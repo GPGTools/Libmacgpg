@@ -108,7 +108,12 @@
 	NSMutableDictionary *result = [[NSMutableDictionary alloc] initWithCapacity:0];
 	
 	[[_connection remoteObjectProxyWithErrorHandler:^(NSError *error) {
-		NSString *explanation = [NSString stringWithFormat:@"[Libmacgpg] Failed to invoke XPC method - reason: %@", [error description]];
+		// The connection has been invalidated by ourselves.
+        // No need to log anything.
+        if(error.code == NSXPCConnectionInvalid)
+            return;
+        
+        NSString *explanation = [NSString stringWithFormat:@"[Libmacgpg] Failed to invoke XPC method - reason: %@", [error description]];
 		
 		connectionError = [[NSException exceptionWithName:@"XPCConnectionError" reason:explanation userInfo:nil] retain];
 		
@@ -141,7 +146,8 @@
 		[result setObject:[info objectForKey:@"exitcode"] forKey:@"exitStatus"];
 		[result setObject:[info objectForKey:@"output"] forKey:@"output"];
 		
-		dispatch_semaphore_signal(weakSelf.taskLock);
+        if(weakSelf && weakSelf->_taskLock != NULL)
+            dispatch_semaphore_signal(weakSelf->_taskLock);
 	}];
 	
 	dispatch_semaphore_wait(_taskLock, timeout);
@@ -182,7 +188,12 @@
 	NSMutableString *result = [[NSMutableString alloc] init];
 	
 	[[_connection remoteObjectProxyWithErrorHandler:^(NSError *error) {
-		NSString *explanation = [NSString stringWithFormat:@"[Libmacgpg] Failed to invoke XPC method %@ - reason: %@", NSStringFromSelector(_cmd), [error description]];
+		// The connection has been invalidated by ourselves.
+        // No need to log anything.
+        if(error.code == NSXPCConnectionInvalid)
+            return;
+        
+        NSString *explanation = [NSString stringWithFormat:@"[Libmacgpg] Failed to invoke XPC method %@ - reason: %@", NSStringFromSelector(_cmd), [error description]];
 		
 		connectionError = [[NSException exceptionWithName:@"XPCConnectionError" reason:explanation userInfo:nil] retain];
 		
@@ -211,7 +222,12 @@
 	NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
 	
 	[[_connection remoteObjectProxyWithErrorHandler:^(NSError *error) {
-		NSString *explanation = [NSString stringWithFormat:@"[Libmacgpg] Failed to invoke XPC method %@ - reason: %@", NSStringFromSelector(_cmd), [error description]];
+		// The connection has been invalidated by ourselves.
+        // No need to log anything.
+        if(error.code == NSXPCConnectionInvalid)
+            return;
+        
+        NSString *explanation = [NSString stringWithFormat:@"[Libmacgpg] Failed to invoke XPC method %@ - reason: %@", NSStringFromSelector(_cmd), [error description]];
 		
 		connectionError = [[NSException exceptionWithName:@"XPCConnectionError" reason:explanation userInfo:nil] retain];
 		
@@ -239,7 +255,12 @@
 	__block BOOL success = NO;
 	
 	[[_connection remoteObjectProxyWithErrorHandler:^(NSError *error) {
-		NSString *explanation = [NSString stringWithFormat:@"[Libmacgpg] Failed to invoke XPC method %@ - reason: %@", NSStringFromSelector(_cmd), [error description]];
+		// The connection has been invalidated by ourselves.
+        // No need to log anything.
+        if(error.code == NSXPCConnectionInvalid)
+            return;
+        
+        NSString *explanation = [NSString stringWithFormat:@"[Libmacgpg] Failed to invoke XPC method %@ - reason: %@", NSStringFromSelector(_cmd), [error description]];
 		
 		connectionError = [[NSException exceptionWithName:@"XPCConnectionError" reason:explanation userInfo:nil] retain];
 		
@@ -264,7 +285,12 @@
 	
 	__block BOOL success = NO;
 	[[_connection remoteObjectProxyWithErrorHandler:^(NSError *error) {
-		NSString *explanation = [NSString stringWithFormat:@"[Libmacgpg] Failed to invoke XPC method %@ - reason: %@", NSStringFromSelector(_cmd), [error description]];
+		// The connection has been invalidated by ourselves.
+        // No need to log anything.
+        if(error.code == NSXPCConnectionInvalid)
+            return;
+        
+        NSString *explanation = [NSString stringWithFormat:@"[Libmacgpg] Failed to invoke XPC method %@ - reason: %@", NSStringFromSelector(_cmd), [error description]];
 		
 		connectionError = [[NSException exceptionWithName:@"XPCConnectionError" reason:explanation userInfo:nil] retain];
 		
@@ -289,7 +315,12 @@
 	BOOL __block inCache = NO;
 	
 	[[_connection remoteObjectProxyWithErrorHandler:^(NSError *error) {
-		NSString *explanation = [NSString stringWithFormat:@"[Libmacgpg] Failed to invoke XPC method %@ - reason: %@", NSStringFromSelector(_cmd), [error description]];
+		// The connection has been invalidated by ourselves.
+        // No need to log anything.
+        if(error.code == NSXPCConnectionInvalid)
+            return;
+        
+        NSString *explanation = [NSString stringWithFormat:@"[Libmacgpg] Failed to invoke XPC method %@ - reason: %@", NSStringFromSelector(_cmd), [error description]];
 		
 		connectionError = [[NSException exceptionWithName:@"XPCConnectionError" reason:explanation userInfo:nil] retain];
 		
@@ -316,9 +347,6 @@
 
 - (void)shutdown {
 	[_connection invalidate];
-	_connection.remoteObjectInterface = nil;
-	_connection.exportedObject = nil;
-	_connection.exportedInterface = nil;
 	[_connection release];
 	_connection = nil;
 	
