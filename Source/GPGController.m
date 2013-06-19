@@ -83,23 +83,23 @@ BOOL gpgConfigReaded = NO;
 
 + (NSString *)gpgVersion {
 	[self readGPGConfig];
-	return [[gpgVersion retain] autorelease];
+	return gpgVersion;
 }
 + (NSSet *)publicKeyAlgorithm {
 	[self readGPGConfig];
-	return [[publicKeyAlgorithm retain] autorelease];
+	return publicKeyAlgorithm;
 }
 + (NSSet *)cipherAlgorithm {
 	[self readGPGConfig];
-	return [[cipherAlgorithm retain] autorelease];
+	return cipherAlgorithm;
 }
 + (NSSet *)digestAlgorithm {
 	[self readGPGConfig];
-	return [[digestAlgorithm retain] autorelease];
+	return digestAlgorithm;
 }
 + (NSSet *)compressAlgorithm {
 	[self readGPGConfig];
-	return [[compressAlgorithm retain] autorelease];
+	return compressAlgorithm;
 }
 
 + (NSString *)nameForHashAlgorithm:(GPGHashAlgorithm)hashAlgorithm {
