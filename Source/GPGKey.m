@@ -189,31 +189,28 @@
 }
 
 - (void)updateFilterText {
-	typeof(self) __weak weakSelf = self;
+	__block typeof(self) weakSelf = self;
 	dispatch_once(&filterTextOnceToken, ^{
-		NSMutableString *newText = [[NSMutableString alloc] initWithCapacity:subkeys.count * 40 + userIDs.count * 60 + 40];
-		NSMutableString *fingerprints = [[NSMutableString alloc] initWithCapacity:subkeys.count * 40 + 40];
+		NSMutableString *newText = [[NSMutableString alloc] initWithCapacity:weakSelf->subkeys.count * 40 + weakSelf->userIDs.count * 60 + 40];
+		NSMutableString *fingerprints = [[NSMutableString alloc] initWithCapacity:weakSelf->subkeys.count * 40 + 40];
 		
 		[newText appendFormat:@"0x%@\n0x%@\n0x%@\n", weakSelf.fingerprint, weakSelf.keyID, weakSelf.shortKeyID];
 		[fingerprints appendFormat:@"%@\n", weakSelf.fingerprint];
-		for (GPGSubkey *subkey in subkeys) {
+		for (GPGSubkey *subkey in weakSelf->subkeys) {
 			[newText appendFormat:@"0x%@\n0x%@\n0x%@\n", [subkey fingerprint], [subkey keyID], [subkey shortKeyID]];
 			[fingerprints appendFormat:@"%@\n", [subkey fingerprint]];
 		}
-		for (GPGUserID *userID in userIDs) {
+		for (GPGUserID *userID in weakSelf->userIDs) {
 			[newText appendFormat:@"%@\n", [userID userID]];
 		}
 		
-		id old = textForFilter;
-		textForFilter = newText;
+		id old = weakSelf->textForFilter;
+		weakSelf->textForFilter = newText;
 		[old release];
 		
-		old = allFingerprints;
-		allFingerprints = fingerprints;
+		old = weakSelf->allFingerprints;
+		weakSelf->allFingerprints = fingerprints;
 		[old release];
-		
-		[newText release];
-		[fingerprints release];
     });
 }
 
