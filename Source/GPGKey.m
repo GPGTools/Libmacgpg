@@ -27,8 +27,6 @@
 @property (nonatomic, retain) NSArray *subkeys;
 @property (nonatomic, retain) NSArray *children;
 @property (nonatomic, retain) NSArray *photos;
-@property (nonatomic, retain) NSString *textForFilter;
-@property (nonatomic, retain) NSString *allFingerprints;
 @property (nonatomic, retain) NSString *fingerprint;
 @property (nonatomic) GPGValidity ownerTrust;
 @property (nonatomic) BOOL secret;
@@ -42,7 +40,7 @@
 
 
 @implementation GPGKey
-@synthesize userIDs, subkeys, children, photos, textForFilter, fingerprint, ownerTrust, secret, primaryUserID, allFingerprints;
+@synthesize userIDs, subkeys, children, photos, textForFilter, fingerprint, ownerTrust, secret, primaryUserID;
 
 + (id)keyWithListing:(NSArray *)listing fingerprint:(NSString *)aFingerprint isSecret:(BOOL)isSec withSigs:(BOOL)withSigs {
 	return [[[[self class] alloc] initWithListing:listing fingerprint:aFingerprint isSecret:isSec  withSigs:withSigs] autorelease];
@@ -205,8 +203,14 @@
 			[newText appendFormat:@"%@\n", [userID userID]];
 		}
 		
-		self.textForFilter = newText;
-		self.allFingerprints = fingerprints;
+		id old = textForFilter;
+		textForFilter = newText;
+		[old release];
+		
+		old = allFingerprints;
+		allFingerprints = fingerprints;
+		[old release];
+		
 		[newText release];
 		[fingerprints release];
     });
@@ -409,8 +413,9 @@
 	self.subkeys = nil;
 	self.userIDs = nil;
 	self.photos = nil;
-	self.textForFilter = nil;
-	self.allFingerprints = nil;
+	
+	[textForFilter release];
+	[allFingerprints release];
 	
 	self.fingerprint = nil;
 	
