@@ -889,12 +889,11 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
 			return NO;
 		}
 		
-		unsigned long length = [socketPath lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + 2;
+		unsigned long length = [socketPath lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + 3;
 		char addressInfo[length];
 		addressInfo[0] = AF_UNIX;
 		addressInfo[1] = 0;
-		strcpy(addressInfo+2, [socketPath UTF8String]);
-		
+		strncpy(addressInfo+2, [socketPath UTF8String], length - 2);
 		
 		if (connect(sock, (const struct sockaddr *)addressInfo, (socklen_t)length ) == -1) {
 			perror("connect");
