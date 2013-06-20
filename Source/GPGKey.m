@@ -23,7 +23,10 @@
 
 @interface GPGKey ()
 
-@property (nonatomic, retain) NSMutableArray *photos;
+@property (nonatomic, retain) NSArray *userIDs;
+@property (nonatomic, retain) NSArray *subkeys;
+@property (nonatomic, retain) NSArray *children;
+@property (nonatomic, retain) NSArray *photos;
 @property (nonatomic, retain) NSString *textForFilter;
 @property (nonatomic, retain) NSString *allFingerprints;
 @property (nonatomic, retain) NSString *fingerprint;
@@ -39,19 +42,16 @@
 
 
 @implementation GPGKey
-@synthesize photos, textForFilter, fingerprint, ownerTrust, secret, primaryUserID, allFingerprints;
+@synthesize userIDs, subkeys, children, photos, textForFilter, fingerprint, ownerTrust, secret, primaryUserID, allFingerprints;
 
 + (id)keyWithListing:(NSArray *)listing fingerprint:(NSString *)aFingerprint isSecret:(BOOL)isSec withSigs:(BOOL)withSigs {
 	return [[[[self class] alloc] initWithListing:listing fingerprint:aFingerprint isSecret:isSec  withSigs:withSigs] autorelease];
 }
 - (id)initWithListing:(NSArray *)listing fingerprint:(NSString *)aFingerprint isSecret:(BOOL)isSec withSigs:(BOOL)withSigs {
 	if (self = [super init]) {
-		self.children = [NSMutableArray arrayWithCapacity:2];
-		self.subkeys = [NSMutableArray arrayWithCapacity:1];
-		self.userIDs = [NSMutableArray arrayWithCapacity:1];
 		self.fingerprint = aFingerprint;
 		
-		[self updateWithListing:listing isSecret:isSec withSigs:withSigs];		
+		[self updateWithListing:listing isSecret:isSec withSigs:withSigs];
 	}
 	return self;	
 }
@@ -81,6 +81,9 @@
 	
 	primaryUserID = nil;
 	
+	
+	NSMutableArray *newUserIDs = [NSMutableArray arrayWithArray:userIDs];
+	NSMutableArray *newSubkeys = [NSMutableArray arrayWithArray:subkeys];
 	
 	NSMutableSet *subkeysToRemove = [NSMutableSet setWithArray:subkeys];
 	NSMutableSet *userIDsToRemove = [NSMutableSet setWithArray:userIDs];
@@ -114,15 +117,13 @@
 				NSUInteger anIndex = [userIDs indexOfObjectIdenticalTo:userIDChild];
 				[userIDChild updateWithListing:splitedLine signatureListing:sigListing];
 				if (anIndex != userIDIndex) {
-					[self removeObjectFromUserIDsAtIndex:anIndex];
-					[self insertObject:userIDChild inUserIDsAtIndex:userIDIndex];
+					[newUserIDs removeObjectAtIndex:anIndex];
 				}
 				[userIDsToRemove removeObject:userIDChild];
 			} else {
 				userIDChild = [[[GPGUserID alloc] initWithListing:splitedLine signatureListing:sigListing parentKey:self] autorelease];
 				
-				[self insertObject:userIDChild inUserIDsAtIndex:userIDIndex];
-				[self insertObject:userIDChild inChildrenAtIndex:userIDIndex];
+				[newUserIDs insertObject:userIDChild atIndex:userIDIndex];
 			}
 			if (!primaryUserID) {
 				primaryUserID = userIDChild;
@@ -137,26 +138,32 @@
 				NSUInteger anIndex = [subkeys indexOfObjectIdenticalTo:subkeyChild];
 				[subkeyChild updateWithListing:splitedLine];
 				if (anIndex != subkeyIndex) {
-					[self removeObjectFromSubkeysAtIndex:anIndex];
-					[self insertObject:subkeyChild inSubkeysAtIndex:subkeyIndex];
+					[newSubkeys removeObjectAtIndex:anIndex];
 				}
 				[subkeysToRemove removeObject:subkeyChild];
 			} else {
 				subkeyChild = [[[GPGSubkey alloc] initWithListing:splitedLine fingerprint:aFingerprint parentKey:self] autorelease];
 				
-				[self insertObject:subkeyChild inSubkeysAtIndex:subkeyIndex];
-				[self insertObject:subkeyChild inChildrenAtIndex:userIDs.count + subkeyIndex];
-				
+				[newSubkeys insertObject:subkeyChild atIndex:subkeyIndex];				
 			}
 			subkeyChild.index = subkeyIndex++;
 		}
 	}
 	
 	
-	[self removeObjectsFromUserIDsIdenticalTo:userIDsToRemove];
-	[self removeObjectsFromChildrenIdenticalTo:userIDsToRemove];
-	[self removeObjectsFromSubkeysIdenticalTo:subkeysToRemove];
-	[self removeObjectsFromChildrenIdenticalTo:subkeysToRemove];
+	NSIndexSet *indexes = [newUserIDs indexesOfIdenticalObjects:userIDsToRemove];
+	[newUserIDs removeObjectsAtIndexes:indexes];
+	
+	indexes = [newSubkeys indexesOfIdenticalObjects:subkeysToRemove];
+	[newSubkeys removeObjectsAtIndexes:indexes];
+
+	NSMutableArray *newChildren = [NSMutableArray arrayWithArray:newUserIDs];
+	[newChildren addObjectsFromArray:newSubkeys];
+	
+	
+	self.userIDs = newUserIDs;
+	self.subkeys = newSubkeys;
+	self.children = newChildren;
 
 	
 	NSUInteger userIDsCount = userIDs.count;
@@ -166,30 +173,43 @@
 	
 	self.photos = nil;
 	
-	[self updateFilterText];
+	filterTextOnceToken = 0;
 }
 
 
 
 
-- (void)updateFilterText { // Muss für den Schlüssel aufgerufen werden, bevor auf textForFilter zugegriffen werden kann!
-	NSMutableString *newText = [[NSMutableString alloc] initWithCapacity:subkeys.count * 40 + userIDs.count * 60 + 40];
-	NSMutableString *fingerprints = [[NSMutableString alloc] initWithCapacity:subkeys.count * 40 + 40];
-	
-	[newText appendFormat:@"0x%@\n0x%@\n0x%@\n", [self fingerprint], [self keyID], [self shortKeyID]];
-	[fingerprints appendFormat:@"%@\n", [self fingerprint]];
-	for (GPGSubkey *subkey in subkeys) {
-		[newText appendFormat:@"0x%@\n0x%@\n0x%@\n", [subkey fingerprint], [subkey keyID], [subkey shortKeyID]];
-		[fingerprints appendFormat:@"%@\n", [subkey fingerprint]];
-	}
-	for (GPGUserID *userID in userIDs) {
-		[newText appendFormat:@"%@\n", [userID userID]];
-	}
-	
-	[textForFilter release];
-	textForFilter = newText;
-	[allFingerprints release];
-	allFingerprints = fingerprints;
+
+
+- (NSString *)textForFilter {
+	[self updateFilterText];
+	return [[textForFilter retain] autorelease];
+}
+- (NSString *)allFingerprints {
+	[self updateFilterText];
+	return [[allFingerprints retain] autorelease];
+}
+
+- (void)updateFilterText {
+	dispatch_once(&filterTextOnceToken, ^{
+		NSMutableString *newText = [[NSMutableString alloc] initWithCapacity:subkeys.count * 40 + userIDs.count * 60 + 40];
+		NSMutableString *fingerprints = [[NSMutableString alloc] initWithCapacity:subkeys.count * 40 + 40];
+		
+		[newText appendFormat:@"0x%@\n0x%@\n0x%@\n", [self fingerprint], [self keyID], [self shortKeyID]];
+		[fingerprints appendFormat:@"%@\n", [self fingerprint]];
+		for (GPGSubkey *subkey in subkeys) {
+			[newText appendFormat:@"0x%@\n0x%@\n0x%@\n", [subkey fingerprint], [subkey keyID], [subkey shortKeyID]];
+			[fingerprints appendFormat:@"%@\n", [subkey fingerprint]];
+		}
+		for (GPGUserID *userID in userIDs) {
+			[newText appendFormat:@"%@\n", [userID userID]];
+		}
+		
+		self.textForFilter = newText;
+		self.allFingerprints = fingerprints;
+		[newText release];
+		[fingerprints release];
+    });
 }
 
 - (NSArray *)photos {
@@ -263,7 +283,7 @@
 			pos += dataLength;
 		}
 	}
-	photos = [thePhotos retain];
+	self.photos = thePhotos;
 }
 
 
@@ -372,113 +392,6 @@
 	return YES;
 }*/
 
-
-- (void)setChildren:(NSMutableArray *)value {
-	if (value != children) {
-		[children release];
-		children = [value retain];
-	}
-}
-- (NSArray *)children {
-	return [[children retain] autorelease];
-}
-- (unsigned)countOfChildren {
-	return [children count];
-}
-- (id)objectInChildrenAtIndex:(unsigned)theIndex {
-	return [children objectAtIndex:theIndex];
-}
-- (void)getChildren:(id *)objsPtr range:(NSRange)range {
-	[children getObjects:objsPtr range:range];
-}
-- (void)insertObject:(id)obj inChildrenAtIndex:(unsigned)theIndex {
-	[children insertObject:obj atIndex:theIndex];
-}
-- (void)removeObjectFromChildrenAtIndex:(unsigned)theIndex {
-	[children removeObjectAtIndex:theIndex];
-}
-- (void)replaceObjectInChildrenAtIndex:(unsigned)theIndex withObject:(id)obj {
-	[children replaceObjectAtIndex:theIndex withObject:obj];
-}
-- (void)removeObjectsFromChildrenIdenticalTo:(id <NSFastEnumeration>)objects {
-	NSIndexSet *indexes = [children indexesOfIdenticalObjects:objects];
-	[self willChange:NSKeyValueChangeRemoval valuesAtIndexes:indexes forKey:@"children"];
-	[children removeObjectsAtIndexes:indexes];
-	[self didChange:NSKeyValueChangeRemoval valuesAtIndexes:indexes forKey:@"children"];
-}
-
-
-- (void)setSubkeys:(NSMutableArray *)value {
-	if (value != subkeys) {
-		[subkeys release];
-		subkeys = [value retain];
-	}
-}
-- (NSArray *)subkeys {
-	return [[subkeys retain] autorelease];
-}
-- (unsigned)countOfSubkeys {
-	return [subkeys count];
-}
-- (id)objectInSubkeysAtIndex:(unsigned)theIndex {
-	return [subkeys objectAtIndex:theIndex];
-}
-- (void)getSubkeys:(id *)objsPtr range:(NSRange)range {
-	[subkeys getObjects:objsPtr range:range];
-}
-- (void)insertObject:(id)obj inSubkeysAtIndex:(unsigned)theIndex {
-	[subkeys insertObject:obj atIndex:theIndex];
-}
-- (void)removeObjectFromSubkeysAtIndex:(unsigned)theIndex {
-	[subkeys removeObjectAtIndex:theIndex];
-}
-- (void)replaceObjectInSubkeysAtIndex:(unsigned)theIndex withObject:(id)obj {
-	[subkeys replaceObjectAtIndex:theIndex withObject:obj];
-}
-- (void)removeObjectsFromSubkeysIdenticalTo:(id <NSFastEnumeration>)objects {
-	NSIndexSet *indexes = [subkeys indexesOfIdenticalObjects:objects];
-	[self willChange:NSKeyValueChangeRemoval valuesAtIndexes:indexes forKey:@"subkeys"];
-	[subkeys removeObjectsAtIndexes:indexes];
-	[self didChange:NSKeyValueChangeRemoval valuesAtIndexes:indexes forKey:@"subkeys"];
-}
-
-								  
-- (void)setUserIDs:(NSMutableArray *)value {
-	if (value != userIDs) {
-		[userIDs release];
-		userIDs = [value retain];
-	}
-}
-- (NSArray *)userIDs {
-	return [[userIDs retain] autorelease];
-}
-- (unsigned)countOfUserIDs {
-	return [userIDs count];
-}
-- (id)objectInUserIDsAtIndex:(unsigned)theIndex {
-	return [userIDs objectAtIndex:theIndex];
-}
-- (void)getUserIDs:(id *)objsPtr range:(NSRange)range {
-	[userIDs getObjects:objsPtr range:range];
-}
-- (void)insertObject:(id)obj inUserIDsAtIndex:(unsigned)theIndex {
-	[userIDs insertObject:obj atIndex:theIndex];
-}
-- (void)removeObjectFromUserIDsAtIndex:(unsigned)theIndex {
-	[userIDs removeObjectAtIndex:theIndex];
-}
-- (void)replaceObjectInUserIDsAtIndex:(unsigned)theIndex withObject:(id)obj {
-	[userIDs replaceObjectAtIndex:theIndex withObject:obj];
-}
-- (void)removeObjectsFromUserIDsIdenticalTo:(id <NSFastEnumeration>)objects {
-	NSIndexSet *indexes = [userIDs indexesOfIdenticalObjects:objects];
-	if ([indexes count] == 0) {
-		return;
-	}
-	[self willChange:NSKeyValueChangeRemoval valuesAtIndexes:indexes forKey:@"userIDs"];
-	[userIDs removeObjectsAtIndexes:indexes];
-	[self didChange:NSKeyValueChangeRemoval valuesAtIndexes:indexes forKey:@"userIDs"];
-}
 
 
 - (NSUInteger)hash {

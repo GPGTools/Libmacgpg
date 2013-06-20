@@ -28,10 +28,10 @@
 
 
 @interface GPGKey : GPGKey_Template <KeyFingerprint> {
-	NSMutableArray *children;
-	NSMutableArray *subkeys;
-	NSMutableArray *userIDs;
-	NSMutableArray *photos;
+	NSArray *children;
+	NSArray *subkeys;
+	NSArray *userIDs;
+	NSArray *photos;
 	
 	NSString *textForFilter; //In diesem String stehen die verschiedenen Informationen über den Schlüssel, damit das Filtern schnell funktioniert.
 	NSString *allFingerprints;
@@ -40,9 +40,14 @@
 	NSString *fingerprint;
 	GPGValidity ownerTrust;
 	BOOL secret;
+	
+	dispatch_once_t filterTextOnceToken;
 }
 
-@property (nonatomic, readonly, retain) NSMutableArray *photos;
+@property (nonatomic, readonly, retain) NSArray *userIDs;
+@property (nonatomic, readonly, retain) NSArray *subkeys;
+@property (nonatomic, readonly, retain) NSArray *children;
+@property (nonatomic, readonly, retain) NSArray *photos;
 @property (nonatomic, readonly, retain) NSString *textForFilter; //In diesem String stehen die verschiedenen Informationen über den Schlüssel, damit das Filtern schnell funktioniert.
 @property (nonatomic, readonly, retain) NSString *allFingerprints;
 @property (nonatomic, readonly, retain) NSString *fingerprint;
@@ -58,35 +63,6 @@
 @property (nonatomic, readonly) NSString *email;
 @property (nonatomic, readonly) NSString *comment;
 
-- (void)setChildren:(NSMutableArray *)value;
-- (NSArray *)children;
-- (unsigned)countOfChildren;
-- (id)objectInChildrenAtIndex:(unsigned)theIndex;
-- (void)getChildren:(id *)objsPtr range:(NSRange)range;
-- (void)insertObject:(id)obj inChildrenAtIndex:(unsigned)theIndex;
-- (void)removeObjectFromChildrenAtIndex:(unsigned)theIndex;
-- (void)replaceObjectInChildrenAtIndex:(unsigned)theIndex withObject:(id)obj;
-- (void)removeObjectsFromChildrenIdenticalTo:(id <NSFastEnumeration>)objects;
-
-- (void)setSubkeys:(NSMutableArray *)value;
-- (NSArray *)subkeys;
-- (unsigned)countOfSubkeys;
-- (id)objectInSubkeysAtIndex:(unsigned)theIndex;
-- (void)getSubkeys:(id *)objsPtr range:(NSRange)range;
-- (void)insertObject:(id)obj inSubkeysAtIndex:(unsigned)theIndex;
-- (void)removeObjectFromSubkeysAtIndex:(unsigned)theIndex;
-- (void)replaceObjectInSubkeysAtIndex:(unsigned)theIndex withObject:(id)obj;
-- (void)removeObjectsFromSubkeysIdenticalTo:(id <NSFastEnumeration>)objects;
-
-- (void)setUserIDs:(NSMutableArray *)value;
-- (NSArray *)userIDs;
-- (unsigned)countOfUserIDs;
-- (id)objectInUserIDsAtIndex:(unsigned)theIndex;
-- (void)getUserIDs:(id *)objsPtr range:(NSRange)range;
-- (void)insertObject:(id)obj inUserIDsAtIndex:(unsigned)theIndex;
-- (void)removeObjectFromUserIDsAtIndex:(unsigned)theIndex;
-- (void)replaceObjectInUserIDsAtIndex:(unsigned)theIndex withObject:(id)obj;
-- (void)removeObjectsFromUserIDsIdenticalTo:(id <NSFastEnumeration>)objects;
 
 
 

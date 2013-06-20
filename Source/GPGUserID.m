@@ -90,11 +90,14 @@
 	self.userID = [[listing objectAtIndex:9] unescapedString];
 	
 	
+	NSArray *newSignatures = nil;
 	if (sigListing) {
-		signatures = [[GPGKeySignature signaturesWithListing:sigListing] retain];
-	} else {
-		signatures = nil;
+		newSignatures = [[GPGKeySignature signaturesWithListing:sigListing] retain];
 	}
+	NSArray *oldSignatures = signatures;
+	signatures = newSignatures;
+	[oldSignatures release];
+	
 	
 	if (cipherPreferences) {
 		[cipherPreferences release];
@@ -139,7 +142,7 @@
 			}
 		}
 	}
-	return signatures;
+	return [[signatures retain] autorelease];
 }
 
 
