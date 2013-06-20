@@ -189,12 +189,13 @@
 }
 
 - (void)updateFilterText {
+	typeof(self) __weak weakSelf = self;
 	dispatch_once(&filterTextOnceToken, ^{
 		NSMutableString *newText = [[NSMutableString alloc] initWithCapacity:subkeys.count * 40 + userIDs.count * 60 + 40];
 		NSMutableString *fingerprints = [[NSMutableString alloc] initWithCapacity:subkeys.count * 40 + 40];
 		
-		[newText appendFormat:@"0x%@\n0x%@\n0x%@\n", [self fingerprint], [self keyID], [self shortKeyID]];
-		[fingerprints appendFormat:@"%@\n", [self fingerprint]];
+		[newText appendFormat:@"0x%@\n0x%@\n0x%@\n", weakSelf.fingerprint, weakSelf.keyID, weakSelf.shortKeyID];
+		[fingerprints appendFormat:@"%@\n", weakSelf.fingerprint];
 		for (GPGSubkey *subkey in subkeys) {
 			[newText appendFormat:@"0x%@\n0x%@\n0x%@\n", [subkey fingerprint], [subkey keyID], [subkey shortKeyID]];
 			[fingerprints appendFormat:@"%@\n", [subkey fingerprint]];
