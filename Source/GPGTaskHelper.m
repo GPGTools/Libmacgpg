@@ -531,9 +531,13 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
     if(!code)
         return;
     
+	
+
     // Most keywords are handled by the processStatus callback,
     // but some like pinentry passphrase requests are handled
     // directly.
+	
+	NSData *response = self.processStatus(keyword, value);
     
     switch(code) {
         case GPG_STATUS_USERID_HINT: {
@@ -567,7 +571,6 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
             if([value isEqualToString:@"passphrase.enter"])
                 [self getPassphraseAndForward];
             else {
-                NSData *response = self.processStatus(keyword, value);
                 if(response)
                     [self respond:response];
                 else {
@@ -607,7 +610,6 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
             break;
         }
     }
-	self.processStatus(keyword, value);
 }
 
 - (void)getPassphraseAndForward {
