@@ -235,7 +235,7 @@ BOOL gpgConfigReaded = NO;
 		if ([value respondsToSelector:@selector(containsObject:)]) {
 			if ([value containsObject:@"no-auto-key-retrieve"]) {
 				autoKeyRetrieve = NO;
-			} else if ([value containsObject:@"nauto-key-retrieve"]) {
+			} else if ([value containsObject:@"auto-key-retrieve"]) {
 				autoKeyRetrieve = YES;
 			}
 		}
