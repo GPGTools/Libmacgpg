@@ -2138,7 +2138,8 @@ BOOL gpgConfigReaded = NO;
 		case GPG_STATUS_PLAINTEXT: {
             NSArray *promptComponents = [prompt componentsSeparatedByString:@" "];
 			if (promptComponents.count == 3) {
-				self.filename = [[promptComponents objectAtIndex:2] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+				NSString *tempFilename = [[promptComponents objectAtIndex:2] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+				self.filename = tempFilename.length > 0 ? tempFilename : nil;
 			}
 			break;
 		}
