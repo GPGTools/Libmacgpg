@@ -367,11 +367,7 @@ BOOL gpgConfigReaded = NO;
 											[NSNumber numberWithBool:withSigs], @"withSigs", nil];
 		cancelCheck;
 		
-		if ([NSThread isMainThread]) {
-			[self updateKeysWithDict:argumentDictionary];
-		} else {
-			[self performSelectorOnMainThread:@selector(updateKeysWithDict:) withObject:argumentDictionary waitUntilDone:YES];
-		}
+		[self updateKeysWithDict:argumentDictionary];
 		[updatedKeys autorelease];
 
 	} @catch (NSException *e) {
