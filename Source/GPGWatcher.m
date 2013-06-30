@@ -33,10 +33,8 @@ static NSString * const kWatchedFileName = @"watchedFileName";
 - (void)dealloc 
 {
 #if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
-    if(jailfree) {
-        [jailfree invalidate];
-        [jailfree release];
-    }
+    [jailfree release];
+	jailfree = nil;
 #endif
     [[NSDistributedNotificationCenter defaultCenter] removeObserver:self];    
     [[[NSWorkspace sharedWorkspace] notificationCenter] removeObserver:self];
