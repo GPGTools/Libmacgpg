@@ -226,8 +226,6 @@ static id syncRoot = nil;
 #if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
     instance.jailfree = connection;
     
-    [instance updateWatcher];
-    
     [[NSDistributedNotificationCenter defaultCenter] addObserver:instance selector:@selector(keysChangedNotification:) name:GPGKeysChangedNotification object:nil];
     
     [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:instance selector:@selector(workspaceDidMount:) name:NSWorkspaceDidMountNotification object:[NSWorkspace sharedWorkspace]];
@@ -275,7 +273,8 @@ static id syncRoot = nil;
         dirWatcher = [[DirectoryWatcher alloc] init];
         dirWatcher.delegate = self;
         dirWatcher.latency = DW_LATENCY;
-        
+        [self updateWatcher];
+		
 		[[NSGarbageCollector defaultCollector] disableCollectorForPointer:self];
 	}
 	return self;
