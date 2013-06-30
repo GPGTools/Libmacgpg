@@ -508,7 +508,7 @@
 			<key>POSTINSTALL_PATH</key>
 			<dict>
 				<key>PATH</key>
-				<string>../Dependencies/GPGTools_Core/scripts/libmacgpg-xpc-activate.sh</string>
+				<string>../Installer/libmacgpg-xpc-activate.sh</string>
 				<key>PATH_TYPE</key>
 				<integer>1</integer>
 			</dict>
