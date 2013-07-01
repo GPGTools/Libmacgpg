@@ -195,16 +195,16 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
         // 3. Per mento: this feature is a rescue and update system 
         // if the user doesn't use MacGPG2
         if (!inconfPath) {
-            if ([possibleBins count] < 1) {
+            if (possibleBins.count == 0) {
                 inconfPath = [self findExecutableWithName:@"../libexec/pinentry-mac.app/Contents/MacOS/pinentry-mac"];
                 if (inconfPath)
                     [possibleBins addObject:inconfPath];
             }
             
-            if ([possibleBins count] > 0) {
+            if (possibleBins.count > 0) {
                 inconfPath = [possibleBins objectAtIndex:0];
                 [options setValue:inconfPath forKey:kPinentry_program inDomain:GPGDomain_gpgAgentConf];
-                [options gpgAgentTerminate];
+                [options gpgAgentFlush];
             }
         }
         
@@ -252,6 +252,8 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
         @throw [GPGException exceptionWithReason:@"GPG not found!" errorCode:GPGErrorNotFound];
     
     GPGDebugLog(@"$> %@ %@", _task.launchPath, [_task.arguments componentsJoinedByString:@" "]);
+	
+	[GPGTaskHelper pinentryPath];
     
     // Create read pipes for status and attribute information.
     [_task inheritPipeWithMode:O_RDONLY dup:3 name:@"status"];
