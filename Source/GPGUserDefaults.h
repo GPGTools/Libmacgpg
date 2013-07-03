@@ -42,3 +42,11 @@
 @property (nonatomic, assign) BOOL sandboxed;
 
 @end
+
+@interface GPGUserDefaults (NotImplemented)
+
+- (id)objectForKey:(id)key;
+- (void)setObject:(id)object forKey:(id)key;
+- (void)synchronize;
+
+@end
