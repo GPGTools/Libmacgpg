@@ -21,7 +21,7 @@
 #import "GPGKey.h"
 #import "GPGGlobals.h"
 
-@interface GPGRemoteUserID () <GPGUserIDProtocol>
+@interface GPGRemoteUserID ()
 
 @property (nonatomic, retain) NSDate *creationDate;
 @property (nonatomic, retain) NSDate *expirationDate;

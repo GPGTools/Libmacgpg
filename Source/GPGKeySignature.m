@@ -20,7 +20,7 @@
 #import "GPGKeySignature.h"
 #import "GPGKey.h"
 
-@interface GPGKeySignature () <GPGUserIDProtocol>
+@interface GPGKeySignature ()
 
 @property (nonatomic) BOOL local;
 @property (nonatomic) BOOL revocationSignature;

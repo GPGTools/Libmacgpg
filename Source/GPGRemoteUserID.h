@@ -18,9 +18,9 @@
 */
 
 #import <Cocoa/Cocoa.h>
+#import "GPGGlobals.h"
 
-
-@interface GPGRemoteUserID : NSObject {
+@interface GPGRemoteUserID : NSObject <GPGUserIDProtocol> {
 	NSString *userID;
 	NSString *name;
 	NSString *email;
@@ -29,10 +29,10 @@
 	NSDate *expirationDate;
 }
 
-@property (nonatomic, readonly, retain) NSString *userID;
-@property (nonatomic, readonly, retain) NSString *name;
-@property (nonatomic, readonly, retain) NSString *email;
-@property (nonatomic, readonly, retain) NSString *comment;
+@property (nonatomic, retain) NSString *userID;
+@property (nonatomic, retain) NSString *name;
+@property (nonatomic, retain) NSString *email;
+@property (nonatomic, retain) NSString *comment;
 @property (nonatomic, readonly, retain) NSDate *creationDate;
 @property (nonatomic, readonly, retain) NSDate *expirationDate;
 

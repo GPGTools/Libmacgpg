@@ -23,10 +23,10 @@
 #import "GPGTask.h"
 #import "GPGException.h"
 
-@interface GPGUserID () <GPGUserIDProtocol>
+@interface GPGUserID ()
 
-@property (nonatomic, assign, readwrite) GPGKey *primaryKey;
-@property (nonatomic, retain, readwrite) NSString *hashID;
+@property (nonatomic, assign) GPGKey *primaryKey;
+@property (nonatomic, retain) NSString *hashID;
 
 @end
 

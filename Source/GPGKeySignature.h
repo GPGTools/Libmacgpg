@@ -19,7 +19,7 @@
 
 #import <Libmacgpg/GPGGlobals.h>
 
-@interface GPGKeySignature : NSObject {
+@interface GPGKeySignature : NSObject <GPGUserIDProtocol> {
 	NSString *keyID;
 	NSString *shortKeyID;
 	
@@ -48,10 +48,10 @@
 @property (nonatomic, readonly) GPGPublicKeyAlgorithm algorithm;
 @property (nonatomic, readonly) int signatureClass;
 @property (nonatomic, readonly, copy) NSString *type;
-@property (nonatomic, readonly, retain) NSString *userID;
-@property (nonatomic, readonly, retain) NSString *name;
-@property (nonatomic, readonly, retain) NSString *email;
-@property (nonatomic, readonly, retain) NSString *comment;
+@property (nonatomic, retain) NSString *userID;
+@property (nonatomic, retain) NSString *name;
+@property (nonatomic, retain) NSString *email;
+@property (nonatomic, retain) NSString *comment;
 @property (nonatomic, readonly, retain) NSString *keyID;
 @property (nonatomic, readonly, retain) NSString *shortKeyID;
 @property (nonatomic, readonly, retain) NSString *description;

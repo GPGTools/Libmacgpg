@@ -22,7 +22,7 @@
 #import "GPGGlobals.h"
 #import "GPGTransformer.h"
 
-@interface GPGSignature () <GPGUserIDProtocol>
+@interface GPGSignature ()
 
 @property (nonatomic) GPGErrorCode status;
 @property (nonatomic) GPGValidity trust;

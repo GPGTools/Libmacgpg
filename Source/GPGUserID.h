@@ -22,7 +22,7 @@
 
 @class GPGKey;
 
-@interface GPGUserID : GPGSuper_Template {
+@interface GPGUserID : GPGSuper_Template <GPGUserIDProtocol> {
 	NSInteger index;
 	GPGKey *primaryKey;
 	
@@ -55,10 +55,10 @@
 
 @property (nonatomic, readonly, retain) NSString *hashID;
 
-@property (nonatomic, readonly, retain) NSString *userID;
-@property (nonatomic, readonly, retain) NSString *name;
-@property (nonatomic, readonly, retain) NSString *email;
-@property (nonatomic, readonly, retain) NSString *comment;
+@property (nonatomic, retain) NSString *userID;
+@property (nonatomic, retain) NSString *name;
+@property (nonatomic, retain) NSString *email;
+@property (nonatomic, retain) NSString *comment;
 
 
 //Dummys

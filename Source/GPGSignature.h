@@ -20,7 +20,7 @@
 #import <Libmacgpg/GPGGlobals.h>
 
 
-@interface GPGSignature : NSObject {
+@interface GPGSignature : NSObject <GPGUserIDProtocol> {
 	GPGValidity trust;
 	GPGErrorCode status;
 	
@@ -49,10 +49,10 @@
 @property (nonatomic, readonly) int hashAlgorithm;
 @property (nonatomic, retain, readonly) NSString *fingerprint;
 @property (nonatomic, retain, readonly) NSString *primaryFingerprint;
-@property (nonatomic, retain, readonly) NSString *userID;
-@property (nonatomic, retain, readonly) NSString *name;
-@property (nonatomic, retain, readonly) NSString *email;
-@property (nonatomic, retain, readonly) NSString *comment;
+@property (nonatomic, retain) NSString *userID;
+@property (nonatomic, retain) NSString *name;
+@property (nonatomic, retain) NSString *email;
+@property (nonatomic, retain) NSString *comment;
 @property (nonatomic, retain, readonly) NSDate *creationDate;
 @property (nonatomic, retain, readonly) NSDate *expirationDate;
 @property (nonatomic, retain, readonly) NSString *signatureClass;
