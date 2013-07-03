@@ -28,7 +28,7 @@ $(PRODUCT): Source/* Resources/* Resources/*/* Libmacgpg.xcodeproj
 install: $(PRODUCT)
 	@echo Installing Libmacgpg...
 	@[[ $$UID -eq 0 ]] || ( echo "This command needs to be run as root!"; exit 1 )
-	@rsync -rltD build/Release/$(PRODUCT) /Library/Frameworks/
+	@rsync -rltDE build/Release/$(PRODUCT) /Library/Frameworks/
 	@mkdir -p "/Library/Application Support/GPGTools"
 	@cp build/Release/org.gpgtools.Libmacgpg.xpc "/Library/Application Support/GPGTools/"
 	@cp build/org.gpgtools.Libmacgpg.xpc.plist "/Library/LaunchAgents/"
