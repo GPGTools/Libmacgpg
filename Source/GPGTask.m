@@ -238,7 +238,6 @@ char partCountForStatusCode[GPG_STATUS_COUNT];
 - (id)initWithArguments:(NSArray *)args batchMode:(BOOL)batch {
 	self = [super init];
 	if (self) {
-		timeout = GPGTASKHELPER_DISPATCH_TIMEOUT_LOADS_OF_DATA;
 		arguments = [[NSMutableArray alloc] initWithArray:args];
 		batchMode = batch;
 		errorCodes = [[NSMutableArray alloc] init];

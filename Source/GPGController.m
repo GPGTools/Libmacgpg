@@ -213,7 +213,6 @@ BOOL gpgConfigReaded = NO;
 	signatures = [[NSMutableArray alloc] init];
 	keyserverTimeout = 10;
 	asyncProxy = [[AsyncProxy alloc] initWithRealObject:self];
-	timeout = GPGTASKHELPER_DISPATCH_TIMEOUT_LOADS_OF_DATA;
 	useDefaultComments = YES;
 	
 	GPGOptions *options = [GPGOptions sharedOptions];

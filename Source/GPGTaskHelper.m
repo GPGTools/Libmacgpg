@@ -238,7 +238,6 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
     if(self) {
         _arguments = [arguments copy];
         _processedBytesMap = [[NSMutableDictionary alloc] init];
-		_timeout = GPGTASKHELPER_DISPATCH_TIMEOUT_LOADS_OF_DATA;
 	}
     return self;
 }
