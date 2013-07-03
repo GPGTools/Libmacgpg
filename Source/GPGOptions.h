@@ -57,7 +57,7 @@ typedef enum {
 @property (nonatomic) BOOL autoSave;
 @property (nonatomic, retain) NSString *standardDomain;
 @property (nonatomic, readonly) BOOL debugLog;
-@property (nonatomic, assign) BOOL sandboxed;
+@property (nonatomic, assign, readonly) BOOL sandboxed;
 
 + (BOOL)debugLog;
 
