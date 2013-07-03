@@ -1,8 +1,10 @@
 PROJECT = Libmacgpg
 TARGET = Libmacgpg
-PRODUCT = Libmacgpg.framework
+PRODUCT = Libmacgpg
 TEST_TARGET = UnitTest
 MAKE_DEFAULT = Dependencies/GPGTools_Core/newBuildSystem/Makefile.default
+VPATH = build/$(CONFIG)/Libmacgpg.framework/Versions/Current
+
 
 -include $(MAKE_DEFAULT)
 
@@ -28,7 +30,7 @@ $(PRODUCT): Source/* Resources/* Resources/*/* Libmacgpg.xcodeproj
 install: $(PRODUCT)
 	@echo Installing Libmacgpg...
 	@[[ $$UID -eq 0 ]] || ( echo "This command needs to be run as root!"; exit 1 )
-	@rsync -rltDE build/Release/$(PRODUCT) /Library/Frameworks/
+	@rsync -rltDE build/Release/Libmacgpg.framework /Library/Frameworks/
 	@mkdir -p "/Library/Application Support/GPGTools"
 	@cp build/Release/org.gpgtools.Libmacgpg.xpc "/Library/Application Support/GPGTools/"
 	@cp build/org.gpgtools.Libmacgpg.xpc.plist "/Library/LaunchAgents/"
