@@ -32,10 +32,6 @@
 @property (nonatomic) int hashAlgorithm;
 @property (nonatomic, retain) NSString *fingerprint;
 @property (nonatomic, retain) NSString *primaryFingerprint;
-@property (nonatomic, retain) NSString *userID;
-@property (nonatomic, retain) NSString *name;
-@property (nonatomic, retain) NSString *email;
-@property (nonatomic, retain) NSString *comment;
 @property (nonatomic, retain) NSDate *creationDate;
 @property (nonatomic, retain) NSDate *expirationDate;
 @property (nonatomic, retain) NSString *signatureClass;

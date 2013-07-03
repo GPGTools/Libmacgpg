@@ -26,10 +26,6 @@
 @property (nonatomic) BOOL revocationSignature;
 @property (nonatomic) int signatureClass;
 @property (nonatomic, copy) NSString *type;
-@property (nonatomic, retain) NSString *userID;
-@property (nonatomic, retain) NSString *name;
-@property (nonatomic, retain) NSString *email;
-@property (nonatomic, retain) NSString *comment;
 @property (nonatomic, retain) NSString *keyID;
 @property (nonatomic, retain) NSString *shortKeyID;
 @property (nonatomic, retain) NSString *description;

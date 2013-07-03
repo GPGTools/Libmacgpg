@@ -23,10 +23,6 @@
 
 @interface GPGRemoteUserID () <GPGUserIDProtocol>
 
-@property (nonatomic, retain) NSString *userID;
-@property (nonatomic, retain) NSString *name;
-@property (nonatomic, retain) NSString *email;
-@property (nonatomic, retain) NSString *comment;
 @property (nonatomic, retain) NSDate *creationDate;
 @property (nonatomic, retain) NSDate *expirationDate;
 
