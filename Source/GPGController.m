@@ -31,6 +31,7 @@
 #import "GPGMemoryStream.h"
 #if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
 #import "GPGTaskHelperXPC.h"
+#import "NSBundle+Sandbox.h"
 #endif
 
 #include <stdio.h>
@@ -2518,17 +2519,17 @@ BOOL gpgConfigReaded = NO;
 
 - (BOOL)sandboxed {
 #if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
-    static BOOL sandboxed;
+    static BOOL __sandboxed;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
 #ifdef USE_XPCSERVICE
-        sandboxed = USE_XPCSERVICE ? YES : NO;
+        __sandboxed = USE_XPCSERVICE ? YES : NO;
 #else
         NSBundle *bundle = [NSBundle mainBundle];
-        sandboxed = [bundle ob_isSandboxed];
+        __sandboxed = [bundle ob_isSandboxed];
 #endif
     });
-	return sandboxed;
+	return __sandboxed;
 #else
 	return NO;
 #endif
