@@ -35,3 +35,4 @@
 #import <Libmacgpg/GPGPhotoID.h>
 #import <Libmacgpg/GPGException.h>
 #import <Libmacgpg/GPGTransformer.h>
+#import <Libmacgpg/GPGTaskHelperXPC.h>

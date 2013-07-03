@@ -64,12 +64,7 @@
 	
 	// Otherwise, no way around it. XPC is necessary, but no
 	// big deal either.
-	GPGTaskHelperXPC *taskHelper = [[GPGTaskHelperXPC alloc] initWithTimeout:GPGTASKHELPER_DISPATCH_TIMEOUT_LOADS_OF_DATA];
-	if(![taskHelper test]) {
-		[taskHelper shutdown];
-		[taskHelper release];
-		return nil;
-	}
+	GPGTaskHelperXPC *taskHelper = [[GPGTaskHelperXPC alloc] init];
 	
 	NSDictionary *defaults = nil;
 	
@@ -79,7 +74,6 @@
 	@catch (NSException *exception) {
 	}
 	@finally {
-		[taskHelper shutdown];
 		[taskHelper release];
 	}
 	
@@ -93,12 +87,7 @@
 		return;
 	}
 	
-	GPGTaskHelperXPC *taskHelper = [[GPGTaskHelperXPC alloc] initWithTimeout:GPGTASKHELPER_DISPATCH_TIMEOUT_LOADS_OF_DATA];
-	
-	if(![taskHelper test]) {
-		[taskHelper release];
-		return;
-	}
+	GPGTaskHelperXPC *taskHelper = [[GPGTaskHelperXPC alloc] init];
 	
 	@try {
 		[taskHelper setUserDefaults:domain forName:domainName];

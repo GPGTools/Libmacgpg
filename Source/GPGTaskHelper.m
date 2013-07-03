@@ -384,7 +384,7 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
     
 	__block GPGTaskHelper * weakSelf = self;
 	
-	GPGTaskHelperXPC *xpcTask = [[GPGTaskHelperXPC alloc] initWithTimeout:_timeout];
+	GPGTaskHelperXPC *xpcTask = [[GPGTaskHelperXPC alloc] init];
 	xpcTask.progressHandler = ^(NSUInteger processedBytes, NSUInteger total) {
 		if(weakSelf.progressHandler)
 			weakSelf.progressHandler(processedBytes, total);
@@ -397,13 +397,6 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
 		return response;
 	};
 
-	if(![xpcTask test]) {
-		[xpcTask shutdown];
-		[xpcTask release];
-		NSLog(@"[GPGMail] XPC test connection failed - reason: org.gpgtools.Libmacgpg.xpc isn't available.\nPlease try to run the following command in Terminal:\nlaunchctl load /Library/LaunchAgents/org.gpgtools.Libmacgpg.xpc.plist\n");
-		return -1;
-	}
-	
 	NSMutableArray *inputData = [[NSMutableArray alloc] init];
 	[_inData enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
 		[inputData addObject:[((GPGMemoryStream *)obj) readAllData]];
@@ -411,7 +404,17 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
 	[_inData release];
 	_inData = nil;
 	
-	NSDictionary *result = [xpcTask launchGPGWithArguments:self.arguments data:inputData readAttributes:self.readAttributes];
+	NSDictionary *result = nil;
+	@try {
+		result = [xpcTask launchGPGWithArguments:self.arguments data:inputData readAttributes:self.readAttributes];
+	}
+	@catch (NSException *exception) {
+		[xpcTask release];
+		[inputData release];
+		@throw exception;
+		
+		return -1;
+	}
 	
 	[inputData release];
 	
@@ -428,7 +431,6 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
 		self.errors = [result objectForKey:@"errors"];
 	self.exitStatus = [[result objectForKey:@"exitStatus"] intValue];
 	
-	[xpcTask shutdown];
 	[xpcTask release];
 	
 	return [[result objectForKey:@"exitStatus"] intValue];
@@ -972,17 +974,19 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
 
 + (BOOL)launchGeneralTask:(NSString *)path withArguments:(NSArray *)arguments wait:(BOOL)wait {
 	if ([self sandboxed]) {
-		GPGTaskHelperXPC *xpcTask = [[GPGTaskHelperXPC alloc] initWithTimeout:GPGTASKHELPER_DISPATCH_TIMEOUT_LOADS_OF_DATA];
+		GPGTaskHelperXPC *xpcTask = [[GPGTaskHelperXPC alloc] init];
 		
-		if(![xpcTask test]) {
-			[xpcTask shutdown];
-			[xpcTask release];
+		BOOL succeeded = NO;
+		@try {
+			succeeded = [xpcTask launchGeneralTask:path withArguments:arguments wait:wait];
+		}
+		@catch (NSException *exception) {
 			return NO;
 		}
+		@finally {
+			[xpcTask release];
+		}
 		
-		BOOL succeeded = [xpcTask launchGeneralTask:path withArguments:arguments wait:wait];
-		[xpcTask shutdown];
-		[xpcTask release];
 		return succeeded;
 	} else {
 		NSTask *task = [NSTask launchedTaskWithLaunchPath:path arguments:arguments];

@@ -40,8 +40,7 @@ int main(int argc, const char *argv[])
     serviceListener.delegate = delegate;
     
     [serviceListener resume];
-    
-    [[NSRunLoop mainRunLoop] run];
+    [[NSRunLoop currentRunLoop] run];
 	
     return 0;
 }

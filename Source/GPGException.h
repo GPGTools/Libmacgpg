@@ -349,7 +349,12 @@ typedef enum {
     GPGError_EUSERS = 16521, 
     GPGError_EWOULDBLOCK = 16522, 
     GPGError_EXDEV = 16523, 
-    GPGError_EXFULL = 16524
+    GPGError_EXFULL = 16524,
+	
+	// Libmacgpg XPC related errors
+	GPGErrorXPCConnectionError = 20500,
+	GPGErrorXPCBinaryError = 20501,
+	GPGErrorXPCConnectionInterruptedError = 20502
 } GPGErrorCode;
 
 

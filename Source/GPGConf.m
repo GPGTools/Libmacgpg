@@ -145,13 +145,8 @@
 }
 
 - (NSString *)loadConfigFileXPC {
-	GPGTaskHelperXPC *taskHelper = [[GPGTaskHelperXPC alloc] initWithTimeout:GPGTASKHELPER_DISPATCH_TIMEOUT_LOADS_OF_DATA];
+	GPGTaskHelperXPC *taskHelper = [[GPGTaskHelperXPC alloc] init];
 	NSString *content = nil;
-	if(![taskHelper test]) {
-		[taskHelper shutdown];
-		[taskHelper release];
-		return nil;
-	}
 	
 	@try {
 		content = [taskHelper loadConfigFileAtPath:path];
@@ -159,7 +154,6 @@
 	@catch (NSException *exception) {
 	}
 	@finally {
-		[taskHelper shutdown];
 		[taskHelper release];
 	}
 	

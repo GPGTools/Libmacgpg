@@ -49,15 +49,14 @@
 @interface GPGTaskHelperXPC : NSObject <Jail> {
 	NSData *(^_processStatus)(NSString *keyword, NSString *value);
 	void (^_progressHandler)(NSUInteger processedBytes, NSUInteger totalBytes);
-	NSUInteger _timeout;
 	NSXPCConnection *_connection;
 	dispatch_semaphore_t _taskLock;
-	dispatch_semaphore_t _testLock;
+	id <Jailfree> _jailfree;
 	BOOL _wasShutdown;
+	NSException *_connectionError;
 }
 
-- (id)initWithTimeout:(NSUInteger)aTimeout;
-- (BOOL)test;
+- (id)init;
 - (NSDictionary *)launchGPGWithArguments:(NSArray *)arguments data:(NSArray *)data readAttributes:(BOOL)readAttributes;
 - (BOOL)launchGeneralTask:(NSString *)path withArguments:(NSArray *)arguments wait:(BOOL)wait;
 - (void)shutdown;
@@ -68,6 +67,8 @@
 
 @property (nonatomic, copy) NSData *(^processStatus)(NSString *keyword, NSString *value);
 @property (nonatomic, copy) void (^progressHandler)(NSUInteger processedBytes, NSUInteger totalBytes);
+
+@property (nonatomic, retain, readonly) NSException *connectionError;
 
 @end
 
