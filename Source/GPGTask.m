@@ -387,6 +387,14 @@ char partCountForStatusCode[GPG_STATUS_COUNT];
 		@throw exception;
     }
     
+	// In case pinentry crashed or was killed and Libmacgpg is used from
+	// a sandboxed application, the exitcode will be GPGErrorCancelled,
+	// but the errorCode will be GPGErrorEOF, which is the correct status.
+	// GPGErrorCancelled should only be returned if the user in fact cancelled
+	// a passphrase request.
+	if(exitcode == GPGErrorCancelled && [errorCodes count] != 0 && self.errorCode == GPGErrorEOF)
+		exitcode = GPGErrorEOF;
+	
     if([delegate respondsToSelector:@selector(gpgTaskDidTerminate:)])
         [delegate gpgTaskDidTerminate:self];
     
