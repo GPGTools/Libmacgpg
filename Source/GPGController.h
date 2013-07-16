@@ -21,6 +21,7 @@
 #import <Libmacgpg/GPGGlobals.h>
 #import <Libmacgpg/GPGKey.h>
 #import <Libmacgpg/GPGTask.h>
+#import <Libmacgpg/GPGKeyserver.h>
 
 @class GPGSignature;
 @class GPGController;
@@ -40,7 +41,7 @@
 
 
 
-@interface GPGController : NSObject <GPGTaskDelegate> {
+@interface GPGController : NSObject <GPGTaskDelegate, GPGKeyserverDelegate> {
 	NSMutableArray *signerKeys;
 	NSMutableArray *comments;
 	NSMutableArray *signatures;
@@ -78,6 +79,10 @@
 	NSInteger runningOperations;
 	NSUInteger groupedKeyChange;
 	NSUInteger timeout;
+	
+	BOOL keyserverFinished;
+	NSCondition *keyserverCondition;
+	GPGKeyserver *gpgKeyserver;
 	
 	BOOL sandboxed;
 }

@@ -59,6 +59,8 @@
 		3002C04416EE388B00D57C1E /* libcrypto.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3002C04316EE388B00D57C1E /* libcrypto.dylib */; };
 		3002C04616EE389100D57C1E /* libxar.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3002C04516EE389100D57C1E /* libxar.dylib */; };
 		3002C04716EE38C900D57C1E /* libcrypto.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3002C04316EE388B00D57C1E /* libcrypto.dylib */; };
+		301D5D9F178C9871003026E7 /* GPGKeyserver.h in Headers */ = {isa = PBXBuildFile; fileRef = 301D5D9D178C9871003026E7 /* GPGKeyserver.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		301D5DA0178C9871003026E7 /* GPGKeyserver.m in Sources */ = {isa = PBXBuildFile; fileRef = 301D5D9E178C9871003026E7 /* GPGKeyserver.m */; };
 		3026F4AF13A203A000F3CA02 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3026F4AE13A203A000F3CA02 /* Security.framework */; };
 		302AA37A133606260022A371 /* GPGKey_Template.h in Headers */ = {isa = PBXBuildFile; fileRef = 302AA378133606260022A371 /* GPGKey_Template.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		302AA37B133606260022A371 /* GPGKey_Template.m in Sources */ = {isa = PBXBuildFile; fileRef = 302AA379133606260022A371 /* GPGKey_Template.m */; };
@@ -248,6 +250,8 @@
 		1BD78BB11726B2830005F251 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		3002C04316EE388B00D57C1E /* libcrypto.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcrypto.dylib; path = usr/lib/libcrypto.dylib; sourceTree = SDKROOT; };
 		3002C04516EE389100D57C1E /* libxar.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxar.dylib; path = usr/lib/libxar.dylib; sourceTree = SDKROOT; };
+		301D5D9D178C9871003026E7 /* GPGKeyserver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGKeyserver.h; sourceTree = "<group>"; };
+		301D5D9E178C9871003026E7 /* GPGKeyserver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGKeyserver.m; sourceTree = "<group>"; };
 		3026F4AE13A203A000F3CA02 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		302AA378133606260022A371 /* GPGKey_Template.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGKey_Template.h; sourceTree = "<group>"; };
 		302AA379133606260022A371 /* GPGKey_Template.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGKey_Template.m; sourceTree = "<group>"; };
@@ -490,6 +494,8 @@
 				451D8830156A7E4900A0B890 /* GPGFileStream.m */,
 				1B9FF20E17257A69004FB017 /* GPGTaskHelperXPC.h */,
 				1B9FF20F17257A69004FB017 /* GPGTaskHelperXPC.m */,
+				301D5D9D178C9871003026E7 /* GPGKeyserver.h */,
+				301D5D9E178C9871003026E7 /* GPGKeyserver.m */,
 			);
 			name = Classes;
 			path = Source;
@@ -720,6 +726,7 @@
 				1BA5FE5B1619BE6700FC6A2C /* JailfreeTask.h in Headers */,
 				3048830F1462B22000F2E5F4 /* GPGWatcher.h in Headers */,
 				451D8829156A7AD900A0B890 /* GPGStream.h in Headers */,
+				301D5D9F178C9871003026E7 /* GPGKeyserver.h in Headers */,
 				451D882D156A7CA300A0B890 /* GPGMemoryStream.h in Headers */,
 				451D8831156A7E4900A0B890 /* GPGFileStream.h in Headers */,
 				1B9FF21017257A69004FB017 /* GPGTaskHelperXPC.h in Headers */,
@@ -1092,6 +1099,7 @@
 				304883101462B22000F2E5F4 /* GPGWatcher.m in Sources */,
 				30D5E2A51483A0F700F31454 /* GPGConf.m in Sources */,
 				451932F614F8061100D1F727 /* GPGStdSetting.m in Sources */,
+				301D5DA0178C9871003026E7 /* GPGKeyserver.m in Sources */,
 				4570876714FAA7C90030AAE6 /* GPGConfReader.m in Sources */,
 				45156A1D14FB1B1200129FE7 /* GPGLinesSetting.m in Sources */,
 				45156A2114FB1D7D00129FE7 /* GPGDictSetting.m in Sources */,
