@@ -74,7 +74,7 @@
 
 
 @implementation GPGController
-@synthesize delegate, keyserver, keyserverTimeout, proxyServer, async, userInfo, useArmor, useTextMode, printVersion, useDefaultComments, trustAllKeys, signatures, lastSignature, gpgHome, verbose, autoKeyRetrieve, lastReturnValue, error, undoManager, hashAlgorithm, gpgTask, timeout, sandboxed, filename;
+@synthesize delegate, keyserver, keyserverTimeout, proxyServer, async, userInfo, useArmor, useTextMode, printVersion, useDefaultComments, trustAllKeys, signatures, lastSignature, gpgHome, verbose, autoKeyRetrieve, lastReturnValue, error, undoManager, hashAlgorithm, gpgTask, timeout, sandboxed, filename, forceFilename;
 
 NSString *gpgVersion = nil;
 NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil, *compressAlgorithm = nil;
@@ -482,6 +482,11 @@ BOOL gpgConfigReaded = NO;
 					break;
 			}			
 		}
+		if (self.forceFilename) {
+			[gpgTask addArgument:@"--set-filename"];
+			[gpgTask addArgument:self.forceFilename];
+		}
+		
 		gpgTask.outStream = output;
 		[gpgTask addInput:input];
 
@@ -2494,6 +2499,8 @@ BOOL gpgConfigReaded = NO;
 	undoManager = nil;
 	[gpgKeyservers release];
 	gpgKeyservers = nil;
+	self.forceFilename = nil;
+	self.filename = nil;
 	
 	[super dealloc];
 }
