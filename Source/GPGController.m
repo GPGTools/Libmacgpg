@@ -2146,7 +2146,16 @@ BOOL gpgConfigReaded = NO;
             NSArray *promptComponents = [prompt componentsSeparatedByString:@" "];
 			if (promptComponents.count == 3) {
 				NSString *tempFilename = [[promptComponents objectAtIndex:2] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+				NSRange extensionRange = [tempFilename rangeOfString:@"."];
 				self.filename = tempFilename.length > 0 ? tempFilename : nil;
+				
+				// For some reason, in some occassions, GPG only prints a number instead
+				// of the filename.
+				// If the file is a binary file and doesn't have an extension, we'll reset the filename to
+				// nil.
+				if([[promptComponents objectAtIndex:0] integerValue] == 62 &&
+				   (extensionRange.location == NSNotFound || extensionRange.location == 0))
+					self.filename = nil;
 			}
 			break;
 		}
