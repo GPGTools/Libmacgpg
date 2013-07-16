@@ -12,17 +12,19 @@
 
 @interface GPGKeyserver ()
 @property (retain, nonatomic) NSURLConnection *connection;
+@property (retain, nonatomic) GPGException *exception;
 @end
 
 
 @implementation GPGKeyserver
-@synthesize keyserver, connection, receivedData, delegate, userInfo, isRunning;
+@synthesize keyserver, connection, receivedData, userInfo, isRunning, lastOperation, finishedHandler, exception, timeout;
 
 
 #pragma mark Public methods
 
 - (void)getKey:(NSString *)keyID {
 	[self start];
+	lastOperation = _cmd;
 	
 	switch (keyID.length) {
 		default:
@@ -31,18 +33,21 @@
 		case 16:
 		case 32:
 		case 40:
-			keyID = [@"0x" stringByAppendingString:keyID];
 			break;
 		case 10:
 		case 18:
 		case 34:
 		case 42:
+			keyID = [keyID substringFromIndex:2];
 			break;
 	}
 	NSCharacterSet *noHexCharSet = [[NSCharacterSet characterSetWithCharactersInString:@"0123456789ABCDEFabcdef"] invertedSet];
+	
 	if ([keyID rangeOfCharacterFromSet:noHexCharSet].length > 0) {
 		@throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"Invalid KeyID" userInfo:[NSDictionary dictionaryWithObjectsAndKeys:keyID, @"keyID", nil]];
 	}
+	
+	keyID = [@"0x" stringByAppendingString:keyID];
 	
 	NSString *query = [NSString stringWithFormat:@"op=get&options=mr&search=%@", keyID];
 	
@@ -51,6 +56,7 @@
 
 - (void)searchKey:(NSString *)pattern {
 	[self start];
+	lastOperation = _cmd;
 
 	if (pattern.length == 0) {
 		@throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"No pattern given" userInfo:nil];
@@ -133,9 +139,18 @@
 - (void)sendRequestWithQuery:(NSString *)query {
 	receivedData.length = 0;
 	NSURL *url = [self keyserverURLWithQuery:query];
+	if (!url) {
+		[self failedWithException:[GPGException exceptionWithReason:@"keyserverURLWithQuery failed!" errorCode:GPGErrorKeyServerError]];
+	}
 		
-	NSURLRequest *request = [[NSURLRequest alloc] initWithURL:url  cachePolicy:0 timeoutInterval:60.0];
-	NSURLConnection *theConnection = [[NSURLConnection alloc] initWithRequest:request delegate:self];
+	NSURLRequest *request = [[NSURLRequest alloc] initWithURL:url cachePolicy:0 timeoutInterval:self.timeout];
+	if (!request) {
+		[self failedWithException:[GPGException exceptionWithReason:@"NSURLRequest failed!" errorCode:GPGErrorKeyServerError]];
+	}
+	
+	NSURLConnection *theConnection = [[NSURLConnection alloc] initWithRequest:request delegate:self startImmediately:NO];
+	[theConnection scheduleInRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
+	[theConnection start];
 	[request release];
 	
 	if (theConnection) {
@@ -146,8 +161,12 @@
 	}
 }
 
-- (void)failedWithException:(NSException *)exception {
-	[self.delegate keyserver:self didFailWithException:exception];
+- (void)failedWithException:(NSException *)e {
+	self.exception = e;
+	
+	if (finishedHandler) {
+		finishedHandler(self);
+	}
 }
 
 
@@ -169,7 +188,10 @@
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
-	[self.delegate keyserverDidFinishLoading:self];
+	if (finishedHandler) {
+		finishedHandler(self);
+	}
+	
 	self.connection = nil;
 }
 
@@ -177,26 +199,22 @@
 
 #pragma mark init and dealloc
 
-+ (id)keyserverWithDelegate:(id <GPGKeyserverDelegate>)theDelegate {
-	return [[[self alloc] initWithDelegate:theDelegate] autorelease];
-}
-
-- (id)initWithDelegate:(id <GPGKeyserverDelegate>)theDelegate {
+- (id)initWithFinishedHandler:(gpg_ks_finishedHandler)handler {
 	if (!(self = [super init])) {
 		return nil;
 	}
 	
+	self.finishedHandler = handler;
 	self.keyserver = [[GPGOptions sharedOptions] keyserver];
 	receivedData = [[NSMutableData alloc] init];
-	self.delegate = theDelegate;
+	self.timeout = 30;
 	
 	return self;
 }
 
-- (id)init {	
-	return [self initWithDelegate:nil];
+- (id)init {
+	return [self initWithFinishedHandler:nil];
 }
-
 
 - (void)dealloc {
 	self.keyserver = nil;

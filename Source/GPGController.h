@@ -41,7 +41,7 @@
 
 
 
-@interface GPGController : NSObject <GPGTaskDelegate, GPGKeyserverDelegate> {
+@interface GPGController : NSObject <GPGTaskDelegate> {
 	NSMutableArray *signerKeys;
 	NSMutableArray *comments;
 	NSMutableArray *signatures;
@@ -80,9 +80,7 @@
 	NSUInteger groupedKeyChange;
 	NSUInteger timeout;
 	
-	BOOL keyserverFinished;
-	NSCondition *keyserverCondition;
-	GPGKeyserver *gpgKeyserver;
+	NSMutableSet *gpgKeyservers;
 	
 	BOOL sandboxed;
 }

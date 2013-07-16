@@ -7,32 +7,35 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <Libmacgpg/GPGException.h>
 
 @class GPGKeyserver;
 
-@protocol GPGKeyserverDelegate <NSObject>
-@required
-- (void)keyserverDidFinishLoading:(GPGKeyserver *)keyserver;
-- (void)keyserver:(GPGKeyserver *)keyserver didFailWithException:(NSException *)exception;
-@end
-
+typedef void (^gpg_ks_finishedHandler)(GPGKeyserver *server);
 
 @interface GPGKeyserver : NSObject <NSURLConnectionDelegate, NSURLConnectionDataDelegate> {
 	NSString *keyserver;
-	id <GPGKeyserverDelegate> delegate;
 	NSDictionary *userInfo;
 	BOOL isRunning;
+	SEL lastOperation;
+	NSException *exception;
+	gpg_ks_finishedHandler finishedHandler;
+	NSUInteger timeout;
 	
 	NSMutableData *receivedData;
 	NSURLConnection *connection;
 	BOOL _cancelled;
 }
 
-@property (assign, nonatomic) id <GPGKeyserverDelegate> delegate;
 @property (retain, nonatomic) NSString *keyserver;
-@property (retain, nonatomic, readonly) NSData *receivedData;
+@property (readonly, retain, nonatomic) NSData *receivedData;
 @property (retain, nonatomic) NSDictionary *userInfo;
 @property (readonly, nonatomic) BOOL isRunning;
+@property (readonly, nonatomic) SEL lastOperation;
+@property (readonly, retain, nonatomic) NSException *exception;
+@property (nonatomic) NSUInteger timeout;
+
+@property (nonatomic) gpg_ks_finishedHandler finishedHandler;
 
 
 - (void)getKey:(NSString *)keyID;
@@ -40,8 +43,7 @@
 
 - (void)cancel;
 
-+ (id)keyserverWithDelegate:(id <GPGKeyserverDelegate>)delegate;
-- (id)initWithDelegate:(id <GPGKeyserverDelegate>)delegate;
+- (id)initWithFinishedHandler:(gpg_ks_finishedHandler)finishedHandler;
 
 
 @end
