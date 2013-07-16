@@ -194,6 +194,16 @@ BOOL gpgConfigReaded = NO;
 	return gpgTask.statusDict;
 }
 
+- (GPGKeyserver *)gpgKeyserver {
+	static dispatch_once_t onceToken;
+	
+	__block GPGController *weakSelf = self;
+    dispatch_once(&onceToken, ^{
+		weakSelf->gpgKeyserver = [[GPGKeyserver alloc] initWithDelegate:self];
+	});
+	
+	return [[gpgKeyserver retain] autorelease];
+}
 
 #pragma mark Init
 
@@ -255,6 +265,9 @@ BOOL gpgConfigReaded = NO;
 	canceled = YES;
 	if (gpgTask.isRunning) {
 		[gpgTask cancel];
+	}
+	if (gpgKeyserver.isRunning) {
+		[gpgKeyserver cancel];
 	}
 }
 
@@ -1740,6 +1753,49 @@ BOOL gpgConfigReaded = NO;
 }
 
 - (NSString *)receiveKeysFromServer:(NSObject <EnumerationList> *)keys {
+	/*asyncStarted = async;
+	
+	@try {
+		[self operationDidStart];
+		
+		
+		
+		if (!async) {
+			keyserverCondition = [NSCondition new];
+			lastReturnValue = nil;
+			keyserverFinished = NO;
+			[keyserverCondition lock];
+		}
+		
+		
+		self.gpgKeyserver.userInfo = [NSDictionary dictionaryWithObjectsAndKeys:@"search", @"operation", nil];
+		[self.gpgKeyserver searchKey:pattern];
+		
+		
+		if (!async) {
+			while (!keyserverFinished) {
+				[keyserverCondition wait];
+			}
+			
+			[keyserverCondition unlock];
+			[keyserverCondition release];
+			keyserverCondition = nil;
+		}
+		
+	} @catch (NSException *e) {
+		[self handleException:e];
+	} @finally {
+		if (!async) {
+			[self cleanAfterOperation];
+		}
+	}
+	
+	return self.lastReturnValue;
+
+	
+	*/
+	
+	
 	if (async && !asyncStarted) {
 		asyncStarted = YES;
 		[asyncProxy receiveKeysFromServer:keys];
@@ -1808,13 +1864,9 @@ BOOL gpgConfigReaded = NO;
 	[self operationDidFinishWithReturnValue:nil];	
 }
 
-- (NSArray *)searchKeysOnServer:(NSString *)pattern {
-	NSArray *keys = nil;
-	if (async && !asyncStarted) {
-		asyncStarted = YES;
-		[asyncProxy searchKeysOnServer:pattern];
-		return nil;
-	}
+- (NSArray *)searchKeysOnServer:(NSString *)pattern {	
+	asyncStarted = async;
+	
 	@try {
 		[self operationDidStart];
 		
@@ -1837,14 +1889,6 @@ BOOL gpgConfigReaded = NO;
 					stringToCheck = [pattern substringFromIndex:1];
 				}
 				break;
-			case 10:
-			case 18:
-			case 34:
-			case 42:
-				if ([pattern hasPrefix:@"0x"]) {
-					stringToCheck = [pattern substringFromIndex:2];
-				}
-				break;
 		}
 		
 		
@@ -1853,30 +1897,37 @@ BOOL gpgConfigReaded = NO;
 		}
 
 		
-		
-		
-		gpgTask = [GPGTask gpgTask];
-		[self addArgumentsForOptions];
-		gpgTask.batchMode = YES;
-		[self addArgumentsForKeyserver];
-		[gpgTask addArgument:@"--search-keys"];
-		[gpgTask addArgument:@"--"];
-		[gpgTask addArgument:pattern];
-		
-		if ([gpgTask start] != 0) {
-			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Search keys failed!") gpgTask:gpgTask];
+		if (!async) {
+			keyserverCondition = [NSCondition new];
+			lastReturnValue = nil;
+			keyserverFinished = NO;
+			[keyserverCondition lock];
 		}
 		
-		keys = [GPGRemoteKey keysWithListing:gpgTask.outText];
+		
+		self.gpgKeyserver.userInfo = [NSDictionary dictionaryWithObjectsAndKeys:@"search", @"operation", nil];
+		[self.gpgKeyserver searchKey:pattern];
+
+		
+		if (!async) {
+			while (!keyserverFinished) {
+				[keyserverCondition wait];
+			}
+			
+			[keyserverCondition unlock];
+			[keyserverCondition release];
+			keyserverCondition = nil;
+		}
+		
 	} @catch (NSException *e) {
 		[self handleException:e];
 	} @finally {
-		[self cleanAfterOperation];
+		if (!async) {
+			[self cleanAfterOperation];
+		}
 	}
 	
-	[self operationDidFinishWithReturnValue:keys];
-	
-	return keys;
+	return self.lastReturnValue;
 }
 
 
@@ -2086,6 +2137,41 @@ BOOL gpgConfigReaded = NO;
 
 
 #pragma mark Delegate method
+
+- (void)keyserverDidFinishLoading:(GPGKeyserver *)server {
+	NSDictionary *info = server.userInfo;
+	NSString *operation = [info objectForKey:@"operation"];
+	id returnValue = nil;
+	
+	if ([operation isEqualToString:@"search"]) {
+		returnValue = [GPGRemoteKey keysWithListing:[server.receivedData gpgString]];
+	}
+	
+	
+	if (!keyserverCondition) {
+		[self cleanAfterOperation];
+	}
+	
+	[self operationDidFinishWithReturnValue:returnValue];
+	
+	if (keyserverCondition) {
+		keyserverFinished = YES;
+		[keyserverCondition signal];
+	}
+}
+
+- (void)keyserver:(GPGKeyserver *)server didFailWithException:(NSException *)exception {
+	[self handleException:exception];
+	
+	if (keyserverCondition) {
+		keyserverFinished = YES;
+		[keyserverCondition signal];
+	} else {
+		[self cleanAfterOperation];
+	}
+	[self operationDidFinishWithReturnValue:nil];
+}
+
 
 - (id)gpgTask:(GPGTask *)task statusCode:(NSInteger)status prompt:(NSString *)prompt {
 	switch (status) {
@@ -2427,6 +2513,8 @@ BOOL gpgConfigReaded = NO;
 	proxyServer = nil;
 	[undoManager release];
 	undoManager = nil;
+	[gpgKeyserver release];
+	gpgKeyserver = nil;
 	
 	[super dealloc];
 }
