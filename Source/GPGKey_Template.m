@@ -58,25 +58,21 @@
 				break;
 			case 'e':
 				canEncryptVal = 1;
-				break;
-			case 's':
-				canSignVal = 1;
-				break;
-			case 'c':
-				canCertifyVal = 1;
-				break;
-			case 'a':
-				canAuthenticateVal = 1;
-				break;
 			case 'E':
 				canAnyEncryptVal = 1;
 				break;
+			case 's':
+				canSignVal = 1;
 			case 'S':
 				canAnySignVal = 1;
 				break;
+			case 'c':
+				canCertifyVal = 1;
 			case 'C':
 				canAnyCertifyVal = 1;
 				break;
+			case 'a':
+				canAuthenticateVal = 1;
 			case 'A':
 				canAnyAuthenticateVal = 1;
 				break;
