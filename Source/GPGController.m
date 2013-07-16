@@ -2377,7 +2377,11 @@ BOOL gpgConfigReaded = NO;
 	NSArray *listings = [aDict objectForKey:@"listings"];	
 	NSArray *fingerprints = [aDict objectForKey:@"fingerprints"];
 	NSSet *secKeyFingerprints = [aDict objectForKey:@"secKeyFingerprints"];
-	NSSet *keysToUpdate = [aDict objectForKey:@"keysToUpdate"];
+	id keysToUpdate = [aDict objectForKey:@"keysToUpdate"];
+	// keysToUpdate has to be an NSSet since it
+	if(![keysToUpdate respondsToSelector:@selector(member:)] && [keysToUpdate isKindOfClass:[NSArray class]])
+		keysToUpdate = [NSSet setWithArray:keysToUpdate];
+	
 	NSSet **updatedKeys = [[aDict objectForKey:@"updatedKeys"] pointerValue];
 	BOOL withSigs = [[aDict objectForKey:@"withSigs"] boolValue];
 	
