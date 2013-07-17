@@ -734,7 +734,7 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
 			range.length = spaceRange.location - range.location;
 		}
 		if ([[outString substringWithRange:range] integerValue] == 0x5000063) {
-			[self cancel];
+			@throw [GPGException exceptionWithReason:@"User cancelled pinentry request" errorCode:GPGErrorCancelled];
 		} else {
 			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Pinentry error!") errorCode:GPGErrorPINEntryError];
 		}
