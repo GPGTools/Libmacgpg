@@ -1,6 +1,7 @@
 PROJECT = Libmacgpg
 TARGET = Libmacgpg
 PRODUCT = Libmacgpg
+SCHEME = Libmacgpg + XPC
 TEST_TARGET = UnitTest
 MAKE_DEFAULT = Dependencies/GPGTools_Core/newBuildSystem/Makefile.default
 VPATH = build/$(CONFIG)/Libmacgpg.framework/Versions/Current
@@ -25,7 +26,7 @@ clean-pinentry:
 clean-all: clean-pinentry
 
 $(PRODUCT): Source/* Resources/* Resources/*/* Libmacgpg.xcodeproj
-	@xcodebuild -project $(PROJECT).xcodeproj -target $(TARGET) -configuration $(CONFIG) build $(XCCONFIG)
+	@xcodebuild -project $(PROJECT).xcodeproj -scheme "$(SCHEME)" -configuration $(CONFIG) build $(XCCONFIG)
 
 install: $(PRODUCT)
 	@echo Installing Libmacgpg...

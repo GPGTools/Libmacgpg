@@ -139,13 +139,6 @@
 			remoteGlobalIDString = 8DC2EF4F0486A6940098B216;
 			remoteInfo = Libmacgpg;
 		};
-		1BE4B5CC1617673D00C3CC7A /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 1B46CFCB161555DF00CF9C5F;
-			remoteInfo = org.gpgtools.Libmacgpg.xpc;
-		};
 		30C412B0149A34D80035D35F /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 30C412A8149A34D80035D35F /* pinentry-mac.xcodeproj */;
@@ -811,7 +804,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				1BE4B5CD1617673D00C3CC7A /* PBXTargetDependency */,
 				30C412B4149A34E80035D35F /* PBXTargetDependency */,
 				30DF7CC616D3A13300C8225C /* PBXTargetDependency */,
 			);
@@ -1089,11 +1081,6 @@
 			target = 8DC2EF4F0486A6940098B216 /* Libmacgpg */;
 			targetProxy = 1BD78BB81726B5190005F251 /* PBXContainerItemProxy */;
 		};
-		1BE4B5CD1617673D00C3CC7A /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 1B46CFCB161555DF00CF9C5F /* org.gpgtools.Libmacgpg.xpc */;
-			targetProxy = 1BE4B5CC1617673D00C3CC7A /* PBXContainerItemProxy */;
-		};
 		30C412B4149A34E80035D35F /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = "pinentry-mac";
@@ -1166,7 +1153,7 @@
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
-				LD_RUNPATH_SEARCH_PATHS = "$(HOME)/Library/Frameworks /Library/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR) $(HOME)/Library/Frameworks /Library/Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
