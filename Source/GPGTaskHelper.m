@@ -662,7 +662,10 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
     
     NSTask *task = [[NSTask alloc] init];
     task.launchPath = [GPGTaskHelper pinentryPath];
-    task.standardInput = [[NSPipe pipe] noSIGPIPE];
+    
+	if(!task.launchPath)
+		@throw [GPGException exceptionWithReason:@"Pinentry not found!" errorCode:GPGErrorNoPINEntry];
+	task.standardInput = [[NSPipe pipe] noSIGPIPE];
     task.standardOutput = [[NSPipe pipe] noSIGPIPE];
     
     NSString *description = nil;
