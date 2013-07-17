@@ -124,7 +124,7 @@
 				[newUserIDs insertObject:userIDChild atIndex:userIDIndex];
 			}
 			if (!primaryUserID) {
-				primaryUserID = userIDChild;
+				primaryUserID = [userIDChild retain];
 			}
 			userIDChild.index = userIDIndex++;
 			
@@ -411,6 +411,7 @@
 	self.subkeys = nil;
 	self.userIDs = nil;
 	self.photos = nil;
+	[primaryUserID release];
 	
 	[textForFilter release];
 	[allFingerprints release];
