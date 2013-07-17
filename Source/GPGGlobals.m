@@ -202,7 +202,7 @@ break;
 + (id)dateWithGPGString:(NSString *)string {
 	if ([string integerValue] == 0) {
 		return nil;
-	} else if ([string characterAtIndex:8] == 'T') {
+	} else if (string.length >= 8 && [string characterAtIndex:8] == 'T') {
 		NSString *year = [string substringWithRange:NSMakeRange(0, 4)];
 		NSString *month = [string substringWithRange:NSMakeRange(4, 2)];
 		NSString *day = [string substringWithRange:NSMakeRange(6, 2)];
