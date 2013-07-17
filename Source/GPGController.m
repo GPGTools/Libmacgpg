@@ -1715,37 +1715,8 @@ BOOL gpgConfigReaded = NO;
 
 #pragma mark Working with keyserver
 
-- (NSString *)refreshKeysFromServer:(NSObject <EnumerationList> *)keys {
-	if (async && !asyncStarted) {
-		asyncStarted = YES;
-		[asyncProxy refreshKeysFromServer:keys];
-		return nil;
-	}
-	@try {
-		[self operationDidStart];
-		[self registerUndoForKeys:keys withName:@"Undo_RefreshFromServer"];
-		
-		gpgTask = [GPGTask gpgTask];
-		[self addArgumentsForOptions];
-		[self addArgumentsForKeyserver];
-		[gpgTask addArgument:@"--refresh-keys"];
-		for (id key in keys) {
-			[gpgTask addArgument:[key description]];
-		}
-		
-		if ([gpgTask start] != 0) {
-			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Refresh keys failed!") gpgTask:gpgTask];
-		}
-		[self keysChanged:keys];
-	} @catch (NSException *e) {
-		[self handleException:e];
-	} @finally {
-		[self cleanAfterOperation];
-	}
-	
-	NSString *retVal = [gpgTask statusText];
-	[self operationDidFinishWithReturnValue:retVal];	
-	return retVal;
+- (NSString *)refreshKeysFromServer:(NSObject <EnumerationList> *)keys { //DEPRECATED!
+	return [self receiveKeysFromServer:keys];
 }
 
 - (NSString *)receiveKeysFromServer:(NSObject <EnumerationList> *)keys {
@@ -1838,17 +1809,49 @@ BOOL gpgConfigReaded = NO;
 		if ([keys count] == 0) {
 			[NSException raise:NSInvalidArgumentException format:@"Empty key list!"];
 		}
-		gpgTask = [GPGTask gpgTask];
-		[self addArgumentsForOptions];
-		[self addArgumentsForKeyserver];
-		[gpgTask addArgument:@"--send-keys"];
-		for (id key in keys) {
-			[gpgTask addArgument:[key description]];
-		}
 		
-		if ([gpgTask start] != 0) {
-			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Send keys failed!") gpgTask:gpgTask];
-		}
+		BOOL oldArmor = self.useArmor;
+		self.useArmor = YES;
+		NSData *exportedKeys = [self exportKeys:keys allowSecret:NO fullExport:NO];
+		self.useArmor = oldArmor;
+		
+		if (exportedKeys) {
+			NSString *armoredKeys = exportedKeys.gpgString;
+						
+			__block BOOL running = YES;
+			NSCondition *condition = [NSCondition new];
+			[condition lock];
+			
+			
+			GPGKeyserver *server = [[GPGKeyserver alloc] initWithFinishedHandler:^(GPGKeyserver *s) {
+				running = NO;
+				[condition signal];
+			}];
+			server.timeout = self.keyserverTimeout;
+			if (self.keyserver) {
+				server.keyserver = self.keyserver;
+			}
+			[gpgKeyservers addObject:server];
+			
+			[server uploadKeys:armoredKeys];
+			
+			
+			while (running) {
+				[condition wait];
+			}
+			
+			[condition unlock];
+			[condition release];
+			condition = nil;
+			
+			[gpgKeyservers removeObject:server];
+			
+			if (server.exception) {
+				[self handleException:server.exception];
+			}
+			
+			[server release];
+		}		
 	} @catch (NSException *e) {
 		[self handleException:e];
 	} @finally {

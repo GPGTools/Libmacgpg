@@ -40,6 +40,7 @@ typedef void (^gpg_ks_finishedHandler)(GPGKeyserver *server);
 
 - (void)getKey:(NSString *)keyID;
 - (void)searchKey:(NSString *)pattern;
+- (void)uploadKeys:(NSString *)armored;
 
 - (void)cancel;
 

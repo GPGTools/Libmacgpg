@@ -49,9 +49,9 @@
 	
 	keyID = [@"0x" stringByAppendingString:keyID];
 	
-	NSString *query = [NSString stringWithFormat:@"op=get&options=mr&search=%@", keyID];
+	NSString *query = [NSString stringWithFormat:@"/pks/lookup?op=get&options=mr&search=%@", keyID];
 	
-	[self sendRequestWithQuery:query];
+	[self sendRequestWithQuery:query postData:nil];
 }
 
 - (void)searchKey:(NSString *)pattern {
@@ -64,9 +64,25 @@
 	
 	pattern = [pattern stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
 	
-	NSString *query = [NSString stringWithFormat:@"op=index&options=mr&search=%@", pattern];
+	NSString *query = [NSString stringWithFormat:@"/pks/lookup?op=index&options=mr&search=%@", pattern];
 	
-	[self sendRequestWithQuery:query];
+	[self sendRequestWithQuery:query postData:nil];
+}
+
+- (void)uploadKeys:(NSString *)armored {
+	[self start];
+	lastOperation = _cmd;
+
+	if (armored.length == 0) {
+		@throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"No key given" userInfo:nil];
+	}
+	
+	
+	NSString *urlEncoded = (NSString *)CFURLCreateStringByAddingPercentEscapes(NULL, (CFStringRef)armored, NULL, (CFStringRef)@"!*'();:@&=+$,/?%#[]", kCFStringEncodingUTF8);
+	NSString *postString = [NSString stringWithFormat:@"keytext=%@", urlEncoded];
+	NSData *postData = [postString dataUsingEncoding:NSUTF8StringEncoding];
+	
+	[self sendRequestWithQuery:@"/pks/add" postData:postData];
 }
 
 - (void)cancel {
@@ -84,6 +100,7 @@
 - (void)start {
 	_cancelled = NO;
 	isRunning = YES;
+	receivedData.length = 0;
 }
 
 - (NSURL *)keyserverURLWithQuery:(NSString *)query {
@@ -118,17 +135,34 @@
 		}
 	}
 	
+	
+	NSRange range = [query rangeOfString:@"?"];
+	NSString *queryString = @"";
+	NSString *pathString;
+	if (range.location == NSNotFound) {
+		pathString = query;
+	} else {
+		pathString = [query substringToIndex:range.location];
+		if (range.location < query.length) {
+			queryString = [query substringFromIndex:range.location + 1];
+		}
+	}
+	
+	
+	
 	NSString *path = url.path;
 	if (!path) path = @"";
-	path = [path stringByAppendingPathComponent:@"/pks/lookup"];
+	path = [path stringByAppendingPathComponent:pathString];
 	
 	NSString *parameterString = url.parameterString ? [NSString stringWithFormat:@";%@", url.parameterString] : @"";
 	
-	NSString *urlQuery = url.query ? [url.query stringByAppendingString:@"&"] : @"";
-	query = [NSString stringWithFormat:@"?%@%@", urlQuery, query];
+	
+	query = url.query ? [NSString stringWithFormat:@"?%@&%@", url.query, queryString] : [NSString stringWithFormat:@"?%@", queryString];
+	if (query.length == 1) {
+		query = @"";
+	}
 	
 	NSString *fragment = url.fragment ? [NSString stringWithFormat:@"#%@", url.fragment] : @"";
-	
 	
 	
 	NSString *urlString = [NSString stringWithFormat:@"http://%@%@:%@%@%@%@%@", auth, url.host, port, path, parameterString, query, fragment];
@@ -136,16 +170,20 @@
 	return [NSURL URLWithString:urlString];
 }
 
-- (void)sendRequestWithQuery:(NSString *)query {
+- (void)sendRequestWithQuery:(NSString *)query postData:(NSData *)postData {
 	receivedData.length = 0;
 	NSURL *url = [self keyserverURLWithQuery:query];
 	if (!url) {
 		[self failedWithException:[GPGException exceptionWithReason:@"keyserverURLWithQuery failed!" errorCode:GPGErrorKeyServerError]];
 	}
 		
-	NSURLRequest *request = [[NSURLRequest alloc] initWithURL:url cachePolicy:0 timeoutInterval:self.timeout];
+	NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url cachePolicy:0 timeoutInterval:self.timeout];
 	if (!request) {
 		[self failedWithException:[GPGException exceptionWithReason:@"NSURLRequest failed!" errorCode:GPGErrorKeyServerError]];
+	}
+	if (postData) {
+		request.HTTPMethod = @"POST";
+		request.HTTPBody = postData;
 	}
 	
 	NSURLConnection *theConnection = [[NSURLConnection alloc] initWithRequest:request delegate:self startImmediately:NO];
@@ -174,6 +212,7 @@
 #pragma mark NSURLConnectionDelegate
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
+	//NSLog(@"RES %@", response);
 	//TODO: response auswerten.	
 	receivedData.length = 0;
 }
