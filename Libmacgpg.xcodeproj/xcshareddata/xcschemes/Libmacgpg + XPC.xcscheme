@@ -10,7 +10,7 @@
             ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
             <ActionContent
                title = "Run Script"
-               scriptText = "mkdir -p &quot;$SOURCE_ROOT/build/$CONFIGURATION&quot;&#10;&#10;if [ ! -z &quot;$(ls &quot;$BUILT_PRODUCTS_DIR&quot;)&quot; ]; then&#10;    cp -R &quot;$BUILT_PRODUCTS_DIR/&quot;/* &quot;$SOURCE_ROOT/build/$CONFIGURATION/&quot;&#10;    cp -R &quot;$BUILD_ROOT/org.gpgtools.Libmacgpg.xpc.plist&quot; &quot;$SOURCE_ROOT/build/$CONFIGURATION&quot;&#10;fi">
+               scriptText = "mkdir -p &quot;$SOURCE_ROOT/build/$CONFIGURATION&quot;&#10;&#10;if [ ! -z &quot;$(ls &quot;$BUILT_PRODUCTS_DIR&quot;)&quot; ]; then&#10;    cp -R &quot;$BUILT_PRODUCTS_DIR/&quot;/* &quot;$SOURCE_ROOT/build/$CONFIGURATION/&quot;&#10;    cp -R &quot;$BUILD_ROOT/org.gpgtools.Libmacgpg.xpc.plist&quot; &quot;$SOURCE_ROOT/build/&quot;&#10;fi">
                <EnvironmentBuildable>
                   <BuildableReference
                      BuildableIdentifier = "primary"
