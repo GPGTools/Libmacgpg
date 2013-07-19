@@ -21,23 +21,20 @@
 #import "GPGKey.h"
 
 @interface GPGPhotoID ()
-
 @property (nonatomic, retain) NSImage *image;
 @property (nonatomic, retain) NSString *hashID;
-@property (nonatomic) NSInteger status;
-
 @end
 
 
 @implementation GPGPhotoID
-@synthesize image, hashID, status;
+@synthesize image, hashID;
 
-- (id)initWithImage:(NSImage *)aImage hashID:(NSString *)aHashID status:(NSInteger)aStatus {
-	self = [self init];
+- (id)initWithImage:(NSImage *)aImage {
+	if (!(self = [super init])) {
+		return nil;
+	}
 	
 	self.image = [aImage retain];
-	self.hashID = [aHashID retain];
-	self.status = aStatus;
 	
 	return self;
 }

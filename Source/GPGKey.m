@@ -240,7 +240,7 @@
 	
 	NSMutableArray *thePhotos = [NSMutableArray array];
 	
-	NSArray *statusFields, *colons;
+	NSArray *statusFields, *colons = nil;
 	NSInteger pos = 0, dataLength, photoStatus;
 	int curOutLine = 0, countOutLines = [outLines count];
 	NSString *outLine, *photoHash;
@@ -258,9 +258,11 @@
 					break;
 				}
 			}
+			
 			statusFields = [statuLine componentsSeparatedByString:@" "];
 			dataLength = [[statusFields objectAtIndex:3] integerValue];
 			if ([[statusFields objectAtIndex:4] isEqualToString:@"1"]) { //1 = Bild
+				
 				if (photoHash && ![thePhotos containsObject:photoHash]) {
 					NSImage *aPhoto = [[NSImage alloc] initWithData:[attributeData subdataWithRange:(NSRange) {pos + 16, dataLength - 16}]];
 					if (aPhoto) {
@@ -274,7 +276,8 @@
 						}
 						
 						
-						GPGPhotoID *photoID = [[GPGPhotoID alloc] initWithImage:aPhoto hashID:photoHash status:photoStatus];
+						GPGPhotoID *photoID = [[GPGPhotoID alloc] initWithImage:aPhoto];
+						[photoID updateWithLine:colons];
 						
 						[thePhotos addObject:photoID];
 						[photoID release];

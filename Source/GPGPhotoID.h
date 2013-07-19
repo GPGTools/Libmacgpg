@@ -18,18 +18,16 @@
 */
 
 #import <Libmacgpg/GPGGlobals.h>
+#import <Libmacgpg/GPGSuper_Template.h>
 
-
-@interface GPGPhotoID : NSObject {
+@interface GPGPhotoID : GPGSuper_Template {
 	NSImage *image;
 	NSString *hashID;
-	NSInteger status;
 }
 @property (nonatomic, readonly, retain) NSImage *image;
 @property (nonatomic, readonly, retain) NSString *hashID;
-@property (nonatomic, readonly) NSInteger status;
 
-- (id)initWithImage:(NSImage *)aImage hashID:(NSString *)aHashID status:(NSInteger)aStatus;
+- (id)initWithImage:(NSImage *)aImage;
 
 @end
 
