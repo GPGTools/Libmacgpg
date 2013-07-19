@@ -211,9 +211,23 @@
 
 #pragma mark NSURLConnectionDelegate
 
-- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
-	//NSLog(@"RES %@", response);
-	//TODO: response auswerten.	
+- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSHTTPURLResponse *)response {
+	if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
+		NSInteger statusCode = response.statusCode;
+		
+		switch (statusCode) {
+			case 200:
+			case 404:
+			case 500:
+				break;
+			default:
+				self.exception = [GPGException exceptionWithReason:[NSString stringWithFormat:@"Server returned status code %li (%@)", (long)statusCode, [NSHTTPURLResponse localizedStringForStatusCode:statusCode]]
+														  userInfo:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInteger:statusCode], @"statusCode", nil]
+														 errorCode:GPGErrorKeyServerError gpgTask:nil];
+				break;
+		}
+	}
+	
 	receivedData.length = 0;
 }
 
