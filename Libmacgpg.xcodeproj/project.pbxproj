@@ -60,6 +60,8 @@
 		309A18D113E3812E0069DC0F /* GPGTransformer.m in Sources */ = {isa = PBXBuildFile; fileRef = 309A18CF13E3812E0069DC0F /* GPGTransformer.m */; };
 		309A20FB13587D5B0041E0AA /* GPGPacket.h in Headers */ = {isa = PBXBuildFile; fileRef = 309A20F913587D5B0041E0AA /* GPGPacket.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		309A20FC13587D5B0041E0AA /* GPGPacket.m in Sources */ = {isa = PBXBuildFile; fileRef = 309A20FA13587D5B0041E0AA /* GPGPacket.m */; };
+		30A058391799E2DC00E1AD20 /* GPGKeyManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 30A058371799E2DC00E1AD20 /* GPGKeyManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		30A0583A1799E2DC00E1AD20 /* GPGKeyManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 30A058381799E2DC00E1AD20 /* GPGKeyManager.m */; };
 		30A70EE513EF328000EE9CD9 /* GPGException.h in Headers */ = {isa = PBXBuildFile; fileRef = 30A70EE313EF328000EE9CD9 /* GPGException.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		30A70EE613EF328000EE9CD9 /* GPGException.m in Sources */ = {isa = PBXBuildFile; fileRef = 30A70EE413EF328000EE9CD9 /* GPGException.m */; };
 		30B586F5141E255C000373F1 /* Keyservers.plist in Resources */ = {isa = PBXBuildFile; fileRef = 30B586F4141E255C000373F1 /* Keyservers.plist */; };
@@ -246,6 +248,8 @@
 		309A18CF13E3812E0069DC0F /* GPGTransformer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGTransformer.m; sourceTree = "<group>"; };
 		309A20F913587D5B0041E0AA /* GPGPacket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGPacket.h; sourceTree = "<group>"; };
 		309A20FA13587D5B0041E0AA /* GPGPacket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGPacket.m; sourceTree = "<group>"; };
+		30A058371799E2DC00E1AD20 /* GPGKeyManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGKeyManager.h; sourceTree = "<group>"; };
+		30A058381799E2DC00E1AD20 /* GPGKeyManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGKeyManager.m; sourceTree = "<group>"; };
 		30A70EE313EF328000EE9CD9 /* GPGException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGException.h; sourceTree = "<group>"; };
 		30A70EE413EF328000EE9CD9 /* GPGException.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGException.m; sourceTree = "<group>"; };
 		30B586F4141E255C000373F1 /* Keyservers.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Keyservers.plist; sourceTree = "<group>"; };
@@ -443,6 +447,8 @@
 				30C60EEE12FF3321006BB8DA /* Libmacgpg.h */,
 				30FF411D12FAC6CD00F39832 /* GPGController.h */,
 				30FF411E12FAC6CD00F39832 /* GPGController.m */,
+				30A058371799E2DC00E1AD20 /* GPGKeyManager.h */,
+				30A058381799E2DC00E1AD20 /* GPGKeyManager.m */,
 				30A70EE313EF328000EE9CD9 /* GPGException.h */,
 				30A70EE413EF328000EE9CD9 /* GPGException.m */,
 				30FF412112FAC6CD00F39832 /* GPGGlobals.h */,
@@ -709,6 +715,7 @@
 				1B9FF21017257A69004FB017 /* GPGTaskHelperXPC.h in Headers */,
 				1B9FF21517261470004FB017 /* JailfreeProtocol.h in Headers */,
 				1B89B68E1726F8FD004863FC /* PLWeakCompatibilityStubs.h in Headers */,
+				30A058391799E2DC00E1AD20 /* GPGKeyManager.h in Headers */,
 				1B84028717296EA4009A40E6 /* GPGUserDefaults.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1042,6 +1049,7 @@
 				30FF414412FAC6CD00F39832 /* GPGRemoteKey.m in Sources */,
 				30FF414612FAC6CD00F39832 /* GPGRemoteUserID.m in Sources */,
 				30FF414812FAC6CD00F39832 /* GPGSignature.m in Sources */,
+				30A0583A1799E2DC00E1AD20 /* GPGKeyManager.m in Sources */,
 				30FF414A12FAC6CD00F39832 /* GPGSubkey.m in Sources */,
 				30FF414C12FAC6CD00F39832 /* GPGTask.m in Sources */,
 				30FF414E12FAC6CD00F39832 /* GPGTaskOrder.m in Sources */,

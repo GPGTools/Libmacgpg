@@ -36,3 +36,5 @@
 #import <Libmacgpg/GPGException.h>
 #import <Libmacgpg/GPGTransformer.h>
 #import <Libmacgpg/GPGTaskHelperXPC.h>
+#import <Libmacgpg/GPGKeyManager.h>
+

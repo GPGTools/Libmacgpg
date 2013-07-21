@@ -36,7 +36,11 @@ typedef enum {
     GPGValidityNever     = 2,
     GPGValidityMarginal  = 3,
     GPGValidityFull      = 4,
-    GPGValidityUltimate  = 5
+    GPGValidityUltimate  = 5,
+    GPGValidityInvalid = 8,
+    GPGValidityRevoked = 16,
+    GPGValidityExpired = 32,
+    GPGValidityDisabled = 64
 } GPGValidity;
 typedef enum {
     GPG_RSAAlgorithm                =  1,
