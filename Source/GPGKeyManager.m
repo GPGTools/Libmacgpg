@@ -332,49 +332,17 @@
     static GPGKeyManager *sharedInstance;
     
     dispatch_once(&onceToken, ^{
-        sharedInstance = [[super allocWithZone:nil] realInit];
+        sharedInstance = [[self alloc] init];
     });
     
     return sharedInstance;
 }
 
-- (id)realInit {
-	if (!(self = [super init])) {
-		return nil;
-	}
-	
-	allKeys = [[NSMutableSet alloc] init];
-	
-	return self;
-}
-
-+ (id)allocWithZone:(NSZone *)zone {
-    return [[self sharedInstance] retain];
-}
-
 - (id)init {
+	if(self = [super init]) {
+		allKeys = [[NSMutableSet alloc] init];
+	}
 	return self;
 }
-
-- (id)copyWithZone:(NSZone *)zone {
-    return self;
-}
-
-- (id)retain {
-    return self;
-}
-
-- (NSUInteger)retainCount {
-    return NSUIntegerMax;
-}
-
-- (oneway void)release {
-}
-
-- (id)autorelease {
-    return self;
-}
-
-
 
 @end

@@ -8,6 +8,7 @@
 }
 @property (readonly) NSSet *allKeys;
 
++ (GPGKeyManager *)sharedInstance;
 
 /*
  Load the specified keys from gpg, pass nil to load all.
@@ -18,6 +19,7 @@
 - (void)loadKeys:(NSSet *)keys sigs:(BOOL)sigs uat:(BOOL)uat;
 
 - (void)loadAllKeys;
+
 
 
 @end
