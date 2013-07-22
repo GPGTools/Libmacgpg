@@ -17,7 +17,8 @@
  Programm erhalten haben. Falls nicht, siehe <http://www.gnu.org/licenses/>.
 */
 
-#import "GPGUserID.h"
+#import <Libmacgpg/GPGUserID.h>
+#import <Libmacgpg/GPGTypesRW.h>
 
 @implementation GPGUserID
 

@@ -19,8 +19,8 @@
  Additions by: Lukas Pitschl (@lukele) (c) 2013 
 */
 
-#import "GPGKey.h"
-#import "GPGTypesRW.h"
+#import <Libmacgpg/GPGKey.h>
+#import <Libmacgpg/GPGTypesRW.h>
 
 @implementation GPGKey
 

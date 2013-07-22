@@ -17,9 +17,10 @@
  Programm erhalten haben. Falls nicht, siehe <http://www.gnu.org/licenses/>.
 */
 
-#import "GPGSignature.h"
-#import "GPGGlobals.h"
-#import "GPGTransformer.h"
+#import <Libmacgpg/GPGSignature.h>
+#import <Libmacgpg/GPGGlobals.h>
+#import <Libmacgpg/GPGTransformer.h>
+#import <Libmacgpg/GPGTypesRW.h>
 
 @implementation GPGSignature
 

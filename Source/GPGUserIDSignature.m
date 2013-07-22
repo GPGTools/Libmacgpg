@@ -19,7 +19,8 @@
  Additions by: Lukas Pitschl (@lukele) (c) 2013
 */
 
-#import "GPGUserIDSignature.h"
+#import <Libmacgpg/GPGUserIDSignature.h>
+#import <Libmacgpg/GPGTypesRW.h>
 
 @implementation GPGUserIDSignature
 
