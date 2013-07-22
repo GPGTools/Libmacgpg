@@ -21,10 +21,10 @@
 /*
  Load the specified keys from gpg, pass nil to load all.
  keys: A set of GPGKeys.
- sigs: Also load signatures?
- uat: Also load user attributes (e.g. PhotoID)
+ fetchSignatures: Also load signatures?
+ fetchUserAttributes: Also load user attributes (e.g. PhotoID)
  */
-- (void)loadKeys:(NSSet *)keys sigs:(BOOL)sigs uat:(BOOL)uat;
+- (void)loadKeys:(NSSet *)keys fetchSignatures:(BOOL)fetchSignatures fetchUserAttributes:(BOOL)fetchUserAttributes;
 
 - (void)loadAllKeys;
 

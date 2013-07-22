@@ -14,10 +14,10 @@
 
 
 - (void)loadAllKeys {
-	[self loadKeys:nil sigs:NO uat:NO];
+	[self loadKeys:nil fetchSignatures:NO fetchUserAttributes:NO];
 }
 
-- (void)loadKeys:(NSSet *)keys sigs:(BOOL)sigs uat:(BOOL)uat {
+- (void)loadKeys:(NSSet *)keys fetchSignatures:(BOOL)fetchSignatures fetchUserAttributes:(BOOL)fetchUserAttributes {
 
 	NSArray *keyArguments = [keys allObjects];
 	
@@ -37,14 +37,14 @@
 	
 	// Get the infos from gpg.
 	gpgTask = [GPGTask gpgTask];
-	if (sigs) {
+	if (fetchSignatures) {
 		[gpgTask addArgument:@"--list-sigs"];
 		[gpgTask addArgument:@"--list-options"];
 		[gpgTask addArgument:@"show-sig-subpackets=29"];
 	} else {
 		[gpgTask addArgument:@"--list-keys"];
 	}
-	if (uat) {
+	if (fetchUserAttributes) {
 		_attributeLines = [NSMutableArray array];
 		gpgTask.getAttributeData = YES;
 	}
@@ -74,7 +74,7 @@
 	BOOL isPub = NO, isUid = NO, isRev = NO; // Used to differentiate pub/sub, uid/uat and sig/rev, because they are using the same if branch.
 	NSMutableArray *allSignatures = nil;
 	
-	if (sigs) {
+	if (fetchSignatures) {
 		allSignatures = [NSMutableArray array];
 	}
 
@@ -166,7 +166,7 @@
 			GPGUserID *userID = [[[GPGUserID alloc] init] autorelease];
 			userID.primaryKey = primaryKey;
 			
-			if (sigs) {
+			if (fetchSignatures) {
 				signatures = [NSMutableArray array];
 				userID.signatures = signatures;
 			}
@@ -195,7 +195,7 @@
 			if (isUid) {
 				isUid = NO;
 				userID.userIDDescription = [[parts objectAtIndex:9] unescapedString];
-			} else if (uat) { // Process attribute data.
+			} else if (fetchUserAttributes) { // Process attribute data.
 				NSInteger index, count;
 				
 				do {
@@ -288,7 +288,7 @@
 	
 	_once_keysByKeyID = 0;
 	
-	if (sigs) {
+	if (fetchSignatures) {
 		NSDictionary *keysByKeyID = self.keysByKeyID;
 		
 		for (signature in allSignatures) {
