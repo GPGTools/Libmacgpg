@@ -15,64 +15,59 @@
  
  Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem 
  Programm erhalten haben. Falls nicht, siehe <http://www.gnu.org/licenses/>.
+
+ Additions by: Lukas Pitschl (@lukele) (c) 2013
 */
 
 #import <Libmacgpg/GPGGlobals.h>
-#import <Libmacgpg/GPGSuper_Template.h>
+
+@protocol GPGUserIDProtocol <NSObject>
+
+@property (nonatomic, readonly) NSString *userIDDescription;
+@property (nonatomic, readonly) NSString *name;
+@property (nonatomic, readonly) NSString *email;
+@property (nonatomic, readonly) NSString *comment;
+@property (nonatomic, readonly) NSImage *photo;
+
+@end
 
 @class GPGKey;
 
-@interface GPGUserID : GPGSuper_Template <GPGUserIDProtocol> {
-	NSInteger index;
-	GPGKey *primaryKey;
+@interface GPGUserID : NSObject <GPGUserIDProtocol> {
+	NSString *_userIDDescription;
+	NSString *_name;
+	NSString *_email;
+	NSString *_comment;
+	NSString *_hashID;
+	NSImage *_photo;
+	GPGValidity _validity;
 	
-	NSArray *signatures;
+	GPGKey *_primaryKey;
+	NSArray *_signatures;
 	
-	NSArray *cipherPreferences;
-	NSArray *digestPreferences;
-	NSArray *compressPreferences;
-	NSArray *otherPreferences;
+	NSArray *_cipherPreferences;
+	NSArray *_digestPreferences;
+	NSArray *_compressPreferences;
 	
-	
-	NSString *hashID;
-	
-	NSString *userID;
-	NSString *name;
-	NSString *email;
-	NSString *comment;
 }
 
-@property (nonatomic) NSInteger index;
-@property (nonatomic, readonly) NSString *type;
+- (instancetype)init;
+- (instancetype)initWithUserIDDescription:(NSString *)userIDDescription;
+
+@property (nonatomic, readonly) NSString *userIDDescription;
+@property (nonatomic, readonly) NSString *name;
+@property (nonatomic, readonly) NSString *email;
+@property (nonatomic, readonly) NSString *comment;
+@property (nonatomic, readonly) NSString *hashID;
+@property (nonatomic, readonly) NSImage *photo;
+@property (nonatomic, readonly) GPGValidity validity;
+
 @property (nonatomic, readonly) NSArray *signatures;
+@property (nonatomic, readonly) GPGKey *primaryKey;
 
-@property (nonatomic, readonly, assign) GPGKey *primaryKey;
-
-@property (nonatomic, readonly, retain) NSArray *cipherPreferences;
-@property (nonatomic, readonly, retain) NSArray *digestPreferences;
-@property (nonatomic, readonly, retain) NSArray *compressPreferences;
-@property (nonatomic, readonly, retain) NSArray *otherPreferences;
-
-@property (nonatomic, readonly, retain) NSString *hashID;
-
-@property (nonatomic, retain) NSString *userID;
-@property (nonatomic, retain) NSString *name;
-@property (nonatomic, retain) NSString *email;
-@property (nonatomic, retain) NSString *comment;
-
-
-//Dummys
-@property (nonatomic, readonly) id children;
-@property (nonatomic, readonly) id keyID;
-@property (nonatomic, readonly) id shortKeyID;
-@property (nonatomic, readonly) id fingerprint;
-@property (nonatomic, readonly) id length;
-@property (nonatomic, readonly) id algorithm;
-@property (nonatomic, readonly) id capabilities;
-
-
-- (id)initWithListing:(NSArray *)listing signatureListing:(NSArray *)sigListing parentKey:(GPGKey *)key;
-- (void)updateWithListing:(NSArray *)listing signatureListing:(NSArray *)sigListing;
-- (void)updatePreferences:(NSString *)listing;
+@property (nonatomic, readonly) NSArray *cipherPreferences;
+@property (nonatomic, readonly) NSArray *digestPreferences;
+@property (nonatomic, readonly) NSArray *compressPreferences;
 
 @end
+

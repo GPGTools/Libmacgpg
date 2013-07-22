@@ -24,6 +24,7 @@
 #import <Libmacgpg/GPGKeyserver.h>
 
 @class GPGSignature;
+@class GPGUserIDSignature;
 @class GPGController;
 @class GPGStream;
 
@@ -172,7 +173,7 @@
 - (NSArray *)searchKeysOnServer:(NSString *)pattern;
 - (void)sendKeysToServer:(NSObject <EnumerationList> *)keys;
 - (NSString *)refreshKeysFromServer:(NSObject <EnumerationList> *)keys DEPRECATED_ATTRIBUTE;
-- (void)removeSignature:(GPGKeySignature *)signature fromUserID:(GPGUserID *)userID ofKey:(NSObject <KeyFingerprint> *)key;
+- (void)removeSignature:(GPGUserIDSignature *)signature fromUserID:(GPGUserID *)userID ofKey:(NSObject <KeyFingerprint> *)key;
 - (void)removeSubkey:(NSObject <KeyFingerprint> *)subkey fromKey:(NSObject <KeyFingerprint> *)key;
 - (void)revokeSubkey:(NSObject <KeyFingerprint> *)subkey fromKey:(NSObject <KeyFingerprint> *)key reason:(int)reason description:(NSString *)description;
 - (void)setPrimaryUserID:(NSString *)hashID ofKey:(NSObject <KeyFingerprint> *)key;
@@ -181,7 +182,7 @@
 				  daysToExpire:(int)daysToExpire preferences:(NSString *)preferences passphrase:(NSString *)passphrase;
 - (void)deleteKeys:(NSObject <EnumerationList> *)keys withMode:(GPGDeleteKeyMode)mode;
 - (void)setAlgorithmPreferences:(NSString *)preferences forUserID:(NSString *)hashID ofKey:(NSObject <KeyFingerprint> *)key;
-- (void)revokeSignature:(GPGKeySignature *)signature fromUserID:(GPGUserID *)userID ofKey:(NSObject <KeyFingerprint> *)key reason:(int)reason description:(NSString *)description;
+- (void)revokeSignature:(GPGUserIDSignature *)signature fromUserID:(GPGUserID *)userID ofKey:(NSObject <KeyFingerprint> *)key reason:(int)reason description:(NSString *)description;
 - (void)key:(NSObject <KeyFingerprint> *)key setDisabled:(BOOL)disabled;
 - (void)key:(NSObject <KeyFingerprint> *)key setOwnerTrsut:(GPGValidity)trust;
 

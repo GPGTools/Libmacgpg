@@ -20,11 +20,10 @@
 #import <Libmacgpg/GPGGlobals.h>
 #import <Libmacgpg/GPGKey.h>
 #import <Libmacgpg/GPGTask.h>
-#import <Libmacgpg/GPGKeySignature.h>
+#import <Libmacgpg/GPGUserIDSignature.h>
 #import <Libmacgpg/GPGRemoteKey.h>
 #import <Libmacgpg/GPGRemoteUserID.h>
 #import <Libmacgpg/GPGSignature.h>
-#import <Libmacgpg/GPGSubkey.h>
 #import <Libmacgpg/GPGTaskOrder.h>
 #import <Libmacgpg/GPGUserID.h>
 #import <Libmacgpg/GPGWatcher.h>
@@ -32,7 +31,6 @@
 #import <Libmacgpg/GPGPacket.h>
 #import <Libmacgpg/GPGOptions.h>
 #import <Libmacgpg/GPGConf.h>
-#import <Libmacgpg/GPGPhotoID.h>
 #import <Libmacgpg/GPGException.h>
 #import <Libmacgpg/GPGTransformer.h>
 #import <Libmacgpg/GPGTaskHelperXPC.h>

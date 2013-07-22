@@ -15,45 +15,39 @@
  
  Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem 
  Programm erhalten haben. Falls nicht, siehe <http://www.gnu.org/licenses/>.
-
+ 
  Additions by: Lukas Pitschl (@lukele) (c) 2013
- */
+*/
 
-#import <Libmacgpg/GPGGlobals.h>
+#import "GPGGlobals.h"
 #import "GPGKey.h"
-#import "GPGUserID.h"
 
-@interface GPGSignature : NSObject <GPGUserIDProtocol> {
-	GPGValidity _trust;
-	GPGErrorCode _status;
-	
-	NSString *_fingerprint;
+@interface GPGUserIDSignature : NSObject <GPGUserIDProtocol> {
+	NSString *_keyID;
+	GPGPublicKeyAlgorithm _algorithm;
 	NSDate *_creationDate;
 	NSDate *_expirationDate;
-	int _version;
-	GPGPublicKeyAlgorithm _publicKeyAlgorithm;
-	GPGHashAlgorithm _hashAlgorithm;
-	
+	NSString *_reason;
+	int _signatureClass;
+	BOOL _revocation;
+	BOOL _local;
+
 	GPGKey *_primaryKey;
 }
 
 - (instancetype)init;
-- (instancetype)initWithFingerprint:(NSString *)fingerprint status:(GPGErrorCode)status;
-- (NSString *)humanReadableDescription;
-// really for unit-testing
-- (NSString *)humanReadableDescriptionShouldLocalize:(BOOL)shouldLocalize;
+- (instancetype)initWithKeyID:(NSString *)keyID;
 
-@property (nonatomic, readonly) GPGValidity trust;
-@property (nonatomic, readonly) GPGErrorCode status;
-@property (nonatomic, readonly) NSString *fingerprint;
+@property (nonatomic, readonly) NSString *keyID;
+@property (nonatomic, readonly) GPGPublicKeyAlgorithm algorithm;
 @property (nonatomic, readonly) NSDate *creationDate;
 @property (nonatomic, readonly) NSDate *expirationDate;
-@property (nonatomic, readonly) int version;
-@property (nonatomic, readonly) GPGPublicKeyAlgorithm publicKeyAlgorithm;
-@property (nonatomic, readonly) GPGHashAlgorithm hashAlgorithm;
+@property (nonatomic, readonly) NSString *reason;
+@property (nonatomic, readonly) int signatureClass;
+@property (nonatomic, readonly) BOOL revocation;
+@property (nonatomic, readonly) BOOL local;
 
 @property (nonatomic, readonly) GPGKey *primaryKey;
-@property (nonatomic, readonly) NSString *primaryFingerprint;
 
 @property (nonatomic, readonly) NSString *userIDDescription;
 @property (nonatomic, readonly) NSString *name;

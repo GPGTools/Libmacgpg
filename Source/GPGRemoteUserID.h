@@ -18,7 +18,7 @@
 */
 
 #import <Cocoa/Cocoa.h>
-#import "GPGGlobals.h"
+#import "GPGUserID.h"
 
 @interface GPGRemoteUserID : NSObject <GPGUserIDProtocol> {
 	NSString *userID;

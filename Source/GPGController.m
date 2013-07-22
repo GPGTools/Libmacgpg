@@ -1269,7 +1269,7 @@ BOOL gpgConfigReaded = NO;
 	[self operationDidFinishWithReturnValue:nil];	
 }
 
-- (void)removeSignature:(GPGKeySignature *)signature fromUserID:(GPGUserID *)userID ofKey:(NSObject <KeyFingerprint> *)key { //Diese Funktion ist äusserst ineffizient, mir ist allerdings kein besserer Weg bekannt.
+- (void)removeSignature:(GPGUserIDSignature *)signature fromUserID:(GPGUserID *)userID ofKey:(NSObject <KeyFingerprint> *)key { //Diese Funktion ist äusserst ineffizient, mir ist allerdings kein besserer Weg bekannt.
 	if (async && !asyncStarted) {
 		asyncStarted = YES;
 		[asyncProxy removeSignature:signature fromUserID:userID ofKey:key];
@@ -1287,7 +1287,7 @@ BOOL gpgConfigReaded = NO;
 			[order addCmd:@"delsig\n" prompt:@"keyedit.prompt"];
 			
 			NSArray *userIDsignatures = userID.signatures;
-			for (GPGKeySignature *aSignature in userIDsignatures) {
+			for (GPGUserIDSignature *aSignature in userIDsignatures) {
 				if (aSignature == signature) {
 					[order addCmd:@"y\n" prompt:@[@"keyedit.delsig.valid", @"keyedit.delsig.invalid", @"keyedit.delsig.unknown"]];
 					if ([[signature keyID] isEqualToString:[key.description keyID]]) {
@@ -1324,7 +1324,7 @@ BOOL gpgConfigReaded = NO;
 	[self operationDidFinishWithReturnValue:nil];	
 }
 
-- (void)revokeSignature:(GPGKeySignature *)signature fromUserID:(GPGUserID *)userID ofKey:(NSObject <KeyFingerprint> *)key reason:(int)reason description:(NSString *)description { //Diese Funktion ist äusserst ineffizient, mir ist allerdings kein besserer Weg bekannt.
+- (void)revokeSignature:(GPGUserIDSignature *)signature fromUserID:(GPGUserID *)userID ofKey:(NSObject <KeyFingerprint> *)key reason:(int)reason description:(NSString *)description { //Diese Funktion ist äusserst ineffizient, mir ist allerdings kein besserer Weg bekannt.
 	if (async && !asyncStarted) {
 		asyncStarted = YES;
 		[asyncProxy revokeSignature:signature fromUserID:userID ofKey:key reason:reason description:description];
@@ -1342,7 +1342,7 @@ BOOL gpgConfigReaded = NO;
 			[order addCmd:@"revsig\n" prompt:@"keyedit.prompt"];
 			
 			NSArray *userIDsignatures = userID.signatures;
-			for (GPGKeySignature *aSignature in userIDsignatures) {
+			for (GPGUserIDSignature *aSignature in userIDsignatures) {
 				if (aSignature == signature) {
 					[order addCmd:@"y\n" prompt:@"ask_revoke_sig.one"];
 				} else {
@@ -2175,7 +2175,8 @@ BOOL gpgConfigReaded = NO;
 		case GPG_STATUS_BADSIG:
 		case GPG_STATUS_ERRSIG:
 		case GPG_STATUS_REVKEYSIG:
-			if (lastSignature && lastSignature.hasFilled) {
+#warning hasFilled exists no more. Is it necessary?
+			if (lastSignature) {
 				self.lastSignature = nil;
 			}
 			//no break!

@@ -256,14 +256,6 @@ void *lm_memmem(const void *big, size_t big_len, const void *little, size_t litt
 
 
 
-@protocol GPGUserIDProtocol
-@property (nonatomic, retain) NSString *userID;
-@property (nonatomic, retain) NSString *name;
-@property (nonatomic, retain) NSString *email;
-@property (nonatomic, retain) NSString *comment;
-@end
-
-
 @protocol EnumerationList <NSFastEnumeration>
 - (NSUInteger)count;
 @end

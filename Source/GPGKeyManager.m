@@ -1,6 +1,6 @@
 #import "Libmacgpg.h"
 #import "GPGKeyManager.h"
-
+#import "GPGTypesRW.h"
 
 @implementation GPGKeyManager
 @synthesize allKeys=_allKeys;
@@ -63,7 +63,7 @@
 	NSMutableSet *newKeys = [[NSMutableSet alloc] init];
 	NSMutableArray *userIDs = nil, *subkeys = nil, *signatures = nil;
 	GPGKey *primaryKey = nil, *key = nil;
-	GPGKeySignature *signature = nil;
+	GPGUserIDSignature *signature = nil;
 	BOOL isPub = NO, isUid = NO, isRev = NO; // Used to differentiate pub/sub, uid/uat and sig/rev, because they are using the same if branch.
 	NSMutableArray *allSignatures = nil;
 	
@@ -187,7 +187,7 @@
 			
 			if (isUid) {
 				isUid = NO;
-				userID.userID = [[parts objectAtIndex:9] unescapedString];
+				userID.userIDDescription = [[parts objectAtIndex:9] unescapedString];
 			} else if (uat) { // Process attribute data.
 				NSInteger index, count;
 				
@@ -212,7 +212,7 @@
 									[image setSize:size];
 								}
 								
-								userID.image = image;
+								userID.photo = image;
 								[image release];
 							}					
 
@@ -235,10 +235,10 @@
 			
 		}
 		else if ([type isEqualToString:@"sig"] || ([type isEqualToString:@"rev"] && (isRev = YES))) { // Signature.
-			signature = [[[GPGKeySignature alloc] init] autorelease];
+			signature = [[[GPGUserIDSignature alloc] init] autorelease];
 			
 			
-			signature.revocationSignature = isRev;
+			signature.revocation = isRev;
 			
 			signature.algorithm = [[parts objectAtIndex:3] intValue];
 			
