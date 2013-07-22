@@ -2,8 +2,15 @@
 #import "GPGKeyManager.h"
 #import "GPGTypesRW.h"
 
+@interface GPGKeyManager ()
+
+@property (copy, readwrite) NSDictionary *keysByKeyID;
+
+@end
+
 @implementation GPGKeyManager
-@synthesize allKeys=_allKeys;
+
+@synthesize allKeys=_allKeys, keysByKeyID=_keysByKeyID;
 
 
 - (void)loadAllKeys {
@@ -289,9 +296,6 @@
 		}
 	}
 	
-	
-	
-	
 	NSSet *oldAllKeys = _allKeys;
 	_allKeys = [_mutableAllKeys copy];
 	[oldAllKeys release];
@@ -300,22 +304,22 @@
 
 
 - (NSDictionary *)keysByKeyID {
+	__block GPGKeyManager *weakSelf = self;
+	
 	dispatch_once(&_once_keysByKeyID, ^{
-		
 		NSMutableDictionary *keysByKeyID = [[NSMutableDictionary alloc] init];
-		for (GPGKey *key in _mutableAllKeys) {
+		for (GPGKey *key in weakSelf->_mutableAllKeys) {
 			[keysByKeyID setObject:key forKey:key.keyID];
 			for (GPGKey *subkey in key.subkeys) {
 				[keysByKeyID setObject:subkey forKey:subkey.keyID];
 			}
 		}
 		
-		NSDictionary *old = _keysByKeyID;
-		_keysByKeyID = keysByKeyID;
-		[old release];
+		weakSelf.keysByKeyID = keysByKeyID;
+		[keysByKeyID release];
 	});
 	
-	return [[_keysByKeyID retain] autorelease];
+	return self.keysByKeyID;
 }
 
 
