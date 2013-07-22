@@ -53,7 +53,8 @@
 		[_userIDs release];
 	
 	_userIDs = [userIDs copy];
-	self.primaryUserID = [_userIDs objectAtIndex:0];
+	if([_userIDs count])
+		self.primaryUserID = [_userIDs objectAtIndex:0];
 }
 
 - (NSString *)email {
