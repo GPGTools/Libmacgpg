@@ -2,12 +2,21 @@
 
 
 @interface GPGKeyManager : NSObject <GPGTaskDelegate> {
-	NSSet *allKeys;
-	NSMutableSet *mutableAllKeys;
-	NSMutableArray *attributeLines;
+	NSSet *_allKeys;
+	NSMutableSet *_mutableAllKeys;
+	NSDictionary *_keysByKeyID;
+	NSMutableArray *_attributeLines;
+	
+	dispatch_once_t _once_keysByKeyID;
 }
-@property (readonly) NSSet *allKeys;
+@property (nonatomic, readonly) NSSet *allKeys;
+@property (nonatomic, readonly) NSDictionary *keysByKeyID;
 
+
+/*
+ GPGKeyManager is a singleton.
+ */
++ (GPGKeyManager *)sharedInstance;
 
 /*
  Load the specified keys from gpg, pass nil to load all.

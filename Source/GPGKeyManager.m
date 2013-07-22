@@ -3,6 +3,7 @@
 
 
 @implementation GPGKeyManager
+@synthesize allKeys=_allKeys;
 
 
 - (void)loadAllKeys {
@@ -37,7 +38,7 @@
 		[gpgTask addArgument:@"--list-keys"];
 	}
 	if (uat) {
-		attributeLines = [NSMutableArray array];
+		_attributeLines = [NSMutableArray array];
 		gpgTask.getAttributeData = YES;
 	}
 	[gpgTask addArgument:@"--with-fingerprint"];
@@ -60,10 +61,16 @@
 	// ======= Parsing =======
 	
 	NSMutableSet *newKeys = [[NSMutableSet alloc] init];
-	NSMutableArray *userIDs = nil, *subkeys = nil;
+	NSMutableArray *userIDs = nil, *subkeys = nil, *signatures = nil;
 	GPGKey *primaryKey = nil, *key = nil;
-	GPGUserID *userID = nil;
-	BOOL isPub = NO, isUid = NO; // Used to differentiate pub/sub and uid/uat, because they are using the same if branch.
+	GPGKeySignature *signature = nil;
+	BOOL isPub = NO, isUid = NO, isRev = NO; // Used to differentiate pub/sub, uid/uat and sig/rev, because they are using the same if branch.
+	NSMutableArray *allSignatures = nil;
+	
+	if (sigs) {
+		allSignatures = [NSMutableArray array];
+	}
+
 	
 	
 	NSArray *lines = [gpgTask.outText componentsSeparatedByString:@"\n"];
@@ -149,9 +156,14 @@
 			
 		}
 		else if (([type isEqualToString:@"uid"] && (isUid = YES)) || [type isEqualToString:@"uat"]) { // UserID or UAT (PhotoID).
-			userID = [[[GPGUserID alloc] init] autorelease];
+			GPGUserID *userID = [[[GPGUserID alloc] init] autorelease];
 			userID.primaryKey = primaryKey;
-
+			
+			if (sigs) {
+				signatures = [NSMutableArray array];
+				userID.signatures = signatures;
+			}
+			
 			
 			GPGValidity validity = [self validityForLetter:[parts objectAtIndex:1]];
 
@@ -180,7 +192,7 @@
 				NSInteger index, count;
 				
 				do {
-					NSArray *attributeParts = [[attributeLines objectAtIndex:0] componentsSeparatedByString:@" "];
+					NSArray *attributeParts = [[_attributeLines objectAtIndex:0] componentsSeparatedByString:@" "];
 					
 					NSInteger length = [[attributeParts objectAtIndex:1] integerValue];
 					index = [[attributeParts objectAtIndex:3] integerValue];
@@ -222,14 +234,36 @@
 			key.secret = [secKeyFingerprints containsObject:fingerprint];
 			
 		}
-		else if ([type isEqualToString:@"sig"]) { // Signature.
+		else if ([type isEqualToString:@"sig"] || ([type isEqualToString:@"rev"] && (isRev = YES))) { // Signature.
+			signature = [[[GPGKeySignature alloc] init] autorelease];
 			
-		}
-		else if ([type isEqualToString:@"rev"]) { // Revocation signature.
 			
+			signature.revocationSignature = isRev;
+			
+			signature.algorithm = [[parts objectAtIndex:3] intValue];
+			
+			signature.keyID = [parts objectAtIndex:4];
+			
+			signature.creationDate = [NSDate dateWithGPGString:[parts objectAtIndex:5]];
+			
+			signature.expirationDate = [NSDate dateWithGPGString:[parts objectAtIndex:6]];
+
+			NSString *field = [parts objectAtIndex:10];
+			signature.signatureClass = hexToByte([field UTF8String]);
+			signature.local = [field hasSuffix:@"l"];
+			
+			
+			[signatures addObject:signature];
+			[allSignatures addObject:signature];
+			
+			isRev = NO;
 		}
 		else if ([type isEqualToString:@"spk"]) { // Signature subpacket. Needed for the revocation reason.
-			
+			switch ([[parts objectAtIndex:1] integerValue]) {
+				case 29:
+					signature.reason = [[parts objectAtIndex:4] unescapedString];
+					break;
+			}
 		}
 		
 	}
@@ -237,23 +271,51 @@
 		[newKeys addObject:primaryKey]; //Add the last primaryKey
 	}
 
-	attributeLines = nil;
+	_attributeLines = nil;
 
 	
 	
-	[mutableAllKeys minusSet:keys];
-	[mutableAllKeys minusSet:newKeys];
-	[mutableAllKeys unionSet:newKeys];
+	[_mutableAllKeys minusSet:keys];
+	[_mutableAllKeys minusSet:newKeys];
+	[_mutableAllKeys unionSet:newKeys];
+	
+	_once_keysByKeyID = 0;
+	
+	if (sigs) {
+		NSDictionary *keysByKeyID = self.keysByKeyID;
+		
+		for (signature in allSignatures) {
+			signature.primaryKey = [keysByKeyID objectForKey:signature.keyID]; // Set the key used to create the signature.
+		}
+	}
 	
 	
-	NSSet *oldAllKeys = allKeys;
-	allKeys = [mutableAllKeys copy];
+	
+	
+	NSSet *oldAllKeys = _allKeys;
+	_allKeys = [_mutableAllKeys copy];
 	[oldAllKeys release];
 }
 
 
-- (NSSet *)allKeys {
-	return [[allKeys retain] autorelease];
+
+- (NSDictionary *)keysByKeyID {
+	dispatch_once(&_once_keysByKeyID, ^{
+		
+		NSMutableDictionary *keysByKeyID = [[NSMutableDictionary alloc] init];
+		for (GPGKey *key in _mutableAllKeys) {
+			[keysByKeyID setObject:key forKey:key.keyID];
+			for (GPGKey *subkey in key.subkeys) {
+				[keysByKeyID setObject:subkey forKey:subkey.keyID];
+			}
+		}
+		
+		NSDictionary *old = _keysByKeyID;
+		_keysByKeyID = keysByKeyID;
+		[old release];
+	});
+	
+	return [[_keysByKeyID retain] autorelease];
 }
 
 
@@ -316,7 +378,7 @@
 - (id)gpgTask:(GPGTask *)gpgTask statusCode:(NSInteger)status prompt:(NSString *)prompt {
 	switch (status) {
 		case GPG_STATUS_ATTRIBUTE:
-			[attributeLines addObject:prompt];
+			[_attributeLines addObject:prompt];
 			break;
 			
 	}
@@ -343,7 +405,7 @@
 		return nil;
 	}
 	
-	allKeys = [[NSMutableSet alloc] init];
+	_mutableAllKeys = [[NSMutableSet alloc] init];
 	
 	return self;
 }
