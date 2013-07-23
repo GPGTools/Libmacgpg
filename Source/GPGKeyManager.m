@@ -319,7 +319,7 @@
 		[keysByKeyID release];
 	});
 	
-	return self.keysByKeyID;
+	return [[_keysByKeyID retain] autorelease];
 }
 
 
