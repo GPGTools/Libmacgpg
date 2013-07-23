@@ -328,22 +328,20 @@
 
 
 - (NSDictionary *)keysByKeyID {
-	__block GPGKeyManager *weakSelf = self;
-	
 	dispatch_once(&_once_keysByKeyID, ^{
 		NSMutableDictionary *keysByKeyID = [[NSMutableDictionary alloc] init];
-		for (GPGKey *key in weakSelf->_mutableAllKeys) {
+		for (GPGKey *key in self->_mutableAllKeys) {
 			[keysByKeyID setObject:key forKey:key.keyID];
 			for (GPGKey *subkey in key.subkeys) {
 				[keysByKeyID setObject:subkey forKey:subkey.keyID];
 			}
 		}
 		
-		weakSelf.keysByKeyID = keysByKeyID;
+		self.keysByKeyID = keysByKeyID;
 		[keysByKeyID release];
 	});
 	
-	return self.keysByKeyID;
+	return [[_keysByKeyID retain] autorelease];
 }
 
 
