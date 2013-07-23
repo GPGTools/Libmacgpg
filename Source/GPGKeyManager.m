@@ -19,6 +19,7 @@
 
 - (void)loadKeys:(NSSet *)keys fetchSignatures:(BOOL)fetchSignatures fetchUserAttributes:(BOOL)fetchUserAttributes {
 
+	@try {
 	NSArray *keyArguments = [keys allObjects];
 	
 	
@@ -53,15 +54,7 @@
 	[gpgTask addArguments:keyArguments];
 	
 	
-	[gpgTask start];
-	//TODO: Should we throw an error?
-	/*if ([gpgTask start] != 0) {
-		if ([keyList count] == 0) { //TODO: Bessere Lösung um Probleme zu vermeiden, wenn ein nicht (mehr) vorhandener Schlüssel gelistet werden soll.
-			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"List public keys failed!") gpgTask:gpgTask];
-		}
-	}*/
-	
-	
+	[gpgTask start];	
 	
 	
 	
@@ -320,9 +313,22 @@
 		}
 	}
 	
-	NSSet *oldAllKeys = _allKeys;
-	_allKeys = [_mutableAllKeys copy];
-	[oldAllKeys release];
+		
+		
+		
+	}
+	@catch (NSException *exception) {
+		//TODO: Detect unavailable keyring.
+		
+		GPGDebugLog(@"loadKeys failed: %@", exception);
+		_mutableAllKeys = nil;
+	}
+	@finally {
+		NSSet *oldAllKeys = _allKeys;
+		_allKeys = [_mutableAllKeys copy];
+		[oldAllKeys release];
+	}
+		
 }
 
 
