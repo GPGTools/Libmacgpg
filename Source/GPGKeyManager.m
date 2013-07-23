@@ -194,7 +194,31 @@
 			
 			if (isUid) {
 				isUid = NO;
-				userID.userIDDescription = [[parts objectAtIndex:9] unescapedString];
+				NSString *workText = [[parts objectAtIndex:9] unescapedString];
+				userID.userIDDescription = workText;
+				
+				NSUInteger textLength = [workText length];
+				NSRange range;
+
+				if ([workText hasSuffix:@">"] && (range = [workText rangeOfString:@" <" options:NSBackwardsSearch]).length > 0) {
+					range.location += 2;
+					range.length = textLength - range.location - 1;
+					userID.email = [workText substringWithRange:range];
+					
+					workText = [workText substringToIndex:range.location - 2];
+					textLength -= (range.length + 3);
+				}				
+				range = [workText rangeOfString:@" (" options:NSBackwardsSearch];
+				if (range.length > 0 && range.location > 0 && [workText hasSuffix:@")"]) {
+					range.location += 2;
+					range.length = textLength - range.location - 1;
+					userID.comment = [workText substringWithRange:range];
+					
+					workText = [workText substringToIndex:range.location - 2];
+				}
+				
+				userID.name = workText;
+				
 			} else if (fetchUserAttributes) { // Process attribute data.
 				NSInteger index, count;
 				
