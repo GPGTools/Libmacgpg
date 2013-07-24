@@ -16,6 +16,17 @@
 	
 	NSSet *_publicKeys;
 	NSSet *_secretKeys;
+	
+	
+	//For loadKeys
+	
+	NSSet *_secKeyFingerprints;
+	NSArray *_keyLines;
+	NSData *_attributeData;
+	NSMutableDictionary *_attributeInfos; // A dict of arrays of dict with: location, length, type, index, count.
+	NSUInteger _attributeDataLocation;
+	BOOL _fetchUserAttributes;
+	BOOL _fetchSignatures;
 }
 @property (nonatomic, readonly) NSSet *allKeys;
 @property (nonatomic, readonly) NSDictionary *keysByKeyID;
