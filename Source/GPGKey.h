@@ -54,8 +54,10 @@
 	
 	// Contains all information of the key concatenated for quicker search.
 	NSString *_textForFilter;
+	dispatch_semaphore_t _textForFilterOnce;
 	// Contains all fingerprints of subkeys.
 	NSSet *_fingerprints;
+	dispatch_semaphore_t _fingerprintsOnce;
 	
 	// If this is a subkey, points to its primaryKey, otherwise
 	// to self.

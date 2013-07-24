@@ -33,6 +33,9 @@
 - (instancetype)initWithFingerprint:(NSString *)fingerprint {
 	if(self = [super init]) {
 		_fingerprint = [fingerprint copy];
+		// Each semaphore can be consumed exactly once, that's why it's initiated with 1.
+		_textForFilterOnce = dispatch_semaphore_create(1);
+		_fingerprintsOnce = dispatch_semaphore_create(1);
 	}
 	return self;
 }
@@ -82,38 +85,33 @@
 }
 
 - (NSSet *)allFingerprints {
-	static dispatch_once_t onceToken;
-	
-	__block GPGKey *weakSelf = self;
-	
-	dispatch_once(&onceToken, ^{
+	dispatch_semaphore_wait(_fingerprintsOnce, DISPATCH_TIME_FOREVER);
+	if(!_fingerprints) {
 		NSMutableSet *fingerprints = [[NSMutableSet alloc] initWithCapacity:[self.subkeys count] + 1];
-		[fingerprints addObject:weakSelf.fingerprint];
-		if(self.subkeys)
-			[fingerprints addObjectsFromArray:[weakSelf.subkeys valueForKey:@"fingerprint"]];
-		weakSelf->_fingerprints = [fingerprints copy];
+		[fingerprints addObject:self.fingerprint];
+		if([self.subkeys count])
+			[fingerprints addObjectsFromArray:[self.subkeys valueForKey:@"fingerprint"]];
+		_fingerprints = [fingerprints copy];
 		[fingerprints release];
-	});
+	}
+	dispatch_semaphore_signal(_fingerprintsOnce);
 	
 	return [[_fingerprints retain] autorelease];
 }
 
 - (NSString *)textForFilter {
-	static dispatch_once_t onceToken;
-	
-	__block GPGKey *weakSelf = self;
-	
-	dispatch_once(&onceToken, ^{
-		NSMutableString *textForFilter = [[NSMutableString alloc] initWithCapacity:([weakSelf.subkeys count] * 40) + ([weakSelf.userIDs count] * 60) + 40];
-		
-		for(GPGKey *key in [weakSelf.subkeys arrayByAddingObject:weakSelf]) {
-			[textForFilter appendFormat:@"0x%@\n0x%@\n0x%@\n", weakSelf.fingerprint, weakSelf.keyID, [weakSelf.keyID shortKeyID]];
+	dispatch_semaphore_wait(_textForFilterOnce, DISPATCH_TIME_FOREVER);
+	if(!_textForFilter) {
+		NSMutableString *textForFilter = [[NSMutableString alloc] init];
+		for(GPGKey *key in [self.subkeys arrayByAddingObject:self]) {
+			[textForFilter appendFormat:@"0x%@\n0x%@\n0x%@\n", self.fingerprint, self.keyID, [self.keyID shortKeyID]];
 		}
-		for(GPGUserID *userID in weakSelf.userIDs)
+		for(GPGUserID *userID in self.userIDs)
 			[textForFilter appendFormat:@"%@\n", userID.userIDDescription];
-		weakSelf->_textForFilter = [textForFilter copy];
+		_textForFilter = [textForFilter copy];
 		[textForFilter release];
-	});
+	}
+	dispatch_semaphore_signal(_textForFilterOnce);
 	
 	return [[_textForFilter retain] autorelease];
 }
@@ -155,8 +153,14 @@
 		userID.primaryKey = nil;
 	[_userIDs release];
 	_userIDs = nil;
+	
+	dispatch_release(_textForFilterOnce);
+	_textForFilterOnce = NULL;
 	[_textForFilter release];
 	_textForFilter = nil;
+	
+	dispatch_release(_fingerprintsOnce);
+	_fingerprintsOnce = NULL;
 	[_fingerprints release];
 	_fingerprints = nil;
 	
