@@ -7,13 +7,14 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 @interface GPGKeyManager ()
 
 @property (copy, readwrite) NSDictionary *keysByKeyID;
+@property (copy, readwrite) NSSet *publicKeys;
+@property (copy, readwrite) NSSet *secretKeys;
 
 @end
 
 @implementation GPGKeyManager
 
-@synthesize allKeys=_allKeys, keysByKeyID=_keysByKeyID;
-
+@synthesize allKeys=_allKeys, keysByKeyID=_keysByKeyID, publicKeys=_publicKeys, secretKeys=_secretKeys;
 
 - (void)loadAllKeys {
 	[self loadKeys:nil fetchSignatures:NO fetchUserAttributes:NO];
@@ -370,7 +371,39 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 	return [[_keysByKeyID retain] autorelease];
 }
 
+- (void)rebuildKeysCache {
+	NSMutableSet *publicKeys = nil;
+	NSMutableSet *secretKeys = nil;
+	
+	[_allKeys enumerateObjectsUsingBlock:^(GPGKey *key, BOOL *stop) {
+		if(key.secret)
+			[secretKeys addObject:key];
+		else
+			[publicKeys addObject:key];
+	}];
+	
+	NSSet *oldPublicKeys = _publicKeys;
+	_publicKeys = [publicKeys copy];
+	[oldPublicKeys release];
+	
+	NSSet *oldSecretKeys = _secretKeys;
+	_secretKeys = [secretKeys copy];
+	[oldSecretKeys release];
+}
 
+- (NSSet *)publicKeys {
+	// Make sure all keys are actually loaded.
+	[self allKeys];
+	
+	return [[_publicKeys retain] autorelease];
+}
+
+- (NSSet *)secretKeys {
+	// Make sure all keys are actually loaded.
+	[self allKeys];
+	
+	return [[_secretKeys retain] autorelease];
+}
 
 #pragma mark Helper methods
 

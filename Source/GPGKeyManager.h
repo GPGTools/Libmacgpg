@@ -13,10 +13,17 @@
 	
 	NSLock *_keyLoadingCheckLock;
 	dispatch_queue_t _keyLoadingQueue;
+	
+	NSSet *_publicKeys;
+	NSSet *_secretKeys;
 }
 @property (nonatomic, readonly) NSSet *allKeys;
 @property (nonatomic, readonly) NSDictionary *keysByKeyID;
 
+/* Subset of allKeys including only public keys. */
+@property (nonatomic, readonly) NSSet *publicKeys;
+/* Subset of allKeys including only secret keys. */
+@property (nonatomic, readonly) NSSet *secretKeys;
 
 /*
  GPGKeyManager is a singleton.
