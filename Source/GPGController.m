@@ -947,6 +947,79 @@ BOOL gpgConfigReaded = NO;
 	[self operationDidFinishWithReturnValue:nil];	
 }
 
+
+
+
+- (NSArray *)algorithmPreferencesForKey:(GPGKey *)key {
+	gpgTask = [GPGTask gpgTask];
+	[gpgTask addArgument:@"--edit-key"];
+	[gpgTask addArgument:[key description]];
+	[gpgTask addArgument:@"quit"];
+	
+	if ([gpgTask start] != 0) {
+		@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"algorithmPreferencesForKey: failed!") gpgTask:gpgTask];
+	}
+	
+	NSMutableArray *list = [NSMutableArray array];
+	
+	NSArray *lines = [gpgTask.outText componentsSeparatedByString:@"\n"];
+	
+	for (NSString *line in lines) {
+		if ([line hasPrefix:@"uid:"]) {
+			NSArray *parts = [line componentsSeparatedByString:@":"];
+			NSArray *split = [[parts objectAtIndex:12] componentsSeparatedByString:@","];
+			NSString *userIDDescription = [parts objectAtIndex:9];
+			NSString *prefs = [split objectAtIndex:0];
+			
+			NSRange range, searchRange;
+			NSUInteger stringLength = [prefs length];
+			searchRange.location = 0;
+			searchRange.length = stringLength;
+			
+			NSArray *compressPreferences, *digestPreferences, *cipherPreferences;
+			
+			range = [prefs rangeOfString:@"Z" options:NSLiteralSearch range:searchRange];
+			if (range.length > 0) {
+				range.length = searchRange.length - range.location;
+				searchRange.length = range.location - 1;
+				compressPreferences = [[[prefs substringWithRange:range] componentsSeparatedByString:@" "] retain];
+			} else {
+				searchRange.length = stringLength;
+				compressPreferences = [[NSArray alloc] init];
+			}
+			
+			range = [prefs rangeOfString:@"H" options:NSLiteralSearch range:searchRange];
+			if (range.length > 0) {
+				range.length = searchRange.length - range.location;
+				searchRange.length = range.location - 1;
+				digestPreferences = [[[prefs substringWithRange:range] componentsSeparatedByString:@" "] retain];
+			} else {
+				searchRange.length = stringLength;
+				digestPreferences = [[NSArray alloc] init];
+			}
+			
+			range = [prefs rangeOfString:@"S" options:NSLiteralSearch range:searchRange];
+			if (range.length > 0) {
+				range.length = searchRange.length - range.location;
+				searchRange.length = range.location - 1;
+				cipherPreferences = [[[prefs substringWithRange:range] componentsSeparatedByString:@" "] retain];
+			} else {
+				searchRange.length = stringLength;
+				cipherPreferences = [[NSArray alloc] init];
+			}
+			
+			//TODO: Support for [mdc] [no-ks-modify]!
+			
+			[list addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"userIDDescription", userIDDescription, @"compressPreferences", compressPreferences, @"digestPreferences", digestPreferences, @"cipherPreferences", cipherPreferences, nil]];
+		}
+	}
+
+	return list;
+}
+
+
+
+
 - (void)setAlgorithmPreferences:(NSString *)preferences forUserID:(NSString *)hashID ofKey:(NSObject <KeyFingerprint> *)key {
 	if (async && !asyncStarted) {
 		asyncStarted = YES;
