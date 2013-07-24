@@ -31,15 +31,15 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 	@try {
 		NSArray *keyArguments = [keys allObjects];
 		
-        dispatch_queue_t fillKeysQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
-		dispatch_group_t fillKeysGroup = dispatch_group_create();
+        dispatch_queue_t dispatchQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
+		dispatch_group_t dispatchGroup = dispatch_group_create();
 		
 		_fetchSignatures = fetchSignatures;
 		_fetchUserAttributes = fetchUserAttributes;
 		
 		
 		
-		dispatch_group_async(fillKeysGroup, fillKeysQueue, ^{
+		dispatch_group_async(dispatchGroup, dispatchQueue, ^{
 			// Get all fingerprints of the secret keys.
 			GPGTask *gpgTask = [GPGTask gpgTask];
 			gpgTask.batchMode = YES;
@@ -49,7 +49,7 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 			
 			[gpgTask start];
 			
-			self->_secKeyFingerprints = [self fingerprintsFromColonListing:gpgTask.outText];
+			self->_secKeyFingerprints = [[self fingerprintsFromColonListing:gpgTask.outText] retain];
 			
 		});
 		
@@ -76,7 +76,7 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 		[gpgTask start];
 		
 		
-		dispatch_group_wait(fillKeysGroup, DISPATCH_TIME_FOREVER);
+		dispatch_group_wait(dispatchGroup, DISPATCH_TIME_FOREVER);
 		
 		
 		
@@ -99,7 +99,7 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 					[newKeys addObject:key];
 					[key release];
 					
-					dispatch_group_async(fillKeysGroup, fillKeysQueue, ^{
+					dispatch_group_async(dispatchGroup, dispatchQueue, ^{
 						[self fillKey:key withRange:NSMakeRange(pubStart, index - pubStart)];
 					});
 				}
@@ -108,9 +108,9 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 		}
 		
 		
-		dispatch_group_wait(fillKeysGroup, DISPATCH_TIME_FOREVER);
-        dispatch_release(fillKeysGroup);
-        dispatch_release(fillKeysQueue);
+		dispatch_group_wait(dispatchGroup, DISPATCH_TIME_FOREVER);
+        dispatch_release(dispatchGroup);
+        dispatch_release(dispatchQueue);
 		
 		
 		
@@ -142,6 +142,9 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 		_mutableAllKeys = nil;
 	}
 	@finally {
+		[_secKeyFingerprints release];
+		_secKeyFingerprints = nil;
+		
 		NSSet *oldAllKeys = _allKeys;
 		_allKeys = [_mutableAllKeys copy];
 		[oldAllKeys release];
