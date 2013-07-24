@@ -2,6 +2,8 @@
 #import "GPGKeyManager.h"
 #import "GPGTypesRW.h"
 
+NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDidChangeNotification";
+
 @interface GPGKeyManager ()
 
 @property (copy, readwrite) NSDictionary *keysByKeyID;
@@ -18,7 +20,13 @@
 }
 
 - (void)loadKeys:(NSSet *)keys fetchSignatures:(BOOL)fetchSignatures fetchUserAttributes:(BOOL)fetchUserAttributes {
+	dispatch_sync(_keyLoadingQueue, ^{
+		[self _loadKeys:keys fetchSignatures:fetchSignatures fetchUserAttributes:fetchUserAttributes];
+	});
+}
 
+- (void)_loadKeys:(NSSet *)keys fetchSignatures:(BOOL)fetchSignatures fetchUserAttributes:(BOOL)fetchUserAttributes {
+	//NSLog(@"[%@]: Loading keys!", [NSThread currentThread]);
 	@try {
 	NSArray *keyArguments = [keys allObjects];
 	
@@ -328,7 +336,19 @@
 		_allKeys = [_mutableAllKeys copy];
 		[oldAllKeys release];
 	}
-		
+	// Let's check if the keys need to be reloaded again, as they have changed
+	// since we've started to load the keys.
+	if(_keysNeedToBeReloaded) {
+		_keysNeedToBeReloaded = NO;
+		dispatch_async(_keyLoadingQueue, ^{
+			[self _loadKeys:keys fetchSignatures:NO fetchUserAttributes:NO];
+		});
+	}
+	
+	// Inform all listeners that the keys were loaded.
+	dispatch_async(dispatch_get_main_queue(), ^{
+		[[NSDistributedNotificationCenter defaultCenter] postNotificationName:GPGKeyManagerKeysDidChangeNotification object:[[self class] description] userInfo:affectedKeys ? [NSDictionary dictionaryWithObject:affectedKeys forKey:@"affectedKeys"] : nil];
+	});
 }
 
 
@@ -417,7 +437,27 @@
 	return nil;
 }
 
+#pragma mark Keyring modifications notification handler
 
+- (void)keysDidChange:(NSNotification *)notification {
+	if([_keyLoadingCheckLock tryLock]) {
+		//NSLog(@"[%@]: Succeeded acquiring notification execute lock.", [NSThread currentThread]);
+		// If notification doesn't contain any keys, all keys have
+		// to be rebuild.
+		// If only a few keys were modified, the notification info will contain
+		// the affected keys, and only these have to be rebuilt.
+		//NSLog(@"[%@]: Keys did change - will reload keys", [NSThread currentThread]);
+		
+		// Call load keys.
+		[self loadAllKeys];
+		// At this point, it's ok for new notifications to queue key loads.
+		[_keyLoadingCheckLock unlock];
+	}
+	else {
+		//NSLog(@"[%@]: Failed to acquire notification execute lock.", [NSThread currentThread]);
+		_keysNeedToBeReloaded = YES;
+	}
+}
 
 #pragma mark Singleton
 
@@ -438,6 +478,11 @@
 	}
 	
 	_mutableAllKeys = [[NSMutableSet alloc] init];
+	_keyLoadingQueue = dispatch_queue_create("org.gpgtools.libmacgpg.GPGKeyManager.key-loader", NULL);
+	// Start listening to keyring modifications notifcations.
+	[[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(keysDidChange:) name:GPGKeysChangedNotification object:nil];
+	_keysNeedToBeReloaded = NO;
+	_keyLoadingCheckLock = [[NSLock alloc] init];
 	
 	return self;
 }

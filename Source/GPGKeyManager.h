@@ -1,13 +1,18 @@
 #import <Foundation/Foundation.h>
 
-
 @interface GPGKeyManager : NSObject <GPGTaskDelegate> {
 	NSSet *_allKeys;
+	
 	NSMutableSet *_mutableAllKeys;
 	NSDictionary *_keysByKeyID;
 	NSMutableArray *_attributeLines;
 	
 	dispatch_once_t _once_keysByKeyID;
+	
+	BOOL _keysNeedToBeReloaded;
+	
+	NSLock *_keyLoadingCheckLock;
+	dispatch_queue_t _keyLoadingQueue;
 }
 @property (nonatomic, readonly) NSSet *allKeys;
 @property (nonatomic, readonly) NSDictionary *keysByKeyID;
@@ -28,5 +33,7 @@
 
 - (void)loadAllKeys;
 
-
 @end
+
+/* Register to this notification to received notifications when keys were modified. */
+extern NSString * const GPGKeyManagerKeysDidChangeNotification;
