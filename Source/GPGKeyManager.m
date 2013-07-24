@@ -270,10 +270,10 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 			
 			GPGValidity validity = [self validityForLetter:[parts objectAtIndex:1]];
 			
-			key.creationDate = [NSDate dateWithGPGString:[parts objectAtIndex:5]];
+			userID.creationDate = [NSDate dateWithGPGString:[parts objectAtIndex:5]];
 			
 			NSDate *expirationDate = [NSDate dateWithGPGString:[parts objectAtIndex:6]];
-			key.expirationDate = expirationDate;
+			userID.expirationDate = expirationDate;
 			if (!(validity & GPGValidityExpired) && expirationDate && [[NSDate date] isGreaterThanOrEqualTo:expirationDate]) {
 				validity |= GPGValidityExpired;
 			}

@@ -40,6 +40,8 @@
 	NSString *_comment;
 	NSString *_hashID;
 	NSImage *_photo;
+	NSDate *_creationDate;
+	NSDate *_expirationDate;
 	GPGValidity _validity;
 	
 	GPGKey *_primaryKey;
@@ -56,6 +58,8 @@
 @property (nonatomic, readonly) NSString *comment;
 @property (nonatomic, readonly) NSString *hashID;
 @property (nonatomic, readonly) NSImage *photo;
+@property (nonatomic, readonly) NSDate *creationDate;
+@property (nonatomic, readonly) NSDate *expirationDate;
 @property (nonatomic, readonly) GPGValidity validity;
 
 @property (nonatomic, readonly) NSArray *signatures;
