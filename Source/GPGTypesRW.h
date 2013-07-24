@@ -103,6 +103,7 @@
 @property (assign, readwrite) GPGErrorCode status;
 @property (copy, readwrite) NSString *fingerprint;
 @property (copy, readwrite) NSDate *creationDate;
+@property (assign, readwrite) int signatureClass;
 @property (copy, readwrite) NSDate *expirationDate;
 @property (assign, readwrite) int version;
 @property (assign, readwrite) GPGPublicKeyAlgorithm publicKeyAlgorithm;

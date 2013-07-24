@@ -33,6 +33,8 @@
 #import "GPGTaskHelperXPC.h"
 #import "NSBundle+Sandbox.h"
 #endif
+#import "GPGTypesRW.h"
+#import "GPGKeyManager.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -2224,6 +2226,104 @@ BOOL gpgConfigReaded = NO;
 
 
 
+
+- (void)parseSignatureInfoWithStatus:(NSInteger)statusCode andPrompt:(NSString *)prompt  {
+	if (statusCode == GPG_STATUS_NEWSIG) {
+		return;
+	}
+	NSArray *components = [prompt componentsSeparatedByString:@" "];
+	BOOL parseFingerprint = NO;
+	
+	switch (statusCode) {
+		case GPG_STATUS_NEWSIG:
+			break;
+		case GPG_STATUS_GOODSIG:
+			self.lastSignature.status = GPGErrorNoError;
+			parseFingerprint = YES;
+			break;
+		case GPG_STATUS_EXPSIG:
+			self.lastSignature.status = GPGErrorSignatureExpired;
+			parseFingerprint = YES;
+			break;
+		case GPG_STATUS_EXPKEYSIG:
+			self.lastSignature.status = GPGErrorKeyExpired;
+			parseFingerprint = YES;
+			break;
+		case GPG_STATUS_BADSIG:
+			self.lastSignature.status = GPGErrorBadSignature;
+			parseFingerprint = YES;
+			break;
+		case GPG_STATUS_REVKEYSIG:
+			self.lastSignature.status = GPGErrorCertificateRevoked;
+			parseFingerprint = YES;
+			break;
+		case GPG_STATUS_ERRSIG:
+			parseFingerprint = YES;
+			self.lastSignature.publicKeyAlgorithm = [[components objectAtIndex:1] intValue];
+			self.lastSignature.hashAlgorithm = [[components objectAtIndex:2] intValue];
+			self.lastSignature.signatureClass = hexToByte([[components objectAtIndex:3] UTF8String]);
+			self.lastSignature.creationDate = [NSDate dateWithGPGString:[components objectAtIndex:4]];
+			switch ([[components objectAtIndex:5] intValue]) {
+				case 4:
+					self.lastSignature.status = GPGErrorUnknownAlgorithm;
+					break;
+				case 9:
+					self.lastSignature.status = GPGErrorNoPublicKey;
+					break;
+				default:
+					self.lastSignature.status = GPGErrorGeneralError;
+					break;
+			}
+			break;
+		case GPG_STATUS_VALIDSIG:
+			parseFingerprint = YES;
+			self.lastSignature.creationDate = [NSDate dateWithGPGString:[components objectAtIndex:2]];
+			self.lastSignature.expirationDate = [NSDate dateWithGPGString:[components objectAtIndex:3]];
+			self.lastSignature.version = [[components objectAtIndex:4] intValue];
+			self.lastSignature.publicKeyAlgorithm = [[components objectAtIndex:6] intValue];
+			self.lastSignature.hashAlgorithm = [[components objectAtIndex:7] intValue];
+			self.lastSignature.signatureClass = hexToByte([[components objectAtIndex:8] UTF8String]);
+			break;
+		case GPG_STATUS_TRUST_UNDEFINED:
+			self.lastSignature.trust = GPGValidityUndefined;
+			break;
+		case GPG_STATUS_TRUST_NEVER:
+			self.lastSignature.trust = GPGValidityNever;
+			break;
+		case GPG_STATUS_TRUST_MARGINAL:
+			self.lastSignature.trust = GPGValidityMarginal;
+			break;
+		case GPG_STATUS_TRUST_FULLY:
+			self.lastSignature.trust = GPGValidityFull;
+			break;
+		case GPG_STATUS_TRUST_ULTIMATE:
+			self.lastSignature.trust = GPGValidityUltimate;
+			break;
+	}
+	
+	
+	if (parseFingerprint) {
+		NSSet *allKeys = [[GPGKeyManager sharedInstance] allKeys];
+		
+		NSString *fingerprint = [components objectAtIndex:0];
+		GPGKey *key = [allKeys member:fingerprint];
+		
+		if (key) {
+			//self.lastSignature.gpgKey = key;
+			self.lastSignature.primaryKey = key.primaryKey;
+			self.lastSignature.fingerprint = key.fingerprint;
+		} else {
+			self.lastSignature.fingerprint = fingerprint;
+		}
+	}
+	
+	
+	/*self.lastSignature.hasFilled = YES;*/
+}
+
+
+
+
 #pragma mark Delegate method
 
 - (id)gpgTask:(GPGTask *)task statusCode:(NSInteger)status prompt:(NSString *)prompt {
@@ -2248,8 +2348,7 @@ BOOL gpgConfigReaded = NO;
 		case GPG_STATUS_BADSIG:
 		case GPG_STATUS_ERRSIG:
 		case GPG_STATUS_REVKEYSIG:
-#warning hasFilled exists no more. Is it necessary?
-			if (lastSignature) {
+			if (self.lastSignature /*&& self.lastSignature.hasFilled*/) {
 				self.lastSignature = nil;
 			}
 			//no break!
@@ -2260,12 +2359,12 @@ BOOL gpgConfigReaded = NO;
 		case GPG_STATUS_TRUST_MARGINAL:
 		case GPG_STATUS_TRUST_FULLY:
 		case GPG_STATUS_TRUST_ULTIMATE:
-			if (!lastSignature) {
+			if (!self.lastSignature) {
 				self.lastSignature = [[[GPGSignature alloc] init] autorelease];
-				[signatures addObject:lastSignature];
+				[signatures addObject:self.lastSignature];
 			}
 			
-			[lastSignature addInfoFromStatusCode:status andPrompt:prompt];
+			[self parseSignatureInfoWithStatus:status andPrompt:prompt];
 			break;
         // Store the hash algorithm.
         case GPG_STATUS_SIG_CREATED: {

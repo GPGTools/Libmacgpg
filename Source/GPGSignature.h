@@ -30,6 +30,7 @@
 	NSString *_fingerprint;
 	NSDate *_creationDate;
 	NSDate *_expirationDate;
+	int _signatureClass;
 	int _version;
 	GPGPublicKeyAlgorithm _publicKeyAlgorithm;
 	GPGHashAlgorithm _hashAlgorithm;
@@ -51,6 +52,7 @@
 @property (nonatomic, readonly) int version;
 @property (nonatomic, readonly) GPGPublicKeyAlgorithm publicKeyAlgorithm;
 @property (nonatomic, readonly) GPGHashAlgorithm hashAlgorithm;
+@property (nonatomic, readonly) int signatureClass;
 
 @property (nonatomic, readonly) GPGKey *primaryKey;
 @property (nonatomic, readonly) NSString *primaryFingerprint;
