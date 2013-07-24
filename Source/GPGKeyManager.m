@@ -152,10 +152,10 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 				
 				primaryKey = key;
 
-				userIDs = [[NSMutableArray alloc] init];
+				userIDs = [[[NSMutableArray alloc] init] autorelease];
 				primaryKey.userIDs = userIDs;
 				
-				subkeys = [[NSMutableArray alloc] init];
+				subkeys = [[[NSMutableArray alloc] init] autorelease];
 				primaryKey.subkeys = subkeys;
 			} else {
 				[subkeys addObject:key];
@@ -311,6 +311,8 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 	[_mutableAllKeys minusSet:keys];
 	[_mutableAllKeys minusSet:newKeys];
 	[_mutableAllKeys unionSet:newKeys];
+	
+	[newKeys release];
 	
 	_once_keysByKeyID = 0;
 	
