@@ -126,23 +126,6 @@
 	return [self.keyID shortKeyID];
 }
 
-- (NSInteger)status {
-	NSInteger status = self.ownerTrust;
-	
-	if (self.invalid) {
-		status = GPGKeyStatus_Invalid;
-	}
-	if (self.revoked) {
-		status += GPGKeyStatus_Revoked;
-	}
-	if (self.expired) {
-		status += GPGKeyStatus_Expired;
-	}
-	if (self.disabled) {
-		status += GPGKeyStatus_Disabled;
-	}
-	return status;
-}
 
 - (NSUInteger)hash {
 	return [self.fingerprint hash];

@@ -167,7 +167,7 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 	
 	// Inform all listeners that the keys were loaded.
 	dispatch_async(dispatch_get_main_queue(), ^{
-		NSSet *affectedKeys = [newKeysSet setByAddingObjectsFromSet:keys];
+		NSArray *affectedKeys = [[[newKeysSet setByAddingObjectsFromSet:keys] valueForKey:@"description"] allObjects];
 		[[NSDistributedNotificationCenter defaultCenter] postNotificationName:GPGKeyManagerKeysDidChangeNotification object:[[self class] description] userInfo:[NSDictionary dictionaryWithObject:affectedKeys forKey:@"affectedKeys"]];
 	});
 }
@@ -192,6 +192,9 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 		if (([type isEqualToString:@"pub"] && (isPub = YES)) || [type isEqualToString:@"sub"]) { // Primary-key or subkey.
 			if (isPub) {
 				key = primaryKey;
+				if ([[parts objectAtIndex:4] isEqualToString:@"DA870C1346A957B0"]) {
+					NSLog(@"");
+				}
 			} else {
 				key = [[[GPGKey alloc] init] autorelease];
 			}
@@ -588,6 +591,7 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 	[[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(keysDidChange:) name:GPGKeysChangedNotification object:nil];
 	_keysNeedToBeReloaded = NO;
 	_keyLoadingCheckLock = [[NSLock alloc] init];
+	[GPGWatcher activate];
 	
 	return self;
 }

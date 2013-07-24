@@ -88,16 +88,16 @@
 			break;
 	}
 	
-	if (intValue & GPGKeyStatus_Invalid) {
+	if (intValue & GPGValidityInvalid) {
 		[statusText appendFormat:@", %@", maybeLocalize(@"Invalid")];
 	}
-	if (intValue & GPGKeyStatus_Revoked) {
+	if (intValue & GPGValidityRevoked) {
 		[statusText appendFormat:@", %@", maybeLocalize(@"Revoked")];
 	}
-	if (intValue & GPGKeyStatus_Expired) {
+	if (intValue & GPGValidityExpired) {
 		[statusText appendFormat:@", %@", maybeLocalize(@"Expired")];
 	}
-	if (intValue & GPGKeyStatus_Disabled) {
+	if (intValue & GPGValidityDisabled) {
 		[statusText appendFormat:@", %@", maybeLocalize(@"Disabled")];
 	}
 	return [[statusText copy] autorelease];

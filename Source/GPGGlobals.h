@@ -24,12 +24,6 @@
 
 @class GPGTask, GPGKey;
 
-typedef enum { 
-    GPGKeyStatus_Invalid = 8,
-    GPGKeyStatus_Revoked = 16,
-    GPGKeyStatus_Expired = 32,
-    GPGKeyStatus_Disabled = 64
-} GPGKeyStatus;
 typedef enum {
     GPGValidityUnknown   = 0,
     GPGValidityUndefined = 1,
