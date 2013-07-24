@@ -27,6 +27,8 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 }
 
 - (void)_loadKeys:(NSSet *)keys fetchSignatures:(BOOL)fetchSignatures fetchUserAttributes:(BOOL)fetchUserAttributes {
+	NSSet *newKeysSet = nil;
+	
 	//NSLog(@"[%@]: Loading keys!", [NSThread currentThread]);
 	@try {
 		NSArray *keyArguments = [keys allObjects];
@@ -114,7 +116,7 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 		
 		
 		
-		NSSet *newKeysSet = [NSSet setWithArray:newKeys];
+		newKeysSet = [NSSet setWithArray:newKeys];
 		
 		[_mutableAllKeys minusSet:keys];
 		[_mutableAllKeys minusSet:newKeysSet];
@@ -140,6 +142,9 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 		
 		GPGDebugLog(@"loadKeys failed: %@", exception);
 		_mutableAllKeys = nil;
+#ifdef DEBUGGING
+		@throw exception;
+#endif
 	}
 	@finally {
 		[_secKeyFingerprints release];
@@ -149,6 +154,8 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 		_allKeys = [_mutableAllKeys copy];
 		[oldAllKeys release];
 	}
+	
+	
 	// Let's check if the keys need to be reloaded again, as they have changed
 	// since we've started to load the keys.
 	if(_keysNeedToBeReloaded) {
@@ -160,7 +167,8 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 	
 	// Inform all listeners that the keys were loaded.
 	dispatch_async(dispatch_get_main_queue(), ^{
-		//[[NSDistributedNotificationCenter defaultCenter] postNotificationName:GPGKeyManagerKeysDidChangeNotification object:[[self class] description] userInfo:affectedKeys ? [NSDictionary dictionaryWithObject:affectedKeys forKey:@"affectedKeys"] : nil];
+		NSSet *affectedKeys = [newKeysSet setByAddingObjectsFromSet:keys];
+		[[NSDistributedNotificationCenter defaultCenter] postNotificationName:GPGKeyManagerKeysDidChangeNotification object:[[self class] description] userInfo:[NSDictionary dictionaryWithObject:affectedKeys forKey:@"affectedKeys"]];
 	});
 }
 
