@@ -242,10 +242,8 @@ BOOL gpgConfigReaded = NO;
 		}
 	}
 	
-	
+#warning Move the GPGWatcher out of here. Should the coder have to setup it themselves?
 	[GPGWatcher activate];
-	
-	[[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(keysHaveChanged:) name:GPGKeysChangedNotification object:nil];
 	
 	return self;
 }
@@ -264,133 +262,7 @@ BOOL gpgConfigReaded = NO;
 	}
 }
 
-
-
-#pragma mark Search and update keys
-
-- (NSSet *)allKeys {
-	return [self updateKeys:nil searchFor:nil withSigs:NO secretOnly:NO];
-}
-- (NSSet *)allSecretKeys {
-	return [self updateKeys:nil searchFor:nil withSigs:NO secretOnly:YES];
-}
-- (NSSet *)keysForSearchPattern:(NSString *)searchPattern {
-	return [self updateKeys:nil searchFor:[NSSet setWithObject:searchPattern] withSigs:NO secretOnly:NO];
-}
-- (NSSet *)keysForSearchPatterns:(NSObject <EnumerationList> *)searchPatterns {
-	return [self updateKeys:nil searchFor:searchPatterns withSigs:NO secretOnly:NO];
-}
-- (NSSet *)updateKeys:(NSObject <EnumerationList> *)keyList {
-	return [self updateKeys:keyList searchFor:keyList withSigs:[keyList count] < 5 secretOnly:NO];
-}
-- (NSSet *)updateKeys:(NSObject <EnumerationList> *)keyList withSigs:(BOOL)withSigs {
-	return [self updateKeys:keyList searchFor:keyList withSigs:withSigs secretOnly:NO];
-}
-- (NSSet *)updateKeys:(NSObject <EnumerationList> *)keyList searchFor:(NSObject <EnumerationList> *)serachList withSigs:(BOOL)withSigs {
-	return [self updateKeys:keyList searchFor:serachList withSigs:withSigs secretOnly:NO];
-}
-- (NSSet *)updateKeys:(NSObject <EnumerationList> *)keyList searchFor:(NSObject <EnumerationList> *)serachList withSigs:(BOOL)withSigs secretOnly:(BOOL)secretOnly {
-	NSSet *secKeyFingerprints, *updatedKeys = nil;
-	NSArray *fingerprints, *listings;
-	
-	if (async && !asyncStarted) {
-		asyncStarted = YES;
-		[asyncProxy updateKeys:keyList searchFor:serachList withSigs:withSigs];
-		return nil;
-	}
-	@try {
-		[self operationDidStart];
-		
-		if (!keyList) {
-			keyList = [NSSet set];
-		}
-		if (!serachList) {
-			serachList = [NSSet set];
-		}
-		
-		
-		NSArray *searchStrings = nil;
-		if ([serachList count] > 0) {
-			NSMutableSet *searchSet = [NSMutableSet setWithCapacity:[serachList count]];
-			
-			for (id item in serachList) {
-				cancelCheck;
-				[searchSet addObject:[item description]];
-			}
-			searchStrings = [searchSet allObjects];
-		}
-		
-		
-		gpgTask = [GPGTask gpgTask];
-		gpgTask.batchMode = YES;
-		[self addArgumentsForOptions];
-		[gpgTask addArgument:@"--list-secret-keys"];
-		[gpgTask addArgument:@"--with-fingerprint"];
-		[gpgTask addArguments:searchStrings];
-		
-		[gpgTask start];
-		/*if ([gpgTask start] != 0) {
-			if ([keyList count] == 0) { //TODO: Bessere Lösung um Probleme zu vermeiden, wenn ein nicht (mehr) vorhandener Schlüssel gelistet werden soll.
-				@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"List secret keys failed!") gpgTask:gpgTask];
-			}
-		}*/
-		secKeyFingerprints = [[self class] fingerprintsFromColonListing:gpgTask.outText];
-
-		
-		if (secretOnly) {
-			searchStrings = [secKeyFingerprints allObjects];
-		}
-		
-		gpgTask = [GPGTask gpgTask];
-		[self addArgumentsForOptions];
-		if (withSigs) {
-			[gpgTask addArgument:@"--list-sigs"];
-			[gpgTask addArgument:@"--list-options"];
-			[gpgTask addArgument:@"show-sig-subpackets=29"];
-		} else {
-			[gpgTask addArgument:@"--list-keys"];
-		}
-		[gpgTask addArgument:@"--with-fingerprint"];
-		[gpgTask addArgument:@"--with-fingerprint"];
-		[gpgTask addArguments:searchStrings];
-		
-		if ([gpgTask start] != 0) {
-			if ([keyList count] == 0) { //TODO: Bessere Lösung um Probleme zu vermeiden, wenn ein nicht (mehr) vorhandener Schlüssel gelistet werden soll.
-				@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"List public keys failed!") gpgTask:gpgTask];
-			}
-		}
-
-		
-		[[self class] colonListing:gpgTask.outText toArray:&listings andFingerprints:&fingerprints];
-		
-		
-		NSDictionary *argumentDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
-											listings, @"listings", 
-											fingerprints, @"fingerprints", 
-											secKeyFingerprints, @"secKeyFingerprints", 
-											keyList, @"keysToUpdate",
-											[NSValue valueWithPointer:&updatedKeys], @"updatedKeys",
-											[NSNumber numberWithBool:withSigs], @"withSigs", nil];
-		cancelCheck;
-		
-		[self updateKeysWithDict:argumentDictionary];
-		[updatedKeys autorelease];
-
-	} @catch (NSException *e) {
-		[self handleException:e];
-	} @finally {
-		[self cleanAfterOperation];
-	}
-	
-	[self operationDidFinishWithReturnValue:updatedKeys];	
-	return updatedKeys;
-}
-
-
-
 #pragma mark Encrypt, decrypt, sign and verify
-
-
 
 - (NSData *)processData:(NSData *)data withEncryptSignMode:(GPGEncryptSignMode)mode recipients:(NSObject <EnumerationList> *)recipients hiddenRecipients:(NSObject <EnumerationList> *)hiddenRecipients {
 	if (async && !asyncStarted) {
@@ -559,6 +431,8 @@ BOOL gpgConfigReaded = NO;
 }
 
 - (NSArray *)verifySignatureOf:(GPGStream *)signatureInput originalData:(GPGStream *)originalInput {
+#warning There's a good chance verifySignature will modify the keys if auto-retrieve-keys is set. In that case it might make sense, that we send the notification ourselves with the potential key which might get imported. We do have the fingerprint, and there's no need to rebuild the whole keyring only to update one key.
+	
 	NSArray *retVal;
 	@try {
 		[self operationDidStart];
@@ -860,6 +734,8 @@ BOOL gpgConfigReaded = NO;
 		
 		NSData *revocationData = [self generateRevokeCertificateForKey:key reason:reason description:description];
 		[self importFromData:revocationData fullImport:YES];
+		// Keys have been changed, so trigger a KeyChanged Notification.
+		[self keyChanged:key];
 		
 	} @catch (NSException *e) {
 		[self handleException:e];
