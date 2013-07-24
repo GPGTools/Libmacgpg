@@ -192,9 +192,6 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 		if (([type isEqualToString:@"pub"] && (isPub = YES)) || [type isEqualToString:@"sub"]) { // Primary-key or subkey.
 			if (isPub) {
 				key = primaryKey;
-				if ([[parts objectAtIndex:4] isEqualToString:@"DA870C1346A957B0"]) {
-					NSLog(@"");
-				}
 			} else {
 				key = [[[GPGKey alloc] init] autorelease];
 			}
