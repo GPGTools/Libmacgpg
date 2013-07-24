@@ -78,10 +78,6 @@
 @property (copy, readwrite) NSArray *signatures;
 @property (assign, readwrite) GPGKey *primaryKey;
 
-@property (copy, readwrite) NSArray *cipherPreferences;
-@property (copy, readwrite) NSArray *digestPreferences;
-@property (copy, readwrite) NSArray *compressPreferences;
-
 @end
 
 @interface GPGUserIDSignature ()

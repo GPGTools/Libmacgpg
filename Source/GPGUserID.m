@@ -22,7 +22,7 @@
 
 @implementation GPGUserID
 
-@synthesize userIDDescription=_userIDDescription, name=_name, email=_email, comment=_comment, hashID=_hashID, primaryKey=_primaryKey, signatures=_signatures, cipherPreferences=_cipherPreferences, digestPreferences=_digestPreferences, compressPreferences=_compressPreferences, photo=_photo, validity=_validity;
+@synthesize userIDDescription=_userIDDescription, name=_name, email=_email, comment=_comment, hashID=_hashID, primaryKey=_primaryKey, signatures=_signatures, photo=_photo, validity=_validity;
 
 - (instancetype)init {
 	return [self initWithUserIDDescription:nil];
@@ -136,13 +136,6 @@
 	_primaryKey = nil;
 	[_signatures release];
 	_signatures = nil;
-	
-	[_cipherPreferences release];
-	_cipherPreferences = nil;
-	[_digestPreferences release];
-	_digestPreferences = nil;
-	[_compressPreferences release];
-	_compressPreferences = nil;
 	
 	
 	[super dealloc];

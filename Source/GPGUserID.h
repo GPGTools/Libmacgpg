@@ -45,10 +45,6 @@
 	GPGKey *_primaryKey;
 	NSArray *_signatures;
 	
-	NSArray *_cipherPreferences;
-	NSArray *_digestPreferences;
-	NSArray *_compressPreferences;
-	
 }
 
 - (instancetype)init;
@@ -64,10 +60,6 @@
 
 @property (nonatomic, readonly) NSArray *signatures;
 @property (nonatomic, readonly) GPGKey *primaryKey;
-
-@property (nonatomic, readonly) NSArray *cipherPreferences;
-@property (nonatomic, readonly) NSArray *digestPreferences;
-@property (nonatomic, readonly) NSArray *compressPreferences;
 
 @end
 
