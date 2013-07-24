@@ -161,8 +161,15 @@
 	_keyID = nil;
 	[_fingerprint release];
 	_fingerprint = nil;
+	// Make sure that each subkey which might survive
+	// the parent has a primaryKey, otherwise a dangling
+	// pointer might lead to a crash.
+	for(GPGKey *key in _subkeys)
+		key.primaryKey = nil;
 	[_subkeys release];
 	_subkeys = nil;
+	for(GPGUserID *userID in _userIDs)
+		userID.primaryKey = nil;
 	[_userIDs release];
 	_userIDs = nil;
 	[_textForFilter release];
@@ -170,9 +177,7 @@
 	[_fingerprints release];
 	_fingerprints = nil;
 	
-	[_primaryKey release];
 	_primaryKey = nil;
-	[_primaryUserID release];
 	_primaryUserID = nil;
 	
 	_secret = NO;
