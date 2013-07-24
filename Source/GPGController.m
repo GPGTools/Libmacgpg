@@ -2312,16 +2312,12 @@ BOOL gpgConfigReaded = NO;
 		GPGKey *key = [allKeys member:fingerprint];
 		
 		if (key) {
-			//self.lastSignature.gpgKey = key;
-			self.lastSignature.primaryKey = key.primaryKey;
+			self.lastSignature.key = key;
 			self.lastSignature.fingerprint = key.fingerprint;
 		} else {
 			self.lastSignature.fingerprint = fingerprint;
 		}
 	}
-	
-	
-	/*self.lastSignature.hasFilled = YES;*/
 }
 
 

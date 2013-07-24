@@ -24,7 +24,7 @@
 
 @implementation GPGSignature
 
-@synthesize trust=_trust, status=_status, fingerprint=_fingerprint, creationDate=_creationDate, expirationDate=_expirationDate, version=_version, publicKeyAlgorithm=_publicKeyAlgorithm, hashAlgorithm=_hashAlgorithm, primaryKey=_primaryKey, signatureClass=_signatureClass;
+@synthesize trust=_trust, status=_status, fingerprint=_fingerprint, creationDate=_creationDate, expirationDate=_expirationDate, version=_version, publicKeyAlgorithm=_publicKeyAlgorithm, hashAlgorithm=_hashAlgorithm, key=_key, signatureClass=_signatureClass;
 
 - (instancetype)init {
 	return [self initWithFingerprint:nil status:GPGErrorGeneralError];
@@ -36,6 +36,10 @@
 		_status = status;
 	}
 	return self;
+}
+
+- (GPGKey *)primaryKey {
+	return self.key.primaryKey;
 }
 
 - (NSString *)userIDDescription {
@@ -77,8 +81,9 @@
 	_publicKeyAlgorithm = 0;
 	_hashAlgorithm = 0;
 	
-	_primaryKey = nil;
-	
+	[_key release];
+	_key = nil;
+		
 	[super dealloc];
 }
 

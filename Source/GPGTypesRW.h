@@ -109,7 +109,7 @@
 @property (assign, readwrite) GPGPublicKeyAlgorithm publicKeyAlgorithm;
 @property (assign, readwrite) GPGHashAlgorithm hashAlgorithm;
 
-@property (retain, readwrite) GPGKey *primaryKey;
+@property (retain, readwrite) GPGKey *key;
 
 @end
 

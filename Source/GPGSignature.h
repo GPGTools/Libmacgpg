@@ -35,7 +35,7 @@
 	GPGPublicKeyAlgorithm _publicKeyAlgorithm;
 	GPGHashAlgorithm _hashAlgorithm;
 	
-	GPGKey *_primaryKey;
+	GPGKey *_key;
 }
 
 - (instancetype)init;
@@ -55,6 +55,7 @@
 @property (nonatomic, readonly) int signatureClass;
 
 @property (nonatomic, readonly) GPGKey *primaryKey;
+@property (nonatomic, readonly) GPGKey *key;
 @property (nonatomic, readonly) NSString *primaryFingerprint;
 
 @property (nonatomic, readonly) NSString *userIDDescription;
