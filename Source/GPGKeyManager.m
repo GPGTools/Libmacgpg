@@ -373,6 +373,16 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 	return [[_keysByKeyID retain] autorelease];
 }
 
+- (NSSet *)allKeys {
+	static dispatch_once_t onceToken;
+	dispatch_once(&onceToken, ^{
+		if(!_allKeys)
+			[self loadAllKeys];
+	});
+	
+	return [[_allKeys retain] autorelease];
+}
+
 - (void)rebuildKeysCache {
 	NSMutableSet *publicKeys = nil;
 	NSMutableSet *secretKeys = nil;
