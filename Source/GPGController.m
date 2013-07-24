@@ -2227,38 +2227,40 @@ BOOL gpgConfigReaded = NO;
 
 
 
-- (void)parseSignatureInfoWithStatus:(NSInteger)statusCode andPrompt:(NSString *)prompt  {
-	if (statusCode == GPG_STATUS_NEWSIG) {
-		return;
-	}
-	NSArray *components = [prompt componentsSeparatedByString:@" "];
+- (void)parseStatusForSigantures:(NSInteger)status prompt:(NSString *)prompt  {
 	BOOL parseFingerprint = NO;
+
+	if (status == GPG_STATUS_NEWSIG) {
+		return;
+	} else if (status >= GPG_STATUS_GOODSIG && status <= GPG_STATUS_ERRSIG) { // New signature
+		/*
+		 status is one of: GPG_STATUS_GOODSIG, GPG_STATUS_EXPSIG, GPG_STATUS_EXPKEYSIG, GPG_STATUS_REVKEYSIG, GPG_STATUS_BADSIG, GPG_STATUS_ERRSIG
+		*/
+		self.lastSignature = [[[GPGSignature alloc] init] autorelease];
+		[signatures addObject:self.lastSignature];
+		parseFingerprint = YES;
+	}
 	
-	switch (statusCode) {
-		case GPG_STATUS_NEWSIG:
-			break;
+	
+	NSArray *components = [prompt componentsSeparatedByString:@" "];
+	
+	switch (status) {
 		case GPG_STATUS_GOODSIG:
 			self.lastSignature.status = GPGErrorNoError;
-			parseFingerprint = YES;
 			break;
 		case GPG_STATUS_EXPSIG:
 			self.lastSignature.status = GPGErrorSignatureExpired;
-			parseFingerprint = YES;
 			break;
 		case GPG_STATUS_EXPKEYSIG:
 			self.lastSignature.status = GPGErrorKeyExpired;
-			parseFingerprint = YES;
 			break;
 		case GPG_STATUS_BADSIG:
 			self.lastSignature.status = GPGErrorBadSignature;
-			parseFingerprint = YES;
 			break;
 		case GPG_STATUS_REVKEYSIG:
 			self.lastSignature.status = GPGErrorCertificateRevoked;
-			parseFingerprint = YES;
 			break;
 		case GPG_STATUS_ERRSIG:
-			parseFingerprint = YES;
 			self.lastSignature.publicKeyAlgorithm = [[components objectAtIndex:1] intValue];
 			self.lastSignature.hashAlgorithm = [[components objectAtIndex:2] intValue];
 			self.lastSignature.signatureClass = hexToByte([[components objectAtIndex:3] UTF8String]);
@@ -2275,6 +2277,7 @@ BOOL gpgConfigReaded = NO;
 					break;
 			}
 			break;
+			
 		case GPG_STATUS_VALIDSIG:
 			parseFingerprint = YES;
 			self.lastSignature.creationDate = [NSDate dateWithGPGString:[components objectAtIndex:2]];
@@ -2322,8 +2325,6 @@ BOOL gpgConfigReaded = NO;
 }
 
 
-
-
 #pragma mark Delegate method
 
 - (id)gpgTask:(GPGTask *)task statusCode:(NSInteger)status prompt:(NSString *)prompt {
@@ -2342,16 +2343,13 @@ BOOL gpgConfigReaded = NO;
 				return @"\n";
 			}
 			break; }
+			
 		case GPG_STATUS_GOODSIG:
 		case GPG_STATUS_EXPSIG:
 		case GPG_STATUS_EXPKEYSIG:
 		case GPG_STATUS_BADSIG:
 		case GPG_STATUS_ERRSIG:
 		case GPG_STATUS_REVKEYSIG:
-			if (self.lastSignature /*&& self.lastSignature.hasFilled*/) {
-				self.lastSignature = nil;
-			}
-			//no break!
 		case GPG_STATUS_NEWSIG:
 		case GPG_STATUS_VALIDSIG:
 		case GPG_STATUS_TRUST_UNDEFINED:
@@ -2359,13 +2357,9 @@ BOOL gpgConfigReaded = NO;
 		case GPG_STATUS_TRUST_MARGINAL:
 		case GPG_STATUS_TRUST_FULLY:
 		case GPG_STATUS_TRUST_ULTIMATE:
-			if (!self.lastSignature) {
-				self.lastSignature = [[[GPGSignature alloc] init] autorelease];
-				[signatures addObject:self.lastSignature];
-			}
-			
-			[self parseSignatureInfoWithStatus:status andPrompt:prompt];
+			[self parseStatusForSigantures:status prompt:prompt];
 			break;
+			
         // Store the hash algorithm.
         case GPG_STATUS_SIG_CREATED: {
             // Split the line by space, index 2 has the hash algorithm.
