@@ -645,7 +645,6 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 	_keysNeedToBeReloaded = NO;
 	_keyLoadingCheckLock = [[NSLock alloc] init];
 	_completionQueue = NULL;
-	[GPGWatcher activate];
 	
 	return self;
 }
