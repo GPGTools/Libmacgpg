@@ -60,7 +60,7 @@
 
 @end
 
-@implementation GPGKeyStatusDescriptionTransformer
+@implementation GPGValidityDescriptionTransformer
 
 @synthesize keepUnlocalized = _keepUnlocalized;
 

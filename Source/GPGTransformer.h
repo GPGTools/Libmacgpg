@@ -29,7 +29,7 @@
 - (id)transformedIntegerValue:(NSInteger)value;
 @end
 
-@interface GPGKeyStatusDescriptionTransformer : NSValueTransformer {
+@interface GPGValidityDescriptionTransformer : NSValueTransformer {
     BOOL _keepUnlocalized; // default NO; used for Unit Testing
 }
 // default NO
