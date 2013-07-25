@@ -24,7 +24,7 @@
 
 @implementation GPGKey
 
-@synthesize subkeys=_subkeys, userIDs=_userIDs, fingerprint=_fingerprint, ownerTrust=_ownerTrust, secret=_secret, canSign=_canSign, canEncrypt=_canEncrypt, canCertify=_canCertify, canAuthenticate=_canAuthenticate, canAnySign=_canAnySign, canAnyEncrypt=_canAnyEncrypt, canAnyCertify=_canAnyCertify, canAnyAuthenticate=_canAnyAuthenticate, textForFilter=_textForFilter, primaryKey=_primaryKey, primaryUserID=_primaryUserID, keyID=_keyID, allFingerprints=_fingerprints, expirationDate=_expirationDate, creationDate=_creationDate, length=_length, disabled=_disabled, revoked=_revoked, invalid=_invalid, algorithm=_algorithm, validity=_validity;
+@synthesize subkeys=_subkeys, userIDs=_userIDs, fingerprint=_fingerprint, ownerTrust=_ownerTrust, secret=_secret, canSign=_canSign, canEncrypt=_canEncrypt, canCertify=_canCertify, canAuthenticate=_canAuthenticate, canAnySign=_canAnySign, canAnyEncrypt=_canAnyEncrypt, canAnyCertify=_canAnyCertify, canAnyAuthenticate=_canAnyAuthenticate, textForFilter=_textForFilter, primaryKey=_primaryKey, primaryUserID=_primaryUserID, keyID=_keyID, allFingerprints=_fingerprints, expirationDate=_expirationDate, creationDate=_creationDate, length=_length, algorithm=_algorithm, validity=_validity;
 
 - (instancetype)init {
 	return [self initWithFingerprint:nil];
@@ -72,8 +72,17 @@
 	return self.primaryUserID.comment;
 }
 
+- (BOOL)disabled {
+	return _validity & GPGValidityDisabled;
+}
+- (BOOL)revoked {
+	return _validity & GPGValidityRevoked;
+}
+- (BOOL)invalid {
+	return _validity & GPGValidityInvalid;
+}
 - (BOOL)expired {
-	return [self.expirationDate compare:[NSDate date]] == NSOrderedAscending;
+	return _validity & GPGValidityExpired;
 }
 
 - (NSString *)userIDDescription {

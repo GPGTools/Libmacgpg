@@ -62,6 +62,6 @@
 @property (nonatomic, readonly) NSString *name;
 @property (nonatomic, readonly) NSString *email;
 @property (nonatomic, readonly) NSString *comment;
-@property (nonatomic, readonly) NSImage *photo;
+@property (nonatomic, readonly) NSImage *image;
 
 @end

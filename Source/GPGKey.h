@@ -45,9 +45,6 @@
 	BOOL _canAnyCertify;
 	BOOL _canAnyAuthenticate;
 	
-	BOOL _disabled;
-	BOOL _invalid;
-	BOOL _revoked;
 	
 	NSArray *_subkeys;
 	NSArray *_userIDs;

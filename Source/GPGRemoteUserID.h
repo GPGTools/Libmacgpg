@@ -35,7 +35,7 @@
 @property (nonatomic, retain) NSString *comment;
 @property (nonatomic, readonly, retain) NSDate *creationDate;
 @property (nonatomic, readonly, retain) NSDate *expirationDate;
-@property (nonatomic, readonly) NSImage *photo;
+@property (nonatomic, readonly) NSImage *image;
 
 
 + (id)userIDWithListing:(NSString *)listing;

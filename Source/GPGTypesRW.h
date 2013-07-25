@@ -50,9 +50,6 @@
 @property (assign, readwrite) GPGUserID *primaryUserID;
 
 @property (assign, readwrite) BOOL secret;
-@property (assign, readwrite) BOOL disabled;
-@property (assign, readwrite) BOOL invalid;
-@property (assign, readwrite) BOOL revoked;
 
 @property (assign, readwrite) BOOL canSign;
 @property (assign, readwrite) BOOL canEncrypt;
