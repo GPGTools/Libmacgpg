@@ -27,7 +27,7 @@
 @property (nonatomic, readonly) NSString *name;
 @property (nonatomic, readonly) NSString *email;
 @property (nonatomic, readonly) NSString *comment;
-@property (nonatomic, readonly) NSImage *photo;
+@property (nonatomic, readonly) NSImage *image;
 
 @end
 
@@ -39,7 +39,7 @@
 	NSString *_email;
 	NSString *_comment;
 	NSString *_hashID;
-	NSImage *_photo;
+	NSImage *_image;
 	NSDate *_creationDate;
 	NSDate *_expirationDate;
 	GPGValidity _validity;
@@ -57,7 +57,7 @@
 @property (nonatomic, readonly) NSString *email;
 @property (nonatomic, readonly) NSString *comment;
 @property (nonatomic, readonly) NSString *hashID;
-@property (nonatomic, readonly) NSImage *photo;
+@property (nonatomic, readonly) NSImage *image;
 @property (nonatomic, readonly) NSDate *creationDate;
 @property (nonatomic, readonly) NSDate *expirationDate;
 @property (nonatomic, readonly) GPGValidity validity;

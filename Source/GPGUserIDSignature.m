@@ -53,8 +53,8 @@
 	return self.primaryKey.comment;
 }
 
-- (NSImage *)photo {
-	return self.primaryKey.photo;
+- (NSImage *)image {
+	return self.primaryKey.image;
 }
 
 - (NSString *)shortKeyID {

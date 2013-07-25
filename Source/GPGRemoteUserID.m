@@ -64,7 +64,7 @@
 	}
 }
 
--(NSImage *)photo {
+-(NSImage *)image {
 	return nil;
 }
 

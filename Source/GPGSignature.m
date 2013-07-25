@@ -62,8 +62,8 @@
 	return self.primaryKey.fingerprint;
 }
 
-- (NSImage *)photo {
-	return self.primaryKey.photo;
+- (NSImage *)image {
+	return self.primaryKey.image;
 }
 
 

@@ -80,8 +80,8 @@
 	return self.primaryUserID.userIDDescription;
 }
 
-- (NSImage *)photo {
-	return self.primaryUserID.photo;
+- (NSImage *)image {
+	return self.primaryUserID.image;
 }
 
 - (NSSet *)allFingerprints {

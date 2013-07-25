@@ -72,7 +72,7 @@
 @property (copy, readwrite) NSString *email;
 @property (copy, readwrite) NSString *comment;
 @property (copy, readwrite) NSString *hashID;
-@property (copy, readwrite) NSImage *photo;
+@property (copy, readwrite) NSImage *image;
 @property (copy, readwrite) NSDate *creationDate;
 @property (copy, readwrite) NSDate *expirationDate;
 @property (assign, readwrite) GPGValidity validity;

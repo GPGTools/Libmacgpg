@@ -22,7 +22,7 @@
 
 @implementation GPGUserID
 
-@synthesize userIDDescription=_userIDDescription, name=_name, email=_email, comment=_comment, hashID=_hashID, primaryKey=_primaryKey, signatures=_signatures, photo=_photo, expirationDate=_expirationDate, creationDate=_creationDate, validity=_validity;
+@synthesize userIDDescription=_userIDDescription, name=_name, email=_email, comment=_comment, hashID=_hashID, primaryKey=_primaryKey, signatures=_signatures, image=_image, expirationDate=_expirationDate, creationDate=_creationDate, validity=_validity;
 
 - (instancetype)init {
 	return [self initWithUserIDDescription:nil];
@@ -99,8 +99,8 @@
 	_email = nil;
 	[_comment release];
 	_comment = nil;
-	[_photo release];
-	_photo = nil;
+	[_image release];
+	_image = nil;
 	[_hashID release];
 	_hashID = nil;
 	

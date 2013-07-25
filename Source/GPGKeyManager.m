@@ -70,6 +70,7 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 			_attributeInfos = [[NSMutableDictionary alloc] init];
 			_attributeDataLocation = 0;
 			gpgTask.getAttributeData = YES;
+			gpgTask.delegate = self;
 		}
 		[gpgTask addArgument:@"--with-fingerprint"];
 		[gpgTask addArgument:@"--with-fingerprint"];
@@ -350,7 +351,7 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 										[image setSize:size];
 									}
 									
-									userID.photo = image;
+									userID.image = image;
 									[image release];
 								}
 								
@@ -608,11 +609,11 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 			_attributeDataLocation += length;
 			
 			NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:
-								  @"length", [NSNumber numberWithInteger:length],
-								  @"type", type,
-								  @"location", location,
-								  @"index", index,
-								  @"count", count,
+								  [NSNumber numberWithInteger:length], @"length",
+								  type, @"type",
+								  location, @"location",
+								  index, @"index", 
+								  count, @"count", 
 								  nil];
 			
 			NSMutableArray *infos = [_attributeInfos objectForKey:fingerprint];
