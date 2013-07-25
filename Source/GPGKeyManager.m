@@ -33,7 +33,7 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 	@try {
 		NSArray *keyArguments = [[keys valueForKey:@"description"] allObjects];
 		
-        dispatch_queue_t dispatchQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
+        dispatch_queue_t dispatchQueue = dispatch_queue_create("org.gpgtools.libmacgpg._loadKeys.gpgTask", DISPATCH_QUEUE_CONCURRENT);
 		dispatch_group_t dispatchGroup = dispatch_group_create();
 		
 		_fetchSignatures = fetchSignatures;
