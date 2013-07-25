@@ -30,7 +30,7 @@
 
 
 @implementation GPGRemoteUserID
-@synthesize userID, name, email, comment, creationDate, expirationDate;
+@synthesize userIDDescription, name, email, comment, creationDate, expirationDate;
 
 
 + (id)userIDWithListing:(NSString *)listing {
@@ -47,7 +47,7 @@
 		}
 		
 		
-		self.userID = [[splitedLine objectAtIndex:1] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+		self.userIDDescription = [[splitedLine objectAtIndex:1] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
 		
 		self.creationDate = [NSDate dateWithGPGString:[splitedLine objectAtIndex:2]];
 		self.expirationDate = [NSDate dateWithGPGString:[splitedLine objectAtIndex:3]];
@@ -55,18 +55,21 @@
 	return self;	
 }
 
-- (void)setUserID:(NSString *)value {
-	if (value != userID) {
-		[userID release];
-		userID = [value retain];
+- (void)setUserIDDescription:(NSString *)value {
+	if (value != userIDDescription) {
+		[userIDDescription release];
+		userIDDescription = [value retain];
 		
-		[GPGKey setInfosWithUserID:userID toObject:self];
+		//[GPGKey setInfosWithUserID:userID toObject:self];
 	}
 }
 
+-(NSImage *)photo {
+	return nil;
+}
 
 - (void)dealloc {
-	self.userID = nil;
+	self.userIDDescription = nil;
 	self.name = nil;
 	self.email = nil;
 	self.comment = nil;
