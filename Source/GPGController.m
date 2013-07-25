@@ -968,10 +968,6 @@ BOOL gpgConfigReaded = NO;
 }
 
 - (void)key:(NSObject <KeyFingerprint> *)key setOwnerTrust:(GPGValidity)trust {
-	[self key:key setOwnerTrsut:trust];
-}
-
-- (void)key:(NSObject <KeyFingerprint> *)key setOwnerTrsut:(GPGValidity)trust {
 	if (async && !asyncStarted) {
 		asyncStarted = YES;
 		[asyncProxy key:key setOwnerTrsut:trust];
@@ -989,7 +985,7 @@ BOOL gpgConfigReaded = NO;
 		
 		gpgTask = [GPGTask gpgTask];
 		[self addArgumentsForOptions];
-		gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"]; 
+		gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"];
 		[gpgTask addArgument:@"--edit-key"];
 		[gpgTask addArgument:[key description]];
 		
@@ -1004,7 +1000,11 @@ BOOL gpgConfigReaded = NO;
 		[self cleanAfterOperation];
 	}
 	
-	[self operationDidFinishWithReturnValue:nil];	
+	[self operationDidFinishWithReturnValue:nil];
+}
+
+- (void)key:(NSObject <KeyFingerprint> *)key setOwnerTrsut:(GPGValidity)trust {
+	[self key:key setOwnerTrust:trust];
 }
 
 
