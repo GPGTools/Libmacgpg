@@ -58,8 +58,23 @@
 
 - (void)loadAllKeys;
 
+/* Load signatures for the specified keys.
+ * completionHandler will be called once the signatures are loaded, and pass
+ * the loaded keys as argument.
+ */
 - (void)loadSignaturesForKeys:(NSSet *)keys completionHandler:(void(^)(NSSet *))completionHandler;
 
+/* Load attributes (photo) for the specified keys.
+ * completionHandler will be called once the attributes are loaded, and pass
+ * the loaded keys as argument.
+ */
+- (void)loadAttributesForKeys:(NSSet *)keys completionHandler:(void(^)(NSSet *))completionHandler;
+
+/* Load both signatures and attributes for the specified keys.
+ * completionHandler will be called once the signatures and attributes are loaded, and pass
+ * the loaded keys as argument.
+ */
+- (void)loadSignaturesAndAttributesForKeys:(NSSet *)keys completionHandler:(void(^)(NSSet *))completionHandler;
 
 @end
 

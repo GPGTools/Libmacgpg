@@ -545,7 +545,7 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 	return fingerprints;
 }
 
-- (void)loadSignaturesForKeys:(NSSet *)keys completionHandler:(void(^)(NSSet *))completionHandler {
+- (void)_loadExtrasForKeys:(NSSet *)keys fetchSignatures:(BOOL)fetchSignatures fetchAttributes:(BOOL)fetchAttributes completionHandler:(void(^)(NSSet *))completionHandler {
 	// Keys might be either a list of real keys or fingerprints.
 	// In any way, only the fingerprints are of interest for us, since
 	// they'll be used to load the appropriate keys.
@@ -556,7 +556,7 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 	[keysCopy release];
 	
 	dispatch_async(_keyLoadingQueue, ^{
-		[weakSelf _loadKeys:fingerprints fetchSignatures:YES fetchUserAttributes:NO];
+		[weakSelf _loadKeys:fingerprints fetchSignatures:fetchSignatures fetchUserAttributes:fetchAttributes];
 		
 		// Signatures should be available for the keys. Now let's get them via their
 		// fingerprint.
@@ -574,7 +574,17 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 	});
 }
 
+- (void)loadSignaturesForKeys:(NSSet *)keys completionHandler:(void(^)(NSSet *))completionHandler {
+	[self _loadExtrasForKeys:keys fetchSignatures:YES fetchAttributes:NO completionHandler:completionHandler];
+}
 
+- (void)loadAttributesForKeys:(NSSet *)keys completionHandler:(void(^)(NSSet *))completionHandler {
+	[self _loadExtrasForKeys:keys fetchSignatures:NO fetchAttributes:YES completionHandler:completionHandler];
+}
+
+- (void)loadSignaturesAndAttributesForKeys:(NSSet *)keys completionHandler:(void(^)(NSSet *))completionHandler {
+	[self _loadExtrasForKeys:keys fetchSignatures:YES fetchAttributes:YES completionHandler:completionHandler];
+}
 
 #pragma mark Delegate
 
