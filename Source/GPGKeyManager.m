@@ -121,8 +121,12 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 		newKeysSet = [NSSet setWithArray:newKeys];
 		[newKeys release];
 		
-		[_mutableAllKeys minusSet:keys];
-		[_mutableAllKeys minusSet:newKeysSet];
+		if (keys) {
+			[_mutableAllKeys minusSet:keys];
+			[_mutableAllKeys minusSet:newKeysSet];
+		} else {
+			[_mutableAllKeys removeAllObjects];
+		}
 		[_mutableAllKeys unionSet:newKeysSet];
 		
 		_once_keysByKeyID = 0;
