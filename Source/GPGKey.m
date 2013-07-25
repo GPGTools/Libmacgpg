@@ -140,6 +140,10 @@
 	return self.fingerprint;
 }
 
+- (id)copy {
+	return [self retain];
+}
+
 - (void)dealloc {
 	[_keyID release];
 	_keyID = nil;
