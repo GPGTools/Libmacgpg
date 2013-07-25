@@ -967,6 +967,10 @@ BOOL gpgConfigReaded = NO;
 	[self operationDidFinishWithReturnValue:nil];	
 }
 
+- (void)key:(NSObject <KeyFingerprint> *)key setOwnerTrust:(GPGValidity)trust {
+	[self key:key setOwnerTrsut:trust];
+}
+
 - (void)key:(NSObject <KeyFingerprint> *)key setOwnerTrsut:(GPGValidity)trust {
 	if (async && !asyncStarted) {
 		asyncStarted = YES;
