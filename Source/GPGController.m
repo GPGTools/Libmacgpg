@@ -261,11 +261,7 @@ BOOL gpgConfigReaded = NO;
 	}
 }
 
-<<<<<<< HEAD
 
-
-=======
->>>>>>> 9b94f74fc74c6b0a420ed85076ba47b806f41782
 #pragma mark Encrypt, decrypt, sign and verify
 
 - (NSData *)processData:(NSData *)data withEncryptSignMode:(GPGEncryptSignMode)mode recipients:(NSObject <EnumerationList> *)recipients hiddenRecipients:(NSObject <EnumerationList> *)hiddenRecipients {
