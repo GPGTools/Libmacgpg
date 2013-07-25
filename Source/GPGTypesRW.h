@@ -93,7 +93,7 @@
 @property (assign, readwrite) BOOL revocation;
 @property (assign, readwrite) BOOL local;
 
-@property (retain, readwrite) GPGKey *primaryKey;
+@property (assign, readwrite) GPGKey *primaryKey;
 
 @end
 
