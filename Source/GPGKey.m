@@ -182,32 +182,4 @@
 	[super dealloc];
 }
 
-//- (void)updatePreferences {
-//
-//	GPGTask *gpgTask = [GPGTask gpgTask];
-//	[gpgTask addArgument:@"--edit-key"];
-//	[gpgTask addArgument:fingerprint];
-//	[gpgTask addArgument:@"quit"];
-//
-//	if ([gpgTask start] != 0) {
-//		@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Update preferences failed!") gpgTask:gpgTask];
-//	}
-//
-//
-//	NSArray *lines = [gpgTask.outText componentsSeparatedByString:@"\n"];
-//
-//	NSInteger i = 0, c = [userIDs count];
-//	for (NSString *line in lines) {
-//		if ([line hasPrefix:@"uid:"]) {
-//			if (i >= c) {
-//				GPGDebugLog(@"updatePreferences: index >= count!");
-//				break;
-//			}
-//			[[userIDs objectAtIndex:i] updatePreferences:line];
-//			i++;
-//		}
-//	}
-//}
-//
-
 @end

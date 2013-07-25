@@ -47,35 +47,6 @@
 	return self.hashID;
 }
 
-//- (NSArray *)signatures {
-//	@synchronized (self) {
-//		if (!signatures) {
-//			GPGTask *gpgTask = [GPGTask gpgTask];
-//			[gpgTask addArgument:@"--list-sigs"];
-//			[gpgTask addArgument:@"--with-fingerprint"];
-//			[gpgTask addArgument:@"--with-fingerprint"];
-//			[gpgTask addArgument:[primaryKey fingerprint]];
-//			
-//			if ([gpgTask start] != 0) {
-//				@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"List signatures failed!") gpgTask:gpgTask];
-//			}
-//			
-//			NSArray *listings, *fingerprints;
-//			[GPGController colonListing:gpgTask.outText toArray:&listings andFingerprints:&fingerprints];
-//			
-//			NSUInteger aIndex = [fingerprints indexOfObject:[primaryKey fingerprint]];
-//			
-//			if (aIndex != NSNotFound) {
-//				[primaryKey updateWithListing:[listings objectAtIndex:aIndex] isSecret:[primaryKey secret] withSigs:YES];
-//			} else {
-//				signatures = [[NSArray array] retain];
-//			}
-//		}
-//	}
-//	return [[signatures retain] autorelease];
-//}
-
-
 //- (void)updatePreferences:(NSString *)listing {
 //	NSArray *split = [[[listing componentsSeparatedByString:@":"] objectAtIndex:12] componentsSeparatedByString:@","];
 //	NSString *prefs = [split objectAtIndex:0];
