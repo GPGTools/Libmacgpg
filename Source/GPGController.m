@@ -241,9 +241,6 @@ BOOL gpgConfigReaded = NO;
 		}
 	}
 	
-#warning Move the GPGWatcher out of here. Should the coder have to setup it themselves?
-	[GPGWatcher activate];
-	
 	return self;
 }
 
