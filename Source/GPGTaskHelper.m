@@ -278,7 +278,7 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
     __block NSObject *lock = [[[NSObject alloc] init] autorelease];
     
     _task.parentTask = ^{
-        dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
+        dispatch_queue_t queue = dispatch_queue_create("org.gpgtools.libmacgpg.gpgTaskHelper", DISPATCH_QUEUE_CONCURRENT);
         
         dispatch_group_t collectorGroup = dispatch_group_create();
         
