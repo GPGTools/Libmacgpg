@@ -124,6 +124,9 @@
 	return [self.keyID shortKeyID];
 }
 
+- (NSInteger)status {
+	return 0;
+}
 
 - (NSUInteger)hash {
 	return [self.fingerprint hash];

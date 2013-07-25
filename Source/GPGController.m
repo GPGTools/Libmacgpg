@@ -53,7 +53,6 @@
 @interface GPGController ()
 @property (nonatomic, retain) GPGSignature *lastSignature;
 @property (nonatomic, retain) NSString *filename;
-- (void)updateKeysWithDict:(NSDictionary *)aDict;
 - (void)addArgumentsForKeyserver;
 - (void)addArgumentsForSignerKeys;
 - (void)addArgumentsForComments;
@@ -242,9 +241,6 @@ BOOL gpgConfigReaded = NO;
 		}
 	}
 	
-#warning Move the GPGWatcher out of here. Should the coder have to setup it themselves?
-	[GPGWatcher activate];
-	
 	return self;
 }
 
@@ -261,6 +257,7 @@ BOOL gpgConfigReaded = NO;
 		}
 	}
 }
+
 
 #pragma mark Encrypt, decrypt, sign and verify
 
@@ -2485,39 +2482,6 @@ BOOL gpgConfigReaded = NO;
 
 
 
-- (void)updateKeysWithDict:(NSDictionary *)aDict {
-	NSArray *listings = [aDict objectForKey:@"listings"];	
-	NSArray *fingerprints = [aDict objectForKey:@"fingerprints"];
-	NSSet *secKeyFingerprints = [aDict objectForKey:@"secKeyFingerprints"];
-	id keysToUpdate = [aDict objectForKey:@"keysToUpdate"];
-	// keysToUpdate has to be an NSSet since it
-	if(![keysToUpdate respondsToSelector:@selector(member:)] && [keysToUpdate isKindOfClass:[NSArray class]])
-		keysToUpdate = [NSSet setWithArray:keysToUpdate];
-	
-	NSSet **updatedKeys = [[aDict objectForKey:@"updatedKeys"] pointerValue];
-	BOOL withSigs = [[aDict objectForKey:@"withSigs"] boolValue];
-	
-	
-	NSMutableSet *updatedKeysSet = [NSMutableSet setWithCapacity:[fingerprints count]];
-	
-	NSUInteger i, count = [fingerprints count];
-	for (i = 0; i < count; i++) {
-		NSString *fingerprint = [fingerprints objectAtIndex:i];
-		NSArray *listing = [listings objectAtIndex:i];
-		
-		
-		GPGKey *key = [keysToUpdate member:fingerprint];
-		BOOL secret = [secKeyFingerprints containsObject:fingerprint];
-		if (key && [key isKindOfClass:[GPGKey class]]) {
-			[key updateWithListing:listing isSecret:secret withSigs:withSigs];
-		} else {
-			key = [GPGKey keyWithListing:listing fingerprint:fingerprint isSecret:secret withSigs:withSigs];
-		}
-		[updatedKeysSet addObject:key];
-	}
-	
-	*updatedKeys = [updatedKeysSet copy]; // copy without autorelease!
-}
 
 - (void)dealloc {
 	[[NSDistributedNotificationCenter defaultCenter] removeObserver:self];

@@ -143,15 +143,6 @@
 - (NSInteger)indexOfSubkey:(NSObject <KeyFingerprint> *)subkey fromKey:(NSObject <KeyFingerprint> *)key;
 
 
-- (NSSet *)allKeys;
-- (NSSet *)allSecretKeys;
-- (NSSet *)keysForSearchPattern:(NSString *)searchPattern;
-- (NSSet *)keysForSearchPatterns:(NSObject <EnumerationList> *)searchPatterns;
-- (NSSet *)updateKeys:(NSObject <EnumerationList> *)keyList;
-- (NSSet *)updateKeys:(NSObject <EnumerationList> *)keyList withSigs:(BOOL)withSigs;
-- (NSSet *)updateKeys:(NSObject <EnumerationList> *)keyList searchFor:(NSObject <EnumerationList> *)serachList withSigs:(BOOL)withSigs;
-- (NSSet *)updateKeys:(NSObject <EnumerationList> *)keyList searchFor:(NSObject <EnumerationList> *)serachList withSigs:(BOOL)withSigs secretOnly:(BOOL)secretOnly;
-
 - (void)cancel;
 
 - (void)cleanKey:(NSObject <KeyFingerprint> *)key;
