@@ -241,10 +241,8 @@ BOOL gpgConfigReaded = NO;
 		}
 	}
 	
-	
+#warning Move the GPGWatcher out of here. Should the coder have to setup it themselves?
 	[GPGWatcher activate];
-	
-	[[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(keysHaveChanged:) name:GPGKeysChangedNotification object:nil];
 	
 	return self;
 }
@@ -263,11 +261,12 @@ BOOL gpgConfigReaded = NO;
 	}
 }
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 9b94f74fc74c6b0a420ed85076ba47b806f41782
 #pragma mark Encrypt, decrypt, sign and verify
-
-
 
 - (NSData *)processData:(NSData *)data withEncryptSignMode:(GPGEncryptSignMode)mode recipients:(NSObject <EnumerationList> *)recipients hiddenRecipients:(NSObject <EnumerationList> *)hiddenRecipients {
 	if (async && !asyncStarted) {
@@ -436,6 +435,8 @@ BOOL gpgConfigReaded = NO;
 }
 
 - (NSArray *)verifySignatureOf:(GPGStream *)signatureInput originalData:(GPGStream *)originalInput {
+#warning There's a good chance verifySignature will modify the keys if auto-retrieve-keys is set. In that case it might make sense, that we send the notification ourselves with the potential key which might get imported. We do have the fingerprint, and there's no need to rebuild the whole keyring only to update one key.
+	
 	NSArray *retVal;
 	@try {
 		[self operationDidStart];
@@ -737,6 +738,8 @@ BOOL gpgConfigReaded = NO;
 		
 		NSData *revocationData = [self generateRevokeCertificateForKey:key reason:reason description:description];
 		[self importFromData:revocationData fullImport:YES];
+		// Keys have been changed, so trigger a KeyChanged Notification.
+		[self keyChanged:key];
 		
 	} @catch (NSException *e) {
 		[self handleException:e];

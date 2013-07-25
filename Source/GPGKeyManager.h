@@ -17,6 +17,7 @@
 	NSSet *_publicKeys;
 	NSSet *_secretKeys;
 	
+	dispatch_queue_t _completionQueue;
 	
 	//For loadKeys
 	
@@ -36,6 +37,12 @@
 /* Subset of allKeys including only secret keys. */
 @property (nonatomic, readonly) NSSet *secretKeys;
 
+/* retain is not allow on dispatch_queues, but the implementation will
+ * retain this queue.
+ * If no queue is set the main queue will be used.
+ */
+@property (nonatomic, assign) dispatch_queue_t completionQueue;
+
 /*
  GPGKeyManager is a singleton.
  */
@@ -50,6 +57,9 @@
 - (void)loadKeys:(NSSet *)keys fetchSignatures:(BOOL)fetchSignatures fetchUserAttributes:(BOOL)fetchUserAttributes;
 
 - (void)loadAllKeys;
+
+- (void)loadSignaturesForKeys:(NSSet *)keys completionHandler:(void(^)(NSSet *))completionHandler;
+
 
 @end
 

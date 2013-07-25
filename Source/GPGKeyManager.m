@@ -14,7 +14,7 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 
 @implementation GPGKeyManager
 
-@synthesize allKeys=_allKeys, keysByKeyID=_keysByKeyID, publicKeys=_publicKeys, secretKeys=_secretKeys;
+@synthesize allKeys=_allKeys, keysByKeyID=_keysByKeyID, publicKeys=_publicKeys, secretKeys=_secretKeys, completionQueue=_completionQueue;
 
 - (void)loadAllKeys {
 	[self loadKeys:nil fetchSignatures:NO fetchUserAttributes:NO];
@@ -31,9 +31,9 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 	
 	//NSLog(@"[%@]: Loading keys!", [NSThread currentThread]);
 	@try {
-		NSArray *keyArguments = [keys allObjects];
+		NSArray *keyArguments = [[keys valueForKey:@"description"] allObjects];
 		
-        dispatch_queue_t dispatchQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
+        dispatch_queue_t dispatchQueue = dispatch_queue_create("org.gpgtools.libmacgpg._loadKeys.gpgTask", DISPATCH_QUEUE_CONCURRENT);
 		dispatch_group_t dispatchGroup = dispatch_group_create();
 		
 		_fetchSignatures = fetchSignatures;
@@ -114,9 +114,10 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
         dispatch_release(dispatchGroup);
         dispatch_release(dispatchQueue);
 		
-		
+		[_attributeData release];
 		
 		newKeysSet = [NSSet setWithArray:newKeys];
+		[newKeys release];
 		
 		[_mutableAllKeys minusSet:keys];
 		[_mutableAllKeys minusSet:newKeysSet];
@@ -477,6 +478,22 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 	return [[_secretKeys retain] autorelease];
 }
 
+- (void)setCompletionQueue:(dispatch_queue_t)completionQueue {
+	NSAssert(completionQueue != nil, @"nil or NULL is not allowed for completionQueue");
+	if(completionQueue == _completionQueue)
+		return;
+	
+	if(_completionQueue) {
+		dispatch_release(_completionQueue);
+		_completionQueue = NULL;
+	}
+	if(completionQueue) {
+		dispatch_retain(completionQueue);
+		_completionQueue = completionQueue;
+	}
+	
+}
+
 #pragma mark Helper methods
 
 - (GPGValidity)validityForLetter:(NSString *)letter {
@@ -526,6 +543,35 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 	}
 	
 	return fingerprints;
+}
+
+- (void)loadSignaturesForKeys:(NSSet *)keys completionHandler:(void(^)(NSSet *))completionHandler {
+	// Keys might be either a list of real keys or fingerprints.
+	// In any way, only the fingerprints are of interest for us, since
+	// they'll be used to load the appropriate keys.
+	__block GPGKeyManager *weakSelf = self;
+	
+	NSSet *keysCopy = [keys copy];
+	NSSet *fingerprints = [keysCopy valueForKey:@"description"];
+	[keysCopy release];
+	
+	dispatch_async(_keyLoadingQueue, ^{
+		[weakSelf _loadKeys:fingerprints fetchSignatures:YES fetchUserAttributes:NO];
+		
+		// Signatures should be available for the keys. Now let's get them via their
+		// fingerprint.
+		NSSet *keysWithSignatures = [weakSelf->_allKeys objectsPassingTest:^BOOL(GPGKey *key, BOOL *stop) {
+			if([fingerprints containsObject:[key description]])
+				return YES;
+			return NO;
+		}];
+		
+		if(completionHandler) {
+			dispatch_async(self.completionQueue != NULL ? self.completionQueue : dispatch_get_main_queue(), ^{
+				completionHandler(keysWithSignatures);
+			});
+		}
+	});
 }
 
 
@@ -588,6 +634,7 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 	[[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(keysDidChange:) name:GPGKeysChangedNotification object:nil];
 	_keysNeedToBeReloaded = NO;
 	_keyLoadingCheckLock = [[NSLock alloc] init];
+	_completionQueue = NULL;
 	[GPGWatcher activate];
 	
 	return self;
