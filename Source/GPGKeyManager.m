@@ -1,6 +1,7 @@
 #import "Libmacgpg.h"
 #import "GPGKeyManager.h"
 #import "GPGTypesRW.h"
+#include <sys/time.h>
 
 NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDidChangeNotification";
 
@@ -66,7 +67,7 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 			[gpgTask addArgument:@"--list-keys"];
 		}
 		if (fetchUserAttributes) {
-			[_attributeInfos = [NSMutableDictionary alloc] init];
+			_attributeInfos = [[NSMutableDictionary alloc] init];
 			_attributeDataLocation = 0;
 			gpgTask.getAttributeData = YES;
 		}
@@ -264,6 +265,9 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 				userID.signatures = signatures;
 				signatures = [NSMutableArray array];
 			}
+
+			userID = [[[GPGUserID alloc] init] autorelease];
+			userID.primaryKey = primaryKey;
 			
 			userID = [[[GPGUserID alloc] init] autorelease];
 			userID.primaryKey = primaryKey;
@@ -400,7 +404,7 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 		}
 		
 	}
-	
+
 	if (_fetchSignatures) {
 		userID.signatures = signatures;
 	}
@@ -589,10 +593,39 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 #pragma mark Delegate
 
 - (id)gpgTask:(GPGTask *)gpgTask statusCode:(NSInteger)status prompt:(NSString *)prompt {
+	
 	switch (status) {
-		case GPG_STATUS_ATTRIBUTE:
-			[_attributeLines addObject:prompt];
+		case GPG_STATUS_ATTRIBUTE: {
+			NSArray *parts = [prompt componentsSeparatedByString:@" "];
+			NSString *fingerprint = [parts objectAtIndex:0];
+			NSInteger length = [[parts objectAtIndex:1] integerValue];
+			NSString *type = [parts objectAtIndex:2];
+			NSString *index = [parts objectAtIndex:3];
+			NSString *count = [parts objectAtIndex:4];
+
+			
+			NSNumber *location = [NSNumber numberWithUnsignedInteger:_attributeDataLocation];
+			_attributeDataLocation += length;
+			
+			NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:
+								  @"length", [NSNumber numberWithInteger:length],
+								  @"type", type,
+								  @"location", location,
+								  @"index", index,
+								  @"count", count,
+								  nil];
+			
+			NSMutableArray *infos = [_attributeInfos objectForKey:fingerprint];
+			if (!infos) {
+				infos = [[NSMutableArray alloc] init];
+				[_attributeInfos setObject:infos forKey:fingerprint];
+				[infos release];
+			}
+			
+			[infos addObject:info];
+			
 			break;
+		}
 			
 	}
 	return nil;

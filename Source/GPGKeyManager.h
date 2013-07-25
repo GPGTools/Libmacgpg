@@ -5,7 +5,6 @@
 	
 	NSMutableSet *_mutableAllKeys;
 	NSDictionary *_keysByKeyID;
-	NSMutableArray *_attributeLines;
 	
 	dispatch_once_t _once_keysByKeyID;
 	
