@@ -87,7 +87,7 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 		NSMutableArray *newKeys = [[NSMutableArray alloc] init];
 		
 		
-		_attributeData = gpgTask.attributeData; //attributeData is only needed for UATs (PhotoID).
+		_attributeData = [gpgTask.attributeData retain]; //attributeData is only needed for UATs (PhotoID).
 		
 		_keyLines = [gpgTask.outText componentsSeparatedByString:@"\n"];
 		NSUInteger index = 0, count = _keyLines.count;
