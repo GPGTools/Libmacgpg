@@ -31,7 +31,7 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 	
 	//NSLog(@"[%@]: Loading keys!", [NSThread currentThread]);
 	@try {
-		NSArray *keyArguments = [keys allObjects];
+		NSArray *keyArguments = [[keys valueForKey:@"description"] allObjects];
 		
         dispatch_queue_t dispatchQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
 		dispatch_group_t dispatchGroup = dispatch_group_create();
