@@ -2092,8 +2092,7 @@ BOOL gpgConfigReaded = NO;
 
 
 
-
-- (void)parseStatusForSigantures:(NSInteger)status prompt:(NSString *)prompt  {
+- (void)parseStatusForSignatures:(NSInteger)status prompt:(NSString *)prompt  {
 	BOOL parseFingerprint = NO;
 
 	if (status == GPG_STATUS_NEWSIG) {
@@ -2219,7 +2218,7 @@ BOOL gpgConfigReaded = NO;
 		case GPG_STATUS_TRUST_MARGINAL:
 		case GPG_STATUS_TRUST_FULLY:
 		case GPG_STATUS_TRUST_ULTIMATE:
-			[self parseStatusForSigantures:status prompt:prompt];
+			[self parseStatusForSignatures:status prompt:prompt];
 			break;
 			
         // Store the hash algorithm.
