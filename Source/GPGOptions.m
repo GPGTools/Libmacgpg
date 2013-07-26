@@ -746,6 +746,9 @@ void SystemConfigurationDidChange(SCPreferencesRef prefs, SCPreferencesNotificat
 				  commonKeys, [NSNumber numberWithInt:GPGDomain_common],
 				  specialKeys, [NSNumber numberWithInt:GPGDomain_special],				  
 				  nil];
+	
+	[GPGWatcher activate];
+
 }
 
 + (id)sharedOptions {

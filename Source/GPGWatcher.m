@@ -212,7 +212,6 @@ static id syncRoot = nil;
 + (void)initialize {
     if (!syncRoot)
         syncRoot = [[NSObject alloc] init];
-	[self activate];
 }
 
 + (void)activate {

@@ -716,7 +716,8 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 	
 	_allKeysAndSubkeysOnce = dispatch_semaphore_create(1);
 
-	
+	[GPGWatcher activate];
+
 	
 	return self;
 }
