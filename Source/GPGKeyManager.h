@@ -2,6 +2,7 @@
 
 @interface GPGKeyManager : NSObject <GPGTaskDelegate> {
 	NSSet *_allKeys;
+	NSSet *_allKeysAndSubkeys;
 	
 	NSMutableSet *_mutableAllKeys;
 	NSDictionary *_keysByKeyID;
@@ -27,6 +28,9 @@
 	NSUInteger _attributeDataLocation;
 	BOOL _fetchUserAttributes;
 	BOOL _fetchSignatures;
+	
+	
+	dispatch_semaphore_t _allKeysAndSubkeysOnce;
 }
 @property (nonatomic, readonly) NSSet *allKeys;
 @property (nonatomic, readonly) NSDictionary *keysByKeyID;
