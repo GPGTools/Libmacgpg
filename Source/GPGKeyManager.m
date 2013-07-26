@@ -453,6 +453,35 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 	return [[_allKeys retain] autorelease];
 }
 
+- (NSSet *)allKeysAndSubkeys {
+	static __weak id oldAllKeys = (id)1;
+	
+	dispatch_semaphore_wait(_allKeysAndSubkeysOnce, DISPATCH_TIME_FOREVER);
+	
+	NSSet *allKeys = self.allKeys;
+	
+	if (oldAllKeys != allKeys) {
+		oldAllKeys = allKeys;
+		
+		NSMutableSet *allKeysAndSubkeys = [[NSMutableSet alloc] initWithSet:allKeys copyItems:NO];
+		
+		for (GPGKey *key in allKeys) {
+			[allKeysAndSubkeys addObjectsFromArray:key.subkeys];
+		}
+		
+		id old = _allKeysAndSubkeys;
+		_allKeysAndSubkeys = [allKeysAndSubkeys copy];
+		[old release];
+		[allKeysAndSubkeys release];
+	}
+	
+	dispatch_semaphore_signal(_allKeysAndSubkeysOnce);
+
+	return _allKeysAndSubkeys;
+}
+
+
+
 - (void)rebuildKeysCache {
 	NSMutableSet *publicKeys = nil;
 	NSMutableSet *secretKeys = nil;
