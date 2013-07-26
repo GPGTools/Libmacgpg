@@ -455,7 +455,8 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 }
 
 - (NSSet *)allKeysAndSubkeys {
-	static __weak id oldAllKeys = (id)1;
+	/* TODO: Must be declared __weak once ARC! */
+	static id oldAllKeys = (id)1;
 	
 	dispatch_semaphore_wait(_allKeysAndSubkeysOnce, DISPATCH_TIME_FOREVER);
 	
