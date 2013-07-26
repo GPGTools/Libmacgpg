@@ -713,6 +713,10 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 	_keyLoadingCheckLock = [[NSLock alloc] init];
 	_completionQueue = NULL;
 	
+	_allKeysAndSubkeysOnce = dispatch_semaphore_create(1);
+
+	
+	
 	return self;
 }
 
