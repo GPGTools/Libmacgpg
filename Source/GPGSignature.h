@@ -56,7 +56,7 @@
 @property (nonatomic, readonly) int signatureClass;
 
 @property (nonatomic, readonly) GPGKey *primaryKey;
-@property (nonatomic, readonly) GPGKey *key;
+@property (atomic, retain, readwrite) GPGKey *key;
 @property (nonatomic, readonly) NSString *primaryFingerprint;
 
 @property (nonatomic, readonly) NSString *userIDDescription;
