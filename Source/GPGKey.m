@@ -1,5 +1,5 @@
 /*
- Copyright © Roman Zechmeister, 2013
+ Copyright © Roman Zechmeister und Lukas Pitschl (@lukele), 2013
  
  Diese Datei ist Teil von Libmacgpg.
  
@@ -15,15 +15,13 @@
  
  Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem 
  Programm erhalten haben. Falls nicht, siehe <http://www.gnu.org/licenses/>.
-
- Additions by: Lukas Pitschl (@lukele) (c) 2013 
 */
 
 #import <Libmacgpg/GPGKey.h>
 #import <Libmacgpg/GPGTypesRW.h>
 
-@implementation GPGKey
 
+@implementation GPGKey
 @synthesize subkeys=_subkeys, userIDs=_userIDs, fingerprint=_fingerprint, ownerTrust=_ownerTrust, secret=_secret, canSign=_canSign, canEncrypt=_canEncrypt, canCertify=_canCertify, canAuthenticate=_canAuthenticate, canAnySign=_canAnySign, canAnyEncrypt=_canAnyEncrypt, canAnyCertify=_canAnyCertify, canAnyAuthenticate=_canAnyAuthenticate, textForFilter=_textForFilter, primaryKey=_primaryKey, primaryUserID=_primaryUserID, keyID=_keyID, allFingerprints=_fingerprints, expirationDate=_expirationDate, creationDate=_creationDate, length=_length, algorithm=_algorithm, validity=_validity;
 
 - (instancetype)init {

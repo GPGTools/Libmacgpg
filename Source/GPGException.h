@@ -1,5 +1,4 @@
 #import <Libmacgpg/GPGGlobals.h>
-#import <Libmacgpg/GPGTask.h>
 
 typedef enum { 
     GPGErrorNoError = 0, 

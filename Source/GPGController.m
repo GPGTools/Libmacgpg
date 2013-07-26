@@ -22,35 +22,24 @@
 #import "GPGTaskOrder.h"
 #import "GPGRemoteKey.h"
 #import "GPGSignature.h"
-#import "GPGGlobals.h"
 #import "GPGOptions.h"
-#import "GPGException.h"
 #import "GPGPacket.h"
 #import "GPGWatcher.h"
-#import "GPGStream.h"
 #import "GPGMemoryStream.h"
+#import "GPGTypesRW.h"
+#import "GPGKeyManager.h"
+#import "GPGKeyserver.h"
+#import "GPGTaskHelper.h"
+#import "GPGTask.h"
 #if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
 #import "GPGTaskHelperXPC.h"
 #import "NSBundle+Sandbox.h"
 #endif
-#import "GPGTypesRW.h"
-#import "GPGKeyManager.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/un.h>
-
 
 #define cancelCheck if (canceled) {@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Operation cancelled") errorCode:GPGErrorCancelled];}
 
 
-
-
-@interface GPGController ()
+@interface GPGController () <GPGTaskDelegate>
 @property (nonatomic, retain) GPGSignature *lastSignature;
 @property (nonatomic, retain) NSString *filename;
 - (void)addArgumentsForKeyserver;

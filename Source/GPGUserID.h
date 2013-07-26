@@ -1,5 +1,5 @@
 /*
- Copyright © Roman Zechmeister, 2013
+ Copyright © Roman Zechmeister und Lukas Pitschl (@lukele), 2013
  
  Diese Datei ist Teil von Libmacgpg.
  
@@ -15,23 +15,21 @@
  
  Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem 
  Programm erhalten haben. Falls nicht, siehe <http://www.gnu.org/licenses/>.
-
- Additions by: Lukas Pitschl (@lukele) (c) 2013
 */
 
 #import <Libmacgpg/GPGGlobals.h>
 
-@protocol GPGUserIDProtocol <NSObject>
+@class GPGKey;
 
+
+@protocol GPGUserIDProtocol <NSObject>
 @property (nonatomic, readonly) NSString *userIDDescription;
 @property (nonatomic, readonly) NSString *name;
 @property (nonatomic, readonly) NSString *email;
 @property (nonatomic, readonly) NSString *comment;
 @property (nonatomic, readonly) NSImage *image;
-
 @end
 
-@class GPGKey;
 
 @interface GPGUserID : NSObject <GPGUserIDProtocol> {
 	NSString *_userIDDescription;

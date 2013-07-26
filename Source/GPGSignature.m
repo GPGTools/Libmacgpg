@@ -17,13 +17,13 @@
  Programm erhalten haben. Falls nicht, siehe <http://www.gnu.org/licenses/>.
 */
 
-#import <Libmacgpg/GPGSignature.h>
-#import <Libmacgpg/GPGGlobals.h>
-#import <Libmacgpg/GPGTransformer.h>
-#import <Libmacgpg/GPGTypesRW.h>
+#import "GPGSignature.h"
+#import "GPGKey.h"
+#import "GPGTransformer.h"
+#import "GPGTypesRW.h"
+
 
 @implementation GPGSignature
-
 @synthesize trust=_trust, status=_status, fingerprint=_fingerprint, creationDate=_creationDate, expirationDate=_expirationDate, version=_version, publicKeyAlgorithm=_publicKeyAlgorithm, hashAlgorithm=_hashAlgorithm, key=_key, signatureClass=_signatureClass;
 
 - (instancetype)init {

@@ -1,5 +1,5 @@
 /*
- Copyright © Roman Zechmeister, 2013
+ Copyright © Roman Zechmeister und Lukas Pitschl (@lukele), 2013
  
  Diese Datei ist Teil von Libmacgpg.
  
@@ -15,12 +15,10 @@
  
  Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem 
  Programm erhalten haben. Falls nicht, siehe <http://www.gnu.org/licenses/>.
-
- Additions by: Lukas Pitschl (@lukele) (c) 2013
 */
 
-#import <Libmacgpg/GPGUserIDSignature.h>
-#import <Libmacgpg/GPGTypesRW.h>
+#import "GPGUserIDSignature.h"
+#import "GPGTypesRW.h"
 
 @implementation GPGUserIDSignature
 

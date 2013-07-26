@@ -17,11 +17,11 @@
  Programm erhalten haben. Falls nicht, siehe <http://www.gnu.org/licenses/>.
 */
 
-#import <Libmacgpg/GPGUserID.h>
-#import <Libmacgpg/GPGTypesRW.h>
+#import "GPGUserID.h"
+#import "GPGTypesRW.h"
+
 
 @implementation GPGUserID
-
 @synthesize userIDDescription=_userIDDescription, name=_name, email=_email, comment=_comment, hashID=_hashID, primaryKey=_primaryKey, signatures=_signatures, image=_image, expirationDate=_expirationDate, creationDate=_creationDate, validity=_validity;
 
 - (instancetype)init {

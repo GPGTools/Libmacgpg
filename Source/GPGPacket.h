@@ -17,10 +17,10 @@
  Programm erhalten haben. Falls nicht, siehe <http://www.gnu.org/licenses/>.
 */
 
-#import <Cocoa/Cocoa.h>
 #import <Libmacgpg/GPGGlobals.h>
 
 @class GPGStream;
+
 
 @interface GPGPacket : NSObject {
 	GPGPacketType type;

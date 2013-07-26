@@ -17,7 +17,6 @@
  Programm erhalten haben. Falls nicht, siehe <http://www.gnu.org/licenses/>.
 */
 
-#import <Cocoa/Cocoa.h>
 #import <SystemConfiguration/SCPreferences.h>
 
 @class GPGConf;

@@ -17,9 +17,7 @@
  Programm erhalten haben. Falls nicht, siehe <http://www.gnu.org/licenses/>.
 */
 
-#import <Cocoa/Cocoa.h>
-#import <Libmacgpg/GPGException.h>
-#import "GPGOptions.h"
+#import <Libmacgpg/GPGOptions.h>
 
 
 @class GPGTask, GPGKey;

@@ -17,8 +17,7 @@
  Programm erhalten haben. Falls nicht, siehe <http://www.gnu.org/licenses/>.
 */
 
-#import <Cocoa/Cocoa.h>
-#import "GPGUserID.h"
+#import <Libmacgpg/GPGUserID.h>
 
 @interface GPGRemoteUserID : NSObject <GPGUserIDProtocol> {
 	NSString *userIDDescription;

@@ -1,6 +1,6 @@
-#import <Foundation/Foundation.h>
 
-@interface GPGKeyManager : NSObject <GPGTaskDelegate> {
+
+@interface GPGKeyManager : NSObject {
 	NSSet *_allKeys;
 	NSSet *_allKeysAndSubkeys;
 	

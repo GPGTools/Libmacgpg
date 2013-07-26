@@ -18,7 +18,6 @@
 */
 
 #import <Cocoa/Cocoa.h>
-#import "GPGTaskHelper.h"
 
 @class GPGTask;
 @class GPGTaskHelper;

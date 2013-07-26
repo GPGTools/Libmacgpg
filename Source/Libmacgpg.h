@@ -17,22 +17,21 @@
  Programm erhalten haben. Falls nicht, siehe <http://www.gnu.org/licenses/>.
 */
 
+#import <Libmacgpg/GPGController.h>
+#import <Libmacgpg/GPGException.h>
+#import <Libmacgpg/GPGFileStream.h>
 #import <Libmacgpg/GPGGlobals.h>
 #import <Libmacgpg/GPGKey.h>
-#import <Libmacgpg/GPGTask.h>
-#import <Libmacgpg/GPGUserIDSignature.h>
+#import <Libmacgpg/GPGKeyManager.h>
+#import <Libmacgpg/GPGMemoryStream.h>
+#import <Libmacgpg/GPGOptions.h>
+#import <Libmacgpg/GPGPacket.h>
 #import <Libmacgpg/GPGRemoteKey.h>
 #import <Libmacgpg/GPGRemoteUserID.h>
 #import <Libmacgpg/GPGSignature.h>
-#import <Libmacgpg/GPGTaskOrder.h>
-#import <Libmacgpg/GPGUserID.h>
-#import <Libmacgpg/GPGWatcher.h>
-#import <Libmacgpg/GPGController.h>
-#import <Libmacgpg/GPGPacket.h>
-#import <Libmacgpg/GPGOptions.h>
-#import <Libmacgpg/GPGConf.h>
-#import <Libmacgpg/GPGException.h>
+#import <Libmacgpg/GPGStream.h>
+#import <Libmacgpg/GPGTask.h>
 #import <Libmacgpg/GPGTransformer.h>
-#import <Libmacgpg/GPGTaskHelperXPC.h>
-#import <Libmacgpg/GPGKeyManager.h>
+#import <Libmacgpg/GPGUserID.h>
+#import <Libmacgpg/GPGUserIDSignature.h>
 

@@ -32,6 +32,7 @@
 #import <Libmacgpg/GPGUserIDSignature.h>
 #import <Libmacgpg/GPGSignature.h>
 
+
 @interface GPGKey ()
 
 @property (copy, readwrite) NSString *keyID;

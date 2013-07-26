@@ -17,16 +17,16 @@
  Programm erhalten haben. Falls nicht, siehe <http://www.gnu.org/licenses/>.
 */
 
-#import <Cocoa/Cocoa.h>
 #import <Libmacgpg/GPGGlobals.h>
-#import <Libmacgpg/GPGKey.h>
-#import <Libmacgpg/GPGTask.h>
-#import <Libmacgpg/GPGKeyserver.h>
+#import <Libmacgpg/GPGUserID.h>
+#import <Libmacgpg/GPGException.h>
+
 
 @class GPGSignature;
 @class GPGUserIDSignature;
 @class GPGController;
 @class GPGStream;
+
 
 @protocol GPGControllerDelegate
 @optional
@@ -37,12 +37,11 @@
 - (void)gpgControllerOperationDidStart:(GPGController *)gpgc;
 - (void)gpgController:(GPGController *)gpgc progressed:(NSInteger)progressed total:(NSInteger)total;
 
-
 @end
 
 
 
-@interface GPGController : NSObject <GPGTaskDelegate> {
+@interface GPGController : NSObject {
 	NSMutableArray *signerKeys;
 	NSMutableArray *comments;
 	NSMutableArray *signatures;

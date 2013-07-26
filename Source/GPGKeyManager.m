@@ -1,11 +1,12 @@
-#import "Libmacgpg.h"
+
 #import "GPGKeyManager.h"
 #import "GPGTypesRW.h"
-#include <sys/time.h>
+#import "GPGWatcher.h"
+#import "GPGTask.h"
 
 NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDidChangeNotification";
 
-@interface GPGKeyManager ()
+@interface GPGKeyManager () <GPGTaskDelegate>
 
 @property (copy, readwrite) NSDictionary *keysByKeyID;
 @property (copy, readwrite) NSSet *publicKeys;
