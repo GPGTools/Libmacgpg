@@ -18,210 +18,96 @@
 */
 
 #import "GPGUserID.h"
-#import "GPGKey.h"
-#import "GPGController.h"
-#import "GPGTask.h"
-#import "GPGException.h"
-
-@interface GPGUserID ()
-
-@property (nonatomic, assign) GPGKey *primaryKey;
-@property (nonatomic, retain) NSString *hashID;
-
-@end
+#import "GPGTypesRW.h"
 
 
 @implementation GPGUserID
-@synthesize index, primaryKey, hashID, userID, name, email, comment;
+@synthesize userIDDescription=_userIDDescription, name=_name, email=_email, comment=_comment, hashID=_hashID, primaryKey=_primaryKey, signatures=_signatures, image=_image, expirationDate=_expirationDate, creationDate=_creationDate, validity=_validity;
 
+- (instancetype)init {
+	return [self initWithUserIDDescription:nil];
+}
 
-- (id)children {return nil;}
-- (id)length {return nil;}
-- (id)algorithm {return nil;}
-- (id)keyID {return nil;}
-- (id)shortKeyID {return nil;}
-- (id)fingerprint {return nil;}
-- (id)capabilities {return nil;}
-
-- (NSString *)type {return @"uid";}
+- (instancetype)initWithUserIDDescription:(NSString *)userIDDescription {
+	if(self = [super init]) {
+		_userIDDescription = [userIDDescription copy];
+	}
+	return self;
+}
 
 - (NSUInteger)hash {
-	return [hashID hash];
+	return [self.hashID hash];
 }
+
 - (BOOL)isEqual:(id)anObject {
-	return [hashID isEqualToString:[anObject description]];
+	return [self.hashID isEqualToString:[anObject description]];
 }
+
 - (NSString *)description {
-	return [[hashID retain] autorelease];
+	return self.hashID;
 }
 
-
-- (void)setUserID:(NSString *)value {
-	if (value != userID) {
-		[userID release];
-		userID = [value retain];
-		
-		[GPGKey setInfosWithUserID:userID toObject:self];
-	}
-}
-
-
-
-- (id)initWithListing:(NSArray *)listing signatureListing:(NSArray *)sigListing parentKey:(GPGKey *)key {
-	if (!(self = [super init])) {
-		return nil;
-	}
-	self.primaryKey = key;
-	
-	
-	[self updateWithListing:listing signatureListing:sigListing];
-	return self;	
-}
-- (void)updateWithListing:(NSArray *)listing signatureListing:(NSArray *)sigListing {
-	
-	[self updateWithLine:listing];
-
-	
-	self.hashID = [listing objectAtIndex:7];
-	self.userID = [[listing objectAtIndex:9] unescapedString];
-	
-	
-	NSArray *newSignatures = nil;
-	if (sigListing) {
-		newSignatures = [[GPGKeySignature signaturesWithListing:sigListing] retain];
-	}
-	NSArray *oldSignatures = signatures;
-	signatures = newSignatures;
-	[oldSignatures release];
-	
-	
-	if (cipherPreferences) {
-		[cipherPreferences release];
-		cipherPreferences = nil;
-	}
-	if (digestPreferences) {
-		[digestPreferences release];
-		digestPreferences = nil;
-	}
-	if (compressPreferences) {
-		[compressPreferences release];
-		compressPreferences = nil;
-	}
-	if (otherPreferences) {
-		[otherPreferences release];
-		otherPreferences = nil;
-	}
-}
-
-- (NSArray *)signatures {
-	@synchronized (self) {
-		if (!signatures) {
-			GPGTask *gpgTask = [GPGTask gpgTask];
-			[gpgTask addArgument:@"--list-sigs"];
-			[gpgTask addArgument:@"--with-fingerprint"];
-			[gpgTask addArgument:@"--with-fingerprint"];
-			[gpgTask addArgument:[primaryKey fingerprint]];
-			
-			if ([gpgTask start] != 0) {
-				@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"List signatures failed!") gpgTask:gpgTask];
-			}
-			
-			NSArray *listings, *fingerprints;
-			[GPGController colonListing:gpgTask.outText toArray:&listings andFingerprints:&fingerprints];
-			
-			NSUInteger aIndex = [fingerprints indexOfObject:[primaryKey fingerprint]];
-			
-			if (aIndex != NSNotFound) {
-				[primaryKey updateWithListing:[listings objectAtIndex:aIndex] isSecret:[primaryKey secret] withSigs:YES];
-			} else {
-				signatures = [[NSArray array] retain];
-			}
-		}
-	}
-	return [[signatures retain] autorelease];
-}
-
-
-- (void)updatePreferences:(NSString *)listing {
-	NSArray *split = [[[listing componentsSeparatedByString:@":"] objectAtIndex:12] componentsSeparatedByString:@","];
-	NSString *prefs = [split objectAtIndex:0];
-	
-	NSRange range, searchRange;
-	NSUInteger stringLength = [prefs length];
-	searchRange.location = 0;
-	searchRange.length = stringLength;
-	
-	
-	range = [prefs rangeOfString:@"Z" options:NSLiteralSearch range:searchRange];
-	if (range.length > 0) {
-		range.length = searchRange.length - range.location;
-		searchRange.length = range.location - 1;
-		compressPreferences = [[[prefs substringWithRange:range] componentsSeparatedByString:@" "] retain];
-	} else {
-		searchRange.length = stringLength;
-		compressPreferences = [[NSArray alloc] init];
-	}
-	
-	range = [prefs rangeOfString:@"H" options:NSLiteralSearch range:searchRange];
-	if (range.length > 0) {
-		range.length = searchRange.length - range.location;
-		searchRange.length = range.location - 1;
-		digestPreferences = [[[prefs substringWithRange:range] componentsSeparatedByString:@" "] retain];
-	} else {
-		searchRange.length = stringLength;
-		digestPreferences = [[NSArray alloc] init];
-	}
-	
-	range = [prefs rangeOfString:@"S" options:NSLiteralSearch range:searchRange];
-	if (range.length > 0) {
-		range.length = searchRange.length - range.location;
-		searchRange.length = range.location - 1;
-		cipherPreferences = [[[prefs substringWithRange:range] componentsSeparatedByString:@" "] retain];
-	} else {
-		searchRange.length = stringLength;
-		cipherPreferences = [[NSArray alloc] init];
-	}
-	
-	//TODO: Support for [mdc] [no-ks-modify]!
-}
-
-- (NSArray *)cipherPreferences {
-	if (!cipherPreferences) {
-		[primaryKey updatePreferences];
-	}
-	return cipherPreferences;
-}
-- (NSArray *)digestPreferences {
-	if (!digestPreferences) {
-		[primaryKey updatePreferences];
-	}
-	return digestPreferences;
-}
-- (NSArray *)compressPreferences {
-	if (!compressPreferences) {
-		[primaryKey updatePreferences];
-	}
-	return compressPreferences;
-}
-- (NSArray *)otherPreferences {
-	if (!otherPreferences) {
-		[primaryKey updatePreferences];
-	}
-	return otherPreferences;
-}
-
-
+//- (void)updatePreferences:(NSString *)listing {
+//	NSArray *split = [[[listing componentsSeparatedByString:@":"] objectAtIndex:12] componentsSeparatedByString:@","];
+//	NSString *prefs = [split objectAtIndex:0];
+//	
+//	NSRange range, searchRange;
+//	NSUInteger stringLength = [prefs length];
+//	searchRange.location = 0;
+//	searchRange.length = stringLength;
+//	
+//	
+//	range = [prefs rangeOfString:@"Z" options:NSLiteralSearch range:searchRange];
+//	if (range.length > 0) {
+//		range.length = searchRange.length - range.location;
+//		searchRange.length = range.location - 1;
+//		compressPreferences = [[[prefs substringWithRange:range] componentsSeparatedByString:@" "] retain];
+//	} else {
+//		searchRange.length = stringLength;
+//		compressPreferences = [[NSArray alloc] init];
+//	}
+//	
+//	range = [prefs rangeOfString:@"H" options:NSLiteralSearch range:searchRange];
+//	if (range.length > 0) {
+//		range.length = searchRange.length - range.location;
+//		searchRange.length = range.location - 1;
+//		digestPreferences = [[[prefs substringWithRange:range] componentsSeparatedByString:@" "] retain];
+//	} else {
+//		searchRange.length = stringLength;
+//		digestPreferences = [[NSArray alloc] init];
+//	}
+//	
+//	range = [prefs rangeOfString:@"S" options:NSLiteralSearch range:searchRange];
+//	if (range.length > 0) {
+//		range.length = searchRange.length - range.location;
+//		searchRange.length = range.location - 1;
+//		cipherPreferences = [[[prefs substringWithRange:range] componentsSeparatedByString:@" "] retain];
+//	} else {
+//		searchRange.length = stringLength;
+//		cipherPreferences = [[NSArray alloc] init];
+//	}
+//	
+//	//TODO: Support for [mdc] [no-ks-modify]!
+//}
 
 - (void)dealloc {
-	[signatures release];
+	[_userIDDescription release];
+	_userIDDescription = nil;
+	[_name release];
+	_name = nil;
+	[_email release];
+	_email = nil;
+	[_comment release];
+	_comment = nil;
+	[_image release];
+	_image = nil;
+	[_hashID release];
+	_hashID = nil;
 	
-	[cipherPreferences release];
-	[digestPreferences release];
-	[compressPreferences release];
-	[otherPreferences release];
+	_primaryKey = nil;
+	[_signatures release];
+	_signatures = nil;
 	
-	self.hashID = nil;
-	self.userID = nil;
 	
 	[super dealloc];
 }

@@ -252,8 +252,6 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
     
     GPGDebugLog(@"$> %@ %@", _task.launchPath, [_task.arguments componentsJoinedByString:@" "]);
 	
-	[GPGTaskHelper pinentryPath];
-    
     // Create read pipes for status and attribute information.
     [_task inheritPipeWithMode:O_RDONLY dup:3 name:@"status"];
     [_task inheritPipeWithMode:O_RDONLY dup:4 name:@"attribute"];
@@ -280,7 +278,7 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
     __block NSObject *lock = [[[NSObject alloc] init] autorelease];
     
     _task.parentTask = ^{
-        dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
+        dispatch_queue_t queue = dispatch_queue_create("org.gpgtools.libmacgpg.gpgTaskHelper", DISPATCH_QUEUE_CONCURRENT);
         
         dispatch_group_t collectorGroup = dispatch_group_create();
         

@@ -1,5 +1,5 @@
 /*
- Copyright © Roman Zechmeister, 2013
+ Copyright © Roman Zechmeister und Lukas Pitschl (@lukele), 2013
  
  Diese Datei ist Teil von Libmacgpg.
  
@@ -19,60 +19,95 @@
 
 #import <Libmacgpg/GPGGlobals.h>
 #import <Libmacgpg/GPGUserID.h>
-#import <Libmacgpg/GPGSubkey.h>
-#import <Libmacgpg/GPGKeySignature.h>
-#import <Libmacgpg/GPGPhotoID.h>
-#import <Libmacgpg/GPGKey_Template.h>
 
 
-
-
-@interface GPGKey : GPGKey_Template <KeyFingerprint> {
-	NSArray *children;
-	NSArray *subkeys;
-	NSArray *userIDs;
-	NSArray *photos;
+@interface GPGKey : NSObject <KeyFingerprint, GPGUserIDProtocol> {
+	NSString *_keyID;
+	NSString *_fingerprint;
+	NSDate *_creationDate;
+	NSDate *_expirationDate;
+	unsigned int _length;
+	GPGValidity _ownerTrust;
+	GPGValidity _validity;
+	GPGPublicKeyAlgorithm _algorithm;
+	BOOL _secret;
 	
-	NSString *textForFilter; //In diesem String stehen die verschiedenen Informationen über den Schlüssel, damit das Filtern schnell funktioniert.
-	NSString *allFingerprints;
+	BOOL _canSign;
+	BOOL _canEncrypt;
+	BOOL _canCertify;
+	BOOL _canAuthenticate;
 	
-	GPGUserID *primaryUserID;
-	NSString *fingerprint;
-	GPGValidity ownerTrust;
-	BOOL secret;
+	// All the any* properties are based on the properties
+	// of subkeys and key together.
+	BOOL _canAnySign;
+	BOOL _canAnyEncrypt;
+	BOOL _canAnyCertify;
+	BOOL _canAnyAuthenticate;
 	
-	dispatch_once_t filterTextOnceToken;
+	
+	NSArray *_subkeys;
+	NSArray *_userIDs;
+	
+	// Contains all information of the key concatenated for quicker search.
+	NSString *_textForFilter;
+	dispatch_semaphore_t _textForFilterOnce;
+	// Contains all fingerprints of subkeys.
+	NSSet *_fingerprints;
+	dispatch_semaphore_t _fingerprintsOnce;
+	
+	// If this is a subkey, points to its primaryKey, otherwise
+	// to self.
+	GPGKey *_primaryKey;
+	GPGUserID *_primaryUserID;
 }
 
-@property (nonatomic, readonly, retain) NSArray *userIDs;
-@property (nonatomic, readonly, retain) NSArray *subkeys;
-@property (nonatomic, readonly, retain) NSArray *children;
-@property (nonatomic, readonly, retain) NSArray *photos;
-@property (nonatomic, readonly, retain) NSString *textForFilter; //In diesem String stehen die verschiedenen Informationen über den Schlüssel, damit das Filtern schnell funktioniert.
-@property (nonatomic, readonly, retain) NSString *allFingerprints;
-@property (nonatomic, readonly, retain) NSString *fingerprint;
+- (instancetype)initWithFingerprint:(NSString *)fingerprint;
+- (void)setSubkeys:(NSArray *)subkeys;
+- (void)setUserIDs:(NSArray *)userIDs;
+
+@property (nonatomic, readonly) NSString *keyID;
+@property (nonatomic, readonly) NSString *shortKeyID DEPRECATED_ATTRIBUTE;
+@property (nonatomic, readonly) NSString *fingerprint;
+@property (nonatomic, readonly) NSDate *creationDate;
+@property (nonatomic, readonly) NSDate *expirationDate;
+@property (nonatomic, readonly) unsigned int length;
+@property (nonatomic, readonly) GPGPublicKeyAlgorithm algorithm;
+@property (nonatomic, readonly) NSInteger status DEPRECATED_ATTRIBUTE;
 @property (nonatomic, readonly) GPGValidity ownerTrust;
-@property (nonatomic, readonly) BOOL secret;
-//@property (nonatomic, readonly) BOOL safe; //Gibt an ob der Schlüssel sicher ist. (Länge > 1024 Bit, kein MD5 oder SHA-1)
-@property (nonatomic, readonly) GPGUserID *primaryUserID;
+@property (nonatomic, readonly) GPGValidity validity;
+
+@property (nonatomic, readonly) NSArray *subkeys;
+@property (nonatomic, readonly) NSArray *userIDs;
+
 @property (nonatomic, readonly) GPGKey *primaryKey;
-@property (nonatomic, readonly) NSString *type;
-@property (nonatomic, readonly) NSInteger index;
-@property (nonatomic, readonly) NSString *userID;
+@property (nonatomic, readonly) GPGUserID *primaryUserID;
+
+@property (nonatomic, readonly) BOOL secret;
+@property (nonatomic, readonly) BOOL disabled;
+@property (nonatomic, readonly) BOOL invalid;
+@property (nonatomic, readonly) BOOL revoked;
+@property (nonatomic, readonly) BOOL expired;
+
+@property (nonatomic, readonly) BOOL isSubkey;
+
+@property (nonatomic, readonly) BOOL canSign;
+@property (nonatomic, readonly) BOOL canEncrypt;
+@property (nonatomic, readonly) BOOL canCertify;
+@property (nonatomic, readonly) BOOL canAuthenticate;
+@property (nonatomic, readonly) BOOL canAnySign;
+@property (nonatomic, readonly) BOOL canAnyEncrypt;
+@property (nonatomic, readonly) BOOL canAnyCertify;
+@property (nonatomic, readonly) BOOL canAnyAuthenticate;
+
+// Calculated properties.
+@property (nonatomic, readonly) NSString *textForFilter;
+@property (nonatomic, readonly) NSSet *allFingerprints;
+
+// Properties of the primary user ID.
+@property (nonatomic, readonly) NSString *userIDDescription;
 @property (nonatomic, readonly) NSString *name;
 @property (nonatomic, readonly) NSString *email;
 @property (nonatomic, readonly) NSString *comment;
-
-
-
-
-+ (void)setInfosWithUserID:(NSString *)aUserID toObject:(NSObject <GPGUserIDProtocol> *)object;
-
-+ (id)keyWithListing:(NSArray *)listing fingerprint:(NSString *)aFingerprint isSecret:(BOOL)isSec withSigs:(BOOL)withSigs;
-- (id)initWithListing:(NSArray *)listing fingerprint:(NSString *)aFingerprint isSecret:(BOOL)isSec withSigs:(BOOL)withSigs;
-- (void)updateWithListing:(NSArray *)listing isSecret:(BOOL)isSec withSigs:(BOOL)withSigs;
-
-- (void)updatePreferences;
-
+@property (nonatomic, readonly) NSImage *image;
 
 @end

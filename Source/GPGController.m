@@ -22,36 +22,26 @@
 #import "GPGTaskOrder.h"
 #import "GPGRemoteKey.h"
 #import "GPGSignature.h"
-#import "GPGGlobals.h"
 #import "GPGOptions.h"
-#import "GPGException.h"
 #import "GPGPacket.h"
 #import "GPGWatcher.h"
-#import "GPGStream.h"
 #import "GPGMemoryStream.h"
+#import "GPGTypesRW.h"
+#import "GPGKeyManager.h"
+#import "GPGKeyserver.h"
+#import "GPGTaskHelper.h"
+#import "GPGTask.h"
 #if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
 #import "GPGTaskHelperXPC.h"
 #import "NSBundle+Sandbox.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/un.h>
-
-
 #define cancelCheck if (canceled) {@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Operation cancelled") errorCode:GPGErrorCancelled];}
 
 
-
-
-@interface GPGController ()
+@interface GPGController () <GPGTaskDelegate>
 @property (nonatomic, retain) GPGSignature *lastSignature;
 @property (nonatomic, retain) NSString *filename;
-- (void)updateKeysWithDict:(NSDictionary *)aDict;
 - (void)addArgumentsForKeyserver;
 - (void)addArgumentsForSignerKeys;
 - (void)addArgumentsForComments;
@@ -240,11 +230,6 @@ BOOL gpgConfigReaded = NO;
 		}
 	}
 	
-	
-	[GPGWatcher activate];
-	
-	[[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(keysHaveChanged:) name:GPGKeysChangedNotification object:nil];
-	
 	return self;
 }
 
@@ -263,132 +248,7 @@ BOOL gpgConfigReaded = NO;
 }
 
 
-
-#pragma mark Search and update keys
-
-- (NSSet *)allKeys {
-	return [self updateKeys:nil searchFor:nil withSigs:NO secretOnly:NO];
-}
-- (NSSet *)allSecretKeys {
-	return [self updateKeys:nil searchFor:nil withSigs:NO secretOnly:YES];
-}
-- (NSSet *)keysForSearchPattern:(NSString *)searchPattern {
-	return [self updateKeys:nil searchFor:[NSSet setWithObject:searchPattern] withSigs:NO secretOnly:NO];
-}
-- (NSSet *)keysForSearchPatterns:(NSObject <EnumerationList> *)searchPatterns {
-	return [self updateKeys:nil searchFor:searchPatterns withSigs:NO secretOnly:NO];
-}
-- (NSSet *)updateKeys:(NSObject <EnumerationList> *)keyList {
-	return [self updateKeys:keyList searchFor:keyList withSigs:[keyList count] < 5 secretOnly:NO];
-}
-- (NSSet *)updateKeys:(NSObject <EnumerationList> *)keyList withSigs:(BOOL)withSigs {
-	return [self updateKeys:keyList searchFor:keyList withSigs:withSigs secretOnly:NO];
-}
-- (NSSet *)updateKeys:(NSObject <EnumerationList> *)keyList searchFor:(NSObject <EnumerationList> *)serachList withSigs:(BOOL)withSigs {
-	return [self updateKeys:keyList searchFor:serachList withSigs:withSigs secretOnly:NO];
-}
-- (NSSet *)updateKeys:(NSObject <EnumerationList> *)keyList searchFor:(NSObject <EnumerationList> *)serachList withSigs:(BOOL)withSigs secretOnly:(BOOL)secretOnly {
-	NSSet *secKeyFingerprints, *updatedKeys = nil;
-	NSArray *fingerprints, *listings;
-	
-	if (async && !asyncStarted) {
-		asyncStarted = YES;
-		[asyncProxy updateKeys:keyList searchFor:serachList withSigs:withSigs];
-		return nil;
-	}
-	@try {
-		[self operationDidStart];
-		
-		if (!keyList) {
-			keyList = [NSSet set];
-		}
-		if (!serachList) {
-			serachList = [NSSet set];
-		}
-		
-		
-		NSArray *searchStrings = nil;
-		if ([serachList count] > 0) {
-			NSMutableSet *searchSet = [NSMutableSet setWithCapacity:[serachList count]];
-			
-			for (id item in serachList) {
-				cancelCheck;
-				[searchSet addObject:[item description]];
-			}
-			searchStrings = [searchSet allObjects];
-		}
-		
-		
-		gpgTask = [GPGTask gpgTask];
-		gpgTask.batchMode = YES;
-		[self addArgumentsForOptions];
-		[gpgTask addArgument:@"--list-secret-keys"];
-		[gpgTask addArgument:@"--with-fingerprint"];
-		[gpgTask addArguments:searchStrings];
-		
-		[gpgTask start];
-		/*if ([gpgTask start] != 0) {
-			if ([keyList count] == 0) { //TODO: Bessere Lösung um Probleme zu vermeiden, wenn ein nicht (mehr) vorhandener Schlüssel gelistet werden soll.
-				@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"List secret keys failed!") gpgTask:gpgTask];
-			}
-		}*/
-		secKeyFingerprints = [[self class] fingerprintsFromColonListing:gpgTask.outText];
-
-		
-		if (secretOnly) {
-			searchStrings = [secKeyFingerprints allObjects];
-		}
-		
-		gpgTask = [GPGTask gpgTask];
-		[self addArgumentsForOptions];
-		if (withSigs) {
-			[gpgTask addArgument:@"--list-sigs"];
-			[gpgTask addArgument:@"--list-options"];
-			[gpgTask addArgument:@"show-sig-subpackets=29"];
-		} else {
-			[gpgTask addArgument:@"--list-keys"];
-		}
-		[gpgTask addArgument:@"--with-fingerprint"];
-		[gpgTask addArgument:@"--with-fingerprint"];
-		[gpgTask addArguments:searchStrings];
-		
-		if ([gpgTask start] != 0) {
-			if ([keyList count] == 0) { //TODO: Bessere Lösung um Probleme zu vermeiden, wenn ein nicht (mehr) vorhandener Schlüssel gelistet werden soll.
-				@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"List public keys failed!") gpgTask:gpgTask];
-			}
-		}
-
-		
-		[[self class] colonListing:gpgTask.outText toArray:&listings andFingerprints:&fingerprints];
-		
-		
-		NSDictionary *argumentDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
-											listings, @"listings", 
-											fingerprints, @"fingerprints", 
-											secKeyFingerprints, @"secKeyFingerprints", 
-											keyList, @"keysToUpdate",
-											[NSValue valueWithPointer:&updatedKeys], @"updatedKeys",
-											[NSNumber numberWithBool:withSigs], @"withSigs", nil];
-		cancelCheck;
-		
-		[self updateKeysWithDict:argumentDictionary];
-		[updatedKeys autorelease];
-
-	} @catch (NSException *e) {
-		[self handleException:e];
-	} @finally {
-		[self cleanAfterOperation];
-	}
-	
-	[self operationDidFinishWithReturnValue:updatedKeys];	
-	return updatedKeys;
-}
-
-
-
 #pragma mark Encrypt, decrypt, sign and verify
-
-
 
 - (NSData *)processData:(NSData *)data withEncryptSignMode:(GPGEncryptSignMode)mode recipients:(NSObject <EnumerationList> *)recipients hiddenRecipients:(NSObject <EnumerationList> *)hiddenRecipients {
 	if (async && !asyncStarted) {
@@ -557,6 +417,8 @@ BOOL gpgConfigReaded = NO;
 }
 
 - (NSArray *)verifySignatureOf:(GPGStream *)signatureInput originalData:(GPGStream *)originalInput {
+#warning There's a good chance verifySignature will modify the keys if auto-retrieve-keys is set. In that case it might make sense, that we send the notification ourselves with the potential key which might get imported. We do have the fingerprint, and there's no need to rebuild the whole keyring only to update one key.
+	
 	NSArray *retVal;
 	@try {
 		[self operationDidStart];
@@ -858,6 +720,8 @@ BOOL gpgConfigReaded = NO;
 		
 		NSData *revocationData = [self generateRevokeCertificateForKey:key reason:reason description:description];
 		[self importFromData:revocationData fullImport:YES];
+		// Keys have been changed, so trigger a KeyChanged Notification.
+		[self keyChanged:key];
 		
 	} @catch (NSException *e) {
 		[self handleException:e];
@@ -947,6 +811,79 @@ BOOL gpgConfigReaded = NO;
 	[self operationDidFinishWithReturnValue:nil];	
 }
 
+
+
+
+- (NSArray *)algorithmPreferencesForKey:(GPGKey *)key {
+	gpgTask = [GPGTask gpgTask];
+	[gpgTask addArgument:@"--edit-key"];
+	[gpgTask addArgument:[key description]];
+	[gpgTask addArgument:@"quit"];
+	
+	if ([gpgTask start] != 0) {
+		@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"algorithmPreferencesForKey: failed!") gpgTask:gpgTask];
+	}
+	
+	NSMutableArray *list = [NSMutableArray array];
+	
+	NSArray *lines = [gpgTask.outText componentsSeparatedByString:@"\n"];
+	
+	for (NSString *line in lines) {
+		if ([line hasPrefix:@"uid:"]) {
+			NSArray *parts = [line componentsSeparatedByString:@":"];
+			NSArray *split = [[parts objectAtIndex:12] componentsSeparatedByString:@","];
+			NSString *userIDDescription = [parts objectAtIndex:9];
+			NSString *prefs = [split objectAtIndex:0];
+			
+			NSRange range, searchRange;
+			NSUInteger stringLength = [prefs length];
+			searchRange.location = 0;
+			searchRange.length = stringLength;
+			
+			NSArray *compressPreferences, *digestPreferences, *cipherPreferences;
+			
+			range = [prefs rangeOfString:@"Z" options:NSLiteralSearch range:searchRange];
+			if (range.length > 0) {
+				range.length = searchRange.length - range.location;
+				searchRange.length = range.location - 1;
+				compressPreferences = [[[prefs substringWithRange:range] componentsSeparatedByString:@" "] retain];
+			} else {
+				searchRange.length = stringLength;
+				compressPreferences = [[NSArray alloc] init];
+			}
+			
+			range = [prefs rangeOfString:@"H" options:NSLiteralSearch range:searchRange];
+			if (range.length > 0) {
+				range.length = searchRange.length - range.location;
+				searchRange.length = range.location - 1;
+				digestPreferences = [[[prefs substringWithRange:range] componentsSeparatedByString:@" "] retain];
+			} else {
+				searchRange.length = stringLength;
+				digestPreferences = [[NSArray alloc] init];
+			}
+			
+			range = [prefs rangeOfString:@"S" options:NSLiteralSearch range:searchRange];
+			if (range.length > 0) {
+				range.length = searchRange.length - range.location;
+				searchRange.length = range.location - 1;
+				cipherPreferences = [[[prefs substringWithRange:range] componentsSeparatedByString:@" "] retain];
+			} else {
+				searchRange.length = stringLength;
+				cipherPreferences = [[NSArray alloc] init];
+			}
+			
+			//TODO: Support for [mdc] [no-ks-modify]!
+			
+			[list addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"userIDDescription", userIDDescription, @"compressPreferences", compressPreferences, @"digestPreferences", digestPreferences, @"cipherPreferences", cipherPreferences, nil]];
+		}
+	}
+
+	return list;
+}
+
+
+
+
 - (void)setAlgorithmPreferences:(NSString *)preferences forUserID:(NSString *)hashID ofKey:(NSObject <KeyFingerprint> *)key {
 	if (async && !asyncStarted) {
 		asyncStarted = YES;
@@ -1019,7 +956,7 @@ BOOL gpgConfigReaded = NO;
 	[self operationDidFinishWithReturnValue:nil];	
 }
 
-- (void)key:(NSObject <KeyFingerprint> *)key setOwnerTrsut:(GPGValidity)trust {
+- (void)key:(NSObject <KeyFingerprint> *)key setOwnerTrust:(GPGValidity)trust {
 	if (async && !asyncStarted) {
 		asyncStarted = YES;
 		[asyncProxy key:key setOwnerTrsut:trust];
@@ -1037,7 +974,7 @@ BOOL gpgConfigReaded = NO;
 		
 		gpgTask = [GPGTask gpgTask];
 		[self addArgumentsForOptions];
-		gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"]; 
+		gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"];
 		[gpgTask addArgument:@"--edit-key"];
 		[gpgTask addArgument:[key description]];
 		
@@ -1052,7 +989,11 @@ BOOL gpgConfigReaded = NO;
 		[self cleanAfterOperation];
 	}
 	
-	[self operationDidFinishWithReturnValue:nil];	
+	[self operationDidFinishWithReturnValue:nil];
+}
+
+- (void)key:(NSObject <KeyFingerprint> *)key setOwnerTrsut:(GPGValidity)trust {
+	[self key:key setOwnerTrust:trust];
 }
 
 
@@ -1269,7 +1210,7 @@ BOOL gpgConfigReaded = NO;
 	[self operationDidFinishWithReturnValue:nil];	
 }
 
-- (void)removeSignature:(GPGKeySignature *)signature fromUserID:(GPGUserID *)userID ofKey:(NSObject <KeyFingerprint> *)key { //Diese Funktion ist äusserst ineffizient, mir ist allerdings kein besserer Weg bekannt.
+- (void)removeSignature:(GPGUserIDSignature *)signature fromUserID:(GPGUserID *)userID ofKey:(NSObject <KeyFingerprint> *)key { //Diese Funktion ist äusserst ineffizient, mir ist allerdings kein besserer Weg bekannt.
 	if (async && !asyncStarted) {
 		asyncStarted = YES;
 		[asyncProxy removeSignature:signature fromUserID:userID ofKey:key];
@@ -1287,7 +1228,7 @@ BOOL gpgConfigReaded = NO;
 			[order addCmd:@"delsig\n" prompt:@"keyedit.prompt"];
 			
 			NSArray *userIDsignatures = userID.signatures;
-			for (GPGKeySignature *aSignature in userIDsignatures) {
+			for (GPGUserIDSignature *aSignature in userIDsignatures) {
 				if (aSignature == signature) {
 					[order addCmd:@"y\n" prompt:@[@"keyedit.delsig.valid", @"keyedit.delsig.invalid", @"keyedit.delsig.unknown"]];
 					if ([[signature keyID] isEqualToString:[key.description keyID]]) {
@@ -1324,7 +1265,7 @@ BOOL gpgConfigReaded = NO;
 	[self operationDidFinishWithReturnValue:nil];	
 }
 
-- (void)revokeSignature:(GPGKeySignature *)signature fromUserID:(GPGUserID *)userID ofKey:(NSObject <KeyFingerprint> *)key reason:(int)reason description:(NSString *)description { //Diese Funktion ist äusserst ineffizient, mir ist allerdings kein besserer Weg bekannt.
+- (void)revokeSignature:(GPGUserIDSignature *)signature fromUserID:(GPGUserID *)userID ofKey:(NSObject <KeyFingerprint> *)key reason:(int)reason description:(NSString *)description { //Diese Funktion ist äusserst ineffizient, mir ist allerdings kein besserer Weg bekannt.
 	if (async && !asyncStarted) {
 		asyncStarted = YES;
 		[asyncProxy revokeSignature:signature fromUserID:userID ofKey:key reason:reason description:description];
@@ -1342,7 +1283,7 @@ BOOL gpgConfigReaded = NO;
 			[order addCmd:@"revsig\n" prompt:@"keyedit.prompt"];
 			
 			NSArray *userIDsignatures = userID.signatures;
-			for (GPGKeySignature *aSignature in userIDsignatures) {
+			for (GPGUserIDSignature *aSignature in userIDsignatures) {
 				if (aSignature == signature) {
 					[order addCmd:@"y\n" prompt:@"ask_revoke_sig.one"];
 				} else {
@@ -2151,6 +2092,107 @@ BOOL gpgConfigReaded = NO;
 
 
 
+- (void)parseStatusForSignatures:(NSInteger)status prompt:(NSString *)prompt  {
+	BOOL parseFingerprint = NO;
+
+	if (status == GPG_STATUS_NEWSIG) {
+		return;
+	} else if (status >= GPG_STATUS_GOODSIG && status <= GPG_STATUS_ERRSIG) { // New signature
+		/*
+		 status is one of: GPG_STATUS_GOODSIG, GPG_STATUS_EXPSIG, GPG_STATUS_EXPKEYSIG, GPG_STATUS_REVKEYSIG, GPG_STATUS_BADSIG, GPG_STATUS_ERRSIG
+		*/
+		self.lastSignature = [[[GPGSignature alloc] init] autorelease];
+		[signatures addObject:self.lastSignature];
+		parseFingerprint = YES;
+	}
+	
+	
+	NSArray *components = [prompt componentsSeparatedByString:@" "];
+	
+	switch (status) {
+		case GPG_STATUS_GOODSIG:
+			self.lastSignature.status = GPGErrorNoError;
+			break;
+		case GPG_STATUS_EXPSIG:
+			self.lastSignature.status = GPGErrorSignatureExpired;
+			break;
+		case GPG_STATUS_EXPKEYSIG:
+			self.lastSignature.status = GPGErrorKeyExpired;
+			break;
+		case GPG_STATUS_BADSIG:
+			self.lastSignature.status = GPGErrorBadSignature;
+			break;
+		case GPG_STATUS_REVKEYSIG:
+			self.lastSignature.status = GPGErrorCertificateRevoked;
+			break;
+		case GPG_STATUS_ERRSIG:
+			self.lastSignature.publicKeyAlgorithm = [[components objectAtIndex:1] intValue];
+			self.lastSignature.hashAlgorithm = [[components objectAtIndex:2] intValue];
+			self.lastSignature.signatureClass = hexToByte([[components objectAtIndex:3] UTF8String]);
+			self.lastSignature.creationDate = [NSDate dateWithGPGString:[components objectAtIndex:4]];
+			switch ([[components objectAtIndex:5] intValue]) {
+				case 4:
+					self.lastSignature.status = GPGErrorUnknownAlgorithm;
+					break;
+				case 9:
+					self.lastSignature.status = GPGErrorNoPublicKey;
+					break;
+				default:
+					self.lastSignature.status = GPGErrorGeneralError;
+					break;
+			}
+			break;
+			
+		case GPG_STATUS_VALIDSIG:
+			parseFingerprint = YES;
+			self.lastSignature.creationDate = [NSDate dateWithGPGString:[components objectAtIndex:2]];
+			self.lastSignature.expirationDate = [NSDate dateWithGPGString:[components objectAtIndex:3]];
+			self.lastSignature.version = [[components objectAtIndex:4] intValue];
+			self.lastSignature.publicKeyAlgorithm = [[components objectAtIndex:6] intValue];
+			self.lastSignature.hashAlgorithm = [[components objectAtIndex:7] intValue];
+			self.lastSignature.signatureClass = hexToByte([[components objectAtIndex:8] UTF8String]);
+			break;
+		case GPG_STATUS_TRUST_UNDEFINED:
+			self.lastSignature.trust = GPGValidityUndefined;
+			break;
+		case GPG_STATUS_TRUST_NEVER:
+			self.lastSignature.trust = GPGValidityNever;
+			break;
+		case GPG_STATUS_TRUST_MARGINAL:
+			self.lastSignature.trust = GPGValidityMarginal;
+			break;
+		case GPG_STATUS_TRUST_FULLY:
+			self.lastSignature.trust = GPGValidityFull;
+			break;
+		case GPG_STATUS_TRUST_ULTIMATE:
+			self.lastSignature.trust = GPGValidityUltimate;
+			break;
+	}
+	
+	
+	if (parseFingerprint) {
+		NSSet *allKeys = [GPGKeyManager sharedInstance].allKeysAndSubkeys;
+		
+		NSString *fingerprint = [components objectAtIndex:0];
+		GPGKey *key = [allKeys member:fingerprint];
+		
+		// If no key is available, but a fingerprint is available it means that our
+		// list of keys is outdated. In that case, the specific key is reloaded.
+		if(!key && [fingerprint length] >= 32) {
+			[[GPGKeyManager sharedInstance] loadKeys:[NSSet setWithObject:fingerprint] fetchSignatures:NO fetchUserAttributes:NO];
+			key = [[GPGKeyManager sharedInstance].allKeysAndSubkeys member:fingerprint];
+		}
+		
+		if (key) {
+			self.lastSignature.key = key;
+			self.lastSignature.fingerprint = key.fingerprint;
+		} else {
+			self.lastSignature.fingerprint = fingerprint;
+		}
+	}
+}
+
+
 #pragma mark Delegate method
 
 - (id)gpgTask:(GPGTask *)task statusCode:(NSInteger)status prompt:(NSString *)prompt {
@@ -2169,16 +2211,13 @@ BOOL gpgConfigReaded = NO;
 				return @"\n";
 			}
 			break; }
+			
 		case GPG_STATUS_GOODSIG:
 		case GPG_STATUS_EXPSIG:
 		case GPG_STATUS_EXPKEYSIG:
 		case GPG_STATUS_BADSIG:
 		case GPG_STATUS_ERRSIG:
 		case GPG_STATUS_REVKEYSIG:
-			if (lastSignature && lastSignature.hasFilled) {
-				self.lastSignature = nil;
-			}
-			//no break!
 		case GPG_STATUS_NEWSIG:
 		case GPG_STATUS_VALIDSIG:
 		case GPG_STATUS_TRUST_UNDEFINED:
@@ -2186,13 +2225,9 @@ BOOL gpgConfigReaded = NO;
 		case GPG_STATUS_TRUST_MARGINAL:
 		case GPG_STATUS_TRUST_FULLY:
 		case GPG_STATUS_TRUST_ULTIMATE:
-			if (!lastSignature) {
-				self.lastSignature = [[[GPGSignature alloc] init] autorelease];
-				[signatures addObject:lastSignature];
-			}
-			
-			[lastSignature addInfoFromStatusCode:status andPrompt:prompt];
+			[self parseStatusForSignatures:status prompt:prompt];
 			break;
+			
         // Store the hash algorithm.
         case GPG_STATUS_SIG_CREATED: {
             // Split the line by space, index 2 has the hash algorithm.
@@ -2446,39 +2481,6 @@ BOOL gpgConfigReaded = NO;
 
 
 
-- (void)updateKeysWithDict:(NSDictionary *)aDict {
-	NSArray *listings = [aDict objectForKey:@"listings"];	
-	NSArray *fingerprints = [aDict objectForKey:@"fingerprints"];
-	NSSet *secKeyFingerprints = [aDict objectForKey:@"secKeyFingerprints"];
-	id keysToUpdate = [aDict objectForKey:@"keysToUpdate"];
-	// keysToUpdate has to be an NSSet since it
-	if(![keysToUpdate respondsToSelector:@selector(member:)] && [keysToUpdate isKindOfClass:[NSArray class]])
-		keysToUpdate = [NSSet setWithArray:keysToUpdate];
-	
-	NSSet **updatedKeys = [[aDict objectForKey:@"updatedKeys"] pointerValue];
-	BOOL withSigs = [[aDict objectForKey:@"withSigs"] boolValue];
-	
-	
-	NSMutableSet *updatedKeysSet = [NSMutableSet setWithCapacity:[fingerprints count]];
-	
-	NSUInteger i, count = [fingerprints count];
-	for (i = 0; i < count; i++) {
-		NSString *fingerprint = [fingerprints objectAtIndex:i];
-		NSArray *listing = [listings objectAtIndex:i];
-		
-		
-		GPGKey *key = [keysToUpdate member:fingerprint];
-		BOOL secret = [secKeyFingerprints containsObject:fingerprint];
-		if (key && [key isKindOfClass:[GPGKey class]]) {
-			[key updateWithListing:listing isSecret:secret withSigs:withSigs];
-		} else {
-			key = [GPGKey keyWithListing:listing fingerprint:fingerprint isSecret:secret withSigs:withSigs];
-		}
-		[updatedKeysSet addObject:key];
-	}
-	
-	*updatedKeys = [updatedKeysSet copy]; // copy without autorelease!
-}
 
 - (void)dealloc {
 	[[NSDistributedNotificationCenter defaultCenter] removeObserver:self];

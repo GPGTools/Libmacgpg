@@ -17,11 +17,10 @@
  Programm erhalten haben. Falls nicht, siehe <http://www.gnu.org/licenses/>.
 */
 
-#import <Cocoa/Cocoa.h>
-#import "GPGGlobals.h"
+#import <Libmacgpg/GPGUserID.h>
 
 @interface GPGRemoteUserID : NSObject <GPGUserIDProtocol> {
-	NSString *userID;
+	NSString *userIDDescription;
 	NSString *name;
 	NSString *email;
 	NSString *comment;
@@ -29,12 +28,13 @@
 	NSDate *expirationDate;
 }
 
-@property (nonatomic, retain) NSString *userID;
+@property (nonatomic, retain) NSString *userIDDescription;
 @property (nonatomic, retain) NSString *name;
 @property (nonatomic, retain) NSString *email;
 @property (nonatomic, retain) NSString *comment;
 @property (nonatomic, readonly, retain) NSDate *creationDate;
 @property (nonatomic, readonly, retain) NSDate *expirationDate;
+@property (nonatomic, readonly) NSImage *image;
 
 
 + (id)userIDWithListing:(NSString *)listing;

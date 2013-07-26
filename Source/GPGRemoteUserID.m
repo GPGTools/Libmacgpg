@@ -18,8 +18,7 @@
 */
 
 #import "GPGRemoteUserID.h"
-#import "GPGKey.h"
-#import "GPGGlobals.h"
+
 
 @interface GPGRemoteUserID ()
 
@@ -30,7 +29,7 @@
 
 
 @implementation GPGRemoteUserID
-@synthesize userID, name, email, comment, creationDate, expirationDate;
+@synthesize userIDDescription, name, email, comment, creationDate, expirationDate;
 
 
 + (id)userIDWithListing:(NSString *)listing {
@@ -47,7 +46,7 @@
 		}
 		
 		
-		self.userID = [[splitedLine objectAtIndex:1] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+		self.userIDDescription = [[splitedLine objectAtIndex:1] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
 		
 		self.creationDate = [NSDate dateWithGPGString:[splitedLine objectAtIndex:2]];
 		self.expirationDate = [NSDate dateWithGPGString:[splitedLine objectAtIndex:3]];
@@ -55,18 +54,42 @@
 	return self;	
 }
 
-- (void)setUserID:(NSString *)value {
-	if (value != userID) {
-		[userID release];
-		userID = [value retain];
+- (void)setUserIDDescription:(NSString *)value {
+	if (value != userIDDescription) {
+		[userIDDescription release];
+		userIDDescription = [value retain];
 		
-		[GPGKey setInfosWithUserID:userID toObject:self];
+		
+		NSString *workText = value;
+		NSUInteger textLength = [workText length];
+		NSRange range;
+		if ([workText hasSuffix:@">"] && (range = [workText rangeOfString:@" <" options:NSBackwardsSearch]).length > 0) {
+			range.location += 2;
+			range.length = textLength - range.location - 1;
+			self.email = [workText substringWithRange:range];
+			
+			workText = [workText substringToIndex:range.location - 2];
+			textLength -= (range.length + 3);
+		}
+		range = [workText rangeOfString:@" (" options:NSBackwardsSearch];
+		if (range.length > 0 && range.location > 0 && [workText hasSuffix:@")"]) {
+			range.location += 2;
+			range.length = textLength - range.location - 1;
+			self.comment = [workText substringWithRange:range];
+			
+			workText = [workText substringToIndex:range.location - 2];
+		}
+		self.name = workText;
+
 	}
 }
 
+-(NSImage *)image {
+	return nil;
+}
 
 - (void)dealloc {
-	self.userID = nil;
+	self.userIDDescription = nil;
 	self.name = nil;
 	self.email = nil;
 	self.comment = nil;

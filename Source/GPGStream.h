@@ -6,7 +6,7 @@
 //  Copyright (c) 2012 Chris Fraire. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+
 
 // Abstract class for writing buffered data to a managed location
 @interface GPGStream : NSObject

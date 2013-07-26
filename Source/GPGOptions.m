@@ -29,6 +29,7 @@
 #import <SystemConfiguration/SystemConfiguration.h>
 #import "GPGGlobals.h"
 #import "GPGUserDefaults.h"
+#import "GPGWatcher.h"
 
 NSString * const GPGOptionsChangedNotification = @"GPGOptionsChangedNotification";
 NSString * const GPGConfigurationModifiedNotification = @"GPGConfigurationModifiedNotification";
@@ -745,6 +746,9 @@ void SystemConfigurationDidChange(SCPreferencesRef prefs, SCPreferencesNotificat
 				  commonKeys, [NSNumber numberWithInt:GPGDomain_common],
 				  specialKeys, [NSNumber numberWithInt:GPGDomain_special],				  
 				  nil];
+	
+	[GPGWatcher activate];
+
 }
 
 + (id)sharedOptions {

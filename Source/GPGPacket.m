@@ -20,6 +20,7 @@
 #import "GPGPacket.h"
 #import "GPGMemoryStream.h"
 #import "GPGGlobals.h"
+#import "GPGException.h"
 #include <string.h>
 #include <openssl/bio.h>
 #include <openssl/evp.h>

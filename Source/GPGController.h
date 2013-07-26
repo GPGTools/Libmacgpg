@@ -17,15 +17,16 @@
  Programm erhalten haben. Falls nicht, siehe <http://www.gnu.org/licenses/>.
 */
 
-#import <Cocoa/Cocoa.h>
 #import <Libmacgpg/GPGGlobals.h>
-#import <Libmacgpg/GPGKey.h>
-#import <Libmacgpg/GPGTask.h>
-#import <Libmacgpg/GPGKeyserver.h>
+#import <Libmacgpg/GPGUserID.h>
+#import <Libmacgpg/GPGException.h>
+
 
 @class GPGSignature;
+@class GPGUserIDSignature;
 @class GPGController;
 @class GPGStream;
+
 
 @protocol GPGControllerDelegate
 @optional
@@ -36,12 +37,11 @@
 - (void)gpgControllerOperationDidStart:(GPGController *)gpgc;
 - (void)gpgController:(GPGController *)gpgc progressed:(NSInteger)progressed total:(NSInteger)total;
 
-
 @end
 
 
 
-@interface GPGController : NSObject <GPGTaskDelegate> {
+@interface GPGController : NSObject {
 	NSMutableArray *signerKeys;
 	NSMutableArray *comments;
 	NSMutableArray *signatures;
@@ -142,15 +142,6 @@
 - (NSInteger)indexOfSubkey:(NSObject <KeyFingerprint> *)subkey fromKey:(NSObject <KeyFingerprint> *)key;
 
 
-- (NSSet *)allKeys;
-- (NSSet *)allSecretKeys;
-- (NSSet *)keysForSearchPattern:(NSString *)searchPattern;
-- (NSSet *)keysForSearchPatterns:(NSObject <EnumerationList> *)searchPatterns;
-- (NSSet *)updateKeys:(NSObject <EnumerationList> *)keyList;
-- (NSSet *)updateKeys:(NSObject <EnumerationList> *)keyList withSigs:(BOOL)withSigs;
-- (NSSet *)updateKeys:(NSObject <EnumerationList> *)keyList searchFor:(NSObject <EnumerationList> *)serachList withSigs:(BOOL)withSigs;
-- (NSSet *)updateKeys:(NSObject <EnumerationList> *)keyList searchFor:(NSObject <EnumerationList> *)serachList withSigs:(BOOL)withSigs secretOnly:(BOOL)secretOnly;
-
 - (void)cancel;
 
 - (void)cleanKey:(NSObject <KeyFingerprint> *)key;
@@ -172,7 +163,7 @@
 - (NSArray *)searchKeysOnServer:(NSString *)pattern;
 - (void)sendKeysToServer:(NSObject <EnumerationList> *)keys;
 - (NSString *)refreshKeysFromServer:(NSObject <EnumerationList> *)keys DEPRECATED_ATTRIBUTE;
-- (void)removeSignature:(GPGKeySignature *)signature fromUserID:(GPGUserID *)userID ofKey:(NSObject <KeyFingerprint> *)key;
+- (void)removeSignature:(GPGUserIDSignature *)signature fromUserID:(GPGUserID *)userID ofKey:(NSObject <KeyFingerprint> *)key;
 - (void)removeSubkey:(NSObject <KeyFingerprint> *)subkey fromKey:(NSObject <KeyFingerprint> *)key;
 - (void)revokeSubkey:(NSObject <KeyFingerprint> *)subkey fromKey:(NSObject <KeyFingerprint> *)key reason:(int)reason description:(NSString *)description;
 - (void)setPrimaryUserID:(NSString *)hashID ofKey:(NSObject <KeyFingerprint> *)key;
@@ -181,9 +172,10 @@
 				  daysToExpire:(int)daysToExpire preferences:(NSString *)preferences passphrase:(NSString *)passphrase;
 - (void)deleteKeys:(NSObject <EnumerationList> *)keys withMode:(GPGDeleteKeyMode)mode;
 - (void)setAlgorithmPreferences:(NSString *)preferences forUserID:(NSString *)hashID ofKey:(NSObject <KeyFingerprint> *)key;
-- (void)revokeSignature:(GPGKeySignature *)signature fromUserID:(GPGUserID *)userID ofKey:(NSObject <KeyFingerprint> *)key reason:(int)reason description:(NSString *)description;
+- (void)revokeSignature:(GPGUserIDSignature *)signature fromUserID:(GPGUserID *)userID ofKey:(NSObject <KeyFingerprint> *)key reason:(int)reason description:(NSString *)description;
 - (void)key:(NSObject <KeyFingerprint> *)key setDisabled:(BOOL)disabled;
-- (void)key:(NSObject <KeyFingerprint> *)key setOwnerTrsut:(GPGValidity)trust;
+- (void)key:(NSObject <KeyFingerprint> *)key setOwnerTrsut:(GPGValidity)trust DEPRECATED_ATTRIBUTE;
+- (void)key:(NSObject <KeyFingerprint> *)key setOwnerTrust:(GPGValidity)trust;
 
 - (void)processTo:(GPGStream *)output data:(GPGStream *)input withEncryptSignMode:(GPGEncryptSignMode)encryptSignMode 
 			 recipients:(NSObject <EnumerationList> *)recipients hiddenRecipients:(NSObject <EnumerationList> *)hiddenRecipients;

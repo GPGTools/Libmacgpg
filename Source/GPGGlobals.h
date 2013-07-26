@@ -17,26 +17,22 @@
  Programm erhalten haben. Falls nicht, siehe <http://www.gnu.org/licenses/>.
 */
 
-#import <Cocoa/Cocoa.h>
-#import <Libmacgpg/GPGException.h>
-#import "GPGOptions.h"
+#import <Libmacgpg/GPGOptions.h>
 
 
 @class GPGTask, GPGKey;
 
-typedef enum { 
-    GPGKeyStatus_Invalid = 8,
-    GPGKeyStatus_Revoked = 16,
-    GPGKeyStatus_Expired = 32,
-    GPGKeyStatus_Disabled = 64
-} GPGKeyStatus;
 typedef enum {
     GPGValidityUnknown   = 0,
     GPGValidityUndefined = 1,
     GPGValidityNever     = 2,
     GPGValidityMarginal  = 3,
     GPGValidityFull      = 4,
-    GPGValidityUltimate  = 5
+    GPGValidityUltimate  = 5,
+    GPGValidityInvalid = 8,
+    GPGValidityRevoked = 16,
+    GPGValidityExpired = 32,
+    GPGValidityDisabled = 64
 } GPGValidity;
 typedef enum {
     GPG_RSAAlgorithm                =  1,
@@ -128,7 +124,6 @@ enum gpgStatusCodes {
 	GPG_STATUS_ATTRIBUTE,
 	GPG_STATUS_BACKUP_KEY_CREATED,
 	GPG_STATUS_BADARMOR,
-	GPG_STATUS_BADSIG,
 	GPG_STATUS_BAD_PASSPHRASE,
 	GPG_STATUS_BEGIN_DECRYPTION,
 	GPG_STATUS_BEGIN_ENCRYPTION,
@@ -143,14 +138,10 @@ enum gpgStatusCodes {
 	GPG_STATUS_END_ENCRYPTION,
 	GPG_STATUS_END_STREAM,
 	GPG_STATUS_ERROR,
-	GPG_STATUS_ERRSIG,
-	GPG_STATUS_EXPKEYSIG,
-	GPG_STATUS_EXPSIG,
 	GPG_STATUS_FILE_DONE,
 	GPG_STATUS_GET_BOOL,
 	GPG_STATUS_GET_HIDDEN,
 	GPG_STATUS_GET_LINE,
-	GPG_STATUS_GOODSIG,
 	GPG_STATUS_GOOD_PASSPHRASE,
 	GPG_STATUS_GOT_IT,
 	GPG_STATUS_IMPORTED,
@@ -168,7 +159,6 @@ enum gpgStatusCodes {
 	GPG_STATUS_NEED_PASSPHRASE,
 	GPG_STATUS_NEED_PASSPHRASE_PIN,
 	GPG_STATUS_NEED_PASSPHRASE_SYM,
-	GPG_STATUS_NEWSIG,
 	GPG_STATUS_NODATA,
 	GPG_STATUS_NOTATION_DATA,
 	GPG_STATUS_NOTATION_NAME,
@@ -182,7 +172,6 @@ enum gpgStatusCodes {
 	GPG_STATUS_PLAINTEXT_LENGTH,
 	GPG_STATUS_POLICY_URL,
 	GPG_STATUS_PROGRESS,
-	GPG_STATUS_REVKEYSIG,
 	GPG_STATUS_RSA_OR_IDEA,
 	GPG_STATUS_SC_OP_FAILURE,
 	GPG_STATUS_SC_OP_SUCCESS,
@@ -196,17 +185,29 @@ enum gpgStatusCodes {
 	GPG_STATUS_SIG_ID,
 	GPG_STATUS_SIG_SUBPACKET,
 	GPG_STATUS_TRUNCATED,
-	GPG_STATUS_TRUST_FULLY,
-	GPG_STATUS_TRUST_MARGINAL,
-	GPG_STATUS_TRUST_NEVER,
-	GPG_STATUS_TRUST_ULTIMATE,
-	GPG_STATUS_TRUST_UNDEFINED,
 	GPG_STATUS_UNEXPECTED,
 	GPG_STATUS_USERID_HINT,
-	GPG_STATUS_VALIDSIG,
 	GPG_STATUS_GOODMDC,
 	GPG_STATUS_BADMDC,
 	GPG_STATUS_ERRMDC,
+	
+	
+	//DO NOT CHANGE THE ORDER OF THE FOLLOWING LINES!
+	GPG_STATUS_NEWSIG,
+	GPG_STATUS_GOODSIG,
+	GPG_STATUS_EXPSIG,
+	GPG_STATUS_EXPKEYSIG,
+	GPG_STATUS_REVKEYSIG,
+	GPG_STATUS_BADSIG,
+	GPG_STATUS_ERRSIG,
+	GPG_STATUS_VALIDSIG,
+	GPG_STATUS_TRUST_UNDEFINED,
+	GPG_STATUS_TRUST_NEVER,
+	GPG_STATUS_TRUST_MARGINAL,
+	GPG_STATUS_TRUST_FULLY,
+	GPG_STATUS_TRUST_ULTIMATE,
+	
+	
 	
 	GPG_STATUS_COUNT //Count of Status Codes.
 };
@@ -250,14 +251,6 @@ NSString* bytesToHexString(const uint8_t *bytes, NSUInteger length);
 NSSet *fingerprintsFromStatusText(NSString *statusText);
 void *lm_memmem(const void *big, size_t big_len, const void *little, size_t little_len);
 
-
-
-@protocol GPGUserIDProtocol
-@property (nonatomic, retain) NSString *userID;
-@property (nonatomic, retain) NSString *name;
-@property (nonatomic, retain) NSString *email;
-@property (nonatomic, retain) NSString *comment;
-@end
 
 
 @protocol EnumerationList <NSFastEnumeration>

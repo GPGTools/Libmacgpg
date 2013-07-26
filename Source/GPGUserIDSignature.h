@@ -18,50 +18,42 @@
 */
 
 #import <Libmacgpg/GPGGlobals.h>
+#import <Libmacgpg/GPGUserID.h>
 
 @class GPGKey;
 
 
-@protocol GPGUserIDProtocol <NSObject>
-@property (nonatomic, readonly) NSString *userIDDescription;
-@property (nonatomic, readonly) NSString *name;
-@property (nonatomic, readonly) NSString *email;
-@property (nonatomic, readonly) NSString *comment;
-@property (nonatomic, readonly) NSImage *image;
-@end
-
-
-@interface GPGUserID : NSObject <GPGUserIDProtocol> {
-	NSString *_userIDDescription;
-	NSString *_name;
-	NSString *_email;
-	NSString *_comment;
-	NSString *_hashID;
-	NSImage *_image;
+@interface GPGUserIDSignature : NSObject <GPGUserIDProtocol> {
+	NSString *_keyID;
+	GPGPublicKeyAlgorithm _algorithm;
 	NSDate *_creationDate;
 	NSDate *_expirationDate;
-	GPGValidity _validity;
-	
+	NSString *_reason;
+	int _signatureClass;
+	BOOL _revocation;
+	BOOL _local;
+
 	GPGKey *_primaryKey;
-	NSArray *_signatures;
-	
 }
 
 - (instancetype)init;
-- (instancetype)initWithUserIDDescription:(NSString *)userIDDescription;
+- (instancetype)initWithKeyID:(NSString *)keyID;
+
+@property (nonatomic, readonly) NSString *keyID;
+@property (nonatomic, readonly) GPGPublicKeyAlgorithm algorithm;
+@property (nonatomic, readonly) NSDate *creationDate;
+@property (nonatomic, readonly) NSDate *expirationDate;
+@property (nonatomic, readonly) NSString *reason;
+@property (nonatomic, readonly) int signatureClass;
+@property (nonatomic, readonly) BOOL revocation;
+@property (nonatomic, readonly) BOOL local;
+
+@property (nonatomic, readonly) GPGKey *primaryKey;
 
 @property (nonatomic, readonly) NSString *userIDDescription;
 @property (nonatomic, readonly) NSString *name;
 @property (nonatomic, readonly) NSString *email;
 @property (nonatomic, readonly) NSString *comment;
-@property (nonatomic, readonly) NSString *hashID;
 @property (nonatomic, readonly) NSImage *image;
-@property (nonatomic, readonly) NSDate *creationDate;
-@property (nonatomic, readonly) NSDate *expirationDate;
-@property (nonatomic, readonly) GPGValidity validity;
-
-@property (nonatomic, readonly) NSArray *signatures;
-@property (nonatomic, readonly) GPGKey *primaryKey;
 
 @end
-

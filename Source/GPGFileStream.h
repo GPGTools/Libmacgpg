@@ -6,7 +6,7 @@
 //  Copyright (c) 2012 Chris Fraire. All rights reserved.
 //
 
-#import "GPGStream.h"
+#import <Libmacgpg/GPGStream.h>
 
 // you can call the read methods of GPGStream on a writeable 
 // GPGFileStream, at which point it will convert to a readable

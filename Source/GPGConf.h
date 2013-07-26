@@ -1,5 +1,4 @@
-#import "GPGOptions.h"
-
+#import <Libmacgpg/GPGOptions.h>
 
 
 @interface GPGConf : NSObject {

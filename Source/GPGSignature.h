@@ -1,5 +1,5 @@
 /*
- Copyright © Roman Zechmeister, 2013
+ Copyright © Roman Zechmeister und Lukas Pitschl (@lukele), 2013
  
  Diese Datei ist Teil von Libmacgpg.
  
@@ -15,53 +15,54 @@
  
  Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem 
  Programm erhalten haben. Falls nicht, siehe <http://www.gnu.org/licenses/>.
-*/
+ */
 
 #import <Libmacgpg/GPGGlobals.h>
+#import <Libmacgpg/GPGException.h>
+#import <Libmacgpg/GPGUserID.h>
+
+@class GPGKey;
 
 
 @interface GPGSignature : NSObject <GPGUserIDProtocol> {
-	GPGValidity trust;
-	GPGErrorCode status;
+	GPGValidity _trust;
+	GPGErrorCode _status;
 	
-	NSString *fingerprint;
-	NSString *primaryFingerprint;
-	NSString *userID;
-	NSString *name;
-	NSString *email;
-	NSString *comment;
+	NSString *_fingerprint;
+	NSDate *_creationDate;
+	NSDate *_expirationDate;
+	int _signatureClass;
+	int _version;
+	GPGPublicKeyAlgorithm _publicKeyAlgorithm;
+	GPGHashAlgorithm _hashAlgorithm;
 	
-	NSDate *creationDate;
-	NSDate *expirationDate;
-	
-	int version;
-	int publicKeyAlgorithm;
-	int hashAlgorithm;
-	NSString *signatureClass;
-	
-	BOOL hasFilled;
+	GPGKey *_key;
 }
-@property (nonatomic, readonly) GPGErrorCode status;
-@property (nonatomic, readonly) GPGValidity trust;
-@property (nonatomic, readonly) BOOL hasFilled;
-@property (nonatomic, readonly) int version;
-@property (nonatomic, readonly) int publicKeyAlgorithm;
-@property (nonatomic, readonly) int hashAlgorithm;
-@property (nonatomic, retain, readonly) NSString *fingerprint;
-@property (nonatomic, retain, readonly) NSString *primaryFingerprint;
-@property (nonatomic, retain) NSString *userID;
-@property (nonatomic, retain) NSString *name;
-@property (nonatomic, retain) NSString *email;
-@property (nonatomic, retain) NSString *comment;
-@property (nonatomic, retain, readonly) NSDate *creationDate;
-@property (nonatomic, retain, readonly) NSDate *expirationDate;
-@property (nonatomic, retain, readonly) NSString *signatureClass;
 
-
-- (void)addInfoFromStatusCode:(NSInteger)status andPrompt:(NSString *)prompt;
-// localized
+- (instancetype)init;
+- (instancetype)initWithFingerprint:(NSString *)fingerprint status:(GPGErrorCode)status;
 - (NSString *)humanReadableDescription;
 // really for unit-testing
 - (NSString *)humanReadableDescriptionShouldLocalize:(BOOL)shouldLocalize;
+
+@property (nonatomic, readonly) GPGValidity trust;
+@property (nonatomic, readonly) GPGErrorCode status;
+@property (nonatomic, readonly) NSString *fingerprint;
+@property (nonatomic, readonly) NSDate *creationDate;
+@property (nonatomic, readonly) NSDate *expirationDate;
+@property (nonatomic, readonly) int version;
+@property (nonatomic, readonly) GPGPublicKeyAlgorithm publicKeyAlgorithm;
+@property (nonatomic, readonly) GPGHashAlgorithm hashAlgorithm;
+@property (nonatomic, readonly) int signatureClass;
+
+@property (nonatomic, readonly) GPGKey *primaryKey;
+@property (atomic, retain, readwrite) GPGKey *key;
+@property (nonatomic, readonly) NSString *primaryFingerprint;
+
+@property (nonatomic, readonly) NSString *userIDDescription;
+@property (nonatomic, readonly) NSString *name;
+@property (nonatomic, readonly) NSString *email;
+@property (nonatomic, readonly) NSString *comment;
+@property (nonatomic, readonly) NSImage *image;
 
 @end

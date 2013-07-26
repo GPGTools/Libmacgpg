@@ -6,9 +6,6 @@
 //
 //
 
-#import <Foundation/Foundation.h>
-#import <Libmacgpg/GPGException.h>
-
 @class GPGKeyserver;
 
 typedef void (^gpg_ks_finishedHandler)(GPGKeyserver *server);

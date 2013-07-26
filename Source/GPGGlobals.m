@@ -234,7 +234,7 @@ break;
 - (NSSet *)usableGPGKeys {
 	Class gpgKeyClass = [GPGKey class];
 	return [self objectsPassingTest:^BOOL(id obj, BOOL *stop) {
-		if ([obj isKindOfClass:gpgKeyClass] && [(GPGKey *)obj status] < GPGKeyStatus_Invalid) {
+		if ([obj isKindOfClass:gpgKeyClass] && ((GPGKey *)obj).validity < GPGValidityInvalid) {
 			return YES;
 		}
 		return NO;

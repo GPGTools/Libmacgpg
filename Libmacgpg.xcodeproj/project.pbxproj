@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1B16DD21179C83F000BC1366 /* GPGTypesRW.h in Headers */ = {isa = PBXBuildFile; fileRef = 1B16DD20179C83F000BC1366 /* GPGTypesRW.h */; };
 		1B2306AE179718A80061EB1A /* Libmacgpg.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DC2EF5B0486A6940098B216 /* Libmacgpg.framework */; };
 		1B3D657A1565C60100D93BBE /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1B3D64DF1565BC6600D93BBE /* Foundation.framework */; };
 		1B46CFA2161531DC00CF9C5F /* org.gpgtools.Libmacgpg.xpc.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1B46CFA1161531DC00CF9C5F /* org.gpgtools.Libmacgpg.xpc.plist */; };
@@ -15,20 +16,20 @@
 		1B46CFD9161559EB00CF9C5F /* JailfreeTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B53AB1E1615241F00F4ECB2 /* JailfreeTask.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		1B46CFEB1615761C00CF9C5F /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 30BA88F1138FE593005982D9 /* SystemConfiguration.framework */; };
 		1B46CFEC1615765100CF9C5F /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3026F4AE13A203A000F3CA02 /* Security.framework */; };
-		1B72F741157AE89600101194 /* NSPipe+NoSigPipe.h in Headers */ = {isa = PBXBuildFile; fileRef = 1B72F73F157AE89600101194 /* NSPipe+NoSigPipe.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		1B72F741157AE89600101194 /* NSPipe+NoSigPipe.h in Headers */ = {isa = PBXBuildFile; fileRef = 1B72F73F157AE89600101194 /* NSPipe+NoSigPipe.h */; };
 		1B72F742157AE89600101194 /* NSPipe+NoSigPipe.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B72F740157AE89600101194 /* NSPipe+NoSigPipe.m */; };
-		1B84028717296EA4009A40E6 /* GPGUserDefaults.h in Headers */ = {isa = PBXBuildFile; fileRef = 1B84028517296EA4009A40E6 /* GPGUserDefaults.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		1B84028717296EA4009A40E6 /* GPGUserDefaults.h in Headers */ = {isa = PBXBuildFile; fileRef = 1B84028517296EA4009A40E6 /* GPGUserDefaults.h */; };
 		1B84028817296EA4009A40E6 /* GPGUserDefaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B84028617296EA4009A40E6 /* GPGUserDefaults.m */; };
-		1B89B68E1726F8FD004863FC /* PLWeakCompatibilityStubs.h in Headers */ = {isa = PBXBuildFile; fileRef = 1B89B68C1726F8FD004863FC /* PLWeakCompatibilityStubs.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		1B9DB26A15784DB700488353 /* GPGTaskHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 1B9DB26815784DB700488353 /* GPGTaskHelper.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		1B89B68E1726F8FD004863FC /* PLWeakCompatibilityStubs.h in Headers */ = {isa = PBXBuildFile; fileRef = 1B89B68C1726F8FD004863FC /* PLWeakCompatibilityStubs.h */; };
+		1B9DB26A15784DB700488353 /* GPGTaskHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 1B9DB26815784DB700488353 /* GPGTaskHelper.h */; };
 		1B9DB26B15784DB700488353 /* GPGTaskHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B9DB26915784DB700488353 /* GPGTaskHelper.m */; };
-		1B9FF21017257A69004FB017 /* GPGTaskHelperXPC.h in Headers */ = {isa = PBXBuildFile; fileRef = 1B9FF20E17257A69004FB017 /* GPGTaskHelperXPC.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		1B9FF21017257A69004FB017 /* GPGTaskHelperXPC.h in Headers */ = {isa = PBXBuildFile; fileRef = 1B9FF20E17257A69004FB017 /* GPGTaskHelperXPC.h */; };
 		1B9FF21117257A69004FB017 /* GPGTaskHelperXPC.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B9FF20F17257A69004FB017 /* GPGTaskHelperXPC.m */; };
-		1B9FF21517261470004FB017 /* JailfreeProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 1B9FF21417261470004FB017 /* JailfreeProtocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		1BA5FE5B1619BE6700FC6A2C /* JailfreeTask.h in Headers */ = {isa = PBXBuildFile; fileRef = 1BA5FE5A1619BE6700FC6A2C /* JailfreeTask.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		1BC7A50013D300A600AE57BA /* LPXTTask.h in Headers */ = {isa = PBXBuildFile; fileRef = 1BC7A4FE13D300A600AE57BA /* LPXTTask.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		1B9FF21517261470004FB017 /* JailfreeProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 1B9FF21417261470004FB017 /* JailfreeProtocol.h */; };
+		1BA5FE5B1619BE6700FC6A2C /* JailfreeTask.h in Headers */ = {isa = PBXBuildFile; fileRef = 1BA5FE5A1619BE6700FC6A2C /* JailfreeTask.h */; };
+		1BC7A50013D300A600AE57BA /* LPXTTask.h in Headers */ = {isa = PBXBuildFile; fileRef = 1BC7A4FE13D300A600AE57BA /* LPXTTask.h */; };
 		1BC7A50113D300A600AE57BA /* LPXTTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 1BC7A4FF13D300A600AE57BA /* LPXTTask.m */; };
-		1BCE0CD11617A3DF0026DCFF /* NSBundle+Sandbox.h in Headers */ = {isa = PBXBuildFile; fileRef = 1BCE0CCF1617A3DF0026DCFF /* NSBundle+Sandbox.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		1BCE0CD11617A3DF0026DCFF /* NSBundle+Sandbox.h in Headers */ = {isa = PBXBuildFile; fileRef = 1BCE0CCF1617A3DF0026DCFF /* NSBundle+Sandbox.h */; };
 		1BCE0CD21617A3DF0026DCFF /* NSBundle+Sandbox.m in Sources */ = {isa = PBXBuildFile; fileRef = 1BCE0CD01617A3DF0026DCFF /* NSBundle+Sandbox.m */; };
 		1BD78BA01726B2830005F251 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
 		1BD78BA61726B2830005F251 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 1BD78BA41726B2830005F251 /* InfoPlist.strings */; };
@@ -42,16 +43,12 @@
 		3002C04416EE388B00D57C1E /* libcrypto.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3002C04316EE388B00D57C1E /* libcrypto.dylib */; };
 		3002C04616EE389100D57C1E /* libxar.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3002C04516EE389100D57C1E /* libxar.dylib */; };
 		3002C04716EE38C900D57C1E /* libcrypto.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3002C04316EE388B00D57C1E /* libcrypto.dylib */; };
-		301D5D9F178C9871003026E7 /* GPGKeyserver.h in Headers */ = {isa = PBXBuildFile; fileRef = 301D5D9D178C9871003026E7 /* GPGKeyserver.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		301D5D9F178C9871003026E7 /* GPGKeyserver.h in Headers */ = {isa = PBXBuildFile; fileRef = 301D5D9D178C9871003026E7 /* GPGKeyserver.h */; };
 		301D5DA0178C9871003026E7 /* GPGKeyserver.m in Sources */ = {isa = PBXBuildFile; fileRef = 301D5D9E178C9871003026E7 /* GPGKeyserver.m */; };
 		3026F4AF13A203A000F3CA02 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3026F4AE13A203A000F3CA02 /* Security.framework */; };
-		302AA37A133606260022A371 /* GPGKey_Template.h in Headers */ = {isa = PBXBuildFile; fileRef = 302AA378133606260022A371 /* GPGKey_Template.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		302AA37B133606260022A371 /* GPGKey_Template.m in Sources */ = {isa = PBXBuildFile; fileRef = 302AA379133606260022A371 /* GPGKey_Template.m */; };
-		302AA3AE133608BE0022A371 /* GPGSuper_Template.h in Headers */ = {isa = PBXBuildFile; fileRef = 302AA3AC133608BE0022A371 /* GPGSuper_Template.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		302AA3AF133608BE0022A371 /* GPGSuper_Template.m in Sources */ = {isa = PBXBuildFile; fileRef = 302AA3AD133608BE0022A371 /* GPGSuper_Template.m */; };
-		3048830B1462B11700F2E5F4 /* DirectoryWatcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 304883091462B11700F2E5F4 /* DirectoryWatcher.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3048830B1462B11700F2E5F4 /* DirectoryWatcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 304883091462B11700F2E5F4 /* DirectoryWatcher.h */; };
 		3048830C1462B11700F2E5F4 /* DirectoryWatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 3048830A1462B11700F2E5F4 /* DirectoryWatcher.m */; };
-		3048830F1462B22000F2E5F4 /* GPGWatcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 3048830D1462B22000F2E5F4 /* GPGWatcher.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3048830F1462B22000F2E5F4 /* GPGWatcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 3048830D1462B22000F2E5F4 /* GPGWatcher.h */; };
 		304883101462B22000F2E5F4 /* GPGWatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 3048830E1462B22000F2E5F4 /* GPGWatcher.m */; };
 		30516558142281270038AAF0 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 30516556142281270038AAF0 /* Localizable.strings */; };
 		30691AA4136AECC4004AA469 /* GPGOptions.h in Headers */ = {isa = PBXBuildFile; fileRef = 30691AA2136AECC4004AA469 /* GPGOptions.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -60,6 +57,8 @@
 		309A18D113E3812E0069DC0F /* GPGTransformer.m in Sources */ = {isa = PBXBuildFile; fileRef = 309A18CF13E3812E0069DC0F /* GPGTransformer.m */; };
 		309A20FB13587D5B0041E0AA /* GPGPacket.h in Headers */ = {isa = PBXBuildFile; fileRef = 309A20F913587D5B0041E0AA /* GPGPacket.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		309A20FC13587D5B0041E0AA /* GPGPacket.m in Sources */ = {isa = PBXBuildFile; fileRef = 309A20FA13587D5B0041E0AA /* GPGPacket.m */; };
+		30A058391799E2DC00E1AD20 /* GPGKeyManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 30A058371799E2DC00E1AD20 /* GPGKeyManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		30A0583A1799E2DC00E1AD20 /* GPGKeyManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 30A058381799E2DC00E1AD20 /* GPGKeyManager.m */; };
 		30A70EE513EF328000EE9CD9 /* GPGException.h in Headers */ = {isa = PBXBuildFile; fileRef = 30A70EE313EF328000EE9CD9 /* GPGException.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		30A70EE613EF328000EE9CD9 /* GPGException.m in Sources */ = {isa = PBXBuildFile; fileRef = 30A70EE413EF328000EE9CD9 /* GPGException.m */; };
 		30B586F5141E255C000373F1 /* Keyservers.plist in Resources */ = {isa = PBXBuildFile; fileRef = 30B586F4141E255C000373F1 /* Keyservers.plist */; };
@@ -67,7 +66,7 @@
 		30C60EEF12FF3321006BB8DA /* Libmacgpg.h in Headers */ = {isa = PBXBuildFile; fileRef = 30C60EEE12FF3321006BB8DA /* Libmacgpg.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		30C8B39C1395052D00F49AA1 /* Test1.m in Sources */ = {isa = PBXBuildFile; fileRef = 30C8B39B1395052D00F49AA1 /* Test1.m */; };
 		30C8B3B11395072C00F49AA1 /* Libmacgpg.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DC2EF5B0486A6940098B216 /* Libmacgpg.framework */; };
-		30D5E2A41483A0F700F31454 /* GPGConf.h in Headers */ = {isa = PBXBuildFile; fileRef = 30D5E2A21483A0F700F31454 /* GPGConf.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		30D5E2A41483A0F700F31454 /* GPGConf.h in Headers */ = {isa = PBXBuildFile; fileRef = 30D5E2A21483A0F700F31454 /* GPGConf.h */; };
 		30D5E2A51483A0F700F31454 /* GPGConf.m in Sources */ = {isa = PBXBuildFile; fileRef = 30D5E2A31483A0F700F31454 /* GPGConf.m */; };
 		30DF7CB916D39EAA00C8225C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1B3D64DF1565BC6600D93BBE /* Foundation.framework */; };
 		30DF7CBC16D39EAA00C8225C /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 30DF7CBB16D39EAA00C8225C /* main.m */; };
@@ -79,34 +78,30 @@
 		30FF413C12FAC6CD00F39832 /* GPGGlobals.m in Sources */ = {isa = PBXBuildFile; fileRef = 30FF412212FAC6CD00F39832 /* GPGGlobals.m */; };
 		30FF413D12FAC6CD00F39832 /* GPGKey.h in Headers */ = {isa = PBXBuildFile; fileRef = 30FF412312FAC6CD00F39832 /* GPGKey.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		30FF413E12FAC6CD00F39832 /* GPGKey.m in Sources */ = {isa = PBXBuildFile; fileRef = 30FF412412FAC6CD00F39832 /* GPGKey.m */; };
-		30FF413F12FAC6CD00F39832 /* GPGKeySignature.h in Headers */ = {isa = PBXBuildFile; fileRef = 30FF412512FAC6CD00F39832 /* GPGKeySignature.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		30FF414012FAC6CD00F39832 /* GPGKeySignature.m in Sources */ = {isa = PBXBuildFile; fileRef = 30FF412612FAC6CD00F39832 /* GPGKeySignature.m */; };
-		30FF414112FAC6CD00F39832 /* GPGPhotoID.h in Headers */ = {isa = PBXBuildFile; fileRef = 30FF412712FAC6CD00F39832 /* GPGPhotoID.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		30FF414212FAC6CD00F39832 /* GPGPhotoID.m in Sources */ = {isa = PBXBuildFile; fileRef = 30FF412812FAC6CD00F39832 /* GPGPhotoID.m */; };
+		30FF413F12FAC6CD00F39832 /* GPGUserIDSignature.h in Headers */ = {isa = PBXBuildFile; fileRef = 30FF412512FAC6CD00F39832 /* GPGUserIDSignature.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		30FF414012FAC6CD00F39832 /* GPGUserIDSignature.m in Sources */ = {isa = PBXBuildFile; fileRef = 30FF412612FAC6CD00F39832 /* GPGUserIDSignature.m */; };
 		30FF414312FAC6CD00F39832 /* GPGRemoteKey.h in Headers */ = {isa = PBXBuildFile; fileRef = 30FF412912FAC6CD00F39832 /* GPGRemoteKey.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		30FF414412FAC6CD00F39832 /* GPGRemoteKey.m in Sources */ = {isa = PBXBuildFile; fileRef = 30FF412A12FAC6CD00F39832 /* GPGRemoteKey.m */; };
 		30FF414512FAC6CD00F39832 /* GPGRemoteUserID.h in Headers */ = {isa = PBXBuildFile; fileRef = 30FF412B12FAC6CD00F39832 /* GPGRemoteUserID.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		30FF414612FAC6CD00F39832 /* GPGRemoteUserID.m in Sources */ = {isa = PBXBuildFile; fileRef = 30FF412C12FAC6CD00F39832 /* GPGRemoteUserID.m */; };
 		30FF414712FAC6CD00F39832 /* GPGSignature.h in Headers */ = {isa = PBXBuildFile; fileRef = 30FF412D12FAC6CD00F39832 /* GPGSignature.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		30FF414812FAC6CD00F39832 /* GPGSignature.m in Sources */ = {isa = PBXBuildFile; fileRef = 30FF412E12FAC6CD00F39832 /* GPGSignature.m */; };
-		30FF414912FAC6CD00F39832 /* GPGSubkey.h in Headers */ = {isa = PBXBuildFile; fileRef = 30FF412F12FAC6CD00F39832 /* GPGSubkey.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		30FF414A12FAC6CD00F39832 /* GPGSubkey.m in Sources */ = {isa = PBXBuildFile; fileRef = 30FF413012FAC6CD00F39832 /* GPGSubkey.m */; };
 		30FF414B12FAC6CD00F39832 /* GPGTask.h in Headers */ = {isa = PBXBuildFile; fileRef = 30FF413112FAC6CD00F39832 /* GPGTask.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		30FF414C12FAC6CD00F39832 /* GPGTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 30FF413212FAC6CD00F39832 /* GPGTask.m */; };
-		30FF414D12FAC6CD00F39832 /* GPGTaskOrder.h in Headers */ = {isa = PBXBuildFile; fileRef = 30FF413312FAC6CD00F39832 /* GPGTaskOrder.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		30FF414D12FAC6CD00F39832 /* GPGTaskOrder.h in Headers */ = {isa = PBXBuildFile; fileRef = 30FF413312FAC6CD00F39832 /* GPGTaskOrder.h */; };
 		30FF414E12FAC6CD00F39832 /* GPGTaskOrder.m in Sources */ = {isa = PBXBuildFile; fileRef = 30FF413412FAC6CD00F39832 /* GPGTaskOrder.m */; };
 		30FF414F12FAC6CD00F39832 /* GPGUserID.h in Headers */ = {isa = PBXBuildFile; fileRef = 30FF413512FAC6CD00F39832 /* GPGUserID.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		30FF415012FAC6CD00F39832 /* GPGUserID.m in Sources */ = {isa = PBXBuildFile; fileRef = 30FF413612FAC6CD00F39832 /* GPGUserID.m */; };
-		45156A1C14FB1B1200129FE7 /* GPGLinesSetting.h in Headers */ = {isa = PBXBuildFile; fileRef = 45156A1A14FB1B1200129FE7 /* GPGLinesSetting.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		45156A1C14FB1B1200129FE7 /* GPGLinesSetting.h in Headers */ = {isa = PBXBuildFile; fileRef = 45156A1A14FB1B1200129FE7 /* GPGLinesSetting.h */; };
 		45156A1D14FB1B1200129FE7 /* GPGLinesSetting.m in Sources */ = {isa = PBXBuildFile; fileRef = 45156A1B14FB1B1200129FE7 /* GPGLinesSetting.m */; };
-		45156A2014FB1D7D00129FE7 /* GPGDictSetting.h in Headers */ = {isa = PBXBuildFile; fileRef = 45156A1E14FB1D7D00129FE7 /* GPGDictSetting.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		45156A2014FB1D7D00129FE7 /* GPGDictSetting.h in Headers */ = {isa = PBXBuildFile; fileRef = 45156A1E14FB1D7D00129FE7 /* GPGDictSetting.h */; };
 		45156A2114FB1D7D00129FE7 /* GPGDictSetting.m in Sources */ = {isa = PBXBuildFile; fileRef = 45156A1F14FB1D7D00129FE7 /* GPGDictSetting.m */; };
 		45156A2414FB310300129FE7 /* GPGLinesSettingTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 45156A2314FB310300129FE7 /* GPGLinesSettingTest.m */; };
 		45156A2714FB35DC00129FE7 /* GPGDictSettingTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 45156A2614FB35DC00129FE7 /* GPGDictSettingTest.m */; };
-		45156A2A14FB3EF700129FE7 /* GPGArraySetting.h in Headers */ = {isa = PBXBuildFile; fileRef = 45156A2814FB3EF700129FE7 /* GPGArraySetting.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		45156A2A14FB3EF700129FE7 /* GPGArraySetting.h in Headers */ = {isa = PBXBuildFile; fileRef = 45156A2814FB3EF700129FE7 /* GPGArraySetting.h */; };
 		45156A2B14FB3EF700129FE7 /* GPGArraySetting.m in Sources */ = {isa = PBXBuildFile; fileRef = 45156A2914FB3EF700129FE7 /* GPGArraySetting.m */; };
 		45156A2D14FB506E00129FE7 /* GPGArraySettingTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 45156A2C14FB506E00129FE7 /* GPGArraySettingTest.m */; };
-		451932F514F8061100D1F727 /* GPGStdSetting.h in Headers */ = {isa = PBXBuildFile; fileRef = 451932F314F8061100D1F727 /* GPGStdSetting.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		451932F514F8061100D1F727 /* GPGStdSetting.h in Headers */ = {isa = PBXBuildFile; fileRef = 451932F314F8061100D1F727 /* GPGStdSetting.h */; };
 		451932F614F8061100D1F727 /* GPGStdSetting.m in Sources */ = {isa = PBXBuildFile; fileRef = 451932F414F8061100D1F727 /* GPGStdSetting.m */; };
 		451D8829156A7AD900A0B890 /* GPGStream.h in Headers */ = {isa = PBXBuildFile; fileRef = 451D8827156A7AD900A0B890 /* GPGStream.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		451D882A156A7AD900A0B890 /* GPGStream.m in Sources */ = {isa = PBXBuildFile; fileRef = 451D8828156A7AD900A0B890 /* GPGStream.m */; };
@@ -116,7 +111,7 @@
 		451D8832156A7E4900A0B890 /* GPGFileStream.m in Sources */ = {isa = PBXBuildFile; fileRef = 451D8830156A7E4900A0B890 /* GPGFileStream.m */; };
 		4547646614FBC8A900A37306 /* GPGStdSettingTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 4547646514FBC8A900A37306 /* GPGStdSettingTest.m */; };
 		455B17BA15143D9A00FAD47D /* GPGOptionsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 455B17B915143D9A00FAD47D /* GPGOptionsTest.m */; };
-		4570876614FAA7C90030AAE6 /* GPGConfReader.h in Headers */ = {isa = PBXBuildFile; fileRef = 4570876414FAA7C90030AAE6 /* GPGConfReader.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4570876614FAA7C90030AAE6 /* GPGConfReader.h in Headers */ = {isa = PBXBuildFile; fileRef = 4570876414FAA7C90030AAE6 /* GPGConfReader.h */; };
 		4570876714FAA7C90030AAE6 /* GPGConfReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 4570876514FAA7C90030AAE6 /* GPGConfReader.m */; };
 		45891A3E151BA1C9002D7410 /* SignedInputStringCRLF.txt in Resources */ = {isa = PBXBuildFile; fileRef = 45891A3C151BA1C9002D7410 /* SignedInputStringCRLF.txt */; };
 		45891A3F151BA1C9002D7410 /* SignedInputStringLF.txt in Resources */ = {isa = PBXBuildFile; fileRef = 45891A3D151BA1C9002D7410 /* SignedInputStringLF.txt */; };
@@ -193,6 +188,7 @@
 
 /* Begin PBXFileReference section */
 		1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
+		1B16DD20179C83F000BC1366 /* GPGTypesRW.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGTypesRW.h; sourceTree = "<group>"; };
 		1B3D64DF1565BC6600D93BBE /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		1B46CFA1161531DC00CF9C5F /* org.gpgtools.Libmacgpg.xpc.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = org.gpgtools.Libmacgpg.xpc.plist; sourceTree = "<group>"; };
 		1B46CFCC161555DF00CF9C5F /* org.gpgtools.Libmacgpg.xpc */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = org.gpgtools.Libmacgpg.xpc; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -229,10 +225,6 @@
 		301D5D9D178C9871003026E7 /* GPGKeyserver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGKeyserver.h; sourceTree = "<group>"; };
 		301D5D9E178C9871003026E7 /* GPGKeyserver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGKeyserver.m; sourceTree = "<group>"; };
 		3026F4AE13A203A000F3CA02 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
-		302AA378133606260022A371 /* GPGKey_Template.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGKey_Template.h; sourceTree = "<group>"; };
-		302AA379133606260022A371 /* GPGKey_Template.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGKey_Template.m; sourceTree = "<group>"; };
-		302AA3AC133608BE0022A371 /* GPGSuper_Template.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGSuper_Template.h; sourceTree = "<group>"; };
-		302AA3AD133608BE0022A371 /* GPGSuper_Template.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGSuper_Template.m; sourceTree = "<group>"; };
 		304883091462B11700F2E5F4 /* DirectoryWatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DirectoryWatcher.h; sourceTree = "<group>"; };
 		3048830A1462B11700F2E5F4 /* DirectoryWatcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DirectoryWatcher.m; sourceTree = "<group>"; };
 		3048830D1462B22000F2E5F4 /* GPGWatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGWatcher.h; sourceTree = "<group>"; };
@@ -246,6 +238,8 @@
 		309A18CF13E3812E0069DC0F /* GPGTransformer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGTransformer.m; sourceTree = "<group>"; };
 		309A20F913587D5B0041E0AA /* GPGPacket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGPacket.h; sourceTree = "<group>"; };
 		309A20FA13587D5B0041E0AA /* GPGPacket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGPacket.m; sourceTree = "<group>"; };
+		30A058371799E2DC00E1AD20 /* GPGKeyManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGKeyManager.h; sourceTree = "<group>"; };
+		30A058381799E2DC00E1AD20 /* GPGKeyManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGKeyManager.m; sourceTree = "<group>"; };
 		30A70EE313EF328000EE9CD9 /* GPGException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGException.h; sourceTree = "<group>"; };
 		30A70EE413EF328000EE9CD9 /* GPGException.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGException.m; sourceTree = "<group>"; };
 		30B586F4141E255C000373F1 /* Keyservers.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Keyservers.plist; sourceTree = "<group>"; };
@@ -266,18 +260,14 @@
 		30FF412212FAC6CD00F39832 /* GPGGlobals.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGGlobals.m; sourceTree = "<group>"; };
 		30FF412312FAC6CD00F39832 /* GPGKey.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGKey.h; sourceTree = "<group>"; };
 		30FF412412FAC6CD00F39832 /* GPGKey.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGKey.m; sourceTree = "<group>"; };
-		30FF412512FAC6CD00F39832 /* GPGKeySignature.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGKeySignature.h; sourceTree = "<group>"; };
-		30FF412612FAC6CD00F39832 /* GPGKeySignature.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGKeySignature.m; sourceTree = "<group>"; };
-		30FF412712FAC6CD00F39832 /* GPGPhotoID.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGPhotoID.h; sourceTree = "<group>"; };
-		30FF412812FAC6CD00F39832 /* GPGPhotoID.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGPhotoID.m; sourceTree = "<group>"; };
+		30FF412512FAC6CD00F39832 /* GPGUserIDSignature.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGUserIDSignature.h; sourceTree = "<group>"; };
+		30FF412612FAC6CD00F39832 /* GPGUserIDSignature.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGUserIDSignature.m; sourceTree = "<group>"; };
 		30FF412912FAC6CD00F39832 /* GPGRemoteKey.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGRemoteKey.h; sourceTree = "<group>"; };
 		30FF412A12FAC6CD00F39832 /* GPGRemoteKey.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGRemoteKey.m; sourceTree = "<group>"; };
 		30FF412B12FAC6CD00F39832 /* GPGRemoteUserID.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGRemoteUserID.h; sourceTree = "<group>"; };
 		30FF412C12FAC6CD00F39832 /* GPGRemoteUserID.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGRemoteUserID.m; sourceTree = "<group>"; };
 		30FF412D12FAC6CD00F39832 /* GPGSignature.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGSignature.h; sourceTree = "<group>"; };
 		30FF412E12FAC6CD00F39832 /* GPGSignature.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGSignature.m; sourceTree = "<group>"; };
-		30FF412F12FAC6CD00F39832 /* GPGSubkey.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGSubkey.h; sourceTree = "<group>"; };
-		30FF413012FAC6CD00F39832 /* GPGSubkey.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGSubkey.m; sourceTree = "<group>"; };
 		30FF413112FAC6CD00F39832 /* GPGTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGTask.h; sourceTree = "<group>"; };
 		30FF413212FAC6CD00F39832 /* GPGTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGTask.m; sourceTree = "<group>"; };
 		30FF413312FAC6CD00F39832 /* GPGTaskOrder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGTaskOrder.h; sourceTree = "<group>"; };
@@ -443,6 +433,8 @@
 				30C60EEE12FF3321006BB8DA /* Libmacgpg.h */,
 				30FF411D12FAC6CD00F39832 /* GPGController.h */,
 				30FF411E12FAC6CD00F39832 /* GPGController.m */,
+				30A058371799E2DC00E1AD20 /* GPGKeyManager.h */,
+				30A058381799E2DC00E1AD20 /* GPGKeyManager.m */,
 				30A70EE313EF328000EE9CD9 /* GPGException.h */,
 				30A70EE413EF328000EE9CD9 /* GPGException.m */,
 				30FF412112FAC6CD00F39832 /* GPGGlobals.h */,
@@ -546,26 +538,19 @@
 		302AA377133605FE0022A371 /* GPGKey */ = {
 			isa = PBXGroup;
 			children = (
-				302AA378133606260022A371 /* GPGKey_Template.h */,
-				302AA379133606260022A371 /* GPGKey_Template.m */,
-				302AA3AC133608BE0022A371 /* GPGSuper_Template.h */,
-				302AA3AD133608BE0022A371 /* GPGSuper_Template.m */,
 				30FF412312FAC6CD00F39832 /* GPGKey.h */,
 				30FF412412FAC6CD00F39832 /* GPGKey.m */,
-				30FF412512FAC6CD00F39832 /* GPGKeySignature.h */,
-				30FF412612FAC6CD00F39832 /* GPGKeySignature.m */,
-				30FF412712FAC6CD00F39832 /* GPGPhotoID.h */,
-				30FF412812FAC6CD00F39832 /* GPGPhotoID.m */,
+				30FF412512FAC6CD00F39832 /* GPGUserIDSignature.h */,
+				30FF412612FAC6CD00F39832 /* GPGUserIDSignature.m */,
 				30FF412912FAC6CD00F39832 /* GPGRemoteKey.h */,
 				30FF412A12FAC6CD00F39832 /* GPGRemoteKey.m */,
 				30FF412B12FAC6CD00F39832 /* GPGRemoteUserID.h */,
 				30FF412C12FAC6CD00F39832 /* GPGRemoteUserID.m */,
 				30FF412D12FAC6CD00F39832 /* GPGSignature.h */,
 				30FF412E12FAC6CD00F39832 /* GPGSignature.m */,
-				30FF412F12FAC6CD00F39832 /* GPGSubkey.h */,
-				30FF413012FAC6CD00F39832 /* GPGSubkey.m */,
 				30FF413512FAC6CD00F39832 /* GPGUserID.h */,
 				30FF413612FAC6CD00F39832 /* GPGUserID.m */,
+				1B16DD20179C83F000BC1366 /* GPGTypesRW.h */,
 			);
 			name = GPGKey;
 			sourceTree = "<group>";
@@ -670,25 +655,26 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				30C60EEF12FF3321006BB8DA /* Libmacgpg.h in Headers */,
 				30FF413712FAC6CD00F39832 /* GPGController.h in Headers */,
 				30FF413B12FAC6CD00F39832 /* GPGGlobals.h in Headers */,
 				30FF413D12FAC6CD00F39832 /* GPGKey.h in Headers */,
-				30FF413F12FAC6CD00F39832 /* GPGKeySignature.h in Headers */,
-				30FF414112FAC6CD00F39832 /* GPGPhotoID.h in Headers */,
+				30FF413F12FAC6CD00F39832 /* GPGUserIDSignature.h in Headers */,
 				30FF414312FAC6CD00F39832 /* GPGRemoteKey.h in Headers */,
 				30FF414512FAC6CD00F39832 /* GPGRemoteUserID.h in Headers */,
-				30FF414712FAC6CD00F39832 /* GPGSignature.h in Headers */,
-				30FF414912FAC6CD00F39832 /* GPGSubkey.h in Headers */,
 				30FF414B12FAC6CD00F39832 /* GPGTask.h in Headers */,
-				30FF414D12FAC6CD00F39832 /* GPGTaskOrder.h in Headers */,
+				30FF414712FAC6CD00F39832 /* GPGSignature.h in Headers */,
 				30FF414F12FAC6CD00F39832 /* GPGUserID.h in Headers */,
-				30C60EEF12FF3321006BB8DA /* Libmacgpg.h in Headers */,
-				302AA37A133606260022A371 /* GPGKey_Template.h in Headers */,
-				302AA3AE133608BE0022A371 /* GPGSuper_Template.h in Headers */,
 				309A20FB13587D5B0041E0AA /* GPGPacket.h in Headers */,
 				30691AA4136AECC4004AA469 /* GPGOptions.h in Headers */,
 				309A18D013E3812E0069DC0F /* GPGTransformer.h in Headers */,
 				30A70EE513EF328000EE9CD9 /* GPGException.h in Headers */,
+				451D8829156A7AD900A0B890 /* GPGStream.h in Headers */,
+				30A058391799E2DC00E1AD20 /* GPGKeyManager.h in Headers */,
+				451D882D156A7CA300A0B890 /* GPGMemoryStream.h in Headers */,
+				451D8831156A7E4900A0B890 /* GPGFileStream.h in Headers */,
+				1B16DD21179C83F000BC1366 /* GPGTypesRW.h in Headers */,
+				30FF414D12FAC6CD00F39832 /* GPGTaskOrder.h in Headers */,
 				1BC7A50013D300A600AE57BA /* LPXTTask.h in Headers */,
 				30D5E2A41483A0F700F31454 /* GPGConf.h in Headers */,
 				3048830B1462B11700F2E5F4 /* DirectoryWatcher.h in Headers */,
@@ -702,10 +688,7 @@
 				1BCE0CD11617A3DF0026DCFF /* NSBundle+Sandbox.h in Headers */,
 				1BA5FE5B1619BE6700FC6A2C /* JailfreeTask.h in Headers */,
 				3048830F1462B22000F2E5F4 /* GPGWatcher.h in Headers */,
-				451D8829156A7AD900A0B890 /* GPGStream.h in Headers */,
 				301D5D9F178C9871003026E7 /* GPGKeyserver.h in Headers */,
-				451D882D156A7CA300A0B890 /* GPGMemoryStream.h in Headers */,
-				451D8831156A7E4900A0B890 /* GPGFileStream.h in Headers */,
 				1B9FF21017257A69004FB017 /* GPGTaskHelperXPC.h in Headers */,
 				1B9FF21517261470004FB017 /* JailfreeProtocol.h in Headers */,
 				1B89B68E1726F8FD004863FC /* PLWeakCompatibilityStubs.h in Headers */,
@@ -1037,17 +1020,14 @@
 				30FF413812FAC6CD00F39832 /* GPGController.m in Sources */,
 				30FF413C12FAC6CD00F39832 /* GPGGlobals.m in Sources */,
 				30FF413E12FAC6CD00F39832 /* GPGKey.m in Sources */,
-				30FF414012FAC6CD00F39832 /* GPGKeySignature.m in Sources */,
-				30FF414212FAC6CD00F39832 /* GPGPhotoID.m in Sources */,
+				30FF414012FAC6CD00F39832 /* GPGUserIDSignature.m in Sources */,
 				30FF414412FAC6CD00F39832 /* GPGRemoteKey.m in Sources */,
 				30FF414612FAC6CD00F39832 /* GPGRemoteUserID.m in Sources */,
 				30FF414812FAC6CD00F39832 /* GPGSignature.m in Sources */,
-				30FF414A12FAC6CD00F39832 /* GPGSubkey.m in Sources */,
+				30A0583A1799E2DC00E1AD20 /* GPGKeyManager.m in Sources */,
 				30FF414C12FAC6CD00F39832 /* GPGTask.m in Sources */,
 				30FF414E12FAC6CD00F39832 /* GPGTaskOrder.m in Sources */,
 				30FF415012FAC6CD00F39832 /* GPGUserID.m in Sources */,
-				302AA37B133606260022A371 /* GPGKey_Template.m in Sources */,
-				302AA3AF133608BE0022A371 /* GPGSuper_Template.m in Sources */,
 				309A20FC13587D5B0041E0AA /* GPGPacket.m in Sources */,
 				30691AA5136AECC4004AA469 /* GPGOptions.m in Sources */,
 				1BC7A50113D300A600AE57BA /* LPXTTask.m in Sources */,
@@ -1264,9 +1244,9 @@
 				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				FRAMEWORK_VERSION = A;
+				DYLIB_COMPATIBILITY_VERSION = 2;
+				DYLIB_CURRENT_VERSION = 2;
+				FRAMEWORK_VERSION = B;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_OBJC_GC = supported;
 				GCC_MODEL_TUNING = G5;
@@ -1300,9 +1280,9 @@
 				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				FRAMEWORK_VERSION = A;
+				DYLIB_COMPATIBILITY_VERSION = 2;
+				DYLIB_CURRENT_VERSION = 2;
+				FRAMEWORK_VERSION = B;
 				GCC_ENABLE_OBJC_GC = supported;
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
