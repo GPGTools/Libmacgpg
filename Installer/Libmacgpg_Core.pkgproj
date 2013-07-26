@@ -480,8 +480,6 @@
 				<key>PATH_TYPE</key>
 				<integer>1</integer>
 			</dict>
-			<key>PREINSTALL_PATH</key>
-			<dict/>
 			<key>RESOURCES</key>
 			<array/>
 		</dict>
@@ -492,7 +490,7 @@
 			<key>CONCLUSION_ACTION</key>
 			<integer>0</integer>
 			<key>IDENTIFIER</key>
-			<string>org.gpgtools.libmacgpg.pkg</string>
+			<string>org.gpgtools.libmacgpgB.pkg</string>
 			<key>NAME</key>
 			<string>Libmacgpg</string>
 			<key>OVERWRITE_PERMISSIONS</key>
