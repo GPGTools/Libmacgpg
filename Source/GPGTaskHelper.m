@@ -216,6 +216,12 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
 }
 
 + (BOOL)sandboxed {
+	// Don't perform sandbox check on 10.6, since Mail.app wasn't sandboxed
+	// back then and it seems to be a problem, resulting in a crash when used in
+	// GPGPreferences and GPGServices
+	if(NSAppKitVersionNumber < NSAppKitVersionNumber10_7)
+		return NO;
+	
 #if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
     static BOOL sandboxed;
     static dispatch_once_t onceToken;
