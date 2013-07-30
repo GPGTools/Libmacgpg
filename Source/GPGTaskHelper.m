@@ -284,9 +284,17 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
     __block NSObject *lock = [[[NSObject alloc] init] autorelease];
     
     _task.parentTask = ^{
-        dispatch_queue_t queue = dispatch_queue_create("org.gpgtools.libmacgpg.gpgTaskHelper", DISPATCH_QUEUE_CONCURRENT);
-        
-        dispatch_group_t collectorGroup = dispatch_group_create();
+		// On 10.6 it's not possible to create a concurrent private dispatch queue,
+		// so we'll use the global queue with default priority. Seems to work without problems.
+		dispatch_queue_t queue;
+		if(NSAppKitVersionNumber >= NSAppKitVersionNumber10_7)
+			queue = dispatch_queue_create("org.gpgtools.libmacgpg.gpgTaskHelper", DISPATCH_QUEUE_CONCURRENT);
+        else {
+			queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+			dispatch_retain(queue);
+		}
+			
+		dispatch_group_t collectorGroup = dispatch_group_create();
         
         // The data is written to the pipe as soon as gpg issues the status
         // BEGIN_ENCRYPTION or BEGIN_SIGNING. See processStatus.
@@ -343,7 +351,7 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
         dispatch_group_wait(collectorGroup, DISPATCH_TIME_FOREVER);
         
         dispatch_release(collectorGroup);
-        dispatch_release(queue);
+		dispatch_release(queue);
     };
     
     [_task launchAndWait];
