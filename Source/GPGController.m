@@ -64,7 +64,7 @@
 
 
 @implementation GPGController
-@synthesize delegate, keyserver, keyserverTimeout, proxyServer, async, userInfo, useArmor, useTextMode, printVersion, useDefaultComments, trustAllKeys, signatures, lastSignature, gpgHome, verbose, autoKeyRetrieve, lastReturnValue, error, undoManager, hashAlgorithm, gpgTask, timeout, sandboxed, filename, forceFilename;
+@synthesize delegate, keyserver, keyserverTimeout, proxyServer, async, userInfo, useArmor, useTextMode, printVersion, useDefaultComments, trustAllKeys, signatures, lastSignature, gpgHome, verbose, autoKeyRetrieve, lastReturnValue, error, undoManager, hashAlgorithm, gpgTask, timeout, filename, forceFilename;
 
 NSString *gpgVersion = nil;
 NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil, *compressAlgorithm = nil;
@@ -1900,7 +1900,7 @@ BOOL gpgConfigReaded = NO;
 }
 
 - (BOOL)isPassphraseForKeyInGPGAgentCache:(NSObject <KeyFingerprint> *)key {
-	if(self.sandboxed) {
+	if([GPGTask sandboxed]) {
 		GPGTaskHelperXPC *taskHelper = [[GPGTaskHelperXPC alloc] init];
 		BOOL inCache = NO;
 		@try {
@@ -2597,30 +2597,6 @@ BOOL gpgConfigReaded = NO;
 		[lastReturnValue release];
 		lastReturnValue = [value retain];
 	}
-}
-
-- (BOOL)sandboxed {
-	// Don't perform sandbox check on 10.6, since Mail.app wasn't sandboxed
-	// back then and it seems to be a problem, resulting in a crash when used in
-	// GPGPreferences and GPGServices
-	if(NSAppKitVersionNumber < NSAppKitVersionNumber10_7)
-		return NO;
-	
-#if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
-    static BOOL __sandboxed;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-#ifdef USE_XPCSERVICE
-        __sandboxed = USE_XPCSERVICE ? YES : NO;
-#else
-        NSBundle *bundle = [NSBundle mainBundle];
-        __sandboxed = [bundle ob_isSandboxed];
-#endif
-    });
-	return __sandboxed;
-#else
-	return NO;
-#endif
 }
 
 @end

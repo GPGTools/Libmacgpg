@@ -82,8 +82,6 @@
 	NSUInteger timeout;
 	
 	NSMutableSet *gpgKeyservers;
-	
-	BOOL sandboxed;
 }
 
 @property (nonatomic, assign) NSObject <GPGControllerDelegate> *delegate;
@@ -113,7 +111,6 @@
 @property (nonatomic, readonly) GPGHashAlgorithm hashAlgorithm;
 @property (nonatomic, readonly) GPGTask *gpgTask;
 @property (nonatomic, assign) NSUInteger timeout;
-@property (nonatomic, assign) BOOL sandboxed;
 
 + (NSString *)gpgVersion;
 + (NSSet *)publicKeyAlgorithm;

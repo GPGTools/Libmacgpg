@@ -31,7 +31,6 @@
 
 @interface GPGUserDefaults : NSObject {
 	NSUserDefaults *_target;
-	BOOL _sandboxed;
 }
 
 + (GPGUserDefaults *)standardUserDefaults;
@@ -39,7 +38,6 @@
 - (void)setPersistentDomain:(NSDictionary *)domain forName:(NSString *)domainName;
 
 @property (nonatomic, retain) NSUserDefaults *target;
-@property (nonatomic, assign) BOOL sandboxed;
 
 @end
 

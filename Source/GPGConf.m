@@ -4,6 +4,7 @@
 #import "GPGConfReader.h"
 #import "GPGStdSetting.h"
 #import "GPGGlobals.h"
+#import "GPGTask.h"
 
 @interface GPGConf ()
 @property (nonatomic, retain) NSString *path;
@@ -12,7 +13,6 @@
 @implementation GPGConf
 @synthesize path;
 @synthesize optionsDomain;
-@synthesize sandboxed=_sandboxed;
 
 - (id)valueForKey:(NSString *)key {
     GPGStdSetting *setting = [config objectForKey:key];
@@ -66,7 +66,7 @@
 
 - (BOOL)loadConfig {
 	NSString *configFile = nil;
-	if(self.sandboxed) {
+	if([GPGTask sandboxed]) {
 		configFile = [self loadConfigFileXPC];
 	}
 	else {
@@ -193,29 +193,6 @@
 	[contents release];
 	self.path = nil;
     [super dealloc];
-}
-
-- (BOOL)sandboxed {
-	// Don't perform sandbox check on 10.6, since Mail.app wasn't sandboxed
-	// back then and it seems to be a problem, resulting in a crash when used in
-	// GPGPreferences and GPGServices
-	if(NSAppKitVersionNumber < NSAppKitVersionNumber10_7)
-		return NO;
-#if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
-    static BOOL sandboxed;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-#ifdef USE_XPCSERVICE
-        sandboxed = USE_XPCSERVICE ? YES : NO;
-#else
-        NSBundle *bundle = [NSBundle mainBundle];
-        sandboxed = [bundle ob_isSandboxed];
-#endif
-    });
-	return sandboxed;
-#else
-	return NO;
-#endif
 }
 
 @end

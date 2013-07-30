@@ -119,4 +119,9 @@
 + (BOOL)launchGeneralTask:(NSString *)path withArguments:(NSArray *)arguments;
 + (BOOL)launchGeneralTask:(NSString *)path withArguments:(NSArray *)arguments wait:(BOOL)wait;
 
+/**
+ Check if the application Libmacgpg is used with is sandboxed.
+ */
++ (BOOL)sandboxed;
+
 @end

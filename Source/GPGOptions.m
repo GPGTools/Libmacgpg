@@ -30,6 +30,7 @@
 #import "GPGGlobals.h"
 #import "GPGUserDefaults.h"
 #import "GPGWatcher.h"
+#import "GPGTask.h"
 
 NSString * const GPGOptionsChangedNotification = @"GPGOptionsChangedNotification";
 NSString * const GPGConfigurationModifiedNotification = @"GPGConfigurationModifiedNotification";
@@ -350,7 +351,7 @@ static NSString * const kGpgAgentConfKVKey = @"gpgAgentConf";
 		// Environment.plist is no longer supported in 10.7+, so let's
 		// drop support for it, if we're sandboxed.
 		environment = nil;
-		if(!self.sandboxed) {
+		if(![GPGTask sandboxed]) {
 			environment = [[NSMutableDictionary alloc] initWithContentsOfFile:environmentPlistPath];
 		}
 		if (!environment) {
@@ -791,30 +792,6 @@ void SystemConfigurationDidChange(SCPreferencesRef prefs, SCPreferencesNotificat
 	[gpgAgentConf release];
     [syncRoot release];
     [super dealloc];
-}
-
-- (BOOL)sandboxed {
-	// Don't perform sandbox check on 10.6, since Mail.app wasn't sandboxed
-	// back then and it seems to be a problem, resulting in a crash when used in
-	// GPGPreferences and GPGServices
-	if(NSAppKitVersionNumber < NSAppKitVersionNumber10_7)
-		return NO;
-	
-#if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
-    static BOOL sandboxed;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-#ifdef USE_XPCSERVICE
-        sandboxed = USE_XPCSERVICE ? YES : NO;
-#else
-        NSBundle *bundle = [NSBundle mainBundle];
-        sandboxed = [bundle ob_isSandboxed];
-#endif
-    });
-	return sandboxed;
-#else
-	return NO;
-#endif
 }
 
 @end

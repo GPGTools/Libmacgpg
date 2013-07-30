@@ -1,7 +1,7 @@
 #import "GPGWatcher.h"
 #import "GPGGlobals.h"
 #import "GPGOptions.h"
-#import "NSBundle+Sandbox.h"
+#import "GPGTask.h"
 
 NSString * const GPGKeysChangedNotification = @"GPGKeysChangedNotification";
 
@@ -187,30 +187,6 @@ static NSString * const kWatchedFileName = @"watchedFileName";
 	}
 }
 
-- (BOOL)sandboxed {
-	// Don't perform sandbox check on 10.6, since Mail.app wasn't sandboxed
-	// back then and it seems to be a problem, resulting in a crash when used in
-	// GPGPreferences and GPGServices
-	if(NSAppKitVersionNumber < NSAppKitVersionNumber10_7)
-		return NO;
-	
-#if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
-    static BOOL sandboxed;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-#ifdef USE_XPCSERVICE
-        sandboxed = USE_XPCSERVICE ? YES : NO;
-#else
-        NSBundle *bundle = [NSBundle mainBundle];
-        sandboxed = [bundle ob_isSandboxed];
-#endif
-    });
-    return sandboxed;
-#else
-	return NO;
-#endif
-}
-
 // Singleton: alloc, init etc.
 
 static id syncRoot = nil;
@@ -252,8 +228,8 @@ static id syncRoot = nil;
 }
 
 - (id)init {
-    self.checkForSandbox = [self sandboxed];
-    if([self sandboxed])
+    self.checkForSandbox = [GPGTask sandboxed];
+    if([GPGTask sandboxed])
         return [self initSandboxed];
     else {
         return [self initWithGpgHome:nil];

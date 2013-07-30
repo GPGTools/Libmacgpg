@@ -28,6 +28,7 @@
 #import "GPGGlobals.h"
 //#import <sys/shm.h>
 #import <fcntl.h>
+#import "NSBundle+Sandbox.h"
 
 static const NSUInteger kDataBufferSize = 65536; 
 
@@ -514,6 +515,22 @@ char partCountForStatusCode[GPG_STATUS_COUNT];
 
 + (BOOL)launchGeneralTask:(NSString *)path withArguments:(NSArray *)arguments wait:(BOOL)wait {
 	return [GPGTaskHelper launchGeneralTask:path withArguments:arguments wait:wait];
+}
+
++ (BOOL)sandboxed {
+	// Don't perform sandbox check on 10.6, since Mail.app wasn't sandboxed
+	// back then and it seems to be a problem, resulting in a crash when used in
+	// GPGPreferences and GPGServices
+	if(NSAppKitVersionNumber < NSAppKitVersionNumber10_7)
+		return NO;
+	
+	static dispatch_once_t onceToken;
+	static BOOL sandboxed;
+	dispatch_once(&onceToken, ^{
+		sandboxed = [[NSBundle mainBundle] ob_isSandboxed];
+	});
+		
+	return sandboxed;
 }
 
 @end

@@ -31,10 +31,11 @@
 #import "GPGTaskHelper.h"
 #import "GPGTaskHelperXPC.h"
 #import "GPGUserDefaults.h"
+#import "GPGTask.h"
 
 @implementation GPGUserDefaults
 
-@synthesize sandboxed=_sandboxed, target=_target;
+@synthesize target=_target;
 
 + (GPGUserDefaults *)standardUserDefaults {
 	static GPGUserDefaults *_sharedInstance;
@@ -59,7 +60,7 @@
 
 - (NSDictionary *)persistentDomainForName:(NSString *)domainName {
 	// Sandbox is not enabled? No need to go through the XPC.
-	if(!self.sandboxed)
+	if(![GPGTask sandboxed])
 		return [_target persistentDomainForName:domainName];
 	
 	// Otherwise, no way around it. XPC is necessary, but no
@@ -82,7 +83,7 @@
 
 - (void)setPersistentDomain:(NSDictionary *)domain forName:(NSString *)domainName {
 	// Sandbox is not enabled? No need to go through the XPC.
-	if(!self.sandboxed) {
+	if(![GPGTask sandboxed]) {
 		[_target setPersistentDomain:domain forName:domainName];
 		return;
 	}
@@ -97,30 +98,6 @@
 	@finally {
 		[taskHelper release];
 	}
-}
-
-- (BOOL)sandboxed {
-	// Don't perform sandbox check on 10.6, since Mail.app wasn't sandboxed
-	// back then and it seems to be a problem, resulting in a crash when used in
-	// GPGPreferences and GPGServices
-	if(NSAppKitVersionNumber < NSAppKitVersionNumber10_7)
-		return NO;
-	
-#if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
-    static BOOL sandboxed;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-#ifdef USE_XPCSERVICE
-        sandboxed = USE_XPCSERVICE ? YES : NO;
-#else
-        NSBundle *bundle = [NSBundle mainBundle];
-        sandboxed = [bundle ob_isSandboxed];
-#endif
-    });
-	return sandboxed;
-#else
-	return NO;
-#endif
 }
 
 @end
