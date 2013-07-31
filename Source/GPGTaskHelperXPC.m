@@ -97,20 +97,17 @@
 }
 
 - (BOOL)healthyXPCBinaryExists {
+#ifdef DEBUGGING
+	// Developers should know what they're doing, so this can always return YES.
+	// Simply properly load the xpc if it doesn't work.
+	return YES;
+#endif
+	
 	BOOL healthy = NO;
-	NSString *sandboxedHomeDirectory = NSHomeDirectory();
-	NSArray *libraryPaths = [[NSFileManager defaultManager] URLsForDirectory:NSLibraryDirectory inDomains:NSUserDomainMask | NSLocalDomainMask];
-	NSString *xpcBinaryPath = nil;
-	for(NSURL *libraryPathURL in libraryPaths) {
-		NSString *libraryPath = [libraryPathURL relativePath];
-		if([libraryPath rangeOfString:sandboxedHomeDirectory].location != NSNotFound)
-			libraryPath = [libraryPath stringByReplacingOccurrencesOfString:@"Containers/com.apple.mail/Data/Library" withString:@""];
-		xpcBinaryPath = [[libraryPath stringByAppendingPathComponent:@"Application Support/GPGTools"] stringByAppendingPathComponent:@"org.gpgtools.Libmacgpg.xpc"];
-		if([[NSFileManager defaultManager] isExecutableFileAtPath:xpcBinaryPath]) {
-			healthy = YES;
-			break;
-		}
-	}
+	NSString *xpcBinaryName = @"org.gpgtools.Libmacgpg.xpc";
+	NSString *xpcBinaryPath = [@"/Library/Application Support/GPGTools" stringByAppendingPathComponent:xpcBinaryName];
+	if([[NSFileManager defaultManager] isExecutableFileAtPath:xpcBinaryPath])
+		healthy = YES;
 	
 	return healthy;
 }
