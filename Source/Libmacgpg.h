@@ -34,4 +34,4 @@
 #import <Libmacgpg/GPGTransformer.h>
 #import <Libmacgpg/GPGUserID.h>
 #import <Libmacgpg/GPGUserIDSignature.h>
-
+#import <Libmacgpg/NSBundle+Sandbox.h>

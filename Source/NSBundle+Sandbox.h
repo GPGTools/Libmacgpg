@@ -43,5 +43,6 @@ typedef enum {
 - (BOOL)ob_comesFromAppStore;
 - (BOOL)ob_isSandboxed;
 - (OBCodeSignState)ob_codeSignState;
+- (BOOL)isValidSigned;
 
 @end

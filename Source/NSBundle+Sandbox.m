@@ -111,6 +111,20 @@
     return resultState;
 }
 
+- (BOOL)isValidSigned {
+    SecRequirementRef requirement = nil;
+    SecStaticCodeRef staticCode = nil;
+	
+    SecStaticCodeCreateWithPath((__bridge CFURLRef)[self bundleURL], 0, &staticCode);
+	SecRequirementCreateWithString(CFSTR("anchor apple generic and cert leaf = H\"233B4E43187B51BF7D6711053DD652DDF54B43BE\""), 0, &requirement);
+	
+	OSStatus result = SecStaticCodeCheckValidity(staticCode, 0, requirement);
+    
+    if (staticCode) CFRelease(staticCode);
+    if (requirement) CFRelease(requirement);
+    return result == noErr;
+}
+
 
 #pragma mark - Private helper methods
 
