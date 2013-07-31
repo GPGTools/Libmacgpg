@@ -29,7 +29,7 @@
 		1BA5FE5B1619BE6700FC6A2C /* JailfreeTask.h in Headers */ = {isa = PBXBuildFile; fileRef = 1BA5FE5A1619BE6700FC6A2C /* JailfreeTask.h */; };
 		1BC7A50013D300A600AE57BA /* LPXTTask.h in Headers */ = {isa = PBXBuildFile; fileRef = 1BC7A4FE13D300A600AE57BA /* LPXTTask.h */; };
 		1BC7A50113D300A600AE57BA /* LPXTTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 1BC7A4FF13D300A600AE57BA /* LPXTTask.m */; };
-		1BCE0CD11617A3DF0026DCFF /* NSBundle+Sandbox.h in Headers */ = {isa = PBXBuildFile; fileRef = 1BCE0CCF1617A3DF0026DCFF /* NSBundle+Sandbox.h */; };
+		1BCE0CD11617A3DF0026DCFF /* NSBundle+Sandbox.h in Headers */ = {isa = PBXBuildFile; fileRef = 1BCE0CCF1617A3DF0026DCFF /* NSBundle+Sandbox.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1BCE0CD21617A3DF0026DCFF /* NSBundle+Sandbox.m in Sources */ = {isa = PBXBuildFile; fileRef = 1BCE0CD01617A3DF0026DCFF /* NSBundle+Sandbox.m */; };
 		1BD78BA01726B2830005F251 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
 		1BD78BA61726B2830005F251 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 1BD78BA41726B2830005F251 /* InfoPlist.strings */; };
@@ -673,6 +673,7 @@
 				30A058391799E2DC00E1AD20 /* GPGKeyManager.h in Headers */,
 				451D882D156A7CA300A0B890 /* GPGMemoryStream.h in Headers */,
 				451D8831156A7E4900A0B890 /* GPGFileStream.h in Headers */,
+				1BCE0CD11617A3DF0026DCFF /* NSBundle+Sandbox.h in Headers */,
 				1B16DD21179C83F000BC1366 /* GPGTypesRW.h in Headers */,
 				30FF414D12FAC6CD00F39832 /* GPGTaskOrder.h in Headers */,
 				1BC7A50013D300A600AE57BA /* LPXTTask.h in Headers */,
@@ -685,7 +686,6 @@
 				45156A2A14FB3EF700129FE7 /* GPGArraySetting.h in Headers */,
 				1B9DB26A15784DB700488353 /* GPGTaskHelper.h in Headers */,
 				1B72F741157AE89600101194 /* NSPipe+NoSigPipe.h in Headers */,
-				1BCE0CD11617A3DF0026DCFF /* NSBundle+Sandbox.h in Headers */,
 				1BA5FE5B1619BE6700FC6A2C /* JailfreeTask.h in Headers */,
 				3048830F1462B22000F2E5F4 /* GPGWatcher.h in Headers */,
 				301D5D9F178C9871003026E7 /* GPGKeyserver.h in Headers */,
