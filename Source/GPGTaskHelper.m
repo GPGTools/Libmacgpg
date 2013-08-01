@@ -115,8 +115,10 @@ void withAutoreleasePool(basic_block_t block)
 
 @implementation GPGTaskHelper
 
-@synthesize inData = _inData, arguments = _arguments, output = _output,
-processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status = _status, errors = _errors, attributes = _attributes, readAttributes = _readAttributes, progressHandler = _progressHandler, userIDHint = _userIDHint, needPassphraseInfo = _needPassphraseInfo, checkForSandbox = _checkForSandbox, timeout = _timeout;
+@synthesize inData = _inData, arguments = _arguments, output = _output, processStatus = _processStatus, task = _task,
+exitStatus = _exitStatus, status = _status, errors = _errors, attributes = _attributes, readAttributes = _readAttributes,
+progressHandler = _progressHandler, userIDHint = _userIDHint, needPassphraseInfo = _needPassphraseInfo,
+checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_environmentVariables;
 
 + (NSString *)findExecutableWithName:(NSString *)executable {
 	NSString *foundPath;
@@ -229,6 +231,7 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
     _task = [[LPXTTask alloc] init];
     _task.launchPath = [GPGTaskHelper GPGPath];
     _task.arguments = self.arguments;
+	_task.environmentVariables = self.environmentVariables;
     
     if(!_task.launchPath || ![[NSFileManager defaultManager] isExecutableFileAtPath:_task.launchPath])
         @throw [GPGException exceptionWithReason:@"GPG not found!" errorCode:GPGErrorNotFound];
@@ -942,6 +945,7 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
     [_needPassphraseInfo release];
     [_progressHandler release];
     [_processedBytesMap release];
+	[_environmentVariables release];
 #if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
     [_sandboxHelper release];
 #endif

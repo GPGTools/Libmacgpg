@@ -53,7 +53,7 @@ NSDictionary *statusCodes;
 char partCountForStatusCode[GPG_STATUS_COUNT];
 
 @synthesize isRunning, batchMode, getAttributeData, delegate, userInfo, exitcode, errorCode, errData, statusData, attributeData, cancelled,
-            progressInfo, statusDict, taskHelper = taskHelper, timeout;
+            progressInfo, statusDict, taskHelper = taskHelper, timeout, environmentVariables=_environmentVariables;
 @synthesize outStream;
 
 
@@ -272,6 +272,7 @@ char partCountForStatusCode[GPG_STATUS_COUNT];
 	[inDatas release];
     [errorCodes release];
 	[statusDict release];
+	[_environmentVariables release];
 	
     if(taskHelper)
         [taskHelper release];
@@ -374,7 +375,9 @@ char partCountForStatusCode[GPG_STATUS_COUNT];
         };
     }
     taskHelper.readAttributes = getAttributeData;
-    taskHelper.checkForSandbox = YES;	
+    taskHelper.checkForSandbox = YES;
+	taskHelper.environmentVariables = self.environmentVariables;
+	
     
     @try {
         exitcode = [taskHelper run];

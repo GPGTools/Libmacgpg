@@ -68,6 +68,7 @@ typedef void (^lp_progress_handler_t)(NSUInteger processedBytes, NSUInteger tota
     NSArray *_inData;
     NSUInteger _totalInData;
     NSArray *_arguments;
+    NSDictionary *_environmentVariables;
     GPGStream *_output;
     NSData *_status;
     NSData *_errors;
@@ -92,6 +93,7 @@ typedef void (^lp_progress_handler_t)(NSUInteger processedBytes, NSUInteger tota
 
 @property (nonatomic, retain) NSArray *inData;
 @property (nonatomic, copy) NSArray *arguments;
+@property (nonatomic, copy) NSDictionary *environmentVariables;
 @property (nonatomic, retain) GPGStream *output;
 @property (nonatomic, assign) NSUInteger exitStatus;
 @property (nonatomic, copy) lp_process_status_t processStatus;

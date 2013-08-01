@@ -23,6 +23,7 @@ typedef void (^lpxt_task_t)(void);
 
 @interface LPXTTask : NSObject {
     NSArray *arguments;
+    NSDictionary *_environmentVariables;
     NSString *launchPath;
     
     int processIdentifier;
@@ -44,6 +45,7 @@ typedef void (^lpxt_task_t)(void);
 - (void)removeInheritedPipeWithName:(NSString *)name;
 
 @property (nonatomic, retain) NSArray *arguments;
+@property (nonatomic, copy) NSDictionary *environmentVariables;
 @property (nonatomic, copy) NSString *launchPath;
 @property (nonatomic, readonly) int terminationStatus;
 @property (nonatomic, copy) lpxt_task_t parentTask;

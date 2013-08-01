@@ -64,7 +64,9 @@
 
 
 @implementation GPGController
-@synthesize delegate, keyserver, keyserverTimeout, proxyServer, async, userInfo, useArmor, useTextMode, printVersion, useDefaultComments, trustAllKeys, signatures, lastSignature, gpgHome, verbose, autoKeyRetrieve, lastReturnValue, error, undoManager, hashAlgorithm, gpgTask, timeout, filename, forceFilename;
+@synthesize delegate, keyserver, keyserverTimeout, proxyServer, async, userInfo, useArmor, useTextMode, printVersion, useDefaultComments,
+trustAllKeys, signatures, lastSignature, gpgHome, verbose, autoKeyRetrieve, lastReturnValue, error, undoManager, hashAlgorithm, gpgTask,
+timeout, filename, forceFilename, pinentryDescription=_pinentryDescription;
 
 NSString *gpgVersion = nil;
 NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil, *compressAlgorithm = nil;
@@ -2472,6 +2474,11 @@ BOOL gpgConfigReaded = NO;
 		[gpgTask addArgument:@"--homedir"];
 		[gpgTask addArgument:gpgHome];
 	}
+	if (_pinentryDescription) {
+		NSString *pinentryUserData = [NSString stringWithFormat:@"DESCRIPTION=%@", _pinentryDescription];
+		NSDictionary *env = [NSDictionary dictionaryWithObjectsAndKeys:pinentryUserData, @"PINENTRY_USER_DATA", nil];
+		gpgTask.environmentVariables = env;
+	}
 	gpgTask.delegate = self;
 	if ([delegate respondsToSelector:@selector(gpgController:progressed:total:)]) {
 		gpgTask.progressInfo = YES;
@@ -2492,6 +2499,7 @@ BOOL gpgConfigReaded = NO;
 	[gpgHome release];
 	[userInfo release];
 	[lastSignature release];
+	[_pinentryDescription release];	
 	[asyncProxy release];
 	[identifier release];
 	[error release];

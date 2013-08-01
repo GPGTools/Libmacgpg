@@ -62,6 +62,7 @@
     BOOL verbose;
 	BOOL autoKeyRetrieve;
     id lastReturnValue;
+	NSString *_pinentryDescription;
     
     GPGHashAlgorithm hashAlgorithm;
     
@@ -111,6 +112,8 @@
 @property (nonatomic, readonly) GPGHashAlgorithm hashAlgorithm;
 @property (nonatomic, readonly) GPGTask *gpgTask;
 @property (nonatomic, assign) NSUInteger timeout;
+@property (nonatomic, retain) NSString *pinentryDescription; // Needs to percent escaped. Placeholders: %FINGERPRINT, %KEYID, %USERID, %EMAIL, %COMMENT, %NAME.
+
 
 + (NSString *)gpgVersion;
 + (NSSet *)publicKeyAlgorithm;

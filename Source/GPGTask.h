@@ -45,6 +45,7 @@
 	int errorCode;
 	NSMutableArray *errorCodes;
 	BOOL getAttributeData;
+	NSDictionary *_environmentVariables;
 	
 	NSMutableArray *inDatas;
 	
@@ -89,6 +90,8 @@
 @property (nonatomic, readonly) NSArray *arguments;
 @property (nonatomic, readonly) GPGTaskHelper *taskHelper;
 @property (nonatomic, assign) NSUInteger timeout;
+@property (nonatomic, retain) NSDictionary *environmentVariables;
+
 
 + (NSString *)nameOfStatusCode:(NSInteger)statusCode;
 

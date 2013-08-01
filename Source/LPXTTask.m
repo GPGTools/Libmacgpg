@@ -21,6 +21,8 @@
 #import "GPGGlobals.h"
 #import "NSPipe+NoSigPipe.h"
 
+extern char **environ;
+
 typedef struct {
     int fd;
     int dupfd;
@@ -34,7 +36,7 @@ typedef struct {
 
 
 @implementation LPXTTask
-@synthesize arguments, launchPath, terminationStatus, parentTask;
+@synthesize arguments, launchPath, terminationStatus, parentTask, environmentVariables=_environmentVariables;
 
 - (id)init
 {
@@ -84,6 +86,56 @@ static char *BDSKCopyFileSystemRepresentation(NSString *str)
     }
     args[argCount + 1] = NULL;
     
+	
+	
+	// Add environment variables if needed.
+	char **newEnviron = environ;
+	if (_environmentVariables) {
+		char **oldEnviron = newEnviron;
+		char **tempEnviron = oldEnviron;
+		
+		NSUInteger envCount = _environmentVariables.count;
+		NSUInteger environCount = 0;
+		
+		while (*tempEnviron) {
+			environCount++;
+			tempEnviron++;
+		}
+		
+		newEnviron = malloc((envCount + environCount + 1) * sizeof(char **));
+		memcpy(newEnviron, oldEnviron, (environCount + 1) * sizeof(char **));
+		
+		i = environCount;
+		for (NSString *key in _environmentVariables) {
+			NSString *value = [_environmentVariables objectForKey:key];
+			srandomdev();
+			value = [value stringByAppendingFormat:@"%li", random()];
+			
+			char *envVar = (char *)[[NSString stringWithFormat:@"%@=%@", key, value] UTF8String];
+			NSUInteger cmpLength = key.length + 1;
+			
+			tempEnviron = newEnviron;
+			while (*tempEnviron) { // Search an existing env var with the same name.
+				if (strncmp(*tempEnviron, envVar, cmpLength) == 0) {
+					*tempEnviron = envVar;
+					
+					tempEnviron = nil;
+					break;
+				}
+				tempEnviron++;
+			}
+
+			if (tempEnviron) { // No env var with the same name found, add a new at the end.
+				newEnviron[i] = envVar;
+				i++;
+				newEnviron[i] = 0;
+			}
+		}
+	}
+	
+	
+
+	
     
     // Add the stdin, stdout and stderr to the inherited pipes, so all of them can be
     // processed together.
@@ -194,7 +246,8 @@ static char *BDSKCopyFileSystemRepresentation(NSString *str)
         close(blockpipe[0]);
         
         // AAAAAAND run our command.
-        int ret = execv(args[0], args);
+		//int ret = execv(args[0], args);
+        int ret = execve(args[0], args, newEnviron);
         _exit(ret);
     }
     else if (processIdentifier == -1) {
@@ -326,6 +379,7 @@ static char *BDSKCopyFileSystemRepresentation(NSString *str)
 
 - (void)dealloc {
     [arguments release];
+	[_environmentVariables release];
     [launchPath release];
     [parentTask release];
 	[inheritedPipes release];
