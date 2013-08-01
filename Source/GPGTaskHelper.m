@@ -931,33 +931,19 @@ processStatus = _processStatus, task = _task, exitStatus = _exitStatus, status =
 
 - (void)dealloc {
     [_inData release];
-    _inData = nil;
     [_arguments release];
-    _arguments = nil;
-    if(_output)
-		[_output release];
-    _output = nil;
+	[_output release];
     [_status release];
-    _status = nil;
     [_errors release];
-    _errors = nil;
     [_attributes release];
-    _attributes = nil;
     [_task release];
-    _task = nil;
     [_processStatus release];
-    _processStatus = nil;
     [_userIDHint release];
-    _userIDHint = nil;
     [_needPassphraseInfo release];
-    _needPassphraseInfo = nil;
     [_progressHandler release];
-    _progressHandler = nil;
     [_processedBytesMap release];
-    _processedBytesMap = nil;
 #if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
     [_sandboxHelper release];
-    _sandboxHelper = nil;
 #endif
 	
 	[super dealloc];
