@@ -20,8 +20,7 @@
 #import "LPXTTask.h"
 #import "GPGGlobals.h"
 #import "NSPipe+NoSigPipe.h"
-
-extern char **environ;
+#import "crt_externs.h"
 
 typedef struct {
     int fd;
@@ -89,7 +88,8 @@ static char *BDSKCopyFileSystemRepresentation(NSString *str)
 	
 	
 	// Add environment variables if needed.
-	char **newEnviron = environ;
+	
+	char **newEnviron = *_NSGetEnviron();
 	if (_environmentVariables) {
 		char **oldEnviron = newEnviron;
 		char **tempEnviron = oldEnviron;
