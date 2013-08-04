@@ -391,13 +391,20 @@ char partCountForStatusCode[GPG_STATUS_COUNT];
 		@throw exception;
     }
     
-	// In case pinentry crashed or was killed and Libmacgpg is used from
-	// a sandboxed application, the exitcode will be GPGErrorCancelled,
-	// but the errorCode will be GPGErrorEOF, which is the correct status.
+	// In case pinentry or gpg-agent crashed or was killed or is not available at all
+	// and Libmacgpg is used from a sandboxed application, the exitcode will be GPGErrorCancelled,
+	// but errorCodes will contain the actual error.
 	// GPGErrorCancelled should only be returned if the user in fact cancelled
 	// a passphrase request.
-	if(exitcode == GPGErrorCancelled && [errorCodes count] != 0 && self.errorCode == GPGErrorEOF)
-		exitcode = GPGErrorEOF;
+	if(exitcode == GPGErrorCancelled) {
+		// Remove the NO_SECKEY error, since that will always be contained if
+		// a pinentry request was cancelled.
+		if([errorCodes count]) {
+			NSMutableArray *newErrorCodes = [errorCodes mutableCopy];
+			[newErrorCodes removeObject:[NSNumber numberWithInt:GPGErrorNoSecretKey]];
+			exitcode = [[newErrorCodes objectAtIndex:0] integerValue];
+		}
+	}
 	
     if([delegate respondsToSelector:@selector(gpgTaskDidTerminate:)])
         [delegate gpgTaskDidTerminate:self];
