@@ -22,6 +22,22 @@
 #import "GPGKey.h"
 
 
+NSString *localizedLibmacgpgString(NSString *key) {
+	static NSBundle *bundle = nil, *englishBundle = nil;
+	if (!bundle) {
+		bundle = [[NSBundle bundleWithIdentifier:@"org.gpgtools.Libmacgpg"] retain];
+		englishBundle = [[NSBundle bundleWithPath:[bundle pathForResource:@"en" ofType:@"lproj"]] retain];
+	}
+
+	NSString *notFoundValue = @"~#*?*#~";
+	NSString *localized = [bundle localizedStringForKey:key value:notFoundValue table:nil];
+	if (localized == notFoundValue) {
+		localized = [englishBundle localizedStringForKey:key value:nil table:nil];
+	}
+	
+	return localized;
+}
+
 @implementation NSData (GPGExtension)
 - (NSString *)gpgString {
 	NSString *retString;

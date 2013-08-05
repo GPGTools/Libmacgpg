@@ -215,8 +215,6 @@ enum gpgStatusCodes {
 
 
 
-#define localizedLibmacgpgString(key) [[NSBundle bundleWithIdentifier:@"org.gpgtools.Libmacgpg"] localizedStringForKey:(key) value:@"" table:@""]
-
 #ifdef DEBUGGING
 #define GPGDebugLog(...) {if ([GPGOptions debugLog]) NSLog(__VA_ARGS__);}
 #else
@@ -228,6 +226,8 @@ enum gpgStatusCodes {
 
 extern NSString * const GPGOptionsChangedNotification;
 extern NSString * const GPGConfigurationModifiedNotification;
+
+NSString *localizedLibmacgpgString(NSString *key);
 
 @interface NSData (GPGExtension)
 - (NSString *)gpgString;
