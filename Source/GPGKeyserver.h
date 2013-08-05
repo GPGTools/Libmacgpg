@@ -32,7 +32,7 @@ typedef void (^gpg_ks_finishedHandler)(GPGKeyserver *server);
 @property (readonly, retain, nonatomic) NSException *exception;
 @property (nonatomic) NSUInteger timeout;
 
-@property (nonatomic) gpg_ks_finishedHandler finishedHandler;
+@property (nonatomic, copy) gpg_ks_finishedHandler finishedHandler;
 
 
 - (void)getKey:(NSString *)keyID;
