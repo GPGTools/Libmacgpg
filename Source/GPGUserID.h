@@ -19,7 +19,7 @@
 
 #import <Libmacgpg/GPGGlobals.h>
 
-@class GPGKey;
+@class GPGKey, NSImage;
 
 
 @protocol GPGUserIDProtocol <NSObject>
