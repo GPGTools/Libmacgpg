@@ -103,15 +103,17 @@
 	receivedData.length = 0;
 }
 
-- (NSURL *)keyserverURLWithQuery:(NSString *)query {
+- (NSURL *)keyserverURLWithQuery:(NSString *)query error:(NSError **)error {
 	NSURL *url = [NSURL URLWithString:self.keyserver];
 	
 	if (!url) {
+		*error = [NSError errorWithDomain:GPGErrorDomain code:GPGErrorNoKeyserverURL userInfo:nil];
 		return nil;
 	}
 	if (!url.scheme) {
 		url = [NSURL URLWithString:[NSString stringWithFormat:@"hkp://%@", self.keyserver]];
 		if (!url.scheme) {
+			*error = [NSError errorWithDomain:GPGErrorDomain code:GPGErrorParseError userInfo:nil];
 			return nil;
 		}
 	}
@@ -172,9 +174,14 @@
 
 - (void)sendRequestWithQuery:(NSString *)query postData:(NSData *)postData {
 	receivedData.length = 0;
-	NSURL *url = [self keyserverURLWithQuery:query];
+	NSError *error = nil;
+	NSURL *url = [self keyserverURLWithQuery:query error:&error];
 	if (!url) {
-		[self failedWithException:[GPGException exceptionWithReason:@"keyserverURLWithQuery failed!" errorCode:GPGErrorKeyServerError]];
+		GPGErrorCode errorCode = GPGErrorKeyServerError;
+		if (error) {
+			errorCode = error.code;
+		}
+		[self failedWithException:[GPGException exceptionWithReason:@"keyserverURLWithQuery failed!" errorCode:errorCode]];
 	}
 		
 	NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url cachePolicy:0 timeoutInterval:self.timeout];

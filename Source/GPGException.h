@@ -353,7 +353,10 @@ typedef enum {
 	// Libmacgpg XPC related errors
 	GPGErrorXPCConnectionError = 20500,
 	GPGErrorXPCBinaryError = 20501,
-	GPGErrorXPCConnectionInterruptedError = 20502
+	GPGErrorXPCConnectionInterruptedError = 20502,
+	
+	GPGErrorNoKeyserverURL,
+	GPGErrorParseError
 } GPGErrorCode;
 
 
@@ -367,6 +370,8 @@ typedef enum {
 @property (nonatomic, readonly) GPGErrorCode errorCode;
 
 extern NSString *GPGExceptionName;
+extern NSString * const GPGErrorDomain;
+
 
 - (id)initWithName:(NSString *)aName reason:(NSString *)aReason userInfo:(NSDictionary *)aUserInfo errorCode:(GPGErrorCode)aErrorCode gpgTask:(GPGTask *)aGPGTask;
 

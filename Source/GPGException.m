@@ -12,6 +12,7 @@
 @synthesize gpgTask, errorCode;
 
 NSString *GPGExceptionName = @"GPGException";
+NSString * const GPGErrorDomain = @"GPGErrorDomain";
 
 - (id)initWithName:(NSString *)aName reason:(NSString *)aReason userInfo:(NSDictionary *)aUserInfo errorCode:(GPGErrorCode)aErrorCode gpgTask:(GPGTask *)aGPGTask {
 	if (!(self = [super initWithName:aName reason:aReason userInfo:aUserInfo])) {
