@@ -44,17 +44,23 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 		
 		
 		dispatch_group_async(dispatchGroup, dispatchQueue, ^{
-			// Get all fingerprints of the secret keys.
-			GPGTask *gpgTask = [GPGTask gpgTask];
-			gpgTask.batchMode = YES;
-			[gpgTask addArgument:@"--list-secret-keys"];
-			[gpgTask addArgument:@"--with-fingerprint"];
-			[gpgTask addArguments:keyArguments];
-			
-			[gpgTask start];
-			
-			self->_secKeyFingerprints = [[self fingerprintsFromColonListing:gpgTask.outText] retain];
-			
+
+			@try {
+				// Get all fingerprints of the secret keys.
+				GPGTask *gpgTask = [GPGTask gpgTask];
+				gpgTask.batchMode = YES;
+				[gpgTask addArgument:@"--list-secret-keys"];
+				[gpgTask addArgument:@"--with-fingerprint"];
+				[gpgTask addArguments:keyArguments];
+				
+				[gpgTask start];
+				
+				self->_secKeyFingerprints = [[self fingerprintsFromColonListing:gpgTask.outText] retain];
+			}
+			@catch (NSException *exception) {
+				//TODO: Set error code.
+				GPGDebugLog(@"Unable to load secret keys.")
+			}
 		});
 		
 		
@@ -151,7 +157,9 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 		GPGDebugLog(@"loadKeys failed: %@", exception);
 		_mutableAllKeys = nil;
 #ifdef DEBUGGING
-		@throw exception;
+		if ([exception respondsToSelector:@selector(errorCode)] && [(GPGException *)exception errorCode] != GPGErrorNotFound) {
+			@throw exception;
+		}
 #endif
 	}
 	@finally {
@@ -176,7 +184,12 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 	// Inform all listeners that the keys were loaded.
 	dispatch_async(dispatch_get_main_queue(), ^{
 		NSArray *affectedKeys = [[[newKeysSet setByAddingObjectsFromSet:keys] valueForKey:@"description"] allObjects];
-		[[NSDistributedNotificationCenter defaultCenter] postNotificationName:GPGKeyManagerKeysDidChangeNotification object:[[self class] description] userInfo:[NSDictionary dictionaryWithObject:affectedKeys forKey:@"affectedKeys"]];
+		NSDictionary *userInfo = nil;
+		if (affectedKeys) {
+			userInfo = [NSDictionary dictionaryWithObject:affectedKeys forKey:@"affectedKeys"];
+		}
+		
+		[[NSDistributedNotificationCenter defaultCenter] postNotificationName:GPGKeyManagerKeysDidChangeNotification object:[[self class] description] userInfo:userInfo];
 	});
 }
 
