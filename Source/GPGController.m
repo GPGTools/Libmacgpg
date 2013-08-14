@@ -66,7 +66,7 @@
 @implementation GPGController
 @synthesize delegate, keyserver, keyserverTimeout, proxyServer, async, userInfo, useArmor, useTextMode, printVersion, useDefaultComments,
 trustAllKeys, signatures, lastSignature, gpgHome, verbose, autoKeyRetrieve, lastReturnValue, error, undoManager, hashAlgorithm, gpgTask,
-timeout, filename, forceFilename, pinentryDescription=_pinentryDescription;
+timeout, filename, forceFilename, pinentryInfo=_pinentryInfo;
 
 NSString *gpgVersion = nil;
 NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil, *compressAlgorithm = nil;
@@ -2474,17 +2474,58 @@ BOOL gpgConfigReaded = NO;
 		[gpgTask addArgument:@"--homedir"];
 		[gpgTask addArgument:gpgHome];
 	}
-	if (_pinentryDescription) {
-		NSString *pinentryUserData = [NSString stringWithFormat:@"DESCRIPTION=%@", _pinentryDescription];
+	if (_pinentryInfo) {
+		NSMutableString *pinentryUserData =  [NSMutableString string];
+		for (NSString *key in _pinentryInfo) {
+			NSString *value = [_pinentryInfo objectForKey:key];
+			NSString *encodedValue = [self encodeStringForPinentry:value];
+			[pinentryUserData appendFormat:@"%@=%@,", key, encodedValue];
+		}
 		NSDictionary *env = [NSDictionary dictionaryWithObjectsAndKeys:pinentryUserData, @"PINENTRY_USER_DATA", nil];
 		gpgTask.environmentVariables = env;
 	}
+	
 	gpgTask.delegate = self;
 	if ([delegate respondsToSelector:@selector(gpgController:progressed:total:)]) {
 		gpgTask.progressInfo = YES;
 	}
 }
 
+- (NSString *)encodeStringForPinentry:(NSString *)string {
+	const char *chars = [string UTF8String];
+	NSUInteger length = [string lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
+	char *newChars = malloc(length * 3);
+	if (!newChars) {
+		return nil;
+	}
+	char *charsPointer = newChars;
+
+	char table[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+	
+	while (*chars) {
+		switch (*chars) {
+			case ',':
+			case '\n':
+			case '\r':
+				charsPointer[0] = '%';
+				charsPointer[1] = table[*chars >> 4];
+				charsPointer[2] = table[*chars & 0xF];
+				charsPointer += 3;
+				break;
+			default:
+				*charsPointer = *chars;
+				charsPointer++;
+				break;
+		}
+		
+		chars++;
+	}
+	*charsPointer = 0;
+	
+	NSString *encodedString = [NSString stringWithUTF8String:newChars];
+	free(newChars);
+	return encodedString;
+}
 
 
 
@@ -2499,7 +2540,7 @@ BOOL gpgConfigReaded = NO;
 	[gpgHome release];
 	[userInfo release];
 	[lastSignature release];
-	[_pinentryDescription release];	
+	[_pinentryInfo release];	
 	[asyncProxy release];
 	[identifier release];
 	[error release];

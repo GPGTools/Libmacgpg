@@ -136,11 +136,19 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 		}
 		[_mutableAllKeys unionSet:newKeysSet];
 		
-		_once_keysByKeyID = 0;
+		
+		
+		
+		NSMutableDictionary *keysByKeyID = [[NSMutableDictionary alloc] init];
+		for (GPGKey *key in _mutableAllKeys) {
+			[keysByKeyID setObject:key forKey:key.keyID];
+			for (GPGKey *subkey in key.subkeys) {
+				[keysByKeyID setObject:subkey forKey:subkey.keyID];
+			}
+		}
+		self.keysByKeyID = keysByKeyID;
 		
 		if (fetchSignatures) {
-			NSDictionary *keysByKeyID = self.keysByKeyID;
-			
 			for (GPGKey *key in _mutableAllKeys) {
 				for (GPGUserID *uid in key.userIDs) {
 					for (GPGUserIDSignature *sig in uid.signatures) {
@@ -149,7 +157,9 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 				}
 			}
 		}
-		
+		[keysByKeyID release];
+
+				
 	}
 	@catch (NSException *exception) {
 		//TODO: Detect unavailable keyring.
@@ -441,17 +451,10 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 
 
 - (NSDictionary *)keysByKeyID {
-	dispatch_once(&_once_keysByKeyID, ^{
-		NSMutableDictionary *keysByKeyID = [[NSMutableDictionary alloc] init];
-		for (GPGKey *key in self->_mutableAllKeys) {
-			[keysByKeyID setObject:key forKey:key.keyID];
-			for (GPGKey *subkey in key.subkeys) {
-				[keysByKeyID setObject:subkey forKey:subkey.keyID];
-			}
-		}
-		
-		self.keysByKeyID = keysByKeyID;
-		[keysByKeyID release];
+	static dispatch_once_t onceToken;
+	dispatch_once(&onceToken, ^{
+		if(!_keysByKeyID)
+			[self loadAllKeys];
 	});
 	
 	return [[_keysByKeyID retain] autorelease];

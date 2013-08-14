@@ -62,7 +62,7 @@
     BOOL verbose;
 	BOOL autoKeyRetrieve;
     id lastReturnValue;
-	NSString *_pinentryDescription;
+	NSDictionary *_pinentryInfo;
     
     GPGHashAlgorithm hashAlgorithm;
     
@@ -112,7 +112,13 @@
 @property (nonatomic, readonly) GPGHashAlgorithm hashAlgorithm;
 @property (nonatomic, readonly) GPGTask *gpgTask;
 @property (nonatomic, assign) NSUInteger timeout;
-@property (nonatomic, retain) NSString *pinentryDescription; // Needs to percent escaped. Placeholders: %FINGERPRINT, %KEYID, %USERID, %EMAIL, %COMMENT, %NAME.
+/*
+ Dictionary with following keys:
+ DESCRIPTION: The description displayed in pinentry. Usable playceholders: %FINGERPRINT, %KEYID, %USERID, %EMAIL, %COMMENT, %NAME.
+ ICON: The image displayed in pinentry.
+ A percent char '%', not used in a placeholder, needs to be replaced with '%25'.
+*/
+@property (nonatomic, retain) NSDictionary *pinentryInfo; // Needs to percent escaped. 
 
 
 + (NSString *)gpgVersion;

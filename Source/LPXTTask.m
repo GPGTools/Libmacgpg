@@ -108,8 +108,6 @@ static char *BDSKCopyFileSystemRepresentation(NSString *str)
 		i = environCount;
 		for (NSString *key in _environmentVariables) {
 			NSString *value = [_environmentVariables objectForKey:key];
-			srandomdev();
-			value = [value stringByAppendingFormat:@"%li", random()];
 			
 			char *envVar = (char *)[[NSString stringWithFormat:@"%@=%@", key, value] UTF8String];
 			NSUInteger cmpLength = key.length + 1;
