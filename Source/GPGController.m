@@ -1658,7 +1658,180 @@ BOOL gpgConfigReaded = NO;
 
 #pragma mark Working with keyserver
 
-- (NSString *)refreshKeysFromServer:(NSObject <EnumerationList> *)keys { //DEPRECATED!
+- (NSString *)refreshKeysFromServer:(NSObject <EnumerationList> *)keys {
+	if (async && !asyncStarted) {
+		asyncStarted = YES;
+		[asyncProxy refreshKeysFromServer:keys];
+		return nil;
+	}
+	@try {
+		[self operationDidStart];
+		[self registerUndoForKeys:keys withName:@"Undo_RefreshFromServer"];
+		
+		gpgTask = [GPGTask gpgTask];
+		[self addArgumentsForOptions];
+		[self addArgumentsForKeyserver];
+		[gpgTask addArgument:@"--refresh-keys"];
+		for (id key in keys) {
+			[gpgTask addArgument:[key description]];
+		}
+		
+		if ([gpgTask start] != 0) {
+			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Refresh keys failed!") gpgTask:gpgTask];
+		}
+		[self keysChanged:keys];
+	} @catch (NSException *e) {
+		[self handleException:e];
+	} @finally {
+		[self cleanAfterOperation];
+	}
+	
+	NSString *retVal = [gpgTask statusText];
+	[self operationDidFinishWithReturnValue:retVal];
+	return retVal;
+}
+
+- (NSString *)receiveKeysFromServer:(NSObject <EnumerationList> *)keys {
+	if (async && !asyncStarted) {
+		asyncStarted = YES;
+		[asyncProxy receiveKeysFromServer:keys];
+		return nil;
+	}
+	@try {
+		[self operationDidStart];
+		[self registerUndoForKeys:keys withName:@"Undo_ReceiveFromServer"];
+		
+		if ([keys count] == 0) {
+			[NSException raise:NSInvalidArgumentException format:@"Empty key list!"];
+		}
+		gpgTask = [GPGTask gpgTask];
+		[self addArgumentsForOptions];
+		[self addArgumentsForKeyserver];
+		[gpgTask addArgument:@"--recv-keys"];
+		for (id key in keys) {
+			[gpgTask addArgument:[key description]];
+		}
+		
+		if ([gpgTask start] != 0) {
+			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Receive keys failed!") gpgTask:gpgTask];
+		}
+		
+		NSSet *changedKeys = fingerprintsFromStatusText(gpgTask.statusText);
+		[self keysChanged:changedKeys];
+	} @catch (NSException *e) {
+		[self handleException:e];
+	} @finally {
+		[self cleanAfterOperation];
+	}
+	
+	NSString *retVal = [gpgTask statusText];
+	[self operationDidFinishWithReturnValue:retVal];
+	return retVal;
+}
+
+- (void)sendKeysToServer:(NSObject <EnumerationList> *)keys {
+	if (async && !asyncStarted) {
+		asyncStarted = YES;
+		[asyncProxy sendKeysToServer:keys];
+		return;
+	}
+	@try {
+		[self operationDidStart];
+		
+		if ([keys count] == 0) {
+			[NSException raise:NSInvalidArgumentException format:@"Empty key list!"];
+		}
+		gpgTask = [GPGTask gpgTask];
+		[self addArgumentsForOptions];
+		[self addArgumentsForKeyserver];
+		[gpgTask addArgument:@"--send-keys"];
+		for (id key in keys) {
+			[gpgTask addArgument:[key description]];
+		}
+		
+		if ([gpgTask start] != 0) {
+			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Send keys failed!") gpgTask:gpgTask];
+		}
+	} @catch (NSException *e) {
+		[self handleException:e];
+	} @finally {
+		[self cleanAfterOperation];
+	}
+	[self operationDidFinishWithReturnValue:nil];
+}
+
+- (NSArray *)searchKeysOnServer:(NSString *)pattern {
+	NSArray *keys = nil;
+	if (async && !asyncStarted) {
+		asyncStarted = YES;
+		[asyncProxy searchKeysOnServer:pattern];
+		return nil;
+	}
+	@try {
+		[self operationDidStart];
+		
+		pattern = [pattern stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+		NSCharacterSet *noHexCharSet = [[NSCharacterSet characterSetWithCharactersInString:@"0123456789ABCDEFabcdef"] invertedSet];
+		NSString *stringToCheck = nil;
+		
+		switch ([pattern length]) {
+			case 8:
+			case 16:
+			case 32:
+			case 40:
+				stringToCheck = pattern;
+				break;
+			case 9:
+			case 17:
+			case 33:
+			case 41:
+				if ([pattern hasPrefix:@"0"]) {
+					stringToCheck = [pattern substringFromIndex:1];
+				}
+				break;
+			case 10:
+			case 18:
+			case 34:
+			case 42:
+				if ([pattern hasPrefix:@"0x"]) {
+					stringToCheck = [pattern substringFromIndex:2];
+				}
+				break;
+		}
+		
+		
+		if (stringToCheck && [stringToCheck rangeOfCharacterFromSet:noHexCharSet].length == 0) {
+			pattern = [@"0x" stringByAppendingString:stringToCheck];
+		}
+		
+		
+		
+		
+		gpgTask = [GPGTask gpgTask];
+		[self addArgumentsForOptions];
+		gpgTask.batchMode = YES;
+		[self addArgumentsForKeyserver];
+		[gpgTask addArgument:@"--search-keys"];
+		[gpgTask addArgument:@"--"];
+		[gpgTask addArgument:pattern];
+		
+		if ([gpgTask start] != 0) {
+			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Search keys failed!") gpgTask:gpgTask];
+		}
+		
+		keys = [GPGRemoteKey keysWithListing:gpgTask.outText];
+	} @catch (NSException *e) {
+		[self handleException:e];
+	} @finally {
+		[self cleanAfterOperation];
+	}
+	
+	[self operationDidFinishWithReturnValue:keys];
+	
+	return keys;
+}
+
+/*- (NSString *)refreshKeysFromServer:(NSObject <EnumerationList> *)keys { //DEPRECATED!
 	return [self receiveKeysFromServer:keys];
 }
 
@@ -1886,7 +2059,7 @@ BOOL gpgConfigReaded = NO;
 	[self operationDidFinishWithReturnValue:keys];
 	
 	return keys;
-}
+}*/
 
 
 
