@@ -144,7 +144,8 @@
 }
 
 - (BOOL)getObjectValue:(id*)obj forString:(NSString*)string errorDescription:(NSString**)error {
-	return NO;
+	*obj = string;
+	return YES;
 }
 - (BOOL)isPartialStringValid:(NSString*)partialString newEditingString:(NSString**) newString errorDescription:(NSString**)error {
 	return YES;
