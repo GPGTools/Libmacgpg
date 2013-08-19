@@ -296,8 +296,9 @@ char partCountForStatusCode[GPG_STATUS_COUNT];
 	
     NSMutableArray *defaultArguments = [NSMutableArray arrayWithObjects:
                                         @"--no-greeting", @"--no-tty", @"--with-colons", @"--fixed-list-mode",
+										@"--utf8-strings", @"--display-charset", @"utf-8",
                                         @"--yes", @"--output", @"-", @"--status-fd", @"3", nil];
-	
+
 	
 	if (progressInfo && [delegate respondsToSelector:@selector(gpgTask:progressed:total:)]) {
 		[defaultArguments addObject:@"--enable-progress-filter"];
