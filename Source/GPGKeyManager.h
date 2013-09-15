@@ -13,6 +13,7 @@
 	
 	NSLock *_keyLoadingCheckLock;
 	dispatch_queue_t _keyLoadingQueue;
+	dispatch_queue_t _keyChangeNotificationQueue;
 	
 	NSSet *_publicKeys;
 	NSSet *_secretKeys;

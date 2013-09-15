@@ -686,23 +686,27 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 #pragma mark Keyring modifications notification handler
 
 - (void)keysDidChange:(NSNotification *)notification {
-	if([_keyLoadingCheckLock tryLock]) {
-		//NSLog(@"[%@]: Succeeded acquiring notification execute lock.", [NSThread currentThread]);
-		// If notification doesn't contain any keys, all keys have
-		// to be rebuild.
-		// If only a few keys were modified, the notification info will contain
-		// the affected keys, and only these have to be rebuilt.
-		//NSLog(@"[%@]: Keys did change - will reload keys", [NSThread currentThread]);
-		
-		// Call load keys.
-		[self loadAllKeys];
-		// At this point, it's ok for new notifications to queue key loads.
-		[_keyLoadingCheckLock unlock];
-	}
-	else {
-		//NSLog(@"[%@]: Failed to acquire notification execute lock.", [NSThread currentThread]);
-		_keysNeedToBeReloaded = YES;
-	}
+	// We're on the main queue, so we should immediately dispatch
+	// off. Reloading keys could take longer.
+	dispatch_async(_keyChangeNotificationQueue, ^{
+		if([_keyLoadingCheckLock tryLock]) {
+			//NSLog(@"[%@]: Succeeded acquiring notification execute lock.", [NSThread currentThread]);
+			// If notification doesn't contain any keys, all keys have
+			// to be rebuild.
+			// If only a few keys were modified, the notification info will contain
+			// the affected keys, and only these have to be rebuilt.
+			//NSLog(@"[%@]: Keys did change - will reload keys", [NSThread currentThread]);
+			
+			// Call load keys.
+			[self loadAllKeys];
+			// At this point, it's ok for new notifications to queue key loads.
+			[_keyLoadingCheckLock unlock];
+		}
+		else {
+			//NSLog(@"[%@]: Failed to acquire notification execute lock.", [NSThread currentThread]);
+			_keysNeedToBeReloaded = YES;
+		}
+	});
 }
 
 #pragma mark Singleton
@@ -725,6 +729,7 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 	
 	_mutableAllKeys = [[NSMutableSet alloc] init];
 	_keyLoadingQueue = dispatch_queue_create("org.gpgtools.libmacgpg.GPGKeyManager.key-loader", NULL);
+	_keyChangeNotificationQueue = dispatch_queue_create("org.gpgtools.libmacgpg.GPGKeyManager.key-change", NULL);
 	// Start listening to keyring modifications notifcations.
 	[[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(keysDidChange:) name:GPGKeysChangedNotification object:nil];
 	_keysNeedToBeReloaded = NO;
