@@ -492,14 +492,14 @@ BOOL gpgConfigReaded = NO;
 		[cmdText appendFormat:@"Key-Type: %i\n", keyType];
 		[cmdText appendFormat:@"Key-Length: %i\n", keyLength];
 		
-		if(keyType == GPG_RSAAlgorithm) {
+		if(keyType == GPG_RSAAlgorithm || keyType == GPG_DSAAlgorithm) {
 			[cmdText appendFormat:@"Key-Usage: %@\n", @"sign"];
 		}
 		
 		if (subkeyType) {
 			[cmdText appendFormat:@"Subkey-Type: %i\n", subkeyType];
 			[cmdText appendFormat:@"Subkey-Length: %i\n", subkeyLength];
-			if(keyType == GPG_RSAAlgorithm) {
+			if(keyType == GPG_RSAAlgorithm || keyType == GPG_ElgamalEncryptOnlyAlgorithm) {
 				[cmdText appendFormat:@"Subkey-Usage: %@\n", @"encrypt"];
 			}
 		}
