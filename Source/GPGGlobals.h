@@ -239,6 +239,7 @@ NSString *localizedLibmacgpgString(NSString *key);
 - (NSString *)shortKeyID;
 - (NSString *)keyID;
 - (NSString *)unescapedString;
+- (NSDictionary *)splittedUserIDDescription;
 @end
 
 @interface NSDate (GPGExtension)

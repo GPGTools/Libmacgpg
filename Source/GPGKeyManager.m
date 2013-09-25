@@ -324,31 +324,12 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 			
 			if (isUid) {
 				isUid = NO;
-				NSString *workText = [[parts objectAtIndex:9] unescapedString];
-				userID.userIDDescription = workText;
-				
-				NSUInteger textLength = [workText length];
-				NSRange range;
-				
-				if ([workText hasSuffix:@">"] && (range = [workText rangeOfString:@" <" options:NSBackwardsSearch]).length > 0) {
-					range.location += 2;
-					range.length = textLength - range.location - 1;
-					userID.email = [workText substringWithRange:range];
-					
-					workText = [workText substringToIndex:range.location - 2];
-					textLength -= (range.length + 3);
-				}
-				range = [workText rangeOfString:@" (" options:NSBackwardsSearch];
-				if (range.length > 0 && range.location > 0 && [workText hasSuffix:@")"]) {
-					range.location += 2;
-					range.length = textLength - range.location - 1;
-					userID.comment = [workText substringWithRange:range];
-					
-					workText = [workText substringToIndex:range.location - 2];
-				}
-				
-				userID.name = workText;
-				
+				NSDictionary *dict = [[[parts objectAtIndex:9] unescapedString] splittedUserIDDescription];
+				userID.userIDDescription = [dict objectForKey:@"userIDDescription"];
+				userID.name = [dict objectForKey:@"name"];
+				userID.email = [dict objectForKey:@"email"];
+				userID.comment = [dict objectForKey:@"comment"];
+
 			} else if (_fetchUserAttributes) { // Process attribute data.
 				NSArray *infos = [_attributeInfos objectForKey:primaryKey.fingerprint];
 				if (infos) {

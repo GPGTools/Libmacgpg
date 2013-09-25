@@ -210,6 +210,35 @@ break;
 	free(unescapedText);
 	return retString;
 }
+- (NSDictionary *)splittedUserIDDescription {
+	NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithCapacity:3];
+	NSString *workText = self;
+	NSUInteger textLength = [workText length];
+	NSRange range;
+
+	[dict setObject:workText forKey:@"userIDDescription"];
+
+	range = [workText rangeOfString:@" <" options:NSBackwardsSearch];
+	if ([workText hasSuffix:@">"] && (range.length > 0 || ([workText hasPrefix:@"<"] && ((range.location = 0) == 0)))) {
+		range.location += 2;
+		range.length = textLength - range.location - 1;
+		[dict setObject:[workText substringWithRange:range] forKey:@"email"];
+		
+		workText = [workText substringToIndex:range.location - 2];
+		textLength -= (range.length + 3);
+	}
+	range = [workText rangeOfString:@" (" options:NSBackwardsSearch];
+	if ([workText hasSuffix:@")"] && (range.length > 0 || ([workText hasPrefix:@"("] && ((range.location = 0) == 0)))) {
+		range.location += 2;
+		range.length = textLength - range.location - 1;
+		[dict setObject:[workText substringWithRange:range] forKey:@"comment"];
+		
+		workText = [workText substringToIndex:range.location - 2];
+	}
+	
+	[dict setObject:workText forKey:@"name"];
+	return dict;
+}
 
 
 @end

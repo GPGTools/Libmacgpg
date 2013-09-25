@@ -59,28 +59,10 @@
 		[userIDDescription release];
 		userIDDescription = [value retain];
 		
-		
-		NSString *workText = value;
-		NSUInteger textLength = [workText length];
-		NSRange range;
-		if ([workText hasSuffix:@">"] && (range = [workText rangeOfString:@" <" options:NSBackwardsSearch]).length > 0) {
-			range.location += 2;
-			range.length = textLength - range.location - 1;
-			self.email = [workText substringWithRange:range];
-			
-			workText = [workText substringToIndex:range.location - 2];
-			textLength -= (range.length + 3);
-		}
-		range = [workText rangeOfString:@" (" options:NSBackwardsSearch];
-		if (range.length > 0 && range.location > 0 && [workText hasSuffix:@")"]) {
-			range.location += 2;
-			range.length = textLength - range.location - 1;
-			self.comment = [workText substringWithRange:range];
-			
-			workText = [workText substringToIndex:range.location - 2];
-		}
-		self.name = workText;
-
+		NSDictionary *dict = [value splittedUserIDDescription];
+		self.name = [dict objectForKey:@"name"];
+		self.email = [dict objectForKey:@"email"];
+		self.comment = [dict objectForKey:@"comment"];
 	}
 }
 
