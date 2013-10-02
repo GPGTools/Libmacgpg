@@ -457,11 +457,11 @@ endOfBuffer:
 					const char *newlinePos;
 					while ((newlinePos = memchr(readPos, '\n', textEnd - readPos))) {
 						readPos = newlinePos - 1;
-						if (*readPos == '\r') {
+						if (*readPos == '\r') { // Remove \n as well as \r\n.
 							readPos--;
 						}
 						
-						while (*readPos == ' ' || *readPos == '\t') {
+						while (*readPos == ' ' || *readPos == '\t') { // Remove spaces and tabs from the end of lines.
 							readPos--;
 						}
 						
@@ -480,6 +480,10 @@ endOfBuffer:
 						}
 						textStart = readPos;
 					}
+					while (textEnd[-1] == ' ' || textEnd[-1] == '\t') { // Remove spaces and tabs from the end of the last line.
+						textEnd--;
+					}
+
 					memcpy(clearBytesPtr, textStart, textEnd - textStart);
 					clearBytesPtr += textEnd - textStart;
 										
