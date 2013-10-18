@@ -2353,16 +2353,22 @@ BOOL gpgConfigReaded = NO;
 	
 	
 	if (parseFingerprint) {
-		NSSet *allKeys = [GPGKeyManager sharedInstance].allKeysAndSubkeys;
 		
+		GPGKeyManager *keyManager = [GPGKeyManager sharedInstance];
 		NSString *fingerprint = [components objectAtIndex:0];
-		GPGKey *key = [allKeys member:fingerprint];
+		GPGKey *key;
 		
-		// If no key is available, but a fingerprint is available it means that our
-		// list of keys is outdated. In that case, the specific key is reloaded.
-		if(!key && [fingerprint length] >= 32) {
-			[[GPGKeyManager sharedInstance] loadKeys:[NSSet setWithObject:fingerprint] fetchSignatures:NO fetchUserAttributes:NO];
-			key = [[GPGKeyManager sharedInstance].allKeysAndSubkeys member:fingerprint];
+		if (fingerprint.length == 16) { // KeyID
+			key = [keyManager.keysByKeyID objectForKey:fingerprint];
+		} else { // Fingerprint
+			key = [keyManager.allKeysAndSubkeys member:fingerprint];
+			
+			// If no key is available, but a fingerprint is available it means that our
+			// list of keys is outdated. In that case, the specific key is reloaded.
+			if(!key && fingerprint.length >= 32) {
+				[[GPGKeyManager sharedInstance] loadKeys:[NSSet setWithObject:fingerprint] fetchSignatures:NO fetchUserAttributes:NO];
+				key = [[GPGKeyManager sharedInstance].allKeysAndSubkeys member:fingerprint];
+			}
 		}
 		
 		if (key) {
