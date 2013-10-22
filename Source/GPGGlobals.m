@@ -382,10 +382,21 @@ void *lm_memmem(const void *big, size_t big_len, const void *little, size_t litt
 - (NSMethodSignature *)methodSignatureForSelector:(SEL)aSelector {
     return [realObject methodSignatureForSelector:aSelector];
 }
+- (BOOL)respondsToSelector:(SEL)aSelector {
+	if (aSelector == @selector(invokeWithPool:)) {
+		return YES;
+	}
+	return [super respondsToSelector:aSelector];
+}
+- (void)invokeWithPool:(NSInvocation *)anInvocation {
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	[anInvocation invoke];
+	[pool drain];
+}
 - (void)forwardInvocation:(NSInvocation *)anInvocation {
 	[anInvocation retainArguments];
     [anInvocation setTarget:realObject];
-	[NSThread detachNewThreadSelector:@selector(invoke) toTarget:anInvocation withObject:nil];
+	[NSThread detachNewThreadSelector:@selector(invokeWithPool:) toTarget:self withObject:anInvocation];
 }
 + (id)proxyWithRealObject:(NSObject *)object {
 	return [[[[self class] alloc] initWithRealObject:object] autorelease];
