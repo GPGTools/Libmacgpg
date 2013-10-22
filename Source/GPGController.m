@@ -535,9 +535,8 @@ BOOL gpgConfigReaded = NO;
 		[gpgTask addInText:cmdText];
 		
 		
-		if ([gpgTask start] != 0) {
-			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Generate new key failed!") gpgTask:gpgTask];
-		}
+		[gpgTask start];
+			
 		NSString *statusText = gpgTask.statusText;
 
 		NSRange range = [statusText rangeOfString:@"[GNUPG:] KEY_CREATED "];
@@ -552,6 +551,8 @@ BOOL gpgConfigReaded = NO;
 			}
 			
 			[self keyChanged:fingerprint];
+		} else {
+			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Generate new key failed!") gpgTask:gpgTask];
 		}
 		
 	} @catch (NSException *e) {
