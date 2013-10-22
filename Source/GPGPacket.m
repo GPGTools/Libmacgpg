@@ -384,13 +384,14 @@ endOfBuffer:
 	BOOL haveClearText = NO;
 	NSMutableData *decodedData = [NSMutableData data];
 	myState state = state_searchStart;
-	NSException *exception = nil;
+	BOOL failed = NO;
 	
 	
 
 	char *mutableBytes = malloc(dataLength);
 	if (!mutableBytes) {
-		exception = [NSException exceptionWithName:@"malloc exception" reason:@"malloc failed" userInfo:nil];
+		NSLog(@"unArmorFrom:clearText: malloc failed!");
+		failed = YES;
 		goto endOfBuffer;
 	}
 	memcpy(mutableBytes, bytes, dataLength);
@@ -446,7 +447,8 @@ endOfBuffer:
 					
 					char *clearBytes = malloc(textEnd - textStart + maxCRToAdd);
 					if (!clearBytes) {
-						exception = [NSException exceptionWithName:@"malloc exception" reason:@"malloc failed" userInfo:nil];
+						NSLog(@"unArmorFrom:clearText: malloc failed!");
+						failed = YES;
 						goto endOfBuffer;
 					}
 					if (textStart[0] == '-' && textStart[1] == ' ') {
@@ -584,7 +586,8 @@ endOfBuffer:
 					BIO_free_all(bio);
 					
 					if (crcLength != 3) {
-						exception = [GPGException exceptionWithReason:localizedLibmacgpgString(@"CRC Error") errorCode:GPGErrorChecksumError];
+						NSLog(@"unArmorFrom:clearText: %@", localizedLibmacgpgString(@"CRC Error"));
+						failed = YES;
 						goto endOfBuffer;
 					}
 					
@@ -592,7 +595,8 @@ endOfBuffer:
 					
 					crc2 = crc24(binaryBuffer, length);
 					if (crc1 != crc2) {
-						exception = [GPGException exceptionWithReason:localizedLibmacgpgString(@"CRC Error") errorCode:GPGErrorChecksumError];
+						NSLog(@"unArmorFrom:clearText: %@", localizedLibmacgpgString(@"CRC Error"));
+						failed = YES;
 						goto endOfBuffer;
 					}
 				}
@@ -611,8 +615,8 @@ endOfBuffer:
 	
 endOfBuffer:
 	free(mutableBytes);
-	if (exception) {
-		@throw exception;
+	if (failed) {
+		return nil;
 	}
 	return decodedData;
 }
