@@ -111,7 +111,7 @@
 	if(!_textForFilter) {
 		NSMutableString *textForFilter = [[NSMutableString alloc] init];
 		for(GPGKey *key in [self.subkeys arrayByAddingObject:self]) {
-			[textForFilter appendFormat:@"0x%@\n0x%@\n0x%@\n", self.fingerprint, self.keyID, [self.keyID shortKeyID]];
+			[textForFilter appendFormat:@"0x%@\n0x%@\n0x%@\n", key.fingerprint, key.keyID, [key.keyID shortKeyID]];
 		}
 		for(GPGUserID *userID in self.userIDs)
 			[textForFilter appendFormat:@"%@\n", userID.userIDDescription];
