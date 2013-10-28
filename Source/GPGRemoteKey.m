@@ -75,7 +75,7 @@
 	
 	NSArray *splitedLine = [[listing objectAtIndex:0] componentsSeparatedByString:@":"];
 	
-	self.keyID = [splitedLine objectAtIndex:1];
+	self.keyID = [[splitedLine objectAtIndex:1] shortKeyID];
 	self.algorithm = [[splitedLine objectAtIndex:2] intValue];
 	self.length = [[splitedLine objectAtIndex:3] integerValue];
 	
