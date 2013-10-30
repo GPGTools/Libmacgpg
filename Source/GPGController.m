@@ -615,6 +615,32 @@ BOOL gpgConfigReaded = NO;
 	[self operationDidFinishWithReturnValue:nil];	
 }
 
+- (void)cleanKeys:(NSObject <EnumerationList> *)keys {
+	if (async && !asyncStarted) {
+		asyncStarted = YES;
+		[asyncProxy cleanKeys:keys];
+		return;
+	}
+	@try {
+		groupedKeyChange++;
+		[self operationDidStart];
+		[self registerUndoForKeys:keys withName:@"Undo_CleanKey"];
+		
+		for (GPGKey *key in keys) {
+			[self cleanKey:key];
+		}
+
+	} @catch (NSException *e) {
+		[self handleException:e];
+	} @finally {
+		groupedKeyChange--;
+		[self keysChanged:keys];
+		[self cleanAfterOperation];
+	}
+	
+	[self operationDidFinishWithReturnValue:nil];
+}
+
 - (void)cleanKey:(NSObject <KeyFingerprint> *)key {
 	if (async && !asyncStarted) {
 		asyncStarted = YES;
@@ -644,6 +670,32 @@ BOOL gpgConfigReaded = NO;
 	}
 	
 	[self operationDidFinishWithReturnValue:nil];	
+}
+
+- (void)minimizeKeys:(NSObject <EnumerationList> *)keys {
+	if (async && !asyncStarted) {
+		asyncStarted = YES;
+		[asyncProxy minimizeKeys:keys];
+		return;
+	}
+	@try {
+		groupedKeyChange++;
+		[self operationDidStart];
+		[self registerUndoForKeys:keys withName:@"Undo_MinimizeKey"];
+		
+		for (GPGKey *key in keys) {
+			[self minimizeKey:key];
+		}
+		
+	} @catch (NSException *e) {
+		[self handleException:e];
+	} @finally {
+		groupedKeyChange--;
+		[self keysChanged:keys];
+		[self cleanAfterOperation];
+	}
+	
+	[self operationDidFinishWithReturnValue:nil];
 }
 
 - (void)minimizeKey:(NSObject <KeyFingerprint> *)key {

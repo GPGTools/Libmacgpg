@@ -151,6 +151,8 @@
 - (void)cancel;
 
 - (void)cleanKey:(NSObject <KeyFingerprint> *)key;
+- (void)cleanKeys:(NSObject <EnumerationList> *)keys;
+- (void)minimizeKeys:(NSObject <EnumerationList> *)keys;
 - (void)minimizeKey:(NSObject <KeyFingerprint> *)key;
 - (void)addPhotoFromPath:(NSString *)path toKey:(NSObject <KeyFingerprint> *)key;
 - (void)removeUserID:(NSString *)hashID fromKey:(NSObject <KeyFingerprint> *)key;
