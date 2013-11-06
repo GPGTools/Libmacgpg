@@ -112,7 +112,11 @@ void eventStreamCallBack(ConstFSEventStreamRef streamRef, void *clientCallBackIn
 		if (eventStream) {
 			CFRunLoopRef mainLoop = [[NSRunLoop mainRunLoop] getCFRunLoop];
 			FSEventStreamScheduleWithRunLoop(eventStream, mainLoop, kCFRunLoopDefaultMode);
-			assert(FSEventStreamStart(eventStream));
+			if (!FSEventStreamStart(eventStream)) {
+				FSEventStreamInvalidate(eventStream);
+				FSEventStreamRelease(eventStream);
+				eventStream = nil;
+			}
 		}
 	}
 }

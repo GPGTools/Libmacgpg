@@ -23,7 +23,6 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <pwd.h>
-#include <assert.h>
 #import "GPGOptions.h"
 #import "GPGConf.h"
 #import <SystemConfiguration/SystemConfiguration.h>
@@ -338,13 +337,18 @@ static NSString * const kGpgAgentConfKVKey = @"gpgAgentConf";
 	
 	if ([fileManager fileExistsAtPath:environmentPlistDir isDirectory:&isDirectory]) {
 		if (!isDirectory) {
-			NSAssert1(isDirectory, @"'%@' is not a directory.", environmentPlistDir);
+			GPGDebugLog(@"'%@' is not a directory.", environmentPlistDir)
+			return;
 		}
 	} else {
 		NSError *error;
-		NSAssert2([fileManager createDirectoryAtPath:environmentPlistDir withIntermediateDirectories:YES attributes:nil error:&error], @"Unable to create directory '%@'. Error: %@", environmentPlistDir, error);
+		if (![fileManager createDirectoryAtPath:environmentPlistDir withIntermediateDirectories:YES attributes:nil error:&error]) {
+			GPGDebugLog(@"Unable to create directory '%@'. Error: %@", environmentPlistDir, error);
+		}
 	}
-	NSAssert1([self.environment writeToFile:environmentPlistPath atomically:YES], @"Unable to write file '%@'", environmentPlistPath);
+	if (![self.environment writeToFile:environmentPlistPath atomically:YES]) {
+		GPGDebugLog(@"Unable to write file '%@'", environmentPlistPath);
+	}
 }
 - (NSMutableDictionary *)environment {
 	if (!environment) {
