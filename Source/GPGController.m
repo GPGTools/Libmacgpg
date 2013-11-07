@@ -235,6 +235,9 @@ BOOL gpgConfigReaded = NO;
 	return self;
 }
 
++ (void)initialize {
+	[GPGTaskHelper pinentryPath];
+}
 
 
 - (void)cancel {

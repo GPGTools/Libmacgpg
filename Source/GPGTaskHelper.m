@@ -170,50 +170,51 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
     static NSString *pinentryPath = nil;
     static dispatch_once_t pinentryToken;
     dispatch_once(&pinentryToken, ^{
-        // Checking in order:
-        // 1. pinentry-mac in a bundle named "org.gpgtools.Libmacgpg" 
-        // 2. a defined "pinentry-program" in gpg-agent.conf
-        // 3. a pinentry-mac executable in a set of dirs (e.g., /usr/local/bin) 
-        //
-        NSMutableArray *possibleBins = [NSMutableArray array];
-        NSFileManager *fmgr = [NSFileManager defaultManager];
-        
-        // 1.
-        NSString *bndlePath = [[NSBundle bundleWithIdentifier:@"org.gpgtools.Libmacgpg"] 
-                               pathForResource:@"pinentry-mac" ofType:@"" 
-                               inDirectory:@"pinentry-mac.app/Contents/MacOS"];
-        if (bndlePath && [fmgr isExecutableFileAtPath:bndlePath]) 
-            [possibleBins addObject:bndlePath];
-        
-        // 2.
-        static NSString * const kPinentry_program = @"pinentry-program";
+		
+		// New checking order:
+		// 1. a defined "pinentry-program" in gpg-agent.conf
+		// 2. pinentry-mac in a bundle named "org.gpgtools.Libmacgpg"
+		// 3. a pinentry-mac executable in a set of dirs (e.g., /usr/local/bin)
+
+		
+		NSString *foundPath = nil;
+		
+		NSFileManager *fileManager = [NSFileManager defaultManager];
+		static NSString * const kPinentry_program = @"pinentry-program";
         GPGOptions *options = [GPGOptions sharedOptions];
+		
+		// 1.
+		// Read pinentry path from gpg-agent.conf
         NSString *inconfPath = [options valueForKey:kPinentry_program inDomain:GPGDomain_gpgAgentConf];
         inconfPath = [inconfPath stringByStandardizingPath];
-        if (inconfPath && [fmgr isExecutableFileAtPath:inconfPath]) 
-            [possibleBins addObject:inconfPath];
-        else
-            inconfPath = nil;
         
-        // 3. Per mento: this feature is a rescue and update system 
-        // if the user doesn't use MacGPG2
-        if (!inconfPath) {
-            if (possibleBins.count == 0) {
-                inconfPath = [self findExecutableWithName:@"../libexec/pinentry-mac.app/Contents/MacOS/pinentry-mac"];
-                if (inconfPath)
-                    [possibleBins addObject:inconfPath];
+		if (inconfPath && [fileManager isExecutableFileAtPath:inconfPath]) {
+            foundPath = inconfPath; // Use it, if valid.
+		} else { // No valid pinentryPath.
+			inconfPath = nil;
+			
+			// 2.
+			// Search for pinentry in Libmacgpg.
+			NSString *bundlePath = [[NSBundle bundleWithIdentifier:@"org.gpgtools.Libmacgpg"] pathForResource:@"pinentry-mac" ofType:@"" inDirectory:@"pinentry-mac.app/Contents/MacOS"];
+			if (bundlePath && [fileManager isExecutableFileAtPath:bundlePath])
+				foundPath = bundlePath;
+		}
+		
+		
+		
+		if (!inconfPath) { // No (valid) pinentry ing pg-agent.conf
+            if (!foundPath) {
+				// 3.
+                foundPath = [self findExecutableWithName:@"../libexec/pinentry-mac.app/Contents/MacOS/pinentry-mac"];
             }
-            
-            if (possibleBins.count > 0) {
-                inconfPath = [possibleBins objectAtIndex:0];
-                [options setValue:inconfPath forKey:kPinentry_program inDomain:GPGDomain_gpgAgentConf];
+            if (foundPath) {
+				// Set valid pinentry.
+                [options setValue:foundPath forKey:kPinentry_program inDomain:GPGDomain_gpgAgentConf];
                 [options gpgAgentFlush];
             }
         }
-        
-        NSString *foundPath = ([possibleBins count] > 0) ? [possibleBins objectAtIndex:0] : nil;
-        if (foundPath)
-            pinentryPath = [foundPath retain];
+
+		foundPath = [foundPath retain];
     });
 	return pinentryPath;
 }

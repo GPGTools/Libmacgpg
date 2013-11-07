@@ -134,8 +134,10 @@ typedef void (^lp_progress_handler_t)(NSUInteger processedBytes, NSUInteger tota
  Launch any task. (In sandbox, the task needs to be signed with GPGTools certificate).
  */
 + (BOOL)launchGeneralTask:(NSString *)path withArguments:(NSArray *)arguments wait:(BOOL)wait;
-	
+
 + (NSString *)gpgAgentSocket;
 + (BOOL)isPassphraseInGPGAgentCache:(id)key;
+
++ (NSString *)pinentryPath;
 
 @end
