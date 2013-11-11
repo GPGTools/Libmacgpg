@@ -298,9 +298,6 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 			userID = [[[GPGUserID alloc] init] autorelease];
 			userID.primaryKey = primaryKey;
 			
-			userID = [[[GPGUserID alloc] init] autorelease];
-			userID.primaryKey = primaryKey;
-			
 			
 			GPGValidity validity = [self validityForLetter:[parts objectAtIndex:1]];
 			
