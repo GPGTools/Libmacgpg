@@ -46,7 +46,22 @@
 		}
 		
 		
-		self.userIDDescription = [[splitedLine objectAtIndex:1] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+		NSString *decodedString = [[splitedLine objectAtIndex:1] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+		
+		if (!decodedString) {
+			int encodings[] = {NSISOLatin1StringEncoding, NSISOLatin2StringEncoding, NSASCIIStringEncoding, 0};
+			int i = 0;
+			
+			while (encodings[i]) {
+				decodedString = [[splitedLine objectAtIndex:1] stringByReplacingPercentEscapesUsingEncoding:encodings[i]];
+				if (decodedString) {
+					break;
+				}
+				i++;
+			}
+		}
+		
+		self.userIDDescription = decodedString;
 		
 		self.creationDate = [NSDate dateWithGPGString:[splitedLine objectAtIndex:2]];
 		self.expirationDate = [NSDate dateWithGPGString:[splitedLine objectAtIndex:3]];
