@@ -482,7 +482,7 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
     __block GPGTaskHelper *this = self;
 	while((currentData = [[statusPipe fileHandleForReading] availableData])&& [currentData length]) {
         [statusData appendData:currentData];
-        [line appendString:[[[NSString alloc] initWithData:currentData encoding:NSUTF8StringEncoding] autorelease]];
+        [line appendString:[currentData gpgString]];
         // Skip data without line ending. Not a full line!
         if([currentData rangeOfData:NL options:NSDataSearchBackwards range:NSMakeRange(0, [currentData length])].location == NSNotFound)
             continue;
