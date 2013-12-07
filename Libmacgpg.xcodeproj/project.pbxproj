@@ -43,6 +43,7 @@
 		3002C04416EE388B00D57C1E /* libcrypto.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3002C04316EE388B00D57C1E /* libcrypto.dylib */; };
 		3002C04616EE389100D57C1E /* libxar.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3002C04516EE389100D57C1E /* libxar.dylib */; };
 		3002C04716EE38C900D57C1E /* libcrypto.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3002C04316EE388B00D57C1E /* libcrypto.dylib */; };
+		300DD0FA1853AF300057B05F /* How to get the source code in Resources */ = {isa = PBXBuildFile; fileRef = 300DD0F91853AF300057B05F /* How to get the source code */; };
 		301D5D9F178C9871003026E7 /* GPGKeyserver.h in Headers */ = {isa = PBXBuildFile; fileRef = 301D5D9D178C9871003026E7 /* GPGKeyserver.h */; };
 		301D5DA0178C9871003026E7 /* GPGKeyserver.m in Sources */ = {isa = PBXBuildFile; fileRef = 301D5D9E178C9871003026E7 /* GPGKeyserver.m */; };
 		3026F4AF13A203A000F3CA02 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3026F4AE13A203A000F3CA02 /* Security.framework */; };
@@ -222,6 +223,7 @@
 		1BD78BB11726B2830005F251 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		3002C04316EE388B00D57C1E /* libcrypto.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcrypto.dylib; path = usr/lib/libcrypto.dylib; sourceTree = SDKROOT; };
 		3002C04516EE389100D57C1E /* libxar.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxar.dylib; path = usr/lib/libxar.dylib; sourceTree = SDKROOT; };
+		300DD0F91853AF300057B05F /* How to get the source code */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "How to get the source code"; path = "../../GPGTools_Core/resources/How to get the source code"; sourceTree = "<group>"; };
 		301D5D9D178C9871003026E7 /* GPGKeyserver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGKeyserver.h; sourceTree = "<group>"; };
 		301D5D9E178C9871003026E7 /* GPGKeyserver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGKeyserver.m; sourceTree = "<group>"; };
 		3026F4AE13A203A000F3CA02 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
@@ -417,6 +419,7 @@
 		089C1665FE841158C02AAC07 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				300DD0F91853AF300057B05F /* How to get the source code */,
 				30516556142281270038AAF0 /* Localizable.strings */,
 				30B586F4141E255C000373F1 /* Keyservers.plist */,
 				8DC2EF5A0486A6940098B216 /* Info.plist */,
@@ -876,6 +879,7 @@
 				30516558142281270038AAF0 /* Localizable.strings in Resources */,
 				45C6E82714F8913B00ED67C6 /* pinentry-mac.app in Resources */,
 				1B46CFA2161531DC00CF9C5F /* org.gpgtools.Libmacgpg.xpc.plist in Resources */,
+				300DD0FA1853AF300057B05F /* How to get the source code in Resources */,
 				30DF7CC416D3A12F00C8225C /* installerHelper in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
