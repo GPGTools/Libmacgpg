@@ -1833,23 +1833,24 @@ BOOL gpgConfigReaded = NO;
 	@try {
 		[self operationDidStart];
 		
-		pattern = [pattern stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-		NSCharacterSet *noHexCharSet = [[NSCharacterSet characterSetWithCharactersInString:@"0123456789ABCDEFabcdef"] invertedSet];
+		
+		// Remove all white-spaces.
+		NSString *nospacePattern = [[pattern componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] componentsJoinedByString:@""];
 		NSString *stringToCheck = nil;
 		
-		switch ([pattern length]) {
+		switch (nospacePattern.length) {
 			case 8:
 			case 16:
 			case 32:
 			case 40:
-				stringToCheck = pattern;
+				stringToCheck = nospacePattern;
 				break;
 			case 9:
 			case 17:
 			case 33:
 			case 41:
 				if ([pattern hasPrefix:@"0"]) {
-					stringToCheck = [pattern substringFromIndex:1];
+					stringToCheck = [nospacePattern substringFromIndex:1];
 				}
 				break;
 			case 10:
@@ -1857,14 +1858,17 @@ BOOL gpgConfigReaded = NO;
 			case 34:
 			case 42:
 				if ([pattern hasPrefix:@"0x"]) {
-					stringToCheck = [pattern substringFromIndex:2];
+					stringToCheck = [nospacePattern substringFromIndex:2];
 				}
 				break;
 		}
 		
-		
-		if (stringToCheck && [stringToCheck rangeOfCharacterFromSet:noHexCharSet].length == 0) {
+		if (stringToCheck && [stringToCheck rangeOfCharacterFromSet:[[NSCharacterSet characterSetWithCharactersInString:@"0123456789ABCDEFabcdef"] invertedSet]].length == 0) {
+			// The pattern is a keyID or fingerprint.
 			pattern = [@"0x" stringByAppendingString:stringToCheck];
+		} else {
+			// The pattern is any other text.
+			pattern = [pattern stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 		}
 		
 		
