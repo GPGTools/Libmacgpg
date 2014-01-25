@@ -54,6 +54,7 @@
 - (void)keysChanged:(NSObject <EnumerationList> *)keys;
 - (void)keyChanged:(NSObject <KeyFingerprint> *)key;
 + (GPGErrorCode)readGPGConfig;
++ (GPGErrorCode)readGPGConfigError:(NSException **)error;
 - (void)setLastReturnValue:(id)value;
 - (void)restoreKeys:(NSObject <EnumerationList> *)keys withData:(NSData *)data;
 - (void)registerUndoForKeys:(NSObject <EnumerationList> *)keys withName:(NSString *)actionName;
@@ -2818,8 +2819,15 @@ BOOL gpgConfigReaded = NO;
 	gpgConfigReaded = NO;
 	return [self readGPGConfig];
 }
++ (GPGErrorCode)testGPGError:(NSException **)error {
+	gpgConfigReaded = NO;
+	return [self readGPGConfigError:error];
+}
 
 + (GPGErrorCode)readGPGConfig {
+	return [self readGPGConfigError:nil];
+}
++ (GPGErrorCode)readGPGConfigError:(NSException **)error {
 	if (gpgConfigReaded) {
 		return GPGErrorNoError;
 	}
@@ -2833,6 +2841,7 @@ BOOL gpgConfigReaded = NO;
 		if ([gpgTask start] != 0) {
 			GPGDebugLog(@"GPGController -readGPGConfig: GPGErrorConfigurationError");
 			GPGDebugLog(@"Error text: %@\nStatus text: %@", gpgTask.errText, gpgTask.statusText);
+			if (error) *error = [GPGException exceptionWithReason:@"GPGErrorConfigurationError" errorCode:GPGErrorConfigurationError gpgTask:gpgTask];
 			return GPGErrorConfigurationError;
 		}
 		

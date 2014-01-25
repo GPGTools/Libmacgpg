@@ -127,6 +127,7 @@
 + (NSSet *)digestAlgorithm;
 + (NSSet *)compressAlgorithm;
 + (GPGErrorCode)testGPG;
++ (GPGErrorCode)testGPGError:(NSException **)error;
 
 + (NSString *)nameForHashAlgorithm:(GPGHashAlgorithm)hashAlgorithm;
 
