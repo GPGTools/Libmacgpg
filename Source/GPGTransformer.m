@@ -144,7 +144,7 @@
 }
 
 - (BOOL)getObjectValue:(id*)obj forString:(NSString*)string errorDescription:(NSString**)error {
-	*obj = string;
+	*obj = [string stringByReplacingOccurrencesOfString:@" " withString:@""];
 	return YES;
 }
 - (BOOL)isPartialStringValid:(NSString*)partialString newEditingString:(NSString**) newString errorDescription:(NSString**)error {
