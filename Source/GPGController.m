@@ -912,35 +912,35 @@ BOOL gpgConfigReaded = NO;
 			if (range.length > 0) {
 				range.length = searchRange.length - range.location;
 				searchRange.length = range.location - 1;
-				compressPreferences = [[[prefs substringWithRange:range] componentsSeparatedByString:@" "] retain];
+				compressPreferences = [[prefs substringWithRange:range] componentsSeparatedByString:@" "];
 			} else {
 				searchRange.length = stringLength;
-				compressPreferences = [[NSArray alloc] init];
+				compressPreferences = [NSArray array];
 			}
 			
 			range = [prefs rangeOfString:@"H" options:NSLiteralSearch range:searchRange];
 			if (range.length > 0) {
 				range.length = searchRange.length - range.location;
 				searchRange.length = range.location - 1;
-				digestPreferences = [[[prefs substringWithRange:range] componentsSeparatedByString:@" "] retain];
+				digestPreferences = [[prefs substringWithRange:range] componentsSeparatedByString:@" "];
 			} else {
 				searchRange.length = stringLength;
-				digestPreferences = [[NSArray alloc] init];
+				digestPreferences = [NSArray array];
 			}
 			
 			range = [prefs rangeOfString:@"S" options:NSLiteralSearch range:searchRange];
 			if (range.length > 0) {
 				range.length = searchRange.length - range.location;
 				searchRange.length = range.location - 1;
-				cipherPreferences = [[[prefs substringWithRange:range] componentsSeparatedByString:@" "] retain];
+				cipherPreferences = [[prefs substringWithRange:range] componentsSeparatedByString:@" "];
 			} else {
 				searchRange.length = stringLength;
-				cipherPreferences = [[NSArray alloc] init];
+				cipherPreferences = [NSArray array];
 			}
 			
 			//TODO: Support for [mdc] [no-ks-modify]!
-			
-			[list addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"userIDDescription", userIDDescription, @"compressPreferences", compressPreferences, @"digestPreferences", digestPreferences, @"cipherPreferences", cipherPreferences, nil]];
+			NSDictionary *preferences = @{@"userIDDescription":userIDDescription, @"compressPreferences":compressPreferences, @"digestPreferences":digestPreferences, @"cipherPreferences":cipherPreferences};
+			[list addObject:preferences];
 		}
 	}
 
