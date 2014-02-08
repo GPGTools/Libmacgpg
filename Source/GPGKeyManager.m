@@ -124,6 +124,7 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
         dispatch_release(dispatchQueue);
 		
 		[_attributeData release];
+		[_attributeInfos release];
 		
 		newKeysSet = [NSSet setWithArray:newKeys];
 		[newKeys release];
