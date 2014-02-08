@@ -37,8 +37,7 @@ typedef struct {
 @implementation LPXTTask
 @synthesize arguments, launchPath, terminationStatus, parentTask, environmentVariables=_environmentVariables;
 
-- (id)init
-{
+- (id)init {
     self = [super init];
     if(self != nil) {
         inheritedPipes = [[NSMutableArray alloc] init];
@@ -47,44 +46,20 @@ typedef struct {
     return self;
 }
 
-/*
- Undocumented behavior of -[NSFileManager fileSystemRepresentationWithPath:]
- is to raise an exception when passed an empty string.  Since this is called by
- -[NSString fileSystemRepresentation], use CF.  rdar://problem/9565599
- 
- https://bitbucket.org/jfh/machg/issue/244/p1d3-crash-during-view-differences
- 
- Have to copy all -[NSString fileSystemRepresentation] pointers to avoid garbage collection
- issues with -fileSystemRepresentation, anyway.  How tedious compared to -autorelease...
- 
- http://lists.apple.com/archives/objc-language/2011/Mar/msg00122.html
- */
-static char *BDSKCopyFileSystemRepresentation(NSString *str)
-{
-    if (nil == str) return NULL;
-    
-    CFIndex len = CFStringGetMaximumSizeOfFileSystemRepresentation((CFStringRef)str);
-    char *cstr = NSZoneCalloc(NSDefaultMallocZone(), len, sizeof(char));
-    if (CFStringGetFileSystemRepresentation((CFStringRef)str, cstr, len) == FALSE) {
-        NSZoneFree(NSDefaultMallocZone(), cstr);
-        cstr = NULL;
-    }
-    return cstr;
-}
 
 - (void)launchAndWait {
     // This launch method is partly taken from BDSKTask.
     const NSUInteger argCount = [arguments count];
-    
-    // fill with pointers to copied C strings
-    char **args = NSZoneCalloc([self zone], (argCount + 2), sizeof(char *));
-    NSUInteger i;
-    args[0] = BDSKCopyFileSystemRepresentation(launchPath);
-    for (i = 0; i < argCount; i++) {
-        args[i + 1] = BDSKCopyFileSystemRepresentation([arguments objectAtIndex:i]);
-    }
-    args[argCount + 1] = NULL;
-    
+	NSUInteger i;
+	char *args[argCount + 2];
+	
+	args[0] = (char*)[launchPath UTF8String];
+	for (i = 0; i < argCount; i++) {
+		args[i+1] = (char*)[[arguments objectAtIndex:i] UTF8String];
+	}
+	args[argCount + 1] = NULL;
+	
+	
 	
 	
 	// Add environment variables if needed.
@@ -278,16 +253,6 @@ static char *BDSKCopyFileSystemRepresentation(NSString *str)
         terminationStatus = WEXITSTATUS(stat_loc);
     }
     
-    /*
-     Free all the copied C strings.  Don't modify the base pointer of args, since we have to
-     free those too!
-     */
-    char **freePtr = args;
-    while (NULL != *freePtr) { 
-        free(*freePtr++);
-    }
-    
-    NSZoneFree(NSZoneFromPointer(args), args);
 }
 
 
