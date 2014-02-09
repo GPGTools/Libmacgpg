@@ -1899,6 +1899,31 @@ BOOL gpgConfigReaded = NO;
 	return keys;
 }
 
+- (BOOL)testKeyserver {
+	if (async && !asyncStarted) {
+		asyncStarted = YES;
+		[asyncProxy testKeyserver];
+		return NO;
+	}
+	BOOL result = NO;
+	@try {
+		[self operationDidStart];
+		gpgTask = [GPGTask gpgTask];
+		[self addArgumentsForOptions];
+		[self addArgumentsForKeyserver];
+		[gpgTask addArgument:@"--search-keys"];
+		[gpgTask addArgument:@" "];
+		
+		result = ([gpgTask start] == 0);
+	} @catch (NSException *e) {
+	} @finally {
+		[self cleanAfterOperation];
+	}
+
+	[self operationDidFinishWithReturnValue:@(result)];
+	return result;
+}
+
 /*- (NSString *)refreshKeysFromServer:(NSObject <EnumerationList> *)keys { //DEPRECATED!
 	return [self receiveKeysFromServer:keys];
 }
