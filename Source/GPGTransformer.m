@@ -23,7 +23,6 @@
 #define maybeLocalize(key) (!_keepUnlocalized ? localizedLibmacgpgString(key) : key)
 
 @implementation GPGKeyAlgorithmNameTransformer
-
 @synthesize keepUnlocalized = _keepUnlocalized;
 
 + (Class)transformedValueClass { return [NSString class]; }
@@ -61,7 +60,6 @@
 @end
 
 @implementation GPGValidityDescriptionTransformer
-
 @synthesize keepUnlocalized = _keepUnlocalized;
 
 + (Class)transformedValueClass { return [NSString class]; }
@@ -104,6 +102,54 @@
 }
 
 @end
+
+@implementation GPGFingerprintTransformer
+@synthesize keepUnlocalized = _keepUnlocalized;
+
++ (Class)transformedValueClass { return [NSString class]; }
++ (BOOL)allowsReverseTransformation { return NO; }
+- (id)transformedValue:(id)value {
+	NSString *fingerprint = [value description];
+	NSUInteger length = [fingerprint lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
+	const char *original = [fingerprint UTF8String];
+	char *format;
+	
+	switch (length) {
+		case 40:
+			format = "XXXX XXXX XXXX XXXX XXXX  XXXX XXXX XXXX XXXX XXXX";
+			break;
+		case 32:
+			format = "XXXX XXXX XXXX XXXX  XXXX XXXX XXXX XXXX";
+			break;
+		case 0:
+			return @"";
+		default:
+			return fingerprint;
+	}
+	
+	NSUInteger formatLength = strlen(format);
+	NSMutableData *buffer = [NSMutableData dataWithLength:formatLength];
+	char *bytes = [buffer mutableBytes];
+	NSUInteger i1 = 0, i2 = 0;
+	
+	for (; i1 < formatLength; i1++) {
+		char byte = 0;
+		switch (format[i1]) {
+			case ' ':
+				byte = ' ';
+				break;
+			default:
+				byte = original[i2++];
+				break;
+		}
+		bytes[i1] = byte;
+	}
+	
+	return [[[NSString alloc] initWithData:buffer encoding:NSUTF8StringEncoding] autorelease];
+}
+
+@end
+
 
 
 

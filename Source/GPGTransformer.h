@@ -36,7 +36,15 @@
 @property (nonatomic, assign) BOOL keepUnlocalized;
 @end
 
-@interface SplitFormatter : NSFormatter {
+@interface GPGFingerprintTransformer : NSValueTransformer {
+    BOOL _keepUnlocalized; // default NO; used for Unit Testing
+}
+// default NO
+@property (nonatomic, assign) BOOL keepUnlocalized;
+@end
+
+
+DEPRECATED_ATTRIBUTE @interface SplitFormatter : NSFormatter {
 	NSInteger blockSize;
 }
 @property (nonatomic) NSInteger blockSize;
