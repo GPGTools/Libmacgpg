@@ -3,7 +3,7 @@
 //  Libmacgpg
 //
 //  Created by Lukas Pitschl on 03.06.12.
-//  Copyright (c) 2013 Lukas Pitschl. All rights reserved.
+//  Copyright (c) 2014 Lukas Pitschl. All rights reserved.
 //
 
 #import "NSPipe+NoSigPipe.h"

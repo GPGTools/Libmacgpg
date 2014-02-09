@@ -1,9 +1,9 @@
 	#if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
 
-/* GPGTaskHelperXPC.m created by Lukas Pitschl (@lukele) on Mon 22-Apr-2013 */
+/* GPGTaskHelperXPC.m created by Lukas Pitschl (@lukele) on Mon 22-Apr-2014 */
 
 /*
- * Copyright (c) 2000-2013, GPGTools Team <team@gpgtools.org>
+ * Copyright (c) 2000-2014, GPGTools Team <team@gpgtools.org>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:

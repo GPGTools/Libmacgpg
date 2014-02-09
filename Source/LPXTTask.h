@@ -1,5 +1,5 @@
 /*
- Copyright © Lukas Pitschl, 2013
+ Copyright © Lukas Pitschl, 2014
  
  Diese Datei ist Teil von Libmacgpg.
  

@@ -1,5 +1,5 @@
 /*
- Copyright © Roman Zechmeister, 2013
+ Copyright © Roman Zechmeister, 2014
  
  Diese Datei ist Teil von Libmacgpg.
  
@@ -240,6 +240,7 @@ NSString *localizedLibmacgpgString(NSString *key);
 - (NSString *)keyID;
 - (NSString *)unescapedString;
 - (NSDictionary *)splittedUserIDDescription;
+
 @end
 
 @interface NSDate (GPGExtension)

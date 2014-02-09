@@ -1,5 +1,5 @@
 /*
- Copyright © Roman Zechmeister und Lukas Pitschl (@lukele), 2013
+ Copyright © Roman Zechmeister und Lukas Pitschl (@lukele), 2014
  
  Diese Datei ist Teil von Libmacgpg.
  
