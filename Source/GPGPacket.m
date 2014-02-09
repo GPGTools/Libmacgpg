@@ -56,7 +56,7 @@ typedef enum {
 
 
 @implementation GPGPacket
-@synthesize type, data, keyID, fingerprint, publicKeyAlgorithm, symetricAlgorithm, hashAlgorithm, signatureType;
+@synthesize type, data, keyID, fingerprint, publicKeyAlgorithm, symetricAlgorithm, hashAlgorithm, signatureType, subpackets;
 
 
 static const char armorBeginMark[] = "\n-----BEGIN PGP ";
@@ -245,15 +245,35 @@ const int clearTextEndMarkLength = 29;
 					publicKeyAlgorithm = readUint8;
 					hashAlgorithm = readUint8;
 					
+					
+					
 					// Subpackets verarbeiten.
+					subpackets = [[NSMutableArray alloc] init];
+					
 					for (int i = 0; i < 2; i++) { // Zweimal da es hashed und unhashed subpackets geben kann!
 						const uint8_t *subpacketEnd = readUint16 + readPos;
 						while (readPos < subpacketEnd) {
-							uint16_t subpacketLength = readUint8;
+							NSMutableDictionary *subpacket = [[NSMutableDictionary alloc] init];
+							
+							uint32_t subpacketLength = readUint8;
+							if (subpacketLength == 255) {
+								subpacketLength = readUint32;
+							} else if (subpacketLength >= 192) {
+								subpacketLength = ((subpacketLength - 192) << 8) + readUint8 + 192;
+							}
 							uint8_t subpacketType = readUint8;
+							
+							[subpacket setObject:@(subpacketLength) forKey:@"length"];
+							[subpacket setObject:@(subpacketType) forKey:@"type"];
+														
 							if (subpacketType == 16 && subpacketLength == 9) {
 								keyID = [bytesToHexString(readPos, 8) retain];
 							}
+							
+							
+							[subpackets addObject:subpacket];
+							[subpacket release];
+							
 							readPos += subpacketLength - 1;
 						}
 					}
@@ -352,6 +372,7 @@ endOfBuffer:
 	[fingerprint release];
 	[keyID release];
 	[description release];
+	[subpackets release];
 	
 	[super dealloc];
 }

@@ -32,6 +32,7 @@
 	uint8_t hashAlgorithm;
 	uint8_t signatureType;
 	NSString *description;
+	NSMutableArray *subpackets;
 }
 
 @property (nonatomic, readonly) GPGPacketType type;
@@ -42,6 +43,8 @@
 @property (nonatomic, readonly) uint8_t symetricAlgorithm;
 @property (nonatomic, readonly) uint8_t hashAlgorithm;
 @property (nonatomic, readonly) uint8_t signatureType;
+
+@property (nonatomic, readonly) NSArray *subpackets; // At the moment a array of dicts. Can change at any time.
 
 
 
