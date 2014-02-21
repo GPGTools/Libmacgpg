@@ -101,7 +101,7 @@ typedef enum {
 } GPGPacketType;
 
 typedef enum {
-	GPGBinarySIgnature = 0,
+	GPGBinarySignature = 0,
 	GPGTextSignature = 1,
 	GPGStandaloneSignature = 2,
 	GPGGeneriCertificationSignature = 0x10,
