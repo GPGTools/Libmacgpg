@@ -101,6 +101,24 @@ typedef enum {
 } GPGPacketType;
 
 typedef enum {
+	GPGBinarySIgnature = 0,
+	GPGTextSignature = 1,
+	GPGStandaloneSignature = 2,
+	GPGGeneriCertificationSignature = 0x10,
+	GPGPersonaCertificationSignature = 0x11,
+	GPGCasualCertificationSignature = 0x12,
+	GPGPositiveCertificationSignature = 0x13,
+	GPGSubkeyBindingSignature = 0x18,
+	GPGKeyBindingSignature = 0x19,
+	GPGDirectKeySignature = 0x1F,
+	GPGRevocationSignature = 0x20,
+	GPGSubkeyRevocationSignature = 0x28,
+	GPGCertificationRevocationSignature = 0x30,
+	GPGTimestampSignature = 0x40,
+	GPGThirdPartyConfirmationSignature = 0x50
+} GPGSignatureType;
+
+typedef enum {
 	GPGContent_Message,
 	GPGContent_SignedMessage,
 	GPGContent_Signature,
