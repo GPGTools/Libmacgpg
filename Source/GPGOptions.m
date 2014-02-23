@@ -427,17 +427,84 @@ static NSString * const kGpgAgentConfKVKey = @"gpgAgentConf";
 	return path;
 }
 
+
+- (NSArray *)keyserversInPlist {
+	NSURL *keyserversPlistURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"Keyservers" withExtension:@"plist"];
+    return [NSArray arrayWithContentsOfURL:keyserversPlistURL];
+}
+
 - (NSArray *)keyservers { // Returns a list of possible keyservers.
-    NSURL *keyserversPlistURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"Keyservers" withExtension:@"plist"];
-    NSMutableSet *keyservers = [NSMutableSet setWithArray:[NSArray arrayWithContentsOfURL:keyserversPlistURL]];
+	NSMutableArray *uniqueServers = [NSMutableArray array];
 	
 	NSArray *servers = [self valueInCommonDefaultsForKey:@"keyservers"];
 	if ([servers isKindOfClass:[NSArray class]]) {
-		[keyservers addObjectsFromArray:servers];
+		for (NSString *server in servers) {
+			if (![uniqueServers containsObject:server]) {
+				[uniqueServers addObject:server];
+			}
+		}
 	}
-	 
-    return [[keyservers allObjects] sortedArrayUsingSelector:@selector(compare:)];
+	
+	servers = self.keyserversInPlist;
+	for (NSString *server in servers) {
+		if (![uniqueServers containsObject:server]) {
+			[uniqueServers addObject:server];
+		}
+	}
+	
+    return uniqueServers;
 }
+- (void)setKeyservers:(NSArray *)keyservers {
+	NSArray *servers = self.keyserversInPlist;
+	NSMutableArray *uniqueServers = [NSMutableArray array];
+	
+	for (NSString *server in servers) {
+		if (![servers containsObject:server]) {
+			[uniqueServers addObject:server];
+		}
+	}
+	[self setValueInCommonDefaults:uniqueServers forKey:@"keyservers"];
+}
+
+
+
+
+- (NSString *)keyserver {
+	return [self valueInGPGConfForKey:@"keyserver"];
+}
+- (void)setKeyserver:(NSString *)keyserver {
+	[self setValueInGPGConf:keyserver forKey:@"keyserver"];
+	[self addKeyserver:keyserver];
+}
+- (void)addKeyserver:(NSString *)keyserver {
+	if ([keyserver isKindOfClass:[NSString class]] && [keyserver length] > 1) {
+		if (![self.keyserversInPlist containsObject:keyserver]) {
+			NSArray *servers = [self valueInCommonDefaultsForKey:@"keyservers"];
+			if (![servers containsObject:keyserver]) {
+				[self willChangeValueForKey:@"keyservers"];
+				servers = [servers arrayByAddingObject:keyserver];
+				[self setValueInCommonDefaults:servers forKey:@"keyservers"];
+				[self didChangeValueForKey:@"keyservers"];
+			}
+		}
+		
+	}
+}
+- (void)removeKeyserver:(NSString *)keyserver {
+	if (keyserver) {
+		NSArray *servers = [self valueInCommonDefaultsForKey:@"keyservers"];
+		if ([servers containsObject:keyserver]) {
+			NSMutableArray *newServers = [servers mutableCopy];
+			[newServers removeObject:keyserver];
+			[self willChangeValueForKey:@"keyservers"];
+			[self setValueInCommonDefaults:newServers forKey:@"keyservers"];
+			[self didChangeValueForKey:@"keyservers"];
+		}
+	}
+}
+
+
+
 
 - (NSString *)httpProxy {
 	if (!httpProxy) {
@@ -464,35 +531,6 @@ static NSString * const kGpgAgentConfKVKey = @"gpgAgentConf";
 	}
 	return debugLog & 127;
 }
-
-
-- (NSString *)keyserver {
-	return [self valueInGPGConfForKey:@"keyserver"];
-}
-- (void)setKeyserver:(NSString *)keyserver {
-	[self setValueInGPGConf:keyserver forKey:@"keyserver"];
-	[self addKeyserver:keyserver];
-}
-- (void)addKeyserver:(NSString *)keyserver {
-	if ([keyserver isKindOfClass:[NSString class]] && [keyserver length] > 1) {
-		NSMutableSet *servers = [NSMutableSet setWithArray:[self valueInCommonDefaultsForKey:@"keyservers"]];
-		[servers addObject:keyserver];
-		[self willChangeValueForKey:@"keyservers"];
-		[self setValueInCommonDefaults:[servers allObjects] forKey:@"keyservers"];
-		[self didChangeValueForKey:@"keyservers"];
-	}
-}
-- (void)removeKeyserver:(NSString *)keyserver {
-	if (keyserver) {
-		NSMutableSet *servers = [NSMutableSet setWithArray:[self valueInCommonDefaultsForKey:@"keyservers"]];
-		[servers removeObject:keyserver];
-		[self willChangeValueForKey:@"keyservers"];
-		[self setValueInCommonDefaults:[servers allObjects] forKey:@"keyservers"];
-		[self didChangeValueForKey:@"keyservers"];
-	}
-}
-
-
 
 // Helper methods.
 - (GPGOptionsDomain)domainForKey:(NSString *)key {

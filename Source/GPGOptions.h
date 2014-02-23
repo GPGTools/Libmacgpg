@@ -51,7 +51,7 @@ typedef enum {
 
 @property (nonatomic, readonly) NSString *httpProxy;
 @property (nonatomic, readonly) NSString *gpgHome;
-@property (nonatomic, readonly) NSArray *keyservers;
+@property (nonatomic, retain) NSArray *keyservers;
 @property (nonatomic, retain) NSString *keyserver;
 @property (nonatomic) BOOL autoSave;
 @property (nonatomic, retain) NSString *standardDomain;
