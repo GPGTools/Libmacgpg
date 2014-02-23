@@ -337,8 +337,9 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
     
     [_task launchAndWait];
     
-    if(blockException)
+    if (blockException && !_cancelled && !_pinentryCancelled) {
         @throw blockException;
+	}
     
 	self.status = statusData;
     [statusData release];
