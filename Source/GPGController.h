@@ -110,7 +110,7 @@
 @property (nonatomic) BOOL autoKeyRetrieve;
 @property (nonatomic, readonly) NSDictionary *statusDict;
 @property (nonatomic, readonly) GPGHashAlgorithm hashAlgorithm;
-@property (nonatomic, readonly) GPGTask *gpgTask;
+@property (nonatomic, readonly, retain) GPGTask *gpgTask;
 @property (nonatomic, assign) NSUInteger timeout;
 /*
  Dictionary with following keys:
