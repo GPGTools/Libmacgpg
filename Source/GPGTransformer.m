@@ -65,40 +65,43 @@
 + (Class)transformedValueClass { return [NSString class]; }
 + (BOOL)allowsReverseTransformation { return NO; }
 - (id)transformedValue:(id)value {
-	NSMutableString *statusText = [NSMutableString stringWithCapacity:2];
+	NSMutableArray *strings = [NSMutableArray array];
 	NSInteger intValue = [value integerValue];
 	
 	switch (intValue & 7) {
 		case 2:
-			[statusText appendString:maybeLocalize(@"?")]; //Was bedeutet 2? 
+			[strings addObject:maybeLocalize(@"?")]; //Was bedeutet 2?
 			break;
 		case 3:
-			[statusText appendString:maybeLocalize(@"Marginal")];
+			[strings addObject:maybeLocalize(@"Marginal")];
 			break;
 		case 4:
-			[statusText appendString:maybeLocalize(@"Full")];
+			[strings addObject:maybeLocalize(@"Full")];
 			break;
 		case 5:
-			[statusText appendString:maybeLocalize(@"Ultimate")];
+			[strings addObject:maybeLocalize(@"Ultimate")];
 			break;
 		default:
-			[statusText appendString:maybeLocalize(@"Unknown")];
+			if (intValue < GPGValidityInvalid) {
+				[strings addObject:maybeLocalize(@"Unknown")];
+			}
 			break;
 	}
 	
 	if (intValue & GPGValidityInvalid) {
-		[statusText appendFormat:@", %@", maybeLocalize(@"Invalid")];
+		[strings addObject:maybeLocalize(@"Invalid")];
 	}
 	if (intValue & GPGValidityRevoked) {
-		[statusText appendFormat:@", %@", maybeLocalize(@"Revoked")];
+		[strings addObject:maybeLocalize(@"Revoked")];
 	}
 	if (intValue & GPGValidityExpired) {
-		[statusText appendFormat:@", %@", maybeLocalize(@"Expired")];
+		[strings addObject:maybeLocalize(@"Expired")];
 	}
 	if (intValue & GPGValidityDisabled) {
-		[statusText appendFormat:@", %@", maybeLocalize(@"Disabled")];
+		[strings addObject:maybeLocalize(@"Disabled")];
 	}
-	return [[statusText copy] autorelease];
+	
+	return [strings componentsJoinedByString:@", "];
 }
 
 @end
