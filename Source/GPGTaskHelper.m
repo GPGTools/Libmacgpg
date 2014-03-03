@@ -350,7 +350,7 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
     
     _exitStatus = _task.terminationStatus;
     
-    if(_cancelled || _pinentryCancelled)
+    if(_cancelled || (_pinentryCancelled && _exitStatus != 0))
         _exitStatus = GPGErrorCancelled;
     
 	[_task release];
