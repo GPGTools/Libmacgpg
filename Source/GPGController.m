@@ -866,17 +866,14 @@ BOOL gpgConfigReaded = NO;
 		[self registerUndoForKey:key withName:@"Undo_ChangePassphrase"];
 		
 		GPGTaskOrder *order = [GPGTaskOrder orderWithYesToAll];
-		[order addCmd:@"passwd\n" prompt:@"keyedit.prompt"];
-		[order addCmd:@"save\n" prompt:@"keyedit.prompt"];
-		
 		
 		self.gpgTask = [GPGTask gpgTask];
 		[self addArgumentsForOptions];
-		gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"]; 
-		[gpgTask addArgument:@"--edit-key"];
-		[gpgTask addArgument:[key description]];
+		[gpgTask addArguments:@[@"--passwd", key.description]];
+		gpgTask.userInfo = @{@"order": order};
 		
 		if ([gpgTask start] != 0) {
+			
 			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Change passphrase failed!") gpgTask:gpgTask];
 		}
 		[self keyChanged:key];
@@ -888,8 +885,6 @@ BOOL gpgConfigReaded = NO;
 	
 	[self operationDidFinishWithReturnValue:nil];	
 }
-
-
 
 
 - (NSArray *)algorithmPreferencesForKey:(GPGKey *)key {
@@ -2877,10 +2872,29 @@ BOOL gpgConfigReaded = NO;
 		[gpgTask addArgument:@"--list-config"];
 		
 		if ([gpgTask start] != 0) {
-			GPGDebugLog(@"GPGController -readGPGConfig: GPGErrorConfigurationError");
-			GPGDebugLog(@"Error text: %@\nStatus text: %@", gpgTask.errText, gpgTask.statusText);
-			if (error) *error = [GPGException exceptionWithReason:@"GPGErrorConfigurationError" errorCode:GPGErrorConfigurationError gpgTask:gpgTask];
-			return GPGErrorConfigurationError;
+			GPGTask *gpgTask2 = [GPGTask gpgTaskWithArguments:@[@"--options", @"/dev/null", @"--gpgconf-test"]];
+			gpgTask2.timeout = GPGTASKHELPER_DISPATCH_TIMEOUT_QUICKLY;
+			
+			if ([gpgTask2 start] == 0) { // Config Error.
+				GPGOptions *options = [GPGOptions sharedOptions];
+				[options repairGPGConf];
+				
+				if ([gpgTask start] != 0) {
+					GPGDebugLog(@"GPGController -readGPGConfig: GPGErrorConfigurationError");
+					GPGDebugLog(@"Error text: %@\nStatus text: %@", gpgTask.errText, gpgTask.statusText);
+					if (error) {
+						*error = [GPGException exceptionWithReason:@"GPGErrorConfigurationError" errorCode:GPGErrorConfigurationError gpgTask:gpgTask];
+					}
+					return GPGErrorConfigurationError;
+				}
+			} else { // Other Error.
+				GPGDebugLog(@"GPGController -readGPGConfig: GPGErrorGeneralError");
+				GPGDebugLog(@"Error text: %@\nStatus text: %@", gpgTask.errText, gpgTask.statusText);
+				if (error) {
+					*error = [GPGException exceptionWithReason:@"GPGErrorGeneralError" errorCode:GPGErrorGeneralError gpgTask:gpgTask];
+				}
+				return GPGErrorGeneralError;
+			}
 		}
 		
 		NSString *outText = [gpgTask outText];

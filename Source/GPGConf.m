@@ -81,18 +81,21 @@
 			configFile = @"";
 		}
 	}
-	
-    [config removeAllObjects];
-    [contents removeAllObjects];
+	return [self loadContents:configFile];
+}
 
+- (BOOL)loadContents:(NSString *)contentString {
+	[config removeAllObjects];
+    [contents removeAllObjects];
+	
 	GPGConfReader *reader = [GPGConfReader readerForDomain:self.optionsDomain];
     NSMutableArray *saveLines = [NSMutableArray arrayWithCapacity:0];
 	NSCharacterSet *whitespaces = [NSCharacterSet whitespaceCharacterSet];
     BOOL lastLineWasEmpty = FALSE;
-
-    NSMutableArray *lines = [NSMutableArray arrayWithArray:[configFile componentsSeparatedByString:@"\n"]];
+	
+    NSMutableArray *lines = [NSMutableArray arrayWithArray:[contentString componentsSeparatedByString:@"\n"]];
     // if configFile ends with a newline, one split line is spurious
-    if ([configFile hasSuffix:@"\n"]) 
+    if ([contentString hasSuffix:@"\n"])
         [lines removeObjectAtIndex:[lines count] - 1];
 	
 	for (NSString *line in lines) {
@@ -116,7 +119,7 @@
             
             continue;
         }
-
+		
         lastLineWasEmpty = FALSE;
         
         // Append to existing settings if already mapped
@@ -126,23 +129,24 @@
             [config setObject:setting forKey:setting.key];
             [contents addObject:setting];
         }
-
+		
         // Append any savedLines
         for (NSString *nsaved in saveLines) {
             [extant appendLine:nsaved withReader:reader];
         }
         [saveLines removeAllObjects];
-
+		
         // Append the current line
         [extant appendLine:line withReader:reader];
 	}
-
+	
     // Checkpoint any savedLines
     [contents addObjectsFromArray:saveLines];
     [saveLines removeAllObjects];
-
+	
 	return YES;
 }
+
 
 - (NSString *)loadConfigFileXPC {
 	GPGTaskHelperXPC *taskHelper = [[GPGTaskHelperXPC alloc] init];

@@ -30,6 +30,7 @@
 #import "GPGUserDefaults.h"
 #import "GPGWatcher.h"
 #import "GPGTask.h"
+#import "GPGTaskHelper.h"
 
 NSString * const GPGOptionsChangedNotification = @"GPGOptionsChangedNotification";
 NSString * const GPGConfigurationModifiedNotification = @"GPGConfigurationModifiedNotification";
@@ -389,6 +390,49 @@ static NSString * const kGpgAgentConfKVKey = @"gpgAgentConf";
 	}
 }
 
+
+
+- (void)repairGPGConf {
+	NSString *config = [self.gpgConf getContents];
+	
+	GPGTask *gpgTask = [GPGTask gpgTaskWithArguments:@[@"--gpgconf-test", @"--options"]];
+	gpgTask.timeout = GPGTASKHELPER_DISPATCH_TIMEOUT_QUICKLY;
+	[gpgTask setEnvironmentVariables:@{@"LANG": @"C"}];
+	[gpgTask addInText:config];
+	if ([gpgTask start] == 0) {
+		return;
+	}
+	
+	NSString *errText = gpgTask.errText;
+	NSMutableIndexSet *indexes = [NSMutableIndexSet indexSet];
+	NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@".*:(\\d+): .*" options:0 error:nil];
+	
+	[regex enumerateMatchesInString:errText options:0 range:NSMakeRange(0, errText.length) usingBlock:^(NSTextCheckingResult *result, NSMatchingFlags flags, BOOL *stop) {
+		NSRange range = [result rangeAtIndex:1];
+		if (range.length == 0) {
+			return;
+		}
+		
+		NSInteger line = [[errText substringWithRange:range] integerValue];
+		if (line > 0) {
+			[indexes addIndex:line - 1];
+		}
+	}];
+
+	NSMutableArray *lines = [NSMutableArray arrayWithArray:[config componentsSeparatedByString:@"\n"]];
+	
+	[indexes enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
+		NSString *line = [lines objectAtIndex:idx];
+		line = [NSString stringWithFormat:@"# Disabled: %@", line];
+		[lines replaceObjectAtIndex:idx withObject:line];
+	}];
+	
+	config = [lines componentsJoinedByString:@"\n"];
+	if (config) {
+		[self.gpgConf loadContents:config];
+		[self.gpgConf saveConfig];
+	}
+}
 
 
 

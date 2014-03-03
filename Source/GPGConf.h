@@ -18,5 +18,6 @@
 - (id)initWithPath:(NSString *)path;
 - (id)initWithPath:(NSString *)path andDomain:(GPGOptionsDomain)domain;
 
+- (BOOL)loadContents:(NSString *)contentString;
 
 @end
