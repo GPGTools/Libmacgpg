@@ -78,6 +78,10 @@ typedef struct {
 		}
 		
 		newEnviron = malloc((envCount + environCount + 1) * sizeof(char **));
+		if (!newEnviron) {
+			NSLog(@"launchAndWait malloc failed!");
+			return;
+		}
 		memcpy(newEnviron, oldEnviron, (environCount + 1) * sizeof(char **));
 		
 		i = environCount;
