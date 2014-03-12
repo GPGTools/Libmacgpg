@@ -46,7 +46,7 @@
 	return [self initWithDefaultBoolAnswer:YesToAll];
 }
 - (id)initWithNoToAll {
-	return [self initWithDefaultBoolAnswer:YesToAll];
+	return [self initWithDefaultBoolAnswer:NoToAll];
 }
 - (id)init {
 	return [self initWithDefaultBoolAnswer:NoDefaultAnswer];
