@@ -1916,6 +1916,11 @@ BOOL gpgConfigReaded = NO;
 	@try {
 		[self operationDidStart];
 		self.gpgTask = [GPGTask gpgTask];
+		
+		GPGTaskOrder *order = [GPGTaskOrder order];
+		[order addCmd:@"q\n" prompt:@"keysearch.prompt" optional:YES];
+		gpgTask.userInfo = @{@"order": order};
+		
 		[self addArgumentsForOptions];
 		[self addArgumentsForKeyserver];
 		[gpgTask addArgument:@"--search-keys"];
