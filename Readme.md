@@ -19,7 +19,7 @@ Build
 
 ### Clone the repository
 ```bash
-git clone https://github.com/GPGTools/Libmacgpg.git
+git clone --recursive https://github.com/GPGTools/Libmacgpg.git
 cd Libmacgpg
 ```
 
