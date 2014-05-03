@@ -23,6 +23,7 @@
 	//For loadKeys
 	
 	NSSet *_secKeyFingerprints;
+	NSDictionary *_secKeyInfos;
 	NSArray *_keyLines;
 	NSData *_attributeData;
 	NSMutableDictionary *_attributeInfos; // A dict of arrays of dict with: location, length, type, index, count.

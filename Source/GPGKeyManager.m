@@ -51,11 +51,12 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 				gpgTask.batchMode = YES;
 				[gpgTask addArgument:@"--list-secret-keys"];
 				[gpgTask addArgument:@"--with-fingerprint"];
+				[gpgTask addArgument:@"--with-fingerprint"];
 				[gpgTask addArguments:keyArguments];
 				
 				[gpgTask start];
 				
-				self->_secKeyFingerprints = [[self fingerprintsFromColonListing:gpgTask.outText] retain];
+				self->_secKeyInfos = [[self parseSecColonListing:gpgTask.outText] retain];
 			}
 			@catch (NSException *exception) {
 				//TODO: Set error code.
@@ -175,8 +176,8 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 #endif
 	}
 	@finally {
-		[_secKeyFingerprints release];
-		_secKeyFingerprints = nil;
+		[_secKeyInfos release];
+		_secKeyInfos = nil;
 		
 		NSSet *oldAllKeys = _allKeys;
 		_allKeys = [_mutableAllKeys copy];
@@ -382,8 +383,13 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 		else if ([type isEqualToString:@"fpr"]) { // Fingerprint.
 			NSString *fingerprint = [parts objectAtIndex:9];
 			key.fingerprint = fingerprint;
-			key.secret = [_secKeyFingerprints containsObject:fingerprint];
 			
+			NSDictionary *secKeyInfo = [_secKeyInfos objectForKey:fingerprint];
+			if (secKeyInfo) {
+				key.secret = YES;
+				NSString *cardID = [secKeyInfo objectForKey:@"cardID"];
+				key.cardID = cardID;
+			}
 		}
 		else if ([type isEqualToString:@"sig"] || ([type isEqualToString:@"rev"] && (isRev = YES))) { // Signature.
 			signature = [[[GPGUserIDSignature alloc] init] autorelease];
@@ -563,27 +569,36 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 	return GPGValidityUnknown;
 }
 
-- (NSSet *)fingerprintsFromColonListing:(NSString *)colonListing {
-	NSRange searchRange, findRange;
-	NSUInteger textLength = [colonListing length];
-	NSMutableSet *fingerprints = [NSMutableSet setWithCapacity:3];
-	NSString *lineText;
+
+
+- (NSDictionary *)parseSecColonListing:(NSString *)colonListing {
+	NSMutableDictionary *infos = [NSMutableDictionary dictionary];
+	NSArray *lines = [colonListing componentsSeparatedByString:@"\n"];
+	NSUInteger count = lines.count;
 	
-	searchRange.location = 0;
-	searchRange.length = textLength;
+	NSDictionary *keyInfo = @{};
 	
 	
-	while ((findRange = [colonListing rangeOfString:@"\nfpr:" options:NSLiteralSearch range:searchRange]).length > 0) {
-		findRange.location++;
-		lineText = [colonListing substringWithRange:[colonListing lineRangeForRange:findRange]];
-		[fingerprints addObject:[[lineText componentsSeparatedByString:@":"] objectAtIndex:9]];
+	for (NSInteger i = 0; i < count; i++) { // Loop backwards through the lines.
+		NSArray *parts = [[lines objectAtIndex:i] componentsSeparatedByString:@":"];
+		NSString *type = [parts objectAtIndex:0];
 		
-		searchRange.location = findRange.location + findRange.length;
-		searchRange.length = textLength - searchRange.location;
+		if ([type isEqualToString:@"sec"] || [type isEqualToString:@"ssb"]) {
+			NSString *cardID = [parts objectAtIndex:14];
+			if (cardID.length > 0) {
+				keyInfo = @{@"cardID":cardID};
+			} else {
+				keyInfo = @{};
+			}
+		} else if ([type isEqualToString:@"fpr"]) {
+			NSString *fingerprint = [parts objectAtIndex:9];
+			[infos setObject:keyInfo forKey:fingerprint];
+		}
 	}
 	
-	return fingerprints;
+	return infos;
 }
+
 
 - (void)_loadExtrasForKeys:(NSSet *)keys fetchSignatures:(BOOL)fetchSignatures fetchAttributes:(BOOL)fetchAttributes completionHandler:(void(^)(NSSet *))completionHandler {
 	// Keys might be either a list of real keys or fingerprints.

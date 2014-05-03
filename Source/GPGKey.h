@@ -24,6 +24,7 @@
 @interface GPGKey : NSObject <KeyFingerprint, GPGUserIDProtocol> {
 	NSString *_keyID;
 	NSString *_fingerprint;
+	NSString *_cardID; // The id of the smartcard, the key is located on. Only on secret keys.
 	NSDate *_creationDate;
 	NSDate *_expirationDate;
 	unsigned int _length;
@@ -68,6 +69,7 @@
 @property (nonatomic, readonly) NSString *keyID;
 @property (nonatomic, readonly) NSString *shortKeyID DEPRECATED_ATTRIBUTE;
 @property (nonatomic, readonly) NSString *fingerprint;
+@property (nonatomic, readonly) NSString *cardID;
 @property (nonatomic, readonly) NSDate *creationDate;
 @property (nonatomic, readonly) NSDate *expirationDate;
 @property (nonatomic, readonly) unsigned int length;

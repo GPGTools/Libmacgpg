@@ -37,6 +37,7 @@
 
 @property (copy, readwrite) NSString *keyID;
 @property (copy, readwrite) NSString *fingerprint;
+@property (copy, readwrite) NSString *cardID;
 @property (copy, readwrite) NSDate *creationDate;
 @property (copy, readwrite) NSDate *expirationDate;
 @property (assign, readwrite) unsigned int length;

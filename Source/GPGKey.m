@@ -22,7 +22,7 @@
 
 
 @implementation GPGKey
-@synthesize subkeys=_subkeys, userIDs=_userIDs, fingerprint=_fingerprint, ownerTrust=_ownerTrust, secret=_secret, canSign=_canSign, canEncrypt=_canEncrypt, canCertify=_canCertify, canAuthenticate=_canAuthenticate, canAnySign=_canAnySign, canAnyEncrypt=_canAnyEncrypt, canAnyCertify=_canAnyCertify, canAnyAuthenticate=_canAnyAuthenticate, textForFilter=_textForFilter, primaryKey=_primaryKey, primaryUserID=_primaryUserID, keyID=_keyID, allFingerprints=_fingerprints, expirationDate=_expirationDate, creationDate=_creationDate, length=_length, algorithm=_algorithm, validity=_validity;
+@synthesize subkeys=_subkeys, userIDs=_userIDs, fingerprint=_fingerprint, cardID=_cardID, ownerTrust=_ownerTrust, secret=_secret, canSign=_canSign, canEncrypt=_canEncrypt, canCertify=_canCertify, canAuthenticate=_canAuthenticate, canAnySign=_canAnySign, canAnyEncrypt=_canAnyEncrypt, canAnyCertify=_canAnyCertify, canAnyAuthenticate=_canAnyAuthenticate, textForFilter=_textForFilter, primaryKey=_primaryKey, primaryUserID=_primaryUserID, keyID=_keyID, allFingerprints=_fingerprints, expirationDate=_expirationDate, creationDate=_creationDate, length=_length, algorithm=_algorithm, validity=_validity;
 
 - (instancetype)init {
 	return [self initWithFingerprint:nil];
