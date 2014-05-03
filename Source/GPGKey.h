@@ -48,6 +48,7 @@
 	
 	NSArray *_subkeys;
 	NSArray *_userIDs;
+	NSArray *_signatures;
 	
 	// Contains all information of the key concatenated for quicker search.
 	NSString *_textForFilter;
@@ -80,6 +81,7 @@
 
 @property (nonatomic, readonly) NSArray *subkeys;
 @property (nonatomic, readonly) NSArray *userIDs;
+@property (nonatomic, readonly) NSArray *signatures;
 
 @property (nonatomic, readonly) GPGKey *primaryKey;
 @property (nonatomic, readonly) GPGUserID *primaryUserID;

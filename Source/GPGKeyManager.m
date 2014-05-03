@@ -210,7 +210,8 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 	
 	NSMutableArray *userIDs = nil, *subkeys = nil, *signatures = nil;
 	GPGKey *key = nil;
-	GPGUserID *userID = nil;
+	GPGKey *signedObject = nil; // A GPGUserID or GPGKey.
+	
 	GPGUserIDSignature *signature = nil;
 	BOOL isPub = NO, isUid = NO, isRev = NO; // Used to differentiate pub/sub, uid/uat and sig/rev, because they are using the same if branch.
 	NSUInteger uatIndex = 0;
@@ -225,7 +226,7 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 		
 		if (([type isEqualToString:@"pub"] && (isPub = YES)) || [type isEqualToString:@"sub"]) { // Primary-key or subkey.
 			if (_fetchSignatures) {
-				userID.signatures = signatures;
+				signedObject.signatures = signatures;
 				signatures = nil;
 			}
 			if (isPub) {
@@ -233,6 +234,7 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 			} else {
 				key = [[[GPGKey alloc] init] autorelease];
 			}
+			signedObject = key;
 			
 			
 			GPGValidity validity = [self validityForLetter:[parts objectAtIndex:1]];
@@ -298,12 +300,13 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 		}
 		else if (([type isEqualToString:@"uid"] && (isUid = YES)) || [type isEqualToString:@"uat"]) { // UserID or UAT (PhotoID).
 			if (_fetchSignatures) {
-				userID.signatures = signatures;
+				signedObject.signatures = signatures;
 				signatures = [NSMutableArray array];
 			}
 
-			userID = [[[GPGUserID alloc] init] autorelease];
+			GPGUserID *userID = [[[GPGUserID alloc] init] autorelease];
 			userID.primaryKey = primaryKey;
+			signedObject = (GPGKey *)userID; // signedObject is a GPGKey or GPGUserID. It's only casted to allow "signedObject.signatures = signatures".
 			
 			
 			GPGValidity validity = [self validityForLetter:[parts objectAtIndex:1]];
@@ -425,7 +428,7 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 	}
 
 	if (_fetchSignatures && signatures) {
-		userID.signatures = signatures;
+		signedObject.signatures = signatures;
 	}
 	
 	primaryKey.userIDs = userIDs;

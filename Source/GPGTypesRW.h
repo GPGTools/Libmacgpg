@@ -47,6 +47,7 @@
 
 @property (copy, readwrite) NSArray *subkeys;
 @property (copy, readwrite) NSArray *userIDs;
+@property (copy, readwrite) NSArray *signatures;
 
 @property (assign, readwrite) GPGKey *primaryKey;
 @property (assign, readwrite) GPGUserID *primaryUserID;
