@@ -566,6 +566,7 @@ BOOL gpgConfigReaded = NO;
 				[undoManager setActionName:localizedLibmacgpgString(@"Undo_NewKey")];
 			}
 			
+			[[GPGKeyManager sharedInstance] loadKeys:[NSSet setWithObject:fingerprint] fetchSignatures:NO fetchUserAttributes:NO];
 			[self keyChanged:fingerprint];
 		} else {
 			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Generate new key failed!") gpgTask:gpgTask];
@@ -2363,8 +2364,8 @@ BOOL gpgConfigReaded = NO;
 			// If no key is available, but a fingerprint is available it means that our
 			// list of keys is outdated. In that case, the specific key is reloaded.
 			if(!key && fingerprint.length >= 32) {
-				[[GPGKeyManager sharedInstance] loadKeys:[NSSet setWithObject:fingerprint] fetchSignatures:NO fetchUserAttributes:NO];
-				key = [[GPGKeyManager sharedInstance].allKeysAndSubkeys member:fingerprint];
+				[keyManager loadKeys:[NSSet setWithObject:fingerprint] fetchSignatures:NO fetchUserAttributes:NO];
+				key = [keyManager.allKeysAndSubkeys member:fingerprint];
 			}
 		}
 		
