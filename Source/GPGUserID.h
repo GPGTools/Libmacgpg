@@ -31,7 +31,13 @@
 @end
 
 
-@interface GPGUserID : NSObject <GPGUserIDProtocol> {}
+@interface GPGUserID : NSObject <GPGUserIDProtocol> {
+	NSString *userIDDescription;
+	NSString *name;
+	NSString *email;
+	NSString *comment;
+	NSString *hashID;
+}
 
 - (instancetype)init;
 - (instancetype)initWithUserIDDescription:(NSString *)userIDDescription;
