@@ -33,27 +33,27 @@
 	BOOL _revocation;
 	BOOL _local;
 
-	GPGKey *_primaryKey;
+	GPGKey *__unsafe_unretained _primaryKey;
 }
 
 - (instancetype)init;
 - (instancetype)initWithKeyID:(NSString *)keyID;
 
-@property (nonatomic, readonly) NSString *keyID;
+@property (copy, nonatomic, readonly) NSString *keyID;
 @property (nonatomic, readonly) GPGPublicKeyAlgorithm algorithm;
-@property (nonatomic, readonly) NSDate *creationDate;
-@property (nonatomic, readonly) NSDate *expirationDate;
-@property (nonatomic, readonly) NSString *reason;
+@property (copy, nonatomic, readonly) NSDate *creationDate;
+@property (copy, nonatomic, readonly) NSDate *expirationDate;
+@property (copy, nonatomic, readonly) NSString *reason;
 @property (nonatomic, readonly) int signatureClass;
 @property (nonatomic, readonly) BOOL revocation;
 @property (nonatomic, readonly) BOOL local;
 
-@property (nonatomic, readonly) GPGKey *primaryKey;
+@property (unsafe_unretained, nonatomic, readonly) GPGKey *primaryKey;
 
-@property (nonatomic, readonly) NSString *userIDDescription;
-@property (nonatomic, readonly) NSString *name;
-@property (nonatomic, readonly) NSString *email;
-@property (nonatomic, readonly) NSString *comment;
-@property (nonatomic, readonly) NSImage *image;
+@property (copy, nonatomic, readonly) NSString *userIDDescription;
+@property (copy, nonatomic, readonly) NSString *name;
+@property (copy, nonatomic, readonly) NSString *email;
+@property (copy, nonatomic, readonly) NSString *comment;
+@property (copy, nonatomic, readonly) NSImage *image;
 
 @end

@@ -11,7 +11,7 @@
 	NSUInteger latency;
 }
 
-@property (nonatomic, assign) NSObject <DirectoryWatcherDelegate> *delegate;
+@property (nonatomic, unsafe_unretained) NSObject <DirectoryWatcherDelegate> *delegate;
 @property (nonatomic) NSUInteger latency;
 
 

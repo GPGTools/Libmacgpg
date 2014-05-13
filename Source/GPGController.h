@@ -67,8 +67,8 @@
     GPGHashAlgorithm hashAlgorithm;
     
 	
-	NSObject <GPGControllerDelegate> *delegate;
-	NSException *error;
+	NSObject <GPGControllerDelegate> *__unsafe_unretained delegate;
+	NSException *__unsafe_unretained error;
 
 	
 	//Private
@@ -85,20 +85,20 @@
 	NSMutableSet *gpgKeyservers;
 }
 
-@property (nonatomic, assign) NSObject <GPGControllerDelegate> *delegate;
-@property (nonatomic, readonly) NSArray *signerKeys;
-@property (nonatomic, readonly) NSArray *comments;
+@property (nonatomic, unsafe_unretained) NSObject <GPGControllerDelegate> *delegate;
+@property (unsafe_unretained, nonatomic, readonly) NSArray *signerKeys;
+@property (unsafe_unretained, nonatomic, readonly) NSArray *comments;
 @property (nonatomic, readonly) NSArray *signatures;
 @property (nonatomic, readonly) id lastReturnValue;
-@property (nonatomic, readonly) NSException *error;
-@property (nonatomic, readonly, retain) NSString *filename;
-@property (nonatomic, retain) NSString *forceFilename;
-@property (nonatomic, retain) NSString *keyserver;
-@property (nonatomic, retain) NSString *proxyServer;
-@property (nonatomic, retain) NSString *gpgHome;
+@property (unsafe_unretained, nonatomic, readonly) NSException *error;
+@property (nonatomic, readonly, strong) NSString *filename;
+@property (nonatomic, strong) NSString *forceFilename;
+@property (nonatomic, strong) NSString *keyserver;
+@property (nonatomic, strong) NSString *proxyServer;
+@property (nonatomic, strong) NSString *gpgHome;
 @property (nonatomic) NSUInteger keyserverTimeout;
-@property (nonatomic, retain) NSDictionary *userInfo;
-@property (nonatomic, retain) NSUndoManager *undoManager;
+@property (nonatomic, strong) NSDictionary *userInfo;
+@property (nonatomic, strong) NSUndoManager *undoManager;
 @property (nonatomic, readonly) BOOL decryptionOkay;
 @property (nonatomic) BOOL async;
 @property (nonatomic) BOOL useArmor;
@@ -108,9 +108,9 @@
 @property (nonatomic) BOOL trustAllKeys;
 @property (nonatomic) BOOL verbose DEPRECATED_ATTRIBUTE;
 @property (nonatomic) BOOL autoKeyRetrieve;
-@property (nonatomic, readonly) NSDictionary *statusDict;
+@property (unsafe_unretained, nonatomic, readonly) NSDictionary *statusDict;
 @property (nonatomic, readonly) GPGHashAlgorithm hashAlgorithm;
-@property (nonatomic, readonly, retain) GPGTask *gpgTask;
+@property (nonatomic, readonly, strong) GPGTask *gpgTask;
 @property (nonatomic, assign) NSUInteger timeout;
 /*
  Dictionary with following keys:
@@ -118,7 +118,7 @@
  ICON: The image displayed in pinentry.
  A percent char '%', not used in a placeholder, needs to be replaced with '%25'.
 */
-@property (nonatomic, retain) NSDictionary *pinentryInfo; // Needs to percent escaped. 
+@property (nonatomic, strong) NSDictionary *pinentryInfo; // Needs to percent escaped. 
 
 
 + (NSString *)gpgVersion;

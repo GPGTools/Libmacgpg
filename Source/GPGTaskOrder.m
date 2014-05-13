@@ -25,13 +25,13 @@
 
 
 + (id)order {
-	return [[[self alloc] init] autorelease];
+	return [[self alloc] init];
 }
 + (id)orderWithYesToAll {
-	return [[[self alloc] initWithYesToAll] autorelease];
+	return [[self alloc] initWithYesToAll];
 }
 + (id)orderWithNoToAll {
-	return [[[self alloc] initWithNoToAll] autorelease];
+	return [[self alloc] initWithNoToAll];
 }
 
 - (id)initWithDefaultBoolAnswer:(uint8_t)answer {
@@ -52,10 +52,6 @@
 	return [self initWithDefaultBoolAnswer:NoDefaultAnswer];
 }
 
-- (void)dealloc {
-	[items release];
-	[super dealloc];
-}
 
 
 - (void)addCmd:(NSString *)cmd prompt:(id)prompt {

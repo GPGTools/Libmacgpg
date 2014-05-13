@@ -30,15 +30,13 @@
 #import <fcntl.h>
 #import "NSBundle+Sandbox.h"
 
-static const NSUInteger kDataBufferSize = 65536; 
-
 @class GPGController;
 
 @interface GPGTask ()
 
-@property (nonatomic, retain) NSData *errData;
-@property (nonatomic, retain) NSData *statusData;
-@property (nonatomic, retain) NSData *attributeData;
+@property (nonatomic, strong) NSData *errData;
+@property (nonatomic, strong) NSData *statusData;
+@property (nonatomic, strong) NSData *attributeData;
 @property (nonatomic) int errorCode;
 
 + (void)initializeStatusCodes;
@@ -59,7 +57,7 @@ char partCountForStatusCode[GPG_STATUS_COUNT];
 
 
 - (NSArray *)arguments {
-	return [[arguments copy] autorelease];
+	return [arguments copy];
 }
 
 - (NSData *)outData {
@@ -81,21 +79,21 @@ char partCountForStatusCode[GPG_STATUS_COUNT];
 
 - (NSString *)outText {
 	if (!outText) {
-        outText = [[[outStream readAllData] gpgString] retain];
+        outText = [[outStream readAllData] gpgString];
 	}
-	return [[outText retain] autorelease];
+	return outText;
 }
 - (NSString *)errText {
 	if (!errText) {
-		errText = [[errData gpgString] retain];
+		errText = [errData gpgString];
 	}
-	return [[errText retain] autorelease];
+	return errText;
 }
 - (NSString *)statusText {
 	if (!statusText) {
-		statusText = [[statusData gpgString] retain];
+		statusText = [statusData gpgString];
 	}
-	return [[statusText retain] autorelease];
+	return statusText;
 }
 
 
@@ -221,7 +219,7 @@ char partCountForStatusCode[GPG_STATUS_COUNT];
 
 
 + (id)gpgTaskWithArguments:(NSArray *)args batchMode:(BOOL)batch {
-	return [[[self alloc] initWithArguments:args batchMode:batch] autorelease]; 
+	return [[self alloc] initWithArguments:args batchMode:batch]; 
 }
 + (id)gpgTaskWithArguments:(NSArray *)args {
 	return [self gpgTaskWithArguments:args batchMode:NO]; 
@@ -258,28 +256,6 @@ char partCountForStatusCode[GPG_STATUS_COUNT];
 
 
 
-- (void)dealloc {
-	[arguments release];
-	self.userInfo = nil;
-	
-	[outStream release];
-	[errData release];
-	[statusData release];
-	[attributeData release];
-	[outText release];
-	[errText release];
-	[statusText release];
-	[inDatas release];
-    [errorCodes release];
-	[statusDict release];
-	[_environmentVariables release];
-	
-    if(taskHelper)
-        [taskHelper release];
-    taskHelper = nil;
-    
-	[super dealloc];
-}
 
 - (void)addArgument:(NSString *)arg {
 	[arguments addObject:arg];
@@ -340,10 +316,10 @@ char partCountForStatusCode[GPG_STATUS_COUNT];
     [defaultArguments addObjectsFromArray:arguments];
 	
     // Last but not least, add the fd's used to read the in-data from.
-    int i = 5;
-    for (id object in inDatas) {
-        [defaultArguments addObject:[NSString stringWithFormat:@"/dev/fd/%d", i++]];
-    }
+	NSUInteger count = inDatas.count;
+	for (int i = 0; i < count; i++) {
+		[defaultArguments addObject:[NSString stringWithFormat:@"/dev/fd/%d", i+5]];
+	}
 	
     if ([delegate respondsToSelector:@selector(gpgTaskWillStart:)]) {
         [delegate gpgTaskWillStart:self];
@@ -353,7 +329,7 @@ char partCountForStatusCode[GPG_STATUS_COUNT];
     if (cancelled)
 		return GPGErrorCancelled;
     
-    __block GPGTask* cself = self;
+    __unsafe_unretained GPGTask* cself = self;
     taskHelper = [[GPGTaskHelper alloc] initWithArguments:defaultArguments];
     if([delegate isKindOfClass:[GPGController class]])
 		taskHelper.timeout = ((GPGController *)delegate).timeout;
@@ -387,7 +363,6 @@ char partCountForStatusCode[GPG_STATUS_COUNT];
         self.errData = taskHelper.errors;
     }
     @catch (NSException *exception) {
-        [taskHelper release];
 		taskHelper = nil;
 		@throw exception;
     }
@@ -412,7 +387,6 @@ char partCountForStatusCode[GPG_STATUS_COUNT];
     
     isRunning = NO;
     
-	[taskHelper release];
 	taskHelper = nil;
 	
     return exitcode;
@@ -516,7 +490,6 @@ char partCountForStatusCode[GPG_STATUS_COUNT];
 - (void)logDataContent:(NSData *)data message:(NSString *)message {
     NSString *tmpString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     GPGDebugLog(@"[DEBUG] %@: %@ >>", message, tmpString);
-    [tmpString release];
 }
 
 

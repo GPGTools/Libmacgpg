@@ -56,7 +56,7 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 				
 				[gpgTask start];
 				
-				self->_secKeyInfos = [[self parseSecColonListing:gpgTask.outText] retain];
+				self->_secKeyInfos = [self parseSecColonListing:gpgTask.outText];
 			}
 			@catch (NSException *exception) {
 				//TODO: Set error code.
@@ -97,7 +97,7 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 		NSMutableArray *newKeys = [[NSMutableArray alloc] init];
 		
 		
-		_attributeData = [gpgTask.attributeData retain]; //attributeData is only needed for UATs (PhotoID).
+		_attributeData = gpgTask.attributeData; //attributeData is only needed for UATs (PhotoID).
 		
 		_keyLines = [gpgTask.outText componentsSeparatedByString:@"\n"];
 		NSUInteger index = 0, count = _keyLines.count;
@@ -109,7 +109,6 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 				if (pubStart > -1) {
 					GPGKey *key = [[GPGKey alloc] init];
 					[newKeys addObject:key];
-					[key release];
 					
 					dispatch_group_async(dispatchGroup, dispatchQueue, ^{
 						[self fillKey:key withRange:NSMakeRange(pubStart, index - pubStart)];
@@ -124,12 +123,9 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
         dispatch_release(dispatchGroup);
         dispatch_release(dispatchQueue);
 		
-		[_attributeData release];
-		[_attributeInfos release];
 		_attributeInfos = nil;
 		
 		newKeysSet = [NSSet setWithArray:newKeys];
-		[newKeys release];
 		
 		if (keys) {
 			[_mutableAllKeys minusSet:keys];
@@ -160,7 +156,6 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 				}
 			}
 		}
-		[keysByKeyID release];
 
 				
 	}
@@ -176,12 +171,12 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 #endif
 	}
 	@finally {
-		[_secKeyInfos release];
+		_secKeyInfos = nil;
 		_secKeyInfos = nil;
 		
 		NSSet *oldAllKeys = _allKeys;
 		_allKeys = [_mutableAllKeys copy];
-		[oldAllKeys release];
+		oldAllKeys = nil;
 	}
 	
 	
@@ -232,7 +227,7 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 			if (isPub) {
 				key = primaryKey;
 			} else {
-				key = [[[GPGKey alloc] init] autorelease];
+				key = [[GPGKey alloc] init];
 			}
 			signedObject = key;
 			
@@ -304,7 +299,7 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 				signatures = [NSMutableArray array];
 			}
 
-			GPGUserID *userID = [[[GPGUserID alloc] init] autorelease];
+			GPGUserID *userID = [[GPGUserID alloc] init];
 			userID.primaryKey = primaryKey;
 			signedObject = (GPGKey *)userID; // signedObject is a GPGKey or GPGUserID. It's only casted to allow "signedObject.signatures = signatures".
 			
@@ -368,7 +363,6 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 									}
 									
 									userID.image = image;
-									[image release];
 								}
 								
 								break;
@@ -395,7 +389,7 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 			}
 		}
 		else if ([type isEqualToString:@"sig"] || ([type isEqualToString:@"rev"] && (isRev = YES))) { // Signature.
-			signature = [[[GPGUserIDSignature alloc] init] autorelease];
+			signature = [[GPGUserIDSignature alloc] init];
 			
 			
 			signature.revocation = isRev;
@@ -434,8 +428,6 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 	primaryKey.userIDs = userIDs;
 	primaryKey.subkeys = subkeys;
 	
-	[userIDs release];
-	[subkeys release];
 }
 
 
@@ -450,7 +442,7 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 			[self loadAllKeys];
 	});
 	
-	return [[_keysByKeyID retain] autorelease];
+	return _keysByKeyID;
 }
 
 - (NSSet *)allKeys {
@@ -460,12 +452,12 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 			[self loadAllKeys];
 	});
 	
-	return [[_allKeys retain] autorelease];
+	return _allKeys;
 }
 
 - (NSSet *)allKeysAndSubkeys {
 	/* TODO: Must be declared __weak once ARC! */
-	static id oldAllKeys = (id)1;
+	__unsafe_unretained static  id oldAllKeys = nil; /* Was: static id oldAllKeys = (id)1 */
 	
 	dispatch_semaphore_wait(_allKeysAndSubkeysOnce, DISPATCH_TIME_FOREVER);
 	
@@ -480,10 +472,7 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 			[allKeysAndSubkeys addObjectsFromArray:key.subkeys];
 		}
 		
-		id old = _allKeysAndSubkeys;
 		_allKeysAndSubkeys = [allKeysAndSubkeys copy];
-		[old release];
-		[allKeysAndSubkeys release];
 	}
 	
 	dispatch_semaphore_signal(_allKeysAndSubkeysOnce);
@@ -504,27 +493,22 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 			[publicKeys addObject:key];
 	}];
 	
-	NSSet *oldPublicKeys = _publicKeys;
 	_publicKeys = [publicKeys copy];
-	[oldPublicKeys release];
-	
-	NSSet *oldSecretKeys = _secretKeys;
 	_secretKeys = [secretKeys copy];
-	[oldSecretKeys release];
 }
 
 - (NSSet *)publicKeys {
 	// Make sure all keys are actually loaded.
 	[self allKeys];
 	
-	return [[_publicKeys retain] autorelease];
+	return _publicKeys;
 }
 
 - (NSSet *)secretKeys {
 	// Make sure all keys are actually loaded.
 	[self allKeys];
 	
-	return [[_secretKeys retain] autorelease];
+	return _secretKeys;
 }
 
 - (void)setCompletionQueue:(dispatch_queue_t)completionQueue {
@@ -607,11 +591,10 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 	// Keys might be either a list of real keys or fingerprints.
 	// In any way, only the fingerprints are of interest for us, since
 	// they'll be used to load the appropriate keys.
-	__block GPGKeyManager *weakSelf = self;
+	__unsafe_unretained GPGKeyManager *weakSelf = self;
 	
 	NSSet *keysCopy = [keys copy];
 	NSSet *fingerprints = [keysCopy valueForKey:@"description"];
-	[keysCopy release];
 	
 	dispatch_async(_keyLoadingQueue, ^{
 		[weakSelf _loadKeys:fingerprints fetchSignatures:fetchSignatures fetchUserAttributes:fetchAttributes];
@@ -673,7 +656,6 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 			if (!infos) {
 				infos = [[NSMutableArray alloc] init];
 				[_attributeInfos setObject:infos forKey:fingerprint];
-				[infos release];
 			}
 			
 			[infos addObject:info];
@@ -713,18 +695,19 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 
 #pragma mark Singleton
 
+
 + (GPGKeyManager *)sharedInstance {
 	static dispatch_once_t onceToken;
     static GPGKeyManager *sharedInstance;
     
     dispatch_once(&onceToken, ^{
-        sharedInstance = [[super allocWithZone:nil] realInit];
+        sharedInstance = [[super allocWithZone:nil] initSingleton];
     });
     
     return sharedInstance;
 }
 
-- (id)realInit {
+- (id)initSingleton {
 	if (!(self = [super init])) {
 		return nil;
 	}
@@ -746,8 +729,10 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 	return self;
 }
 
+
+
 + (id)allocWithZone:(NSZone *)zone {
-    return [[self sharedInstance] retain];
+    return [self sharedInstance];
 }
 
 - (id)init {
@@ -757,22 +742,6 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 - (id)copyWithZone:(NSZone *)zone {
     return self;
 }
-
-- (id)retain {
-    return self;
-}
-
-- (NSUInteger)retainCount {
-    return NSUIntegerMax;
-}
-
-- (oneway void)release {
-}
-
-- (id)autorelease {
-    return self;
-}
-
 
 
 @end

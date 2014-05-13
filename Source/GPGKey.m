@@ -39,8 +39,6 @@
 }
 
 - (void)setSubkeys:(NSArray *)subkeys {
-	if(subkeys != _subkeys)
-		[_subkeys release];
 	
 	_subkeys = [subkeys copy];
 	// This gpg key will become the primary key of
@@ -50,8 +48,6 @@
 }
 
 - (void)setUserIDs:(NSArray *)userIDs {
-	if(userIDs != _userIDs)
-		[_userIDs release];
 	
 	_userIDs = [userIDs copy];
 	if([_userIDs count])
@@ -99,11 +95,10 @@
 		if([self.subkeys count])
 			[fingerprints addObjectsFromArray:[self.subkeys valueForKey:@"fingerprint"]];
 		_fingerprints = [fingerprints copy];
-		[fingerprints release];
 	}
 	dispatch_semaphore_signal(_fingerprintsOnce);
 	
-	return [[_fingerprints retain] autorelease];
+	return _fingerprints;
 }
 
 - (NSString *)textForFilter {
@@ -116,11 +111,10 @@
 		for(GPGUserID *userID in self.userIDs)
 			[textForFilter appendFormat:@"%@\n", userID.userIDDescription];
 		_textForFilter = [textForFilter copy];
-		[textForFilter release];
 	}
 	dispatch_semaphore_signal(_textForFilterOnce);
 	
-	return [[_textForFilter retain] autorelease];
+	return _textForFilter;
 }
 
 - (BOOL)isSubkey {
@@ -148,52 +142,35 @@
 }
 
 - (id)copy {
-	return [self retain];
+	return self;
 }
 
 - (void)dealloc {
-	[_keyID release];
-	_keyID = nil;
-	[_fingerprint release];
-	_fingerprint = nil;
 	// Make sure that each subkey which might survive
 	// the parent has a primaryKey, otherwise a dangling
 	// pointer might lead to a crash.
 	for(GPGKey *key in _subkeys)
 		key.primaryKey = nil;
-	[_subkeys release];
 	_subkeys = nil;
 	for(GPGUserID *userID in _userIDs)
 		userID.primaryKey = nil;
-	[_userIDs release];
 	_userIDs = nil;
 	
-	[_signatures release];
-	_signatures = nil;
 	
-	[_cardID release];
-	_cardID = nil;
 	
 	
 	dispatch_release(_textForFilterOnce);
 	_textForFilterOnce = NULL;
-	[_textForFilter release];
-	_textForFilter = nil;
 	
 	dispatch_release(_fingerprintsOnce);
 	_fingerprintsOnce = NULL;
-	[_fingerprints release];
-	_fingerprints = nil;
 	
-	_primaryKey = nil;
-	_primaryUserID = nil;
 	
 	_secret = NO;
 	_canEncrypt = NO;
 	_canSign = NO;
 	_ownerTrust = GPGValidityUnknown;
 	
-	[super dealloc];
 }
 
 @end

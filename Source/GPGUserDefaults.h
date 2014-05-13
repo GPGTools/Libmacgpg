@@ -37,7 +37,7 @@
 - (NSDictionary *)persistentDomainForName:(NSString *)domainName;
 - (void)setPersistentDomain:(NSDictionary *)domain forName:(NSString *)domainName;
 
-@property (nonatomic, retain) NSUserDefaults *target;
+@property (nonatomic, strong) NSUserDefaults *target;
 
 @end
 

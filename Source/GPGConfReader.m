@@ -34,7 +34,7 @@ static NSMutableDictionary *settingTypeMap_;
 static NSMutableCharacterSet *commentChars_;
 
 + (id) readerForDomain:(GPGOptionsDomain)domain {
-    return [[[self alloc] initForDomain:domain] autorelease];
+    return [[self alloc] initForDomain:domain];
 }
 
 + (void)initialize {
@@ -43,7 +43,7 @@ static NSMutableCharacterSet *commentChars_;
     {
         initialized = YES;
 
-        settingTypeMap_ = [[NSMutableDictionary dictionaryWithCapacity:0] retain];
+        settingTypeMap_ = [NSMutableDictionary dictionaryWithCapacity:0];
         [settingTypeMap_ setObject:[GPGArraySetting class] forKey:@"auto-key-locate"];
         [settingTypeMap_ setObject:[GPGLinesSetting class] forKey:@"comment"];
         [settingTypeMap_ setObject:[GPGDictSetting class] forKey:@"group"];
@@ -52,7 +52,7 @@ static NSMutableCharacterSet *commentChars_;
         // "no-options" is boolean
         [settingTypeMap_ setObject:[GPGStdSetting class] forKey:@"no-options"];
         
-        commentChars_ = [[NSMutableCharacterSet characterSetWithCharactersInString:@"#"] retain];
+        commentChars_ = [NSMutableCharacterSet characterSetWithCharactersInString:@"#"];
         [commentChars_ formUnionWithCharacterSet:[NSCharacterSet whitespaceCharacterSet]];
     }
 }
@@ -123,7 +123,7 @@ static NSMutableCharacterSet *commentChars_;
         mappedClass = [GPGStdSetting class];
     }
 
-    id setting = [[[mappedClass alloc] initForKey:key] autorelease];
+    id setting = [[mappedClass alloc] initForKey:key];
     return setting;
 }
 

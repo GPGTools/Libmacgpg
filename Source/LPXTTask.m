@@ -344,15 +344,6 @@ typedef struct {
     [inheritedPipesMap setValue:nil forKey:name];
 }
 
-- (void)dealloc {
-    [arguments release];
-	[_environmentVariables release];
-    [launchPath release];
-    [parentTask release];
-	[inheritedPipes release];
-    [inheritedPipesMap release];
-    [super dealloc];
-}
 
 - (void)closePipes {
     // Close all pipes, otherwise SIGTERM is ignored it seems.

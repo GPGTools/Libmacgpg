@@ -148,7 +148,7 @@
 		bytes[i1] = byte;
 	}
 	
-	return [[[NSString alloc] initWithData:buffer encoding:NSUTF8StringEncoding] autorelease];
+	return [[NSString alloc] initWithData:buffer encoding:NSUTF8StringEncoding];
 }
 
 @end

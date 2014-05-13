@@ -71,20 +71,11 @@
 	_trust = GPGValidityUnknown;
 	_status = GPGErrorGeneralError;
 	
-	[_fingerprint release];
-	_fingerprint = nil;
-	[_creationDate release];
-	_creationDate = nil;
-	[_expirationDate release];
-	_expirationDate = nil;
 	_version = 0;
 	_publicKeyAlgorithm = 0;
 	_hashAlgorithm = 0;
 	
-	[_key release];
-	_key = nil;
 		
-	[super dealloc];
 }
 
 - (NSString *)humanReadableDescription {
@@ -130,7 +121,6 @@
 
         NSString *algorithmDesc = [algTransformer transformedIntegerValue:self.publicKeyAlgorithm];
         [desc appendFormat:@" (%@ %@)", self.fingerprint, algorithmDesc];
-        [algTransformer release];
     }
     
     return desc;

@@ -26,10 +26,10 @@
 @property (nonatomic) NSUInteger length;
 @property (nonatomic) BOOL expired;
 @property (nonatomic) BOOL revoked;
-@property (nonatomic, retain) NSString *keyID;
-@property (nonatomic, retain) NSDate *creationDate;
-@property (nonatomic, retain) NSDate *expirationDate;
-@property (nonatomic, retain) NSArray *userIDs;
+@property (nonatomic, strong) NSString *keyID;
+@property (nonatomic, strong) NSDate *creationDate;
+@property (nonatomic, strong) NSDate *expirationDate;
+@property (nonatomic, strong) NSArray *userIDs;
 
 @end
 
@@ -65,7 +65,7 @@
 }
 
 + (id)keyWithListing:(NSArray *)listing {
-	return [[[self alloc] initWithListing:listing] autorelease];
+	return [[self alloc] initWithListing:listing];
 }
 
 - (id)initWithListing:(NSArray *)listing {
@@ -107,13 +107,6 @@
 	return self;	
 }
 
-- (void)dealloc {
-	[keyID release];
-	[creationDate release];
-	[expirationDate release];
-	[userIDs release];
-	[super dealloc];
-}
 
 - (NSUInteger)hash {
 	return [keyID hash];
@@ -122,7 +115,7 @@
 	return [keyID isEqualToString:[anObject description]];
 }
 - (NSString *)description {
-	return [[keyID retain] autorelease];
+	return keyID;
 }
 
 

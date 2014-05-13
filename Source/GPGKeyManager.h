@@ -35,8 +35,8 @@
 	dispatch_semaphore_t _allKeysAndSubkeysOnce;
 }
 @property (nonatomic, readonly) NSSet *allKeys;
-@property (nonatomic, readonly) NSSet *allKeysAndSubkeys;
-@property (nonatomic, readonly) NSDictionary *keysByKeyID;
+@property (copy, nonatomic, readonly) NSSet *allKeysAndSubkeys;
+@property (copy, nonatomic, readonly) NSDictionary *keysByKeyID;
 
 /* Subset of allKeys including only public keys. */
 @property (nonatomic, readonly) NSSet *publicKeys;

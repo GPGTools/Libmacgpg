@@ -90,27 +90,6 @@
 //	//TODO: Support for [mdc] [no-ks-modify]!
 //}
 
-- (void)dealloc {
-	[_userIDDescription release];
-	_userIDDescription = nil;
-	[_name release];
-	_name = nil;
-	[_email release];
-	_email = nil;
-	[_comment release];
-	_comment = nil;
-	[_image release];
-	_image = nil;
-	[_hashID release];
-	_hashID = nil;
-	
-	_primaryKey = nil;
-	[_signatures release];
-	_signatures = nil;
-	
-	
-	[super dealloc];
-}
 
 
 @end

@@ -23,11 +23,11 @@
 
 
 @protocol GPGUserIDProtocol <NSObject>
-@property (nonatomic, readonly) NSString *userIDDescription;
-@property (nonatomic, readonly) NSString *name;
-@property (nonatomic, readonly) NSString *email;
-@property (nonatomic, readonly) NSString *comment;
-@property (nonatomic, readonly) NSImage *image;
+@property (copy, nonatomic, readonly) NSString *userIDDescription;
+@property (copy, nonatomic, readonly) NSString *name;
+@property (copy, nonatomic, readonly) NSString *email;
+@property (copy, nonatomic, readonly) NSString *comment;
+@property (copy, nonatomic, readonly) NSImage *image;
 @end
 
 
@@ -37,12 +37,12 @@
 	NSString *_email;
 	NSString *_comment;
 	NSString *_hashID;
-	NSImage *_image;
+	NSImage * _image;
 	NSDate *_creationDate;
 	NSDate *_expirationDate;
 	GPGValidity _validity;
 	
-	GPGKey *_primaryKey;
+	GPGKey *__unsafe_unretained _primaryKey;
 	NSArray *_signatures;
 	
 }
@@ -50,18 +50,18 @@
 - (instancetype)init;
 - (instancetype)initWithUserIDDescription:(NSString *)userIDDescription;
 
-@property (nonatomic, readonly) NSString *userIDDescription;
-@property (nonatomic, readonly) NSString *name;
-@property (nonatomic, readonly) NSString *email;
-@property (nonatomic, readonly) NSString *comment;
-@property (nonatomic, readonly) NSString *hashID;
-@property (nonatomic, readonly) NSImage *image;
-@property (nonatomic, readonly) NSDate *creationDate;
-@property (nonatomic, readonly) NSDate *expirationDate;
+@property (copy, nonatomic, readonly) NSString *userIDDescription;
+@property (copy, nonatomic, readonly) NSString *name;
+@property (copy, nonatomic, readonly) NSString *email;
+@property (copy, nonatomic, readonly) NSString *comment;
+@property (copy, nonatomic, readonly) NSString *hashID;
+@property (copy, nonatomic, readonly) NSImage *image;
+@property (copy, nonatomic, readonly) NSDate *creationDate;
+@property (copy, nonatomic, readonly) NSDate *expirationDate;
 @property (nonatomic, readonly) GPGValidity validity;
 
-@property (nonatomic, readonly) NSArray *signatures;
-@property (nonatomic, readonly) GPGKey *primaryKey;
+@property (copy, nonatomic, readonly) NSArray *signatures;
+@property (unsafe_unretained, nonatomic, readonly) GPGKey *primaryKey;
 
 @end
 

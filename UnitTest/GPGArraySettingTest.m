@@ -33,11 +33,10 @@
 
 - (void) setUp {
     key = @"auto-key-locate";
-    testwords = [[NSArray arrayWithObjects:@"cert", @"pka", nil] retain];
+    testwords = [NSArray arrayWithObjects:@"cert", @"pka", nil];
 }
 
 - (void) tearDown {
-    [testwords release];
     testwords = nil;
 }
 
@@ -48,7 +47,6 @@
     id value = [setting value];
     STAssertNotNil(value, @"Unexpectedly nil!");
     STAssertTrue([value count] == [testwords count], @"Incorrect count!");
-    [setting release];
 }
 
 - (void) testSetNil {
@@ -59,7 +57,6 @@
     id value = [setting value];
     STAssertNotNil(value, @"Unexpectedly nil!");
     STAssertTrue([value count] == 0, @"Incorrect count!");
-    [setting release];
 }
 
 - (void) testGetValue {    
@@ -68,7 +65,6 @@
     NSString* desc = [setting description];
     STAssertEqualObjects(@"auto-key-locate cert pka\n", desc, @"description not as expected!");
     
-    [setting release];
 }
 
 - (void) testAppendLine {
@@ -79,7 +75,6 @@
     NSString* desc = [setting description];
     STAssertEqualObjects(@"#auto-key-locate cert pka\n", desc, @"description not as expected!");
     
-    [setting release];
 }
 
 @end

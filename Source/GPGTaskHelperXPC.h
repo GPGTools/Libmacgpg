@@ -67,7 +67,7 @@
 @property (nonatomic, copy) NSData *(^processStatus)(NSString *keyword, NSString *value);
 @property (nonatomic, copy) void (^progressHandler)(NSUInteger processedBytes, NSUInteger totalBytes);
 
-@property (nonatomic, retain, readonly) NSException *connectionError;
+@property (nonatomic, strong, readonly) NSException *connectionError;
 
 @end
 

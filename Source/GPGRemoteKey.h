@@ -35,10 +35,10 @@
 @property (nonatomic, readonly) NSUInteger length;
 @property (nonatomic, readonly) BOOL expired;
 @property (nonatomic, readonly) BOOL revoked;
-@property (nonatomic, readonly, retain) NSString *keyID;
-@property (nonatomic, readonly, retain) NSDate *creationDate;
-@property (nonatomic, readonly, retain) NSDate *expirationDate;
-@property (nonatomic, readonly, retain) NSArray *userIDs;
+@property (nonatomic, readonly, strong) NSString *keyID;
+@property (nonatomic, readonly, strong) NSDate *creationDate;
+@property (nonatomic, readonly, strong) NSDate *expirationDate;
+@property (nonatomic, readonly, strong) NSArray *userIDs;
 
 
 + (NSArray *)keysWithListing:(NSString *)listing;

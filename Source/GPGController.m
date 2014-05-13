@@ -40,9 +40,9 @@
 
 
 @interface GPGController () <GPGTaskDelegate>
-@property (nonatomic, retain) GPGSignature *lastSignature;
-@property (nonatomic, retain) NSString *filename;
-@property (nonatomic, retain) GPGTask *gpgTask;
+@property (nonatomic, strong) GPGSignature *lastSignature;
+@property (nonatomic, strong) NSString *filename;
+@property (nonatomic, strong) GPGTask *gpgTask;
 - (void)addArgumentsForKeyserver;
 - (void)addArgumentsForSignerKeys;
 - (void)addArgumentsForComments;
@@ -140,10 +140,10 @@ BOOL gpgConfigReaded = NO;
 
 
 - (NSArray *)comments {
-	return [[comments copy] autorelease];
+	return [comments copy];
 }
 - (NSArray *)signerKeys {
-	return [[signerKeys copy] autorelease];
+	return [signerKeys copy];
 }
 - (void)setComment:(NSString *)comment {
 	[self willChangeValueForKey:@"comments"];
@@ -189,20 +189,18 @@ BOOL gpgConfigReaded = NO;
 }
 - (void)setGpgTask:(GPGTask *)value {
 	if (value != gpgTask) {
-		GPGTask *old = gpgTask;
-		gpgTask = [value retain];
-		[old release];
+		gpgTask = value;
 	}
 }
 - (GPGTask *)gpgTask {
-	return [[gpgTask retain] autorelease];
+	return gpgTask;
 }
 
 
 #pragma mark Init
 
 + (id)gpgController {
-	return [[[[self class] alloc] init] autorelease];
+	return [[[self class] alloc] init];
 }
 
 - (id)init {
@@ -284,7 +282,6 @@ BOOL gpgConfigReaded = NO;
 	[self cleanAfterOperation];
 	NSData *processedData = [output readAllData];
 	[self operationDidFinishWithReturnValue:processedData];
-	[output release];
 	return processedData;
 }
 
@@ -1086,7 +1083,7 @@ BOOL gpgConfigReaded = NO;
 		
 		if ([keys count] == 0) {
 			//Get keys from RTF data.
-			NSData *data2 = [[[[[NSAttributedString alloc] initWithData:data options:nil documentAttributes:nil error:nil] autorelease] string] dataUsingEncoding:NSUTF8StringEncoding];
+			NSData *data2 = [[[[NSAttributedString alloc] initWithData:data options:nil documentAttributes:nil error:nil] string] dataUsingEncoding:NSUTF8StringEncoding];
 			if (data2) {
 				data2 = [GPGPacket unArmor:data2];
 				keys = [self keysInExportedData:data2];
@@ -2191,7 +2188,7 @@ BOOL gpgConfigReaded = NO;
 			return NO;
 		}
 		@finally {
-			[taskHelper release];
+			taskHelper = nil;
 		}
 		
 		return inCache;
@@ -2281,7 +2278,7 @@ BOOL gpgConfigReaded = NO;
 		/*
 		 status is one of: GPG_STATUS_GOODSIG, GPG_STATUS_EXPSIG, GPG_STATUS_EXPKEYSIG, GPG_STATUS_REVKEYSIG, GPG_STATUS_BADSIG, GPG_STATUS_ERRSIG
 		*/
-		self.lastSignature = [[[GPGSignature alloc] init] autorelease];
+		self.lastSignature = [[GPGSignature alloc] init];
 		[signatures addObject:self.lastSignature];
 		parseFingerprint = YES;
 	}
@@ -2424,7 +2421,6 @@ BOOL gpgConfigReaded = NO;
                 [f setNumberStyle:NSNumberFormatterDecimalStyle];
                 NSNumber *algorithmNr = [f numberFromString:[promptComponents objectAtIndex:2]];
                 hashAlgo = [algorithmNr unsignedIntegerValue];
-                [f release];
             }
             hashAlgorithm = hashAlgo;
             break;
@@ -2453,7 +2449,6 @@ BOOL gpgConfigReaded = NO;
 - (void)gpgTaskDidStart:(GPGTask *)task {
 	if ([signatures count] > 0) {
 		self.lastSignature = nil;
-		[signatures release];
 		signatures = [[NSMutableArray alloc] init];	
 	}
 }
@@ -2469,8 +2464,6 @@ BOOL gpgConfigReaded = NO;
 	if (asyncStarted && runningOperations == 1 && [delegate respondsToSelector:@selector(gpgController:operationThrownException:)]) {
 		[delegate gpgController:self operationThrownException:e];
 	}
-	[e retain];
-	[error release];
 	error = e;
 	[self logException:e];
 }
@@ -2478,7 +2471,6 @@ BOOL gpgConfigReaded = NO;
 - (void)operationDidStart {
 	if (runningOperations == 0) {
 		self.gpgTask = nil;
-		[error release];
 		error = nil;
 		if ([delegate respondsToSelector:@selector(gpgControllerOperationDidStart:)]) {
 			[delegate gpgControllerOperationDidStart:self];
@@ -2717,26 +2709,7 @@ BOOL gpgConfigReaded = NO;
 - (void)dealloc {
 	[[NSDistributedNotificationCenter defaultCenter] removeObserver:self];
 	
-	[signerKeys release];
-	[comments release];
-	[signatures release];
-	[keyserver release];
-	[gpgHome release];
-	[userInfo release];
-	[lastSignature release];
-	[_pinentryInfo release];	
-	[asyncProxy release];
-	[identifier release];
-	[error release];
-	[lastReturnValue release];
-	[proxyServer release];
-	[undoManager release];
-	[gpgKeyservers release];
-	[forceFilename release];
-	[filename release];
-	[gpgTask release];
 	
-	[super dealloc];
 }
 
 
@@ -2749,7 +2722,7 @@ BOOL gpgConfigReaded = NO;
 	while ([scanner scanInteger:&value]) {
 		[algorithm addObject:[NSNumber numberWithInteger:value]];
 	}
-	return [[algorithm copy] autorelease];
+	return [algorithm copy];
 }
 
 
@@ -2817,15 +2790,15 @@ BOOL gpgConfigReaded = NO;
 					NSString *value = [parts objectAtIndex:2];
 					
 					if ([name isEqualToString:@"version"]) {
-						gpgVersion = [value retain];
+						gpgVersion = value;
 					} else if ([name isEqualToString:@"pubkey"]) {
-						publicKeyAlgorithm = [[self algorithmSetFromString:value] retain];
+						publicKeyAlgorithm = [self algorithmSetFromString:value];
 					} else if ([name isEqualToString:@"cipher"]) {
-						cipherAlgorithm = [[self algorithmSetFromString:value] retain];
+						cipherAlgorithm = [self algorithmSetFromString:value];
 					} else if ([name isEqualToString:@"digest"]) {
-						digestAlgorithm = [[self algorithmSetFromString:value] retain];
+						digestAlgorithm = [self algorithmSetFromString:value];
 					} else if ([name isEqualToString:@"compress"]) {
-						compressAlgorithm = [[self algorithmSetFromString:value] retain];
+						compressAlgorithm = [self algorithmSetFromString:value];
 					}
 				}
 			}
@@ -2850,8 +2823,7 @@ BOOL gpgConfigReaded = NO;
 
 - (void)setLastReturnValue:(id)value {
 	if (value != lastReturnValue) {
-		[lastReturnValue release];
-		lastReturnValue = [value retain];
+		lastReturnValue = value;
 	}
 }
 

@@ -36,7 +36,6 @@
 
     id value2 = [setting value];
     STAssertNotNil(value2, @"Unexpectedly nil!");
-    [setting release];
 }
 
 - (void) testSetNil {
@@ -46,7 +45,6 @@
     
     id value2 = [setting value];
     STAssertNil(value2, @"Unexpectedly defined!");
-    [setting release];
 }
 
 - (void) testDescription {
@@ -61,7 +59,6 @@
     desc = [setting description];
     STAssertEqualObjects(@"#keyserver\n", desc, @"description not as expected!");
 
-    [setting release];
 }
 
 - (void) testAppendLineString {
@@ -73,7 +70,6 @@
     NSString* desc = [setting description];
     STAssertEqualObjects(@"#keyserver hkp://domain.com\n", desc, @"description not as expected!");
     
-    [setting release];
 }
 
 - (void) testAppendLineTRUE {
@@ -90,7 +86,6 @@
     NSString* desc = [setting description];
     STAssertEqualObjects(@"#ask-cert-level\n", desc, @"description not as expected!");
     
-    [setting release];
 }
 
 - (void) testAppendLineFALSE {
@@ -107,7 +102,6 @@
     NSString* desc = [setting description];
     STAssertEqualObjects(@"#no-ask-cert-level\n", desc, @"description not as expected!");
     
-    [setting release];
 }
 
 - (void) testgpgdotconf1 {
@@ -138,7 +132,6 @@
     expected = @"# Some comment.\n# More comment. \n#no-ask-cert-level\n";
     STAssertEqualObjects(expected, desc, @"description not as expected!");
 
-    [setting release];
 }
 
 @end

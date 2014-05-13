@@ -33,7 +33,6 @@
 #define readUint16 CFSwapInt16BigToHost(*((*((uint16_t**)&readPos))++))
 #define readUint32 CFSwapInt32BigToHost(*((*((uint32_t**)&readPos))++))
 #define readUint64 CFSwapInt64BigToHost(*((*((uint64_t**)&readPos))++))
-#define abortInit [self release]; return nil;
 #define abortSwitch type = 0; break;
 #define canRead(x) if (readPos-bytes+(x) > dataLength) {goto endOfBuffer;}
 
@@ -74,10 +73,10 @@ static const char *armorTypeStrings[] = { //The first byte contains the length o
 };
 const int armorTypeStringsCount = 7;
 
-static const char clearTextBeginMark[] = "-----BEGIN PGP SIGNED MESSAGE-----";
-const int clearTextBeginMarkLength = 34;
-static const char clearTextEndMark[] = "-----BEGIN PGP SIGNATURE-----";
-const int clearTextEndMarkLength = 29;
+//static const char clearTextBeginMark[] = "-----BEGIN PGP SIGNED MESSAGE-----";
+//const int clearTextBeginMarkLength = 34;
+//static const char clearTextEndMark[] = "-----BEGIN PGP SIGNATURE-----";
+//const int clearTextEndMarkLength = 29;
 
 
 
@@ -103,7 +102,6 @@ const int clearTextEndMarkLength = 29;
 		GPGPacket *packet = [[self alloc] initWithBytes:currentPos length:endPos - currentPos nextPacketStart:&nextPacketPos];
 		if (packet) {
 			[packets addObject:packet];
-			[packet release];
 		}
 		if (nextPacketPos <= currentPos) {
 			break;
@@ -134,7 +132,6 @@ const int clearTextEndMarkLength = 29;
 		GPGPacket *packet = [[self alloc] initWithBytes:currentPos length:endPos - currentPos nextPacketStart:&nextPacketPos];
 		if (packet) {
 			block(packet, &stop);
-			[packet release];
 			if (stop) {
 				return;
 			}
@@ -157,7 +154,6 @@ const int clearTextEndMarkLength = 29;
 	canRead(1);
 	
 	if (!(bytes[0] & 0x80)) {
-		[self release];
 		return nil;
 	}
 	
@@ -197,7 +193,7 @@ const int clearTextEndMarkLength = 29;
 	} else {
 		type = (*readPos & 0x3C) >> 2;
 		if (type == 0) {
-			abortInit;
+			return nil;
 		}
 		switch (*(readPos++) & 3) {
 			case 0:
@@ -267,12 +263,11 @@ const int clearTextEndMarkLength = 29;
 							[subpacket setObject:@(subpacketType) forKey:@"type"];
 														
 							if (subpacketType == 16 && subpacketLength == 9) {
-								keyID = [bytesToHexString(readPos, 8) retain];
+								keyID = bytesToHexString(readPos, 8);
 							}
 							
 							
 							[subpackets addObject:subpacket];
-							[subpacket release];
 							
 							readPos += subpacketLength - 1;
 						}
@@ -321,8 +316,8 @@ const int clearTextEndMarkLength = 29;
 			
 			uint8_t fingerprintBytes[20];
 			CC_SHA1(bytesForSHA1, length + 3, fingerprintBytes);
-			fingerprint = [bytesToHexString(fingerprintBytes, 20) retain];
-			keyID = [[fingerprint keyID] retain];
+			fingerprint = bytesToHexString(fingerprintBytes, 20);
+			keyID = [fingerprint keyID];
 			
 			break; }
 		case GPGCompressedDataPacket:
@@ -359,23 +354,13 @@ const int clearTextEndMarkLength = 29;
 	
 	return self;
 endOfBuffer:
-	abortInit;
-}
-
-- (id)init {
-	[self release];
 	return nil;
 }
 
-- (void)dealloc {
-	[data release];
-	[fingerprint release];
-	[keyID release];
-	[description release];
-	[subpackets release];
-	
-	[super dealloc];
+- (id)init {
+	return nil;
 }
+
 
 
 + (NSData *)unArmor:(NSData *)theData {
@@ -719,7 +704,7 @@ endOfBuffer:
 		description = [[NSString alloc] initWithFormat:@"GPGPacket type: %i, keyID %@", self.type, self.keyID];
 	}
 
-	return [[description retain] autorelease];
+	return description;
 }
 
 

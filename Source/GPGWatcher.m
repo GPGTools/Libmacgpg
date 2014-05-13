@@ -6,7 +6,7 @@
 NSString * const GPGKeysChangedNotification = @"GPGKeysChangedNotification";
 
 @interface GPGWatcher ()
-@property (nonatomic, retain) NSMutableDictionary *changeDates;
+@property (nonatomic, strong) NSMutableDictionary *changeDates;
 - (NSString *)gpgCurrentHome;
 - (void)updateWatcher;
 - (void)timerFired:(NSTimer *)timer;
@@ -25,7 +25,7 @@ NSString * const GPGKeysChangedNotification = @"GPGKeysChangedNotification";
 
 #define TOLERANCE_BEFORE 10.0
 #define TOLERANCE_AFTER 10.0
-#define DW_LATENCY 5.0
+#define DW_LATENCY 5
 
 static NSString * const kWatcherLastFoundChange = @"lastFoundChange";
 static NSString * const kWatchedFileName = @"watchedFileName";
@@ -33,18 +33,10 @@ static NSString * const kWatchedFileName = @"watchedFileName";
 - (void)dealloc 
 {
 #if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
-    [jailfree release];
-	jailfree = nil;
 #endif
     [[NSDistributedNotificationCenter defaultCenter] removeObserver:self];    
     [[[NSWorkspace sharedWorkspace] notificationCenter] removeObserver:self];
 
-    [dirWatcher release];
-    [identifier release];
-    [changeDates release];
-    [filesToWatch release];
-    [gpgSpecifiedHome release];
-    [super dealloc];
 }
 
 - (void)setToleranceBefore:(NSTimeInterval)interval {
@@ -224,7 +216,7 @@ static id syncRoot = nil;
         if (!sharedInstance)
             sharedInstance = [[self alloc] init];
     }
-    return [[sharedInstance retain] autorelease];	
+    return sharedInstance;	
 }
 
 - (id)init {
@@ -239,7 +231,7 @@ static id syncRoot = nil;
 - (id)initWithGpgHome:(NSString *)directoryPath
 {
     if (self = [super init]) {
-        gpgSpecifiedHome = [directoryPath retain];
+        gpgSpecifiedHome = directoryPath;
         filesToWatch = [[NSDictionary alloc] initWithObjectsAndKeys:
                         GPGKeysChangedNotification, @"pubring.gpg", 
                         GPGKeysChangedNotification, @"secring.gpg",
@@ -257,7 +249,7 @@ static id syncRoot = nil;
         dirWatcher.latency = DW_LATENCY;
         [self updateWatcher];
 		
-		[[NSGarbageCollector defaultCollector] disableCollectorForPointer:self];
+		//TODO: Need we a self reference or so, to prevent a release?
 	}
 	return self;
 }

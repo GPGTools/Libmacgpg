@@ -33,12 +33,11 @@
 
 - (void) setUp {
     key = @"keyserver-options";
-    testdict = [[NSDictionary dictionaryWithObjectsAndKeys:[NSArray arrayWithObjects:@"abc", @"def", nil], 
-                @"keyserver1", nil] retain];
+    testdict = [NSDictionary dictionaryWithObjectsAndKeys:[NSArray arrayWithObjects:@"abc", @"def", nil], 
+                @"keyserver1", nil];
 }
 
 - (void) tearDown {
-    [testdict release];
 }
 
 - (void) testSetValue {
@@ -48,7 +47,6 @@
     id value = [setting value];
     STAssertNotNil(value, @"Unexpectedly nil!");
     STAssertTrue([value count] == [testdict count], @"Incorrect count!");
-    [setting release];
 }
 
 - (void) testSetNil {
@@ -59,7 +57,6 @@
     id value = [setting value];
     STAssertNotNil(value, @"Unexpectedly nil!");
     STAssertTrue([value count] == 0, @"Incorrect count!");
-    [setting release];
 }
 
 - (void) testGetValue {
@@ -69,7 +66,6 @@
     NSString* desc = [setting description];
     STAssertEqualObjects(@"keyserver-options keyserver1=abc def\n", desc, @"description not as expected!");
 
-    [setting release];
 }
 
 - (void) testAppendLine {
@@ -81,7 +77,6 @@
     NSString* desc = [setting description];
     STAssertEqualObjects(@"#keyserver-options keyserver1=c d\n", desc, @"description not as expected!");
     
-    [setting release];
 }
 
 @end

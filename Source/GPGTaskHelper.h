@@ -91,15 +91,15 @@ typedef void (^lp_progress_handler_t)(NSUInteger processedBytes, NSUInteger tota
 	NSUInteger _timeout;
 }
 
-@property (nonatomic, retain) NSArray *inData;
+@property (nonatomic, strong) NSArray *inData;
 @property (nonatomic, copy) NSArray *arguments;
 @property (nonatomic, copy) NSDictionary *environmentVariables;
-@property (nonatomic, retain) GPGStream *output;
+@property (nonatomic, strong) GPGStream *output;
 @property (nonatomic, assign) NSUInteger exitStatus;
 @property (nonatomic, copy) lp_process_status_t processStatus;
-@property (nonatomic, retain, readonly) NSData *status;
-@property (nonatomic, retain, readonly) NSData *errors;
-@property (nonatomic, retain, readonly) NSData *attributes;
+@property (nonatomic, strong, readonly) NSData *status;
+@property (nonatomic, strong, readonly) NSData *errors;
+@property (nonatomic, strong, readonly) NSData *attributes;
 @property (nonatomic, assign) BOOL readAttributes;
 @property (nonatomic, copy) lp_progress_handler_t progressHandler;
 @property (nonatomic, assign) BOOL checkForSandbox;

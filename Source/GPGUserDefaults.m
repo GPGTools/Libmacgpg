@@ -75,7 +75,7 @@
 	@catch (NSException *exception) {
 	}
 	@finally {
-		[taskHelper release];
+		taskHelper = nil;
 	}
 	
 	return defaults;
@@ -96,7 +96,7 @@
 	@catch (NSException *exception) {
 	}
 	@finally {
-		[taskHelper release];
+		taskHelper = nil;
 	}
 }
 

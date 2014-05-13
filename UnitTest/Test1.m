@@ -6,6 +6,7 @@
 #include "GPGStdSetting.h"
 #import "GPGWatcher.h"
 #import "NSRunLoop+TimeOutAndFlag.h"
+#import "GPGTaskHelper.h"
 
 #define BDSKSpecialPipeServiceRunLoopMode @"BDSKSpecialPipeServiceRunLoopMode"
 
@@ -37,7 +38,6 @@ static NSString *skelconf = @"/usr/local/MacGPG2/share/gnupg/gpg-conf.skel";
 		NSFileManager *fileManager = [NSFileManager defaultManager];
 		[fileManager removeItemAtPath:tempDir error:nil];
 	}
-	[gpgc release];
 }
 
 - (void)testGPGWatcher 
@@ -58,7 +58,6 @@ static NSString *skelconf = @"/usr/local/MacGPG2/share/gnupg/gpg-conf.skel";
     [[NSRunLoop currentRunLoop] runUntilTimeout:7 orFinishedFlag:&finishedFlag];
 
     STAssertTrue(confTouches > 0, @"GPGConfigurationModifiedNotification was not raised!");
-    [myWatcher release];
 }
 
 - (void)confHasChanged:(id)sender {
@@ -70,7 +69,7 @@ static NSString *skelconf = @"/usr/local/MacGPG2/share/gnupg/gpg-conf.skel";
     system([touchCmd UTF8String]);
 }
 
-- (void)testTimeout {
+/*- (void)testTimeout {
 	NSLog(@"Dispatch QUICK: %lld", GPGTASKHELPER_DISPATCH_TIMEOUT_QUICKLY);
 	gpgc.timeout = GPGTASKHELPER_DISPATCH_TIMEOUT_QUICKLY;
 	NSSet *keys = [gpgc allKeys];
@@ -107,11 +106,10 @@ static NSString *skelconf = @"/usr/local/MacGPG2/share/gnupg/gpg-conf.skel";
 	STAssertNotNil(decryptedData, @"decryptData failed.");
     STAssertTrue([decryptedData isEqualToData:input], @"Round-trip sign/unsign failed!");
 }
-
+*/
 - (void)logDataContent:(NSData *)data message:(NSString *)message {
     NSString *tmpString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     printf("[DEBUG] %s: %s >>\n", [message UTF8String], [tmpString UTF8String]);
-    [tmpString release];
 }
 
 - (void)stdoutNowAvailable:(NSNotification *)notification {
@@ -125,7 +123,7 @@ static NSString *skelconf = @"/usr/local/MacGPG2/share/gnupg/gpg-conf.skel";
 }
 
 
-
+/*
 - (void)testGPGConfGetContents {
     GPGConf *conf = [[GPGConf alloc] initWithPath:skelconf andDomain:GPGDomain_gpgConf];
     
@@ -181,6 +179,7 @@ static NSString *skelconf = @"/usr/local/MacGPG2/share/gnupg/gpg-conf.skel";
     [diffout release];
     [task release];
 }
+ */
 
 //- (void)stdoutNowAvailable:(NSNotification *)notification {
 //    NSLog(@"Data coming in...");

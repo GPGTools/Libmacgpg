@@ -38,7 +38,7 @@
 @property (nonatomic) NSXPCConnection *connection;
 @property (nonatomic) dispatch_semaphore_t taskLock;
 @property (nonatomic) BOOL wasShutdown;
-@property (nonatomic, retain, readwrite) NSException *connectionError;
+@property (nonatomic, strong, readwrite) NSException *connectionError;
 
 @end
 
@@ -150,7 +150,7 @@
 	// Connection error is set to nil, so throw the errorCopy;
 	[self shutdown];
 	
-	@throw errorCopy != nil ? [errorCopy autorelease] : error;
+	@throw errorCopy != nil ? errorCopy : error;
 }
 
 - (void)completeTask {
@@ -178,7 +178,7 @@
 				exception = [GPGException exceptionWithReason:[exceptionInfo objectForKey:@"reason"] errorCode:[[exceptionInfo objectForKey:@"errorCode"] unsignedIntValue]];
 			}
 			
-			taskError = [exception retain];
+			taskError = exception;
 			[self completeTask];
 			
 			return;
@@ -197,14 +197,13 @@
 	[self waitForTaskToCompleteAndShutdown:NO throwExceptionIfNecessary:NO];
 	
 	if(self.connectionError || taskError) {
-		[result release];
 		[self shutdownAndThrowError:self.connectionError ? self.connectionError : taskError];
 		return nil;
 	}
 	
 	[self shutdown];
 	
-	return [result autorelease];
+	return result;
 }
 
 - (NSString *)loadConfigFileAtPath:(NSString *)path {
@@ -222,14 +221,13 @@
 	[self waitForTaskToCompleteAndShutdown:NO throwExceptionIfNecessary:NO];
 	
 	if(self.connectionError) {
-		[result release];
 		[self shutdownAndThrowError:self.connectionError];
 		return nil;
 	}
 	
 	[self shutdown];
 	
-	return [result autorelease];
+	return result;
 }
 
 - (NSDictionary *)loadUserDefaultsForName:(NSString *)domainName {
@@ -247,25 +245,25 @@
 	[self waitForTaskToCompleteAndShutdown:NO throwExceptionIfNecessary:NO];
 	
 	if(self.connectionError) {
-		[result release];
 		[self shutdownAndThrowError:self.connectionError];
 		return nil;
 	}
 	
 	[self shutdown];
 	
-	return [result autorelease];
+	return result;
 }
 
 - (void)setUserDefaults:(NSDictionary *)domain forName:(NSString *)domainName {
 	[self prepareTask];
 
+	__block typeof(self) weakSelf = self;
 	__block BOOL success = NO;
 	
 	[_jailfree setUserDefaults:domain forName:domainName reply:^(BOOL result) {
 		success = result;
 		
-		[self completeTask];
+		[weakSelf completeTask];
 	}];
 	
 	[self waitForTaskToCompleteAndShutdown:YES throwExceptionIfNecessary:YES];
@@ -275,12 +273,13 @@
 - (BOOL)launchGeneralTask:(NSString *)path withArguments:(NSArray *)arguments wait:(BOOL)wait {
 	[self prepareTask];
 	
+	__block typeof(self) weakSelf = self;
 	__block BOOL success = NO;
 	
 	[_jailfree launchGeneralTask:path withArguments:arguments wait:wait reply:^(BOOL result) {
 		success = result;
 		
-		[self completeTask];
+		[weakSelf completeTask];
 	}];
 	
 	[self waitForTaskToCompleteAndShutdown:YES throwExceptionIfNecessary:YES];
@@ -291,12 +290,13 @@
 - (BOOL)isPassphraseForKeyInGPGAgentCache:(NSString *)key {
 	[self prepareTask];
 	
+	__block typeof(self) weakSelf = self;
 	BOOL __block inCache = NO;
 	
 	[_jailfree isPassphraseForKeyInGPGAgentCache:key reply:^(BOOL result) {
 		inCache = result;
 		
-		[self completeTask];
+		[weakSelf completeTask];
 	}];
 	
 	[self waitForTaskToCompleteAndShutdown:YES throwExceptionIfNecessary:YES];
@@ -322,7 +322,6 @@
 - (void)shutdown {
 	self.wasShutdown = YES;
 	
-	[_connectionError release];
 	_connectionError = nil;
 	
 	_jailfree = nil;
@@ -331,16 +330,13 @@
 	_connection.interruptionHandler = nil;
 	[_connection invalidate];
 	_connection.exportedObject = nil;
-	[_connection release];
 	_connection = nil;
 	
 	if(_taskLock)
 		dispatch_release(_taskLock);
 	_taskLock = nil;
 		
-	Block_release(_processStatus);
 	_processStatus = nil;
-	Block_release(_progressHandler);
 	_progressHandler = nil;
 }
 
@@ -348,7 +344,6 @@
 	if(!self.wasShutdown)
 		[self shutdown];
 	
-	[super dealloc];
 }
 
 @end

@@ -65,7 +65,7 @@ void runBlockAndRecordExceptionSynchronizedWithHandlers(basic_block_t run_block,
     }
     @catch (NSException *exception) {
         @synchronized(*lock) {
-            *blockException = [exception retain];
+            *blockException = exception;
         }
         if(catch_block)
             catch_block();
@@ -85,16 +85,13 @@ void runBlockAndRecordExceptionSyncronized(basic_block_t run_block, NSObject **l
  */
 void withAutoreleasePool(basic_block_t block)
 {
-    NSAutoreleasePool *pool = nil;
     @try {
-        pool = [[NSAutoreleasePool alloc] init];
-        block();
+        @autoreleasepool {
+			block();
+		}
     }
     @catch (NSException *exception) {
-        @throw [exception retain];
-    }
-    @finally {
-        [pool release];
+        @throw exception;
     }
 }
 
@@ -102,12 +99,12 @@ void withAutoreleasePool(basic_block_t block)
 
 @interface GPGTaskHelper ()
 
-@property (nonatomic, retain, readwrite) NSData *status;
-@property (nonatomic, retain, readwrite) NSData *errors;
-@property (nonatomic, retain, readwrite) NSData *attributes;
-@property (nonatomic, retain, readonly) LPXTTask *task;
-@property (nonatomic, retain) NSDictionary *userIDHint;
-@property (nonatomic, retain) NSDictionary *needPassphraseInfo;
+@property (nonatomic, strong, readwrite) NSData *status;
+@property (nonatomic, strong, readwrite) NSData *errors;
+@property (nonatomic, strong, readwrite) NSData *attributes;
+@property (nonatomic, strong, readonly) LPXTTask *task;
+@property (nonatomic, strong) NSDictionary *userIDHint;
+@property (nonatomic, strong) NSDictionary *needPassphraseInfo;
 
 - (void)writeData:(GPGStream *)data pipe:(NSPipe *)pipe close:(BOOL)close;
 
@@ -158,7 +155,6 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
         GPGPath = [GPGTaskHelper findExecutableWithName:@"gpg2"];
         if(!GPGPath)
             GPGPath = [GPGTaskHelper findExecutableWithName:@"gpg"];
-        [GPGPath retain];
     });
 	if (!GPGPath) {
 		onceToken = 0;
@@ -214,7 +210,7 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
             }
         }
 
-		foundPath = [foundPath retain];
+		foundPath = foundPath;
     });
 	return pinentryPath;
 }
@@ -244,7 +240,7 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
     [_task inheritPipeWithMode:O_RDONLY dup:4 name:@"attribute"];
     
     // Create write pipes for the data to pass in.
-    __block NSMutableArray *dupList = [[NSMutableArray alloc] init];
+    NSMutableArray *dupList = [[NSMutableArray alloc] init];
     __block int i = 5;
     __block NSUInteger totalData = 0;
     [self.inData enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
@@ -253,16 +249,15 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
     }];
     _totalInData = totalData;
     [_task inheritPipesWithMode:O_WRONLY dups:dupList name:@"ins"];
-    [dupList release];
     
     __block NSException *blockException = nil;
-    __block GPGTaskHelper *object = self;
+    __unsafe_unretained GPGTaskHelper *object = self;
     __block NSData *stderrData = nil;
     __block NSData *statusData = nil;
     __block NSData *attributeData = nil;
-    __block LPXTTask *task = _task;
+    __unsafe_unretained LPXTTask *task = _task;
 	
-    __block NSObject *lock = [[[NSObject alloc] init] autorelease];
+    __block NSObject *lock = [[NSObject alloc] init];
     
     _task.parentTask = ^{
 		// On 10.6 it's not possible to create a concurrent private dispatch queue,
@@ -307,7 +302,7 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
         
         dispatch_group_async(collectorGroup, queue, ^{
             runBlockAndRecordExceptionSyncronized(^{
-                stderrData = [[[[task inheritedPipeWithName:@"stderr"] fileHandleForReading] readDataToEndOfFile] retain];
+                stderrData = [[[task inheritedPipeWithName:@"stderr"] fileHandleForReading] readDataToEndOfFile];
             }, &lock, &blockException);
         });
         
@@ -315,14 +310,14 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
             // Optionally get attribute data.
             dispatch_group_async(collectorGroup, queue, ^{
                 runBlockAndRecordExceptionSyncronized(^{
-                    attributeData = [[[[task inheritedPipeWithName:@"attribute"] fileHandleForReading] readDataToEndOfFile] retain];
+                    attributeData = [[[task inheritedPipeWithName:@"attribute"] fileHandleForReading] readDataToEndOfFile];
                 }, &lock, &blockException);
             });
         }
         
         dispatch_group_async(collectorGroup, queue, ^{
             runBlockAndRecordExceptionSynchronizedWithHandlers(^{
-                statusData = [[object parseStatusLines] retain];
+                statusData = [object parseStatusLines];
             }, ^{
                 [object cancel];
             }, NULL, &lock, &blockException);
@@ -342,18 +337,14 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
 	}
     
 	self.status = statusData;
-    [statusData release];
 	self.errors = stderrData;
-	[stderrData release];
     self.attributes = attributeData;
-	[attributeData release];
     
     _exitStatus = _task.terminationStatus;
     
     if(_cancelled || (_pinentryCancelled && _exitStatus != 0))
         _exitStatus = GPGErrorCancelled;
     
-	[_task release];
 	_task = nil;
 	
     return _exitStatus;
@@ -375,7 +366,7 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
 	// on older platforms. Wouldn't anyway.
 	// XPC name: org.gpgtools.Libmacgpg.jailfree.xpc_OpenStep
     
-	__block GPGTaskHelper * weakSelf = self;
+	__unsafe_unretained GPGTaskHelper * weakSelf = self;
 	
 	GPGTaskHelperXPC *xpcTask = [[GPGTaskHelperXPC alloc] init];
 	xpcTask.progressHandler = ^(NSUInteger processedBytes, NSUInteger total) {
@@ -394,7 +385,6 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
 	[_inData enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
 		[inputData addObject:[((GPGMemoryStream *)obj) readAllData]];
 	}];
-	[_inData release];
 	_inData = nil;
 	
 	NSDictionary *result = nil;
@@ -402,18 +392,14 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
 		result = [xpcTask launchGPGWithArguments:self.arguments data:inputData readAttributes:self.readAttributes];
 	}
 	@catch (NSException *exception) {
-		[xpcTask release];
-		[inputData release];
 		@throw exception;
 		
 		return -1;
 	}
 	
-	[inputData release];
 	
 	if([result objectForKey:@"output"])
 		[_output writeData:[result objectForKey:@"output"]];
-	[_output release];
 	_output = nil;
 	
 	if([result objectForKey:@"status"])
@@ -424,7 +410,6 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
 		self.errors = [result objectForKey:@"errors"];
 	self.exitStatus = [[result objectForKey:@"exitStatus"] intValue];
 	
-	[xpcTask release];
 	
 	return [[result objectForKey:@"exitStatus"] intValue];
 #else
@@ -443,7 +428,7 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
     if(!_task || !self.inData) return;
     
     NSArray *pipeList = [self.task inheritedPipesWithName:@"ins"];
-    __block GPGTaskHelper *bself = self;
+    __unsafe_unretained GPGTaskHelper *bself = self;
 	[pipeList enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         [bself writeData:[bself.inData objectAtIndex:idx] pipe:obj close:YES];
     }];
@@ -452,9 +437,9 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
 }
 
 - (void)writeData:(GPGStream *)data pipe:(NSPipe *)pipe close:(BOOL)close {
-    __block NSFileHandle *ofh = [pipe fileHandleForWriting];
+    __unsafe_unretained NSFileHandle *ofh = [pipe fileHandleForWriting];
     GPGStream *input = data;
-    __block NSData *tempData = nil;
+    __unsafe_unretained NSData *tempData = nil;
     
     @try {
         while((tempData = [input readDataOfLength:kDataBufferSize]) && 
@@ -480,7 +465,7 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
     NSData *currentData = nil;
     NSMutableData *statusData = [NSMutableData data]; 
     NSData *NL = [@"\n" dataUsingEncoding:NSASCIIStringEncoding];
-    __block GPGTaskHelper *this = self;
+    __unsafe_unretained GPGTaskHelper *this = self;
 	while((currentData = [[statusPipe fileHandleForReading] availableData])&& [currentData length]) {
         [statusData appendData:currentData];
         [line appendString:[currentData gpgString]];
@@ -516,7 +501,6 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
             [parts removeObjectAtIndex:0];
             value = [parts componentsJoinedByString:@" "];
             
-            [parts release];
             [this processStatusWithKeyword:keyword value:value];
         }];
     }
@@ -649,7 +633,6 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
     GPGStream *responseStream = [GPGMemoryStream memoryStream];
     [responseStream writeData:responseData];
     [self writeData:responseStream pipe:[self.task inheritedPipeWithName:@"stdin"] close:NO];
-	[responseData release];
 }
 
 - (NSString *)passphraseForKeyID:(NSString *)keyID mainKeyID:(NSString *)mainKeyID userID:(NSString *)userID {
@@ -689,7 +672,6 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
     
     [task waitUntilExit];
     
-    [task release];
     
     if(!output)
         @throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Pinentry error!") errorCode:GPGErrorPINEntryError];
@@ -934,26 +916,6 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
 	return NO;
 }
 
-- (void)dealloc {
-    [_inData release];
-    [_arguments release];
-	[_output release];
-    [_status release];
-    [_errors release];
-    [_attributes release];
-    [_task release];
-    [_processStatus release];
-    [_userIDHint release];
-    [_needPassphraseInfo release];
-    [_progressHandler release];
-    [_processedBytesMap release];
-	[_environmentVariables release];
-#if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
-    [_sandboxHelper release];
-#endif
-	
-	[super dealloc];
-}
 
 + (BOOL)launchGeneralTask:(NSString *)path withArguments:(NSArray *)arguments wait:(BOOL)wait {
 	if ([GPGTask sandboxed]) {
@@ -967,7 +929,7 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
 			return NO;
 		}
 		@finally {
-			[xpcTask release];
+			xpcTask = nil;
 		}
 		
 		return succeeded;

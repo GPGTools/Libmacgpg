@@ -49,8 +49,8 @@
 @property (copy, readwrite) NSArray *userIDs;
 @property (copy, readwrite) NSArray *signatures;
 
-@property (assign, readwrite) GPGKey *primaryKey;
-@property (assign, readwrite) GPGUserID *primaryUserID;
+@property (unsafe_unretained, readwrite) GPGKey *primaryKey;
+@property (unsafe_unretained, readwrite) GPGUserID *primaryUserID;
 
 @property (assign, readwrite) BOOL secret;
 
@@ -78,7 +78,7 @@
 @property (assign, readwrite) GPGValidity validity;
 
 @property (copy, readwrite) NSArray *signatures;
-@property (assign, readwrite) GPGKey *primaryKey;
+@property (unsafe_unretained, readwrite) GPGKey *primaryKey;
 
 @end
 
@@ -93,7 +93,7 @@
 @property (assign, readwrite) BOOL revocation;
 @property (assign, readwrite) BOOL local;
 
-@property (assign, readwrite) GPGKey *primaryKey;
+@property (unsafe_unretained, readwrite) GPGKey *primaryKey;
 
 @end
 

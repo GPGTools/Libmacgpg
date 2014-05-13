@@ -22,8 +22,8 @@
 
 @interface GPGRemoteUserID ()
 
-@property (nonatomic, retain) NSDate *creationDate;
-@property (nonatomic, retain) NSDate *expirationDate;
+@property (nonatomic, copy) NSDate *creationDate;
+@property (nonatomic, copy) NSDate *expirationDate;
 
 @end
 
@@ -33,7 +33,7 @@
 
 
 + (id)userIDWithListing:(NSString *)listing {
-	return [[[self alloc] initWithListing:listing] autorelease];
+	return [[self alloc] initWithListing:listing];
 }
 
 - (id)initWithListing:(NSString *)listing {
@@ -41,7 +41,6 @@
 		NSArray *splitedLine = [listing componentsSeparatedByString:@":"];
 		
 		if ([splitedLine count] < 4) {
-			[self release];
 			return nil;
 		}
 		
@@ -71,8 +70,7 @@
 
 - (void)setUserIDDescription:(NSString *)value {
 	if (value != userIDDescription) {
-		[userIDDescription release];
-		userIDDescription = [value retain];
+		userIDDescription = value;
 		
 		NSDictionary *dict = [value splittedUserIDDescription];
 		self.name = [dict objectForKey:@"name"];
@@ -87,12 +85,6 @@
 
 - (void)dealloc {
 	self.userIDDescription = nil;
-	self.name = nil;
-	self.email = nil;
-	self.comment = nil;
-	self.creationDate = nil;
-	self.expirationDate = nil;
-	[super dealloc];
 }
 
 

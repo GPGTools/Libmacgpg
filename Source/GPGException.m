@@ -3,7 +3,7 @@
 #import <dlfcn.h>
 
 @interface GPGException ()
-@property (nonatomic, retain) GPGTask *gpgTask;
+@property (nonatomic, strong) GPGTask *gpgTask;
 @property (nonatomic) GPGErrorCode errorCode;
 @end
 
@@ -38,16 +38,16 @@ NSString * const GPGErrorDomain = @"GPGErrorDomain";
 }
 
 + (GPGException *)exceptionWithReason:(NSString *)aReason userInfo:(NSDictionary *)aUserInfo errorCode:(GPGErrorCode)aErrorCode gpgTask:(GPGTask *)aGPGTask {
-	return [[[self alloc] initWithName:GPGExceptionName reason:aReason userInfo:aUserInfo errorCode:aErrorCode gpgTask:aGPGTask] autorelease];
+	return [[self alloc] initWithName:GPGExceptionName reason:aReason userInfo:aUserInfo errorCode:aErrorCode gpgTask:aGPGTask];
 }
 + (GPGException *)exceptionWithReason:(NSString *)aReason errorCode:(GPGErrorCode)aErrorCode gpgTask:(GPGTask *)aGPGTask {
-	return [[[self alloc] initWithName:GPGExceptionName reason:aReason userInfo:nil errorCode:aErrorCode gpgTask:aGPGTask] autorelease];
+	return [[self alloc] initWithName:GPGExceptionName reason:aReason userInfo:nil errorCode:aErrorCode gpgTask:aGPGTask];
 }
 + (GPGException *)exceptionWithReason:(NSString *)aReason gpgTask:(GPGTask *)aGPGTask {
-	return [[[self alloc] initWithName:GPGExceptionName reason:aReason userInfo:nil errorCode:0 gpgTask:aGPGTask] autorelease];
+	return [[self alloc] initWithName:GPGExceptionName reason:aReason userInfo:nil errorCode:0 gpgTask:aGPGTask];
 }
 + (GPGException *)exceptionWithReason:(NSString *)aReason errorCode:(GPGErrorCode)aErrorCode {
-	return [[[self alloc] initWithName:GPGExceptionName reason:aReason userInfo:nil errorCode:aErrorCode gpgTask:nil] autorelease];
+	return [[self alloc] initWithName:GPGExceptionName reason:aReason userInfo:nil errorCode:aErrorCode gpgTask:nil];
 }
 
 
@@ -108,12 +108,6 @@ noLibgpgError:
 	return description;
 }
 
-- (void)dealloc {
-	[description release];
-	[gpgTask release];
-	gpgTask = nil;
-	[super dealloc];
-}
 
 
 @end

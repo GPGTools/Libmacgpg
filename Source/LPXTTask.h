@@ -44,7 +44,7 @@ typedef void (^lpxt_task_t)(void);
 - (NSArray *)inheritedPipesWithName:(NSString *)name;
 - (void)removeInheritedPipeWithName:(NSString *)name;
 
-@property (nonatomic, retain) NSArray *arguments;
+@property (nonatomic, strong) NSArray *arguments;
 @property (nonatomic, copy) NSDictionary *environmentVariables;
 @property (nonatomic, copy) NSString *launchPath;
 @property (nonatomic, readonly) int terminationStatus;

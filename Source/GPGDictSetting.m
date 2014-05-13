@@ -36,30 +36,28 @@ static NSMutableCharacterSet *whspcomma_;
     {
         initialized = YES;
 
-        whspeq_ = [[NSMutableCharacterSet characterSetWithCharactersInString:@"="] retain];
+        whspeq_ = [NSMutableCharacterSet characterSetWithCharactersInString:@"="];
         [whspeq_ formUnionWithCharacterSet:[NSCharacterSet whitespaceCharacterSet]];
 
-        whspcomma_ = [[NSMutableCharacterSet characterSetWithCharactersInString:@","] retain];
+        whspcomma_ = [NSMutableCharacterSet characterSetWithCharactersInString:@","];
         [whspcomma_ formUnionWithCharacterSet:[NSCharacterSet whitespaceCharacterSet]];
     }
 }
 
 - (id) initForKey:(NSString *)key {
     if ((self = [super initForKey:key])) {
-        value_ = [[NSMutableDictionary dictionaryWithCapacity:0] retain];
+        value_ = [NSMutableDictionary dictionaryWithCapacity:0];
     }
     return self;
 }
 
 - (void) setValue:(id)value {
     if (!value) {
-        [raw_ release];
         raw_ = nil;
         [value_ removeAllObjects];
         self.isActive = FALSE;
     }
     else if ([value isKindOfClass:[NSDictionary class]]) {
-        [raw_ release];
         raw_ = nil;
         [value_ removeAllObjects];
         [value_ addEntriesFromDictionary:value];

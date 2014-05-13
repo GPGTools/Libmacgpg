@@ -15,13 +15,6 @@
 
 @implementation GPGFileStream
 
-- (void)dealloc
-{
-    [_filepath release];
-    [_fh release];
-    [_readfh release];
-    [super dealloc];
-}
 
 - (id)init {
     return [self initForWritingAtPath:nil error:nil];
@@ -29,7 +22,7 @@
 
 + (id)fileStreamForWritingAtPath:(NSString *)path {
     NSError *error = nil;
-    id newObject = [[[self alloc] initForWritingAtPath:path error:&error] autorelease];
+    id newObject = [[self alloc] initForWritingAtPath:path error:&error];
     if (error)
         return nil;
     return newObject;
@@ -37,7 +30,7 @@
 
 + (id)fileStreamForReadingAtPath:(NSString *)path {
     NSError *error = nil;
-    id newObject = [[[self alloc] initForReadingAtPath:path error:&error] autorelease];
+    id newObject = [[self alloc] initForReadingAtPath:path error:&error];
     if (error)
         return nil;
     return newObject;
@@ -46,10 +39,10 @@
 - (id)initForWritingAtPath:(NSString *)path error:(NSError **)error
 {
     if (self = [super init]) {
-        _filepath = [path retain];
+        _filepath = path;
 
         if (path) {
-            _fh = [[NSFileHandle fileHandleForWritingAtPath:path] retain];
+            _fh = [NSFileHandle fileHandleForWritingAtPath:path];
 
             if (!_fh) {
                 if (error)
@@ -57,7 +50,7 @@
             }
         }
         else {
-            _fh = [[NSFileHandle fileHandleWithNullDevice] retain];
+            _fh = [NSFileHandle fileHandleWithNullDevice];
         }
     }
 
@@ -67,7 +60,7 @@
 - (id)initForReadingAtPath:(NSString *)path error:(NSError **)error
 {
     if (self = [super init]) {
-        _filepath = [path retain];
+        _filepath = path;
 
         if (path) {
             [self openForReading];
@@ -77,7 +70,7 @@
             }
         }
         else {
-            _readfh = [[NSFileHandle fileHandleWithNullDevice] retain];
+            _readfh = [NSFileHandle fileHandleWithNullDevice];
         }
     }
     
@@ -130,7 +123,6 @@
     if (_readfh) {
         [_readfh closeFile];
         // release and nil so it could be re-opened if necessary
-        [_readfh release];
         _readfh = nil;
     }
 }
@@ -162,12 +154,11 @@
 {
     if (_fh) {
         [_fh closeFile];
-        [_fh release];
         _fh = nil;
     }
     if (!_readfh)
     {
-        _readfh = [[NSFileHandle fileHandleForReadingAtPath:_filepath] retain];
+        _readfh = [NSFileHandle fileHandleForReadingAtPath:_filepath];
         _flength = [_readfh seekToEndOfFile];
         [_readfh seekToFileOffset:0];
     }

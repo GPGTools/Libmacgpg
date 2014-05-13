@@ -33,11 +33,10 @@
 
 - (void) setUp {
     key = @"comment";
-    testlines = [[NSArray arrayWithObjects:@"abc", @"def", nil] retain];
+    testlines = [NSArray arrayWithObjects:@"abc", @"def", nil];
 }
 
 - (void) tearDown {
-    [testlines release];
 }
 
 - (void) testSetValue {
@@ -47,7 +46,6 @@
     id value = [setting value];
     STAssertNotNil(value, @"Unexpectedly nil!");
     STAssertTrue([value count] == [testlines count], @"Incorrect count!");
-    [setting release];
 }
 
 - (void) testSetNil {
@@ -58,7 +56,6 @@
     id value = [setting value];
     STAssertNotNil(value, @"Unexpectedly nil!");
     STAssertTrue([value count] == 0, @"Incorrect count!");
-    [setting release];
 }
 
 - (void) testGetValue {    
@@ -67,7 +64,6 @@
     NSString* desc = [setting description];
     STAssertEqualObjects(@"comment abc\ncomment def\n", desc, @"description not as expected!");
     
-    [setting release];
 }
 
 - (void) testAppendLine {
@@ -79,7 +75,6 @@
     NSString* desc = [setting description];
     STAssertEqualObjects(@"#comment line 1.\n#comment line 2.\n", desc, @"description not as expected!");
     
-    [setting release];
 }
 
 @end

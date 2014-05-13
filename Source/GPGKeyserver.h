@@ -24,12 +24,12 @@ typedef void (^gpg_ks_finishedHandler)(GPGKeyserver *server);
 	BOOL _cancelled;
 }
 
-@property (retain, nonatomic) NSString *keyserver;
-@property (readonly, retain, nonatomic) NSData *receivedData;
-@property (retain, nonatomic) NSDictionary *userInfo;
+@property (strong, nonatomic) NSString *keyserver;
+@property (readonly, strong, nonatomic) NSData *receivedData;
+@property (strong, nonatomic) NSDictionary *userInfo;
 @property (readonly, nonatomic) BOOL isRunning;
 @property (readonly, nonatomic) SEL lastOperation;
-@property (readonly, retain, nonatomic) NSException *exception;
+@property (readonly, strong, nonatomic) NSException *exception;
 @property (nonatomic) NSUInteger timeout;
 
 @property (nonatomic, copy) gpg_ks_finishedHandler finishedHandler;

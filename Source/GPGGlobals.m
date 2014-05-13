@@ -25,8 +25,8 @@
 NSString *localizedLibmacgpgString(NSString *key) {
 	static NSBundle *bundle = nil, *englishBundle = nil;
 	if (!bundle) {
-		bundle = [[NSBundle bundleWithIdentifier:@"org.gpgtools.Libmacgpg"] retain];
-		englishBundle = [[NSBundle bundleWithPath:[bundle pathForResource:@"en" ofType:@"lproj"]] retain];
+		bundle = [NSBundle bundleWithIdentifier:@"org.gpgtools.Libmacgpg"];
+		englishBundle = [NSBundle bundleWithPath:[bundle pathForResource:@"en" ofType:@"lproj"]];
 	}
 
 	NSString *notFoundValue = @"~#*?*#~";
@@ -50,7 +50,7 @@ NSString *localizedLibmacgpgString(NSString *key) {
 	retString = [[NSString alloc] initWithData:self encoding:NSUTF8StringEncoding];
 	if (retString) {
 		GPGDebugLog(@"Used Encoding: UTF-8.");
-		return [retString autorelease];
+		return retString;
 	}
 	
 	// Löschen aller ungültigen Zeichen, damit die umwandlung nach UTF-8 funktioniert.
@@ -104,7 +104,7 @@ NSString *localizedLibmacgpgString(NSString *key) {
 		}
 		*outPos = 0;
 		
-		retString = [[[NSString alloc] initWithUTF8String:(char*)outText] autorelease];
+		retString = [[NSString alloc] initWithUTF8String:(char*)outText];
 		
 		free(outText);
 		if (retString) {
@@ -118,7 +118,7 @@ NSString *localizedLibmacgpgString(NSString *key) {
 	
 	int encodings[3] = {NSISOLatin1StringEncoding, NSISOLatin2StringEncoding, NSASCIIStringEncoding};
 	for(i = 0; i < 3; i++) {
-		retString = [[[NSString alloc] initWithData:self encoding:encodings[i]] autorelease];
+		retString = [[NSString alloc] initWithData:self encoding:encodings[i]];
 		if([retString length] > 0) {
 			GPGDebugLog(@"Used Encoding: %i", encodings[i]);
 			return retString;
@@ -389,9 +389,9 @@ void *lm_memmem(const void *big, size_t big_len, const void *little, size_t litt
 	return [super respondsToSelector:aSelector];
 }
 - (void)invokeWithPool:(NSInvocation *)anInvocation {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	[anInvocation invoke];
-	[pool drain];
+	@autoreleasepool {
+		[anInvocation invoke];
+	}
 }
 - (void)forwardInvocation:(NSInvocation *)anInvocation {
 	[anInvocation retainArguments];
@@ -399,7 +399,7 @@ void *lm_memmem(const void *big, size_t big_len, const void *little, size_t litt
 	[NSThread detachNewThreadSelector:@selector(invokeWithPool:) toTarget:self withObject:anInvocation];
 }
 + (id)proxyWithRealObject:(NSObject *)object {
-	return [[[[self class] alloc] initWithRealObject:object] autorelease];
+	return [[[self class] alloc] initWithRealObject:object];
 }
 - (id)initWithRealObject:(NSObject *)object {
 	realObject = object;

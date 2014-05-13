@@ -15,17 +15,11 @@
 
 @implementation GPGMemoryStream
 
-- (void)dealloc 
-{
-    [_data release];
-    [_readableData release];
-    [super dealloc];
-}
 
 - (id)init 
 {
     if (self = [super init]) {
-        _data = [[NSMutableData data] retain];
+        _data = [NSMutableData data];
         // _readableData stays nil
     }
     return self;
@@ -35,19 +29,19 @@
 {
     if (self = [super init]) {
         // _data stays nil
-        _readableData = [data retain];
+        _readableData = data;
     }
     return self;
 }
 
 + (id)memoryStream 
 {
-    return [[[self alloc] init] autorelease];
+    return [[self alloc] init];
 }
 
 + (id)memoryStreamForReading:(NSData *)data
 {
-    return [[[self alloc] initForReading:data] autorelease];
+    return [[self alloc] initForReading:data];
 }
 
 - (void)writeData:(NSData *)data
@@ -132,9 +126,8 @@
 - (void)openForReading 
 {
     if (!_readableData) 
-        _readableData = [[NSData dataWithData:_data] retain];
+        _readableData = [NSData dataWithData:_data];
     if (_data) {
-        [_data release];
         _data = nil;
     }
 }

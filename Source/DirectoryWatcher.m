@@ -2,7 +2,7 @@
 
 
 @interface DirectoryWatcher ()
-@property (nonatomic, readonly) NSMutableSet *pathsToWatch;
+@property (unsafe_unretained, nonatomic, readonly) NSMutableSet *pathsToWatch;
 - (void)updateStream;
 void eventStreamCallBack(ConstFSEventStreamRef streamRef, void *clientCallBackInfo, size_t numEvents, void *eventPaths, const FSEventStreamEventFlags eventFlags[], const FSEventStreamEventId eventIds[]);
 @end
@@ -13,10 +13,10 @@ void eventStreamCallBack(ConstFSEventStreamRef streamRef, void *clientCallBackIn
 
 
 + (id)directoryWatcherWithPath:(NSString *)path {
-	return [[[self alloc] initWithPath:path] autorelease];
+	return [[self alloc] initWithPath:path];
 }
 + (id)directoryWatcherWithPaths:(NSArray *)paths {
-	return [[[self alloc] initWithPaths:paths] autorelease];
+	return [[self alloc] initWithPaths:paths];
 }
 
 
@@ -79,7 +79,7 @@ void eventStreamCallBack(ConstFSEventStreamRef streamRef, void *clientCallBackIn
 	}
 }
 - (NSObject <DirectoryWatcherDelegate> *)delegate {
-	return [[delegate retain] autorelease];
+	return delegate;
 }
 - (void)setDelegate:(NSObject <DirectoryWatcherDelegate> *)value {
 	if (value != delegate) {
@@ -92,8 +92,8 @@ void eventStreamCallBack(ConstFSEventStreamRef streamRef, void *clientCallBackIn
 
 
 void eventStreamCallBack(ConstFSEventStreamRef streamRef, void *clientCallBackInfo, size_t numEvents, void *eventPaths, const FSEventStreamEventFlags eventFlags[], const FSEventStreamEventId eventIds[]) {
-	DirectoryWatcher *directoryWatcher = clientCallBackInfo;
-	[directoryWatcher.delegate pathsChanged:eventPaths flags:eventFlags];
+	DirectoryWatcher *directoryWatcher = (__bridge DirectoryWatcher *)(clientCallBackInfo);
+	[directoryWatcher.delegate pathsChanged:(__bridge NSArray *)(eventPaths) flags:eventFlags];
 }
 
 
@@ -107,8 +107,8 @@ void eventStreamCallBack(ConstFSEventStreamRef streamRef, void *clientCallBackIn
 		eventStream = nil;
 	}
 	if (self.delegate && [self.pathsToWatch count] > 0) {
-		FSEventStreamContext context = {0, self, nil, nil, nil};
-		eventStream = FSEventStreamCreate(nil, &eventStreamCallBack, &context, (CFArrayRef)[self.pathsToWatch allObjects], kFSEventStreamEventIdSinceNow, latency, kFSEventStreamCreateFlagUseCFTypes | kFSEventStreamCreateFlagIgnoreSelf);
+		FSEventStreamContext context = {0, (__bridge void *)(self), nil, nil, nil};
+		eventStream = FSEventStreamCreate(nil, &eventStreamCallBack, &context, (__bridge CFArrayRef)[self.pathsToWatch allObjects], kFSEventStreamEventIdSinceNow, latency, kFSEventStreamCreateFlagUseCFTypes | kFSEventStreamCreateFlagIgnoreSelf);
 		if (eventStream) {
 			CFRunLoopRef mainLoop = [[NSRunLoop mainRunLoop] getCFRunLoop];
 			FSEventStreamScheduleWithRunLoop(eventStream, mainLoop, kCFRunLoopDefaultMode);
@@ -132,18 +132,10 @@ void eventStreamCallBack(ConstFSEventStreamRef streamRef, void *clientCallBackIn
 
 
 
-- (void)finalize {
-	FSEventStreamStop(eventStream);
-	FSEventStreamInvalidate(eventStream);
-	FSEventStreamRelease(eventStream);
-	[super finalize];
-}
 - (void)dealloc {
 	FSEventStreamStop(eventStream);
 	FSEventStreamInvalidate(eventStream);
 	FSEventStreamRelease(eventStream);
-	[pathsToWatch release];
-	[super dealloc];
 }
 
 

@@ -36,9 +36,9 @@ NSString * const GPGOptionsChangedNotification = @"GPGOptionsChangedNotification
 NSString * const GPGConfigurationModifiedNotification = @"GPGConfigurationModifiedNotification";
 
 @interface GPGOptions ()
-@property (nonatomic, readonly) NSMutableDictionary *environment;
-@property (nonatomic, readonly) NSMutableDictionary *commonDefaults;
-@property (nonatomic, readonly) NSMutableDictionary *standardDefaults;
+@property (unsafe_unretained, nonatomic, readonly) NSMutableDictionary *environment;
+@property (unsafe_unretained, nonatomic, readonly) NSMutableDictionary *commonDefaults;
+@property (unsafe_unretained, nonatomic, readonly) NSMutableDictionary *standardDefaults;
 - (GPGConf *)gpgConf;
 - (GPGConf *)gpgAgentConf;
 + (GPGOptionsDomain)domainForKey:(NSString *)key;
@@ -71,14 +71,12 @@ static NSString * const kGpgAgentConfKVKey = @"gpgAgentConf";
 }
 
 - (NSString *)standardDomain {
-	return [[standardDomain retain] autorelease];
+	return standardDomain;
 }
 - (void)setStandardDomain:(NSString *)value {
 	if (value != standardDomain) {
-		[standardDefaults release];
 		standardDefaults = nil;
-		[standardDomain release];
-		standardDomain = [value retain];
+		standardDomain = value;
 	}
 }
 
@@ -275,7 +273,7 @@ static NSString * const kGpgAgentConfKVKey = @"gpgAgentConf";
 		if (!standardDefaults) {
 			standardDefaults = [[NSMutableDictionary alloc] initWithDictionary:[[GPGUserDefaults standardUserDefaults] persistentDomainForName:standardDomain]];
 		}
-		return [[standardDefaults retain] autorelease];
+		return standardDefaults;
 	}
 	return nil;
 }
@@ -303,7 +301,7 @@ static NSString * const kGpgAgentConfKVKey = @"gpgAgentConf";
 	if (!commonDefaults) {
 		commonDefaults = [[NSMutableDictionary alloc] initWithDictionary:[[GPGUserDefaults standardUserDefaults] persistentDomainForName:commonDefaultsDomain]];
 	}
-	return [[commonDefaults retain] autorelease];
+	return commonDefaults;
 }
 
 
@@ -363,7 +361,7 @@ static NSString * const kGpgAgentConfKVKey = @"gpgAgentConf";
 			environment = [[NSMutableDictionary alloc] init];
 		}
 	}
-	return [[environment retain] autorelease];
+	return environment;
 }
 
 
@@ -443,7 +441,7 @@ static NSString * const kGpgAgentConfKVKey = @"gpgAgentConf";
             NSString *gpath = [[self gpgHome] stringByAppendingPathComponent:@"gpg.conf"];
             gpgConf = [[GPGConf alloc] initWithPath:gpath andDomain:GPGDomain_gpgConf];
         }
-        return [[gpgConf retain] autorelease];
+        return gpgConf;
     }
 }
 - (GPGConf *)gpgAgentConf {
@@ -452,7 +450,7 @@ static NSString * const kGpgAgentConfKVKey = @"gpgAgentConf";
             NSString *gpath = [[self gpgHome] stringByAppendingPathComponent:@"gpg-agent.conf"];
             gpgAgentConf = [[GPGConf alloc] initWithPath:gpath andDomain:GPGDomain_gpgAgentConf];
         }
-        return [[gpgAgentConf retain] autorelease];
+        return gpgAgentConf;
     }
 }
 
@@ -552,15 +550,15 @@ static NSString * const kGpgAgentConfKVKey = @"gpgAgentConf";
 
 - (NSString *)httpProxy {
 	if (!httpProxy) {
-		NSDictionary *proxyConfig = (NSDictionary *)SCDynamicStoreCopyProxies(nil);
+		NSDictionary *proxyConfig = (NSDictionary *)CFBridgingRelease(SCDynamicStoreCopyProxies(nil));
 		if ([[proxyConfig objectForKey:@"HTTPEnable"] intValue]) {
 			httpProxy = [[NSString alloc] initWithFormat:@"%@:%@", [proxyConfig objectForKey:@"HTTPProxy"], [proxyConfig objectForKey:@"HTTPPort"]];
 		} else {
 			httpProxy = @"";
 		}
-		CFRelease(proxyConfig);
+		CFRelease((__bridge CFTypeRef)(proxyConfig));
 	}
-	return [[httpProxy retain] autorelease];
+	return httpProxy;
 }
 
 - (BOOL)debugLog {
@@ -614,13 +612,12 @@ static NSString * const kGpgAgentConfKVKey = @"gpgAgentConf";
 // Notification handling.
 void SystemConfigurationDidChange(SCPreferencesRef prefs, SCPreferencesNotification notificationType, void *info) {
 	if (notificationType & kSCPreferencesNotificationApply) {
-		[((GPGOptions *)info)->httpProxy release];
-		((GPGOptions *)info)->httpProxy = nil;
+		((__bridge GPGOptions *)info)->httpProxy = nil;
 	}
 }
 - (void)initSystemConfigurationWatch {
-	SCPreferencesContext context = {0, self, nil, nil, nil};
-    preferences = SCPreferencesCreate(nil, (CFStringRef)[[NSProcessInfo processInfo] processName], nil);
+	SCPreferencesContext context = {0, (__bridge void *)(self), nil, nil, nil};
+    preferences = SCPreferencesCreate(nil, (__bridge CFStringRef)[[NSProcessInfo processInfo] processName], nil);
     SCPreferencesSetCallback(preferences, SystemConfigurationDidChange, &context);
     SCPreferencesScheduleWithRunLoop(preferences, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
 }	
@@ -669,9 +666,7 @@ void SystemConfigurationDidChange(SCPreferencesRef prefs, SCPreferencesNotificat
     [self willChangeValueForKey:kGpgConfKVKey];
     [self willChangeValueForKey:kGpgAgentConfKVKey];
     @synchronized(syncRoot) {
-        [gpgConf release];
         gpgConf = nil;
-        [gpgAgentConf release];
         gpgAgentConf = nil;
     }
     [self didChangeValueForKey:kGpgConfKVKey];
@@ -723,8 +718,8 @@ void SystemConfigurationDidChange(SCPreferencesRef prefs, SCPreferencesNotificat
 
 // Alloc, init etc.
 + (void)initialize {
-	environmentPlistDir = [[NSHomeDirectory() stringByAppendingPathComponent:@".MacOSX"] retain];
-	environmentPlistPath = [[environmentPlistDir stringByAppendingPathComponent:@"environment.plist"] retain];
+	environmentPlistDir = [NSHomeDirectory() stringByAppendingPathComponent:@".MacOSX"];
+	environmentPlistPath = [environmentPlistDir stringByAppendingPathComponent:@"environment.plist"];
 
     NSSet *gpgConfKeys = [NSSet setWithObjects:@"agent-program", @"allow-freeform-uid",
                           @"allow-multiple-messages", @"allow-multisig-verification",
@@ -868,16 +863,6 @@ void SystemConfigurationDidChange(SCPreferencesRef prefs, SCPreferencesNotificat
     [notifsCenter removeObserver:self];
     [self stopSystemConfigurationWatch];
 
-    [identifier release];
-	[environment release];
-	[standardDefaults release];
-	[commonDefaults release];
-	[httpProxy release];
-	[standardDomain release];
-	[gpgConf release];
-	[gpgAgentConf release];
-    [syncRoot release];
-    [super dealloc];
 }
 
 @end

@@ -48,21 +48,21 @@
 @property (nonatomic, readonly) GPGValidity trust;
 @property (nonatomic, readonly) GPGErrorCode status;
 @property (nonatomic, readonly) NSString *fingerprint;
-@property (nonatomic, readonly) NSDate *creationDate;
-@property (nonatomic, readonly) NSDate *expirationDate;
+@property (copy, nonatomic, readonly) NSDate *creationDate;
+@property (copy, nonatomic, readonly) NSDate *expirationDate;
 @property (nonatomic, readonly) int version;
 @property (nonatomic, readonly) GPGPublicKeyAlgorithm publicKeyAlgorithm;
 @property (nonatomic, readonly) GPGHashAlgorithm hashAlgorithm;
 @property (nonatomic, readonly) int signatureClass;
 
-@property (nonatomic, readonly) GPGKey *primaryKey;
-@property (atomic, retain, readwrite) GPGKey *key;
-@property (nonatomic, readonly) NSString *primaryFingerprint;
+@property (unsafe_unretained, nonatomic, readonly) GPGKey *primaryKey;
+@property (atomic, strong, readwrite) GPGKey *key;
+@property (unsafe_unretained, nonatomic, readonly) NSString *primaryFingerprint;
 
-@property (nonatomic, readonly) NSString *userIDDescription;
-@property (nonatomic, readonly) NSString *name;
-@property (nonatomic, readonly) NSString *email;
-@property (nonatomic, readonly) NSString *comment;
-@property (nonatomic, readonly) NSImage *image;
+@property (copy, nonatomic, readonly) NSString *userIDDescription;
+@property (copy, nonatomic, readonly) NSString *name;
+@property (copy, nonatomic, readonly) NSString *email;
+@property (copy, nonatomic, readonly) NSString *comment;
+@property (copy, nonatomic, readonly) NSImage *image;
 
 @end

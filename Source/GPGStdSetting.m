@@ -28,7 +28,6 @@
 @synthesize isActive=isActive_;
 
 - (void) setIsActive:(BOOL)isActive {
-    [raw_ release];
     raw_ = nil;        
     isActive_ = isActive;
 }
@@ -40,7 +39,7 @@
 // Designated initializer
 - (id) initForKey:(NSString *)key {
     if ((self = [super init])) {
-        raw_ = [[NSMutableString stringWithCapacity:0] retain];
+        raw_ = [NSMutableString stringWithCapacity:0];
         endComments_ = FALSE;
         firstComment_ = nil;
         self.key = key;
@@ -50,13 +49,6 @@
     return self;
 }
 
-- (void) dealloc {
-    [key_ release];
-    [firstComment_ release];
-    [raw_ release];
-    [value_ release];
-    [super dealloc];
-}
 
 - (NSString *) description {
     if (raw_)
@@ -74,24 +66,20 @@
 }
 
 - (void) setComment:(NSString *)comment {
-    [raw_ release];
     raw_ = nil;
 
-    [firstComment_ release];
-    firstComment_ = [[NSMutableString stringWithString:comment] retain];
+    firstComment_ = [NSMutableString stringWithString:comment];
     if (![comment hasSuffix:@"\n"])
         [firstComment_ appendString:@"\n"];
 }
 
 - (id) value {
-    return [[value_ copy] autorelease];
+    return [value_ copy];
 }
 
 - (void) setValue:(id)value {
-    [raw_ release];
     raw_ = nil;        
 
-    [value_ release];
     value_ = [value copy];
     self.isActive = (value != nil);
 }
@@ -141,7 +129,7 @@
     if (isComment || [trimmed length] < 1) {
         if (!endComments_) {
             if (!firstComment_) 
-                firstComment_ = [[NSMutableString stringWithCapacity:0] retain];
+                firstComment_ = [NSMutableString stringWithCapacity:0];
             
             [firstComment_ appendString:line];
             if (![line hasSuffix:@"\n"])
@@ -159,16 +147,13 @@
 
 - (void) incorporate:(NSString *)setting forFullKey:fullKey {
     if ([fullKey hasPrefix:@"no-"]) {
-        [value_ release];
-        value_ = [[NSNumber numberWithBool:FALSE] retain];
+        value_ = [NSNumber numberWithBool:FALSE];
     }
     else if (setting != nil) {
-        [value_ release];
         value_ = [setting copy];
     }
     else {
-        [value_ release];
-        value_ = [[NSNumber numberWithBool:TRUE] retain];
+        value_ = [NSNumber numberWithBool:TRUE];
     }
 
     self->isActive_ = TRUE;

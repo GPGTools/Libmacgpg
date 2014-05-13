@@ -11,8 +11,8 @@
 #import "GPGException.h"
 
 @interface GPGKeyserver ()
-@property (retain, nonatomic) NSURLConnection *connection;
-@property (retain, nonatomic) GPGException *exception;
+@property (strong, nonatomic) NSURLConnection *connection;
+@property (strong, nonatomic) GPGException *exception;
 @end
 
 
@@ -78,7 +78,7 @@
 	}
 	
 	
-	NSString *urlEncoded = (NSString *)CFURLCreateStringByAddingPercentEscapes(NULL, (CFStringRef)armored, NULL, (CFStringRef)@"!*'();:@&=+$,/?%#[]", kCFStringEncodingUTF8);
+	NSString *urlEncoded = (NSString *)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(NULL, (CFStringRef)armored, NULL, (CFStringRef)@"!*'();:@&=+$,/?%#[]", kCFStringEncodingUTF8));
 	NSString *postString = [NSString stringWithFormat:@"keytext=%@", urlEncoded];
 	NSData *postData = [postString dataUsingEncoding:NSUTF8StringEncoding];
 	
@@ -196,11 +196,9 @@
 	NSURLConnection *theConnection = [[NSURLConnection alloc] initWithRequest:request delegate:self startImmediately:NO];
 	[theConnection scheduleInRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
 	[theConnection start];
-	[request release];
 	
 	if (theConnection) {
 		self.connection = theConnection;
-		[theConnection release];
 	} else {
 		[self failedWithException:[GPGException exceptionWithReason:@"NSURLConnection failed!" errorCode:GPGErrorKeyServerError]];
 	}
@@ -276,14 +274,6 @@
 	return [self initWithFinishedHandler:nil];
 }
 
-- (void)dealloc {
-	self.keyserver = nil;
-	self.connection = nil;
-	self.userInfo = nil;
-	[receivedData release];
-	
-	[super dealloc];
-}
 
 
 

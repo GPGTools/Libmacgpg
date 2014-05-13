@@ -28,13 +28,13 @@
 	NSDate *expirationDate;
 }
 
-@property (nonatomic, retain) NSString *userIDDescription;
-@property (nonatomic, retain) NSString *name;
-@property (nonatomic, retain) NSString *email;
-@property (nonatomic, retain) NSString *comment;
-@property (nonatomic, readonly, retain) NSDate *creationDate;
-@property (nonatomic, readonly, retain) NSDate *expirationDate;
-@property (nonatomic, readonly) NSImage *image;
+@property (nonatomic, copy) NSString *userIDDescription;
+@property (nonatomic, copy) NSString *name;
+@property (nonatomic, copy) NSString *email;
+@property (nonatomic, copy) NSString *comment;
+@property (nonatomic, readonly, copy) NSDate *creationDate;
+@property (nonatomic, readonly, copy) NSDate *expirationDate;
+@property (copy, nonatomic, readonly) NSImage *image;
 
 
 + (id)userIDWithListing:(NSString *)listing;

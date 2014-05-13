@@ -60,23 +60,13 @@
 }
 
 - (void)dealloc {
-	[_keyID release];
-	_keyID = nil;
 	_algorithm = 0;
-	[_creationDate release];
-	_creationDate = nil;
-	[_expirationDate release];
-	_expirationDate = nil;
-	[_reason release];
-	_reason = nil;
 	_signatureClass = 0;
 	_revocation = NO;
 	_local = NO;
 	
-	_primaryKey = nil;
 	
 	
-	[super dealloc];
 }
 
 @end

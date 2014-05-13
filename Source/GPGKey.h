@@ -59,20 +59,20 @@
 	
 	// If this is a subkey, points to its primaryKey, otherwise
 	// to self.
-	GPGKey *_primaryKey;
-	GPGUserID *_primaryUserID;
+	GPGKey *__unsafe_unretained _primaryKey;
+	GPGUserID *__unsafe_unretained _primaryUserID;
 }
 
 - (instancetype)initWithFingerprint:(NSString *)fingerprint;
 - (void)setSubkeys:(NSArray *)subkeys;
 - (void)setUserIDs:(NSArray *)userIDs;
 
-@property (nonatomic, readonly) NSString *keyID;
-@property (nonatomic, readonly) NSString *shortKeyID DEPRECATED_ATTRIBUTE;
-@property (nonatomic, readonly) NSString *fingerprint;
-@property (nonatomic, readonly) NSString *cardID;
-@property (nonatomic, readonly) NSDate *creationDate;
-@property (nonatomic, readonly) NSDate *expirationDate;
+@property (copy, nonatomic, readonly) NSString *keyID;
+@property (copy, nonatomic, readonly) NSString *shortKeyID DEPRECATED_ATTRIBUTE;
+@property (copy, nonatomic, readonly) NSString *fingerprint;
+@property (copy, nonatomic, readonly) NSString *cardID;
+@property (copy, nonatomic, readonly) NSDate *creationDate;
+@property (copy, nonatomic, readonly) NSDate *expirationDate;
 @property (nonatomic, readonly) unsigned int length;
 @property (nonatomic, readonly) GPGPublicKeyAlgorithm algorithm;
 @property (nonatomic, readonly) NSInteger status DEPRECATED_ATTRIBUTE;
@@ -81,10 +81,10 @@
 
 @property (nonatomic, readonly) NSArray *subkeys;
 @property (nonatomic, readonly) NSArray *userIDs;
-@property (nonatomic, readonly) NSArray *signatures;
+@property (copy, nonatomic, readonly) NSArray *signatures;
 
-@property (nonatomic, readonly) GPGKey *primaryKey;
-@property (nonatomic, readonly) GPGUserID *primaryUserID;
+@property (unsafe_unretained, nonatomic, readonly) GPGKey *primaryKey;
+@property (unsafe_unretained, nonatomic, readonly) GPGUserID *primaryUserID;
 
 @property (nonatomic, readonly) BOOL secret;
 @property (nonatomic, readonly) BOOL disabled;
@@ -108,10 +108,10 @@
 @property (nonatomic, readonly) NSSet *allFingerprints;
 
 // Properties of the primary user ID.
-@property (nonatomic, readonly) NSString *userIDDescription;
-@property (nonatomic, readonly) NSString *name;
-@property (nonatomic, readonly) NSString *email;
-@property (nonatomic, readonly) NSString *comment;
-@property (nonatomic, readonly) NSImage *image;
+@property (copy, nonatomic, readonly) NSString *userIDDescription;
+@property (copy, nonatomic, readonly) NSString *name;
+@property (copy, nonatomic, readonly) NSString *email;
+@property (copy, nonatomic, readonly) NSString *comment;
+@property (copy, nonatomic, readonly) NSImage *image;
 
 @end

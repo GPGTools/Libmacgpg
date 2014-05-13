@@ -7,7 +7,7 @@
 #import "GPGTask.h"
 
 @interface GPGConf ()
-@property (nonatomic, retain) NSString *path;
+@property (nonatomic, strong) NSString *path;
 @end
 
 @implementation GPGConf
@@ -158,14 +158,14 @@
 	@catch (NSException *exception) {
 	}
 	@finally {
-		[taskHelper release];
+		taskHelper = nil;
 	}
 	
 	return content;
 }
 
 + (id)confWithPath:(NSString *)aPath {
-	return [[[[self class] alloc] initWithPath:aPath] autorelease];
+	return [[[self class] alloc] initWithPath:aPath];
 }
 
 - (id)initWithPath:(NSString *)aPath {
@@ -183,7 +183,6 @@
     contents = [[NSMutableArray alloc] init];
 	
 	if (![self loadConfig]) {
-		[self release];
 		return nil;
 	}
 	
@@ -191,12 +190,6 @@
 }
 - (id)init {
     return [self initWithPath:nil];
-}
-- (void)dealloc {
-	[config release];
-	[contents release];
-	self.path = nil;
-    [super dealloc];
 }
 
 @end

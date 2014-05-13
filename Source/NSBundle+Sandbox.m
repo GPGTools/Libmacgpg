@@ -47,7 +47,6 @@
     NSURL *appStoreReceiptURL = [self appStoreReceiptURL];
     NSFileManager *fileManager = [[NSFileManager alloc] init];
     BOOL appStoreReceiptExists = [fileManager fileExistsAtPath:[appStoreReceiptURL path]];
-    [fileManager release];
     return appStoreReceiptExists;
 }
 
@@ -132,7 +131,7 @@
 {
     NSURL *bundleURL = [self bundleURL];
     SecStaticCodeRef staticCode = NULL;
-    SecStaticCodeCreateWithPath(( CFURLRef)bundleURL, kSecCSDefaultFlags, &staticCode);
+    SecStaticCodeCreateWithPath((__bridge  CFURLRef)bundleURL, kSecCSDefaultFlags, &staticCode);
     return staticCode;
 }
 
