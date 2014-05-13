@@ -39,7 +39,6 @@
 @interface GPGTask : NSObject {
 	NSMutableArray *arguments;
 	BOOL batchMode;
-	NSObject <GPGTaskDelegate> *__unsafe_unretained delegate;
 	NSDictionary *userInfo;
 	NSInteger exitcode;
 	int errorCode;

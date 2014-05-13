@@ -329,7 +329,7 @@ char partCountForStatusCode[GPG_STATUS_COUNT];
     if (cancelled)
 		return GPGErrorCancelled;
     
-    __unsafe_unretained GPGTask* cself = self;
+    __unsafe_unretained GPGTask *cself = self;
     taskHelper = [[GPGTaskHelper alloc] initWithArguments:defaultArguments];
     if([delegate isKindOfClass:[GPGController class]])
 		taskHelper.timeout = ((GPGController *)delegate).timeout;

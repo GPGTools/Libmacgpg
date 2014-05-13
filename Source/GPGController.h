@@ -67,10 +67,6 @@
     GPGHashAlgorithm hashAlgorithm;
     
 	
-	NSObject <GPGControllerDelegate> *__unsafe_unretained delegate;
-	NSException *__unsafe_unretained error;
-
-	
 	//Private
 	NSString *identifier;
 	id asyncProxy; //AsyncProxy
@@ -85,12 +81,12 @@
 	NSMutableSet *gpgKeyservers;
 }
 
-@property (nonatomic, unsafe_unretained) NSObject <GPGControllerDelegate> *delegate;
+@property (nonatomic) NSObject <GPGControllerDelegate> *delegate;
 @property (unsafe_unretained, nonatomic, readonly) NSArray *signerKeys;
 @property (unsafe_unretained, nonatomic, readonly) NSArray *comments;
 @property (nonatomic, readonly) NSArray *signatures;
 @property (nonatomic, readonly) id lastReturnValue;
-@property (unsafe_unretained, nonatomic, readonly) NSException *error;
+@property (nonatomic, readonly) NSException *error;
 @property (nonatomic, readonly, strong) NSString *filename;
 @property (nonatomic, strong) NSString *forceFilename;
 @property (nonatomic, strong) NSString *keyserver;

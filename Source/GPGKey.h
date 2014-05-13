@@ -57,10 +57,6 @@
 	NSSet *_fingerprints;
 	dispatch_semaphore_t _fingerprintsOnce;
 	
-	// If this is a subkey, points to its primaryKey, otherwise
-	// to self.
-	GPGKey *__unsafe_unretained _primaryKey;
-	GPGUserID *__unsafe_unretained _primaryUserID;
 }
 
 - (instancetype)initWithFingerprint:(NSString *)fingerprint;
@@ -83,7 +79,7 @@
 @property (nonatomic, readonly) NSArray *userIDs;
 @property (copy, nonatomic, readonly) NSArray *signatures;
 
-@property (unsafe_unretained, nonatomic, readonly) GPGKey *primaryKey;
+@property (unsafe_unretained, nonatomic, readonly) GPGKey *primaryKey;	// If this is a subkey, points to its primaryKey, otherwise to self.
 @property (unsafe_unretained, nonatomic, readonly) GPGUserID *primaryUserID;
 
 @property (nonatomic, readonly) BOOL secret;

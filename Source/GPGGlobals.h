@@ -296,9 +296,7 @@ void *lm_memmem(const void *big, size_t big_len, const void *little, size_t litt
 
 
 
-@interface AsyncProxy : NSProxy {
-	NSObject *__unsafe_unretained realObject;
-}
+@interface AsyncProxy : NSProxy
 @property (nonatomic, unsafe_unretained) NSObject *realObject;
 + (id)proxyWithRealObject:(NSObject *)object;
 - (id)initWithRealObject:(NSObject *)realObject;
