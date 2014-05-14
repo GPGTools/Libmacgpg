@@ -556,7 +556,6 @@ static NSString * const kGpgAgentConfKVKey = @"gpgAgentConf";
 		} else {
 			httpProxy = @"";
 		}
-		CFRelease((__bridge CFTypeRef)(proxyConfig));
 	}
 	return httpProxy;
 }
