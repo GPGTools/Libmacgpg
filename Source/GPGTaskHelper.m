@@ -293,11 +293,9 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
             runBlockAndRecordExceptionSyncronized(^{
                 NSData *data;
                 while((data = [[[task inheritedPipeWithName:@"stdout"] fileHandleForReading] readDataOfLength:kDataBufferSize]) &&  [data length] > 0) {
-                    //withAutoreleasePool(^{
-					@autoreleasepool {
+                    withAutoreleasePool(^{
                         [object->_output writeData:data];
-					}
-                    //});
+                    });
                 }
             }, &lock, &blockException);
         });
@@ -439,18 +437,16 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
 }
 
 - (void)writeData:(GPGStream *)data pipe:(NSPipe *)pipe close:(BOOL)close {
-    __unsafe_unretained NSFileHandle *ofh = [pipe fileHandleForWriting];
+    NSFileHandle *ofh = [pipe fileHandleForWriting];
     GPGStream *input = data;
-    __unsafe_unretained NSData *tempData = nil;
+    NSData *tempData = nil;
     
     @try {
         while((tempData = [input readDataOfLength:kDataBufferSize]) && 
               [tempData length] > 0) {
-            //withAutoreleasePool(^{
-			@autoreleasepool {
+            withAutoreleasePool(^{
                 [ofh writeData:tempData];
-			}
-            //});
+            });
         }
         
         if(close)
