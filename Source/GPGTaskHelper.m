@@ -293,9 +293,11 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
             runBlockAndRecordExceptionSyncronized(^{
                 NSData *data;
                 while((data = [[[task inheritedPipeWithName:@"stdout"] fileHandleForReading] readDataOfLength:kDataBufferSize]) &&  [data length] > 0) {
-                    withAutoreleasePool(^{
+                    //withAutoreleasePool(^{
+					@autoreleasepool {
                         [object->_output writeData:data];
-                    });
+					}
+                    //});
                 }
             }, &lock, &blockException);
         });
@@ -444,9 +446,11 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
     @try {
         while((tempData = [input readDataOfLength:kDataBufferSize]) && 
               [tempData length] > 0) {
-            withAutoreleasePool(^{ 
-                [ofh writeData:tempData]; 
-            });
+            //withAutoreleasePool(^{
+			@autoreleasepool {
+                [ofh writeData:tempData];
+			}
+            //});
         }
         
         if(close)
