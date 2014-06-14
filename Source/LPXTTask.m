@@ -42,6 +42,7 @@ typedef struct {
     if(self != nil) {
         inheritedPipes = [[NSMutableArray alloc] init];
         inheritedPipesMap = [[NSMutableDictionary alloc] init];
+		pipeAccessQueue = dispatch_queue_create("org.gpgtools.Libmacgpg.xpc.pipeAccess", DISPATCH_QUEUE_SERIAL);
     }
     return self;
 }
@@ -255,6 +256,9 @@ typedef struct {
             }
         }
         terminationStatus = WEXITSTATUS(stat_loc);
+		// After running, clean up all the pipes, so no data can be written at this point.
+		// Wouldn't make sense anyway, since the child has shutdown already.
+		[self cleanupPipes];
     }
     
 }
@@ -279,14 +283,19 @@ typedef struct {
     // Add the pipe to the inheritedPipes array.
     // A CFMutableArray is used instead of a NSMutableArray due to the fact,
     // that NSMutableArrays copy added values and CFMutableArrays only retain them.
-    [inheritedPipes addObject:[[NSPipe pipe] noSIGPIPE]];
-    [pipeInfo setValue:[NSNumber numberWithInteger:inheritedPipes.count-1] forKey:@"pipeIdx"];
-    // The pipe info is add to the pipe maps.
+    dispatch_sync(pipeAccessQueue, ^{
+		[inheritedPipes addObject:[[NSPipe pipe] noSIGPIPE]];
+		[pipeInfo setValue:[NSNumber numberWithInteger:inheritedPipes.count-1] forKey:@"pipeIdx"];
+	});
+	// The pipe info is add to the pipe maps.
     // If a pipe already exists under that name, it's added to the list of pipes the
     // name is referring to.
-    NSMutableArray *pipeList = (NSMutableArray *)[inheritedPipesMap valueForKey:name];
+    __block NSMutableArray *pipeList = nil;
+	dispatch_sync(pipeAccessQueue, ^{
+		 pipeList = (NSMutableArray *)[inheritedPipesMap valueForKey:name];
+	});
     if([pipeList count] && !addIfExists) {
-        @throw [NSException exceptionWithName:@"LPXTTask" 
+		@throw [NSException exceptionWithName:@"LPXTTask"
                                        reason:[NSString stringWithFormat:@"A pipe is already registered under the name %@",
                                                name]
                                      userInfo:nil];
@@ -297,8 +306,10 @@ typedef struct {
 
     [pipeList addObject:pipeInfo];
     // Add the pipe list, if this is the first pipe to be added.
-    if([pipeList count] == 1)
-        [inheritedPipesMap setValue:pipeList forKey:name];
+    dispatch_sync(pipeAccessQueue, ^{
+		if([pipeList count] == 1)
+			[inheritedPipesMap setValue:pipeList forKey:name];
+	});
 }
 
 - (void)inheritPipeWithMode:(int)mode dup:(int)dupfd name:(NSString *)name {
@@ -314,7 +325,10 @@ typedef struct {
 
 - (NSArray *)inheritedPipesWithName:(NSString *)name {
     // Find the pipe info matching the given name.
-    NSDictionary *pipeInfo = [inheritedPipesMap valueForKey:name];
+    __block NSDictionary *pipeInfo = nil;
+	dispatch_sync(pipeAccessQueue, ^{
+		pipeInfo = [inheritedPipesMap valueForKey:name];
+	});
 	NSMutableArray *pipeList = [NSMutableArray array];
     for(id idx in [pipeInfo valueForKey:@"pipeIdx"]) {
 		[pipeList addObject:[(NSArray *)inheritedPipes objectAtIndex:[idx intValue]]];
@@ -323,40 +337,51 @@ typedef struct {
 }
 
 - (NSPipe *)inheritedPipeWithName:(NSString *)name {
-    NSArray *pipeList = [self inheritedPipesWithName:name];
+	NSArray *pipeList = [self inheritedPipesWithName:name];
     // If there's no pipe registered for that name, raise an error.
     if(![pipeList count] && pipeList != nil) {
-        @throw [NSException exceptionWithName:@"NoPipeRegisteredUnderNameException" 
+		@throw [NSException exceptionWithName:@"NoPipeRegisteredUnderNameException"
                                        reason:[NSString stringWithFormat:@"There's no pipe registered for name: %@", name] 
                                      userInfo:nil];
         
     }
-    return [pipeList objectAtIndex:0];
+    NSPipe *pipe = [pipeList objectAtIndex:0];
+	return pipe;
 }
 
 - (void)removeInheritedPipeWithName:(NSString *)name {
     // Find the pipeInfo.
-    NSArray *pipeList = [inheritedPipesMap objectForKey:name];
-    for(NSDictionary *pipeInfo in pipeList) {
-        NSNumber *idx = [pipeInfo objectForKey:@"pipeIdx"];
-        [inheritedPipes removeObjectAtIndex:[idx intValue]];
-    }
-    [inheritedPipesMap setValue:nil forKey:name];
+    dispatch_sync(pipeAccessQueue, ^{
+		NSArray *pipeList = [inheritedPipesMap objectForKey:name];
+		for(NSDictionary *pipeInfo in pipeList) {
+			NSNumber *idx = [pipeInfo objectForKey:@"pipeIdx"];
+			[inheritedPipes removeObjectAtIndex:[idx intValue]];
+		}
+		[inheritedPipesMap setValue:nil forKey:name];
+	});
 }
 
+- (void)cleanupPipes {
+	dispatch_sync(pipeAccessQueue, ^{
+		[inheritedPipes removeAllObjects];
+		[inheritedPipesMap removeAllObjects];
+	});
+}
 
 - (void)closePipes {
-    // Close all pipes, otherwise SIGTERM is ignored it seems.
-    GPGDebugLog(@"Inherited Pipes: %@", (NSArray *)inheritedPipes);
-    for(NSPipe *pipe in (NSArray *)inheritedPipes) {
-        @try {
-            [[pipe fileHandleForReading] closeFile];
-            [[pipe fileHandleForWriting] closeFile];
-        }
-        @catch (NSException *e) {
-            // Simply ignore.
-        }
-    }
+	dispatch_sync(pipeAccessQueue, ^{
+		// Close all pipes, otherwise SIGTERM is ignored it seems.
+		GPGDebugLog(@"Inherited Pipes: %@", (NSArray *)inheritedPipes);
+		for(NSPipe *pipe in (NSArray *)inheritedPipes) {
+			@try {
+				[[pipe fileHandleForReading] closeFile];
+				[[pipe fileHandleForWriting] closeFile];
+			}
+			@catch (NSException *e) {
+				// Simply ignore.
+			}
+		}
+	});
 }
 
 - (void)cancel {
@@ -365,6 +390,12 @@ typedef struct {
         [self closePipes];
 		kill(processIdentifier, SIGTERM);
 	}
+}
+
+- (void)dealloc {
+	dispatch_release(pipeAccessQueue);
+	inheritedPipes = nil;
+	inheritedPipesMap = nil;
 }
 
 @end

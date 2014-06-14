@@ -309,7 +309,9 @@
 		return;
     
 	NSData *response = self.processStatus(keyword, value);
-    reply(response);
+	// Response can't be nil otherwise the reply won't be send as it turns out.
+	response = response ? response : [[NSData alloc] init];
+	reply(response);
 }
 
 - (void)progress:(NSUInteger)processedBytes total:(NSUInteger)total {

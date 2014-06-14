@@ -30,6 +30,8 @@
     
 	GPGTaskHelper *task = [[GPGTaskHelper alloc] initWithArguments:arguments];
     
+	dispatch_group_t taskAndStatusGroup = dispatch_group_create();
+	
     // Setup the task.
 	GPGMemoryStream *outputStream = [[GPGMemoryStream alloc] init];
     task.output = outputStream;
@@ -42,41 +44,60 @@
     task.inData = inData;
 	id <Jail> remoteProxy = [_xpcConnection remoteObjectProxy];
     typeof(task) __weak weakTask = task;
-    task.processStatus = (lp_process_status_t)^(NSString *keyword, NSString *value) {
-        [remoteProxy processStatusWithKey:keyword value:value reply:^(NSData *response) {
+    
+	task.processStatus = (lp_process_status_t)^(NSString *keyword, NSString *value) {
+        dispatch_group_enter(taskAndStatusGroup);
+		[remoteProxy processStatusWithKey:keyword value:value reply:^(NSData *response) {
 			GPGTaskHelper *strongTask = weakTask;
-            if(response)
-                [strongTask respond:response];
-        }];
+			if(response && !strongTask.completed) {
+				@try {
+					[strongTask respond:response];
+				}
+				@catch (NSException *exception) {}
+			}
+			dispatch_group_leave(taskAndStatusGroup);
+		}];
     };
-    task.progressHandler = ^(NSUInteger processedBytes, NSUInteger totalBytes) {
+    
+	task.progressHandler = ^(NSUInteger processedBytes, NSUInteger totalBytes) {
         [remoteProxy progress:processedBytes total:totalBytes];
     };
-    task.readAttributes = readAttributes;
+    
+	task.readAttributes = readAttributes;
     task.checkForSandbox = NO;
     
-    @try {
-		xpc_transaction_begin();
-        // Start the task.
-        [task run];
-        // After completion, collect the result and send it back in the reply block.
-        NSDictionary *result = [task copyResult];
-        
-		reply(result);
-	}
-    @catch (NSException *exception) {
-        // Create error here.
-        
-		NSMutableDictionary *exceptionInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:exception.name, @"name",
-											  exception.reason, @"reason", nil];
-		if([exception isKindOfClass:[GPGException class]])
-			[exceptionInfo setObject:[NSNumber numberWithUnsignedInt:((GPGException *)exception).errorCode] forKey:@"errorCode"];
+    xpc_transaction_begin();
 		
-		reply([NSDictionary dictionaryWithObjectsAndKeys:exceptionInfo, @"exception", nil]);
-    }
-    @finally {
+	__block NSException *taskError = nil;
+	dispatch_group_async(taskAndStatusGroup, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+		// Start the task.
+		@try {
+			[task run];
+		}
+		@catch (NSException *exception) {
+			taskError = exception;
+		}
+	});
+	dispatch_group_notify(taskAndStatusGroup, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+		// Once the task is completed, check for errors and create an error response if necessary,
+		// otherwise copy the task results into the response and send it back.
+		NSDictionary *result = nil;
+		if(taskError) {
+			NSMutableDictionary *exceptionInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:taskError.name, @"name",
+												  taskError.reason, @"reason", nil];
+			if([taskError isKindOfClass:[GPGException class]])
+				[exceptionInfo setObject:[NSNumber numberWithUnsignedInt:((GPGException *)taskError).errorCode] forKey:@"errorCode"];
+			
+			result = [NSDictionary dictionaryWithObjectsAndKeys:exceptionInfo, @"exception", nil];
+		}
+		else {
+			result = [task copyResult];
+		}
+		
+		reply(result);
+		
 		xpc_transaction_end();
-    }
+	});
 }
 
 - (void)launchGeneralTask:(NSString *)path withArguments:(NSArray *)arguments wait:(BOOL)wait reply:(void (^)(BOOL))reply {

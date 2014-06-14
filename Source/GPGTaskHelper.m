@@ -251,11 +251,11 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
     [_task inheritPipesWithMode:O_WRONLY dups:dupList name:@"ins"];
     
     __block NSException *blockException = nil;
-    __unsafe_unretained GPGTaskHelper *object = self;
+    __weak GPGTaskHelper *object = self;
     __block NSData *stderrData = nil;
     __block NSData *statusData = nil;
     __block NSData *attributeData = nil;
-    __unsafe_unretained LPXTTask *task = _task;
+    __weak LPXTTask *task = _task;
 	
     __block NSObject *lock = [[NSObject alloc] init];
     
@@ -294,7 +294,7 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
                 NSData *data;
                 while((data = [[[task inheritedPipeWithName:@"stdout"] fileHandleForReading] readDataOfLength:kDataBufferSize]) &&  [data length] > 0) {
                     withAutoreleasePool(^{
-                        [object->_output writeData:data];
+                        [object.output writeData:data];
                     });
                 }
             }, &lock, &blockException);
@@ -341,7 +341,8 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
     self.attributes = attributeData;
     
     _exitStatus = _task.terminationStatus;
-    
+    _completed = YES;
+	
     if(_cancelled || (_pinentryCancelled && _exitStatus != 0))
         _exitStatus = GPGErrorCancelled;
     
@@ -366,7 +367,7 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
 	// on older platforms. Wouldn't anyway.
 	// XPC name: org.gpgtools.Libmacgpg.jailfree.xpc_OpenStep
     
-	__unsafe_unretained GPGTaskHelper * weakSelf = self;
+	__weak GPGTaskHelper * weakSelf = self;
 	
 	GPGTaskHelperXPC *xpcTask = [[GPGTaskHelperXPC alloc] init];
 	xpcTask.progressHandler = ^(NSUInteger processedBytes, NSUInteger total) {
@@ -428,7 +429,7 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
     if(!_task || !self.inData) return;
     
     NSArray *pipeList = [self.task inheritedPipesWithName:@"ins"];
-    __unsafe_unretained GPGTaskHelper *bself = self;
+    __weak GPGTaskHelper *bself = self;
 	[pipeList enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         [bself writeData:[bself.inData objectAtIndex:idx] pipe:obj close:YES];
     }];
@@ -437,7 +438,12 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
 }
 
 - (void)writeData:(GPGStream *)data pipe:(NSPipe *)pipe close:(BOOL)close {
-    NSFileHandle *ofh = [pipe fileHandleForWriting];
+	// If the task was already shutdown, it's still possible that
+	// responds to status messages have to be processed in XPC mode.
+	// In that case however the pipe no longer exists, so don't do anything.
+	if(!pipe)
+		return;
+	NSFileHandle *ofh = [pipe fileHandleForWriting];
     GPGStream *input = data;
     NSData *tempData = nil;
     
@@ -453,7 +459,10 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
             [ofh closeFile];
     }
     @catch (NSException *exception) {
-        @throw exception;
+        // If the task is no longer running, there's no need to throw this exception
+		// since it's expected.
+		if(!_completed)
+			@throw exception;
         return;
     }
 }
@@ -465,7 +474,7 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
     NSData *currentData = nil;
     NSMutableData *statusData = [NSMutableData data]; 
     NSData *NL = [@"\n" dataUsingEncoding:NSASCIIStringEncoding];
-    __unsafe_unretained GPGTaskHelper *this = self;
+    __weak GPGTaskHelper *this = self;
 	while((currentData = [[statusPipe fileHandleForReading] availableData])&& [currentData length]) {
         [statusData appendData:currentData];
         [line appendString:[currentData gpgString]];
@@ -630,7 +639,7 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
     [responseData appendData:[response isKindOfClass:[NSData class]] ? response : [[response description] dataUsingEncoding:NSUTF8StringEncoding]];
     if([responseData rangeOfData:NL options:NSDataSearchBackwards range:NSMakeRange(0, [responseData length])].location == NSNotFound)
         [responseData appendData:[@"\n" dataUsingEncoding:NSUTF8StringEncoding]];
-    GPGStream *responseStream = [GPGMemoryStream memoryStream];
+	GPGStream *responseStream = [[GPGMemoryStream alloc] init];
     [responseStream writeData:responseData];
     [self writeData:responseStream pipe:[self.task inheritedPipeWithName:@"stdin"] close:NO];
 }
