@@ -456,15 +456,15 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 }
 
 - (NSSet *)allKeysAndSubkeys {
-	/* TODO: Must be declared __weak once ARC! */
-	__unsafe_unretained static id oldAllKeys = nil; /* Was: static id oldAllKeys = (id)1 */
+	static pointer_t oldAllKeys = 1;
+	
 	
 	dispatch_semaphore_wait(_allKeysAndSubkeysOnce, DISPATCH_TIME_FOREVER);
 	
 	NSSet *allKeys = self.allKeys;
 	
-	if (oldAllKeys != allKeys) {
-		oldAllKeys = allKeys;
+	if (oldAllKeys != (pointer_t)allKeys) {
+		oldAllKeys = (pointer_t)allKeys;
 		
 		NSMutableSet *allKeysAndSubkeys = [[NSMutableSet alloc] initWithSet:allKeys copyItems:NO];
 		
