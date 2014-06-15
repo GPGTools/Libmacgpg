@@ -51,7 +51,7 @@ NSDictionary *statusCodes;
 char partCountForStatusCode[GPG_STATUS_COUNT];
 
 @synthesize isRunning, batchMode, getAttributeData, delegate, userInfo, exitcode, errorCode, errData, statusData, attributeData, cancelled,
-            progressInfo, statusDict, taskHelper = taskHelper, timeout, environmentVariables=_environmentVariables;
+            progressInfo, statusDict, taskHelper = taskHelper, timeout, environmentVariables=_environmentVariables, passphrase;
 @synthesize outStream;
 
 
@@ -281,15 +281,22 @@ char partCountForStatusCode[GPG_STATUS_COUNT];
     }
 	
     // If batch mode is not set, add the command-fd using stdin.
-    if (batchMode)
+    if (batchMode) {
         [defaultArguments addObject:@"--batch"];
-    else
+    } else {
         [defaultArguments addObjectsFromArray:[NSArray arrayWithObjects:@"--no-batch", @"--command-fd", @"0", nil]];
+	}
 	
     // If the attribute data is required, add the attribute-fd.
     if (getAttributeData)
         [defaultArguments addObjectsFromArray:[NSArray arrayWithObjects:@"--attribute-fd", @"4", nil]];
  
+	if (passphrase) {
+		NSString *passphraseFD = [NSString stringWithFormat:@"%lu", inDatas.count+5];
+		[defaultArguments addObjectsFromArray:[NSArray arrayWithObjects:@"--passphrase-fd", passphraseFD, nil]];
+		[self addInText:[passphrase stringByAppendingString:@"\n"]];
+	}
+	
 	// TODO: Optimize and make more generic.
     //Für Funktionen wie --decrypt oder --verify muss "--no-armor" nicht gesetzt sein.
     if ([arguments containsObject:@"--no-armor"] || [arguments containsObject:@"--no-armour"]) {
@@ -315,11 +322,18 @@ char partCountForStatusCode[GPG_STATUS_COUNT];
     }
     [defaultArguments addObjectsFromArray:arguments];
 	
+	
     // Last but not least, add the fd's used to read the in-data from.
 	NSUInteger count = inDatas.count;
+	if (passphrase) {
+		// We had already added the fd for the passphrase.
+		count--;
+	}
 	for (int i = 0; i < count; i++) {
 		[defaultArguments addObject:[NSString stringWithFormat:@"/dev/fd/%d", i+5]];
 	}
+	
+	
 	
     if ([delegate respondsToSelector:@selector(gpgTaskWillStart:)]) {
         [delegate gpgTaskWillStart:self];

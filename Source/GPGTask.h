@@ -47,6 +47,7 @@
 	NSDictionary *_environmentVariables;
 	
 	NSMutableArray *inDatas;
+	NSString *passphrase;
 	
     GPGTaskHelper *taskHelper;
     
@@ -76,6 +77,7 @@
 @property (nonatomic) BOOL getAttributeData;
 @property (nonatomic, unsafe_unretained) NSObject <GPGTaskDelegate> *delegate;
 @property (nonatomic, strong) NSDictionary *userInfo;
+@property (nonatomic, strong) NSString *passphrase;
 @property (nonatomic, readonly) NSInteger exitcode;
 @property (nonatomic, readonly) int errorCode;
 // if not set before starting, GPGTask will use a GPGMemoryStream
