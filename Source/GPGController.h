@@ -51,6 +51,7 @@
 	NSUInteger keyserverTimeout;
 	NSString *proxyServer;
 	NSString *gpgHome;
+	NSString *passphrase;
 	NSDictionary *userInfo;
 	NSUndoManager *undoManager;
 	BOOL useArmor;
@@ -91,11 +92,12 @@
 @property (nonatomic, readonly) NSArray *signatures;
 @property (nonatomic, readonly) id lastReturnValue;
 @property (nonatomic, readonly) NSException *error;
-@property (nonatomic, readonly, retain) NSString *filename;
-@property (nonatomic, retain) NSString *forceFilename;
-@property (nonatomic, retain) NSString *keyserver;
-@property (nonatomic, retain) NSString *proxyServer;
-@property (nonatomic, retain) NSString *gpgHome;
+@property (nonatomic, readonly, strong) NSString *filename;
+@property (nonatomic, strong) NSString *forceFilename;
+@property (nonatomic, strong) NSString *keyserver;
+@property (nonatomic, strong) NSString *proxyServer;
+@property (nonatomic, strong) NSString *gpgHome;
+@property (nonatomic, strong) NSString *passphrase;
 @property (nonatomic) NSUInteger keyserverTimeout;
 @property (nonatomic, retain) NSDictionary *userInfo;
 @property (nonatomic, retain) NSUndoManager *undoManager;
@@ -177,7 +179,7 @@
 - (void)setPrimaryUserID:(NSString *)hashID ofKey:(NSObject <KeyFingerprint> *)key;
 - (NSString *)generateNewKeyWithName:(NSString *)name email:(NSString *)email comment:(NSString *)comment 
 					   keyType:(GPGPublicKeyAlgorithm)keyType keyLength:(int)keyLength subkeyType:(GPGPublicKeyAlgorithm)subkeyType subkeyLength:(int)subkeyLength 
-				  daysToExpire:(int)daysToExpire preferences:(NSString *)preferences passphrase:(NSString *)passphrase;
+				  daysToExpire:(int)daysToExpire preferences:(NSString *)preferences;
 - (void)deleteKeys:(NSObject <EnumerationList> *)keys withMode:(GPGDeleteKeyMode)mode;
 - (void)setAlgorithmPreferences:(NSString *)preferences forUserID:(NSString *)hashID ofKey:(NSObject <KeyFingerprint> *)key;
 - (void)revokeSignature:(GPGUserIDSignature *)signature fromUserID:(GPGUserID *)userID ofKey:(NSObject <KeyFingerprint> *)key reason:(int)reason description:(NSString *)description;

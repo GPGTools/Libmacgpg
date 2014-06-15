@@ -67,7 +67,7 @@
 
 @implementation GPGController
 @synthesize delegate, keyserver, keyserverTimeout, proxyServer, async, userInfo, useArmor, useTextMode, printVersion, useDefaultComments,
-trustAllKeys, signatures, lastSignature, gpgHome, verbose, autoKeyRetrieve, lastReturnValue, error, undoManager, hashAlgorithm,
+trustAllKeys, signatures, lastSignature, gpgHome, passphrase, verbose, autoKeyRetrieve, lastReturnValue, error, undoManager, hashAlgorithm,
 timeout, filename, forceFilename, pinentryInfo=_pinentryInfo;
 
 NSString *gpgVersion = nil;
@@ -490,12 +490,12 @@ BOOL gpgConfigReaded = NO;
 
 - (NSString *)generateNewKeyWithName:(NSString *)name email:(NSString *)email comment:(NSString *)comment 
 					   keyType:(GPGPublicKeyAlgorithm)keyType keyLength:(int)keyLength subkeyType:(GPGPublicKeyAlgorithm)subkeyType subkeyLength:(int)subkeyLength
-				  daysToExpire:(int)daysToExpire preferences:(NSString *)preferences passphrase:(NSString *)passphrase {
+				  daysToExpire:(int)daysToExpire preferences:(NSString *)preferences {
 	if (async && !asyncStarted) {
 		asyncStarted = YES;
 		[asyncProxy generateNewKeyWithName:name email:email comment:comment 
 								   keyType:keyType keyLength:keyLength subkeyType:subkeyType subkeyLength:subkeyLength 
-							  daysToExpire:daysToExpire preferences:preferences passphrase:passphrase];
+							  daysToExpire:daysToExpire preferences:preferences];
 		return nil;
 	}
 	NSString *fingerprint = nil;
@@ -534,15 +534,7 @@ BOOL gpgConfigReaded = NO;
 			[cmdText appendFormat:@"Preferences: %@\n", preferences];
 		}
 		
-		if (passphrase) {
-			if (![passphrase isEqualToString:@""]) {
-				[cmdText appendFormat:@"Passphrase: %@\n", passphrase];
-			}
-			[cmdText appendString:@"%no-ask-passphrase\n"];
-		} else {
-			[cmdText appendString:@"%ask-passphrase\n"];
-		}
-		
+		[cmdText appendString:@"%ask-passphrase\n"];
 		[cmdText appendString:@"%commit\n"];
 		
 		self.gpgTask = [GPGTask gpgTaskWithArgument:@"--gen-key"];
@@ -772,7 +764,7 @@ BOOL gpgConfigReaded = NO;
 		[gpgTask addArgument:@"--gen-revoke"];
 		[gpgTask addArgument:[key description]];
 		
-		if ([gpgTask start] != 0) {
+		if ([gpgTask start] != 0 || gpgTask.outData.length == 0) {
 			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Generate revoke certificate failed!") gpgTask:gpgTask];
 		}
 		
@@ -2667,6 +2659,9 @@ BOOL gpgConfigReaded = NO;
 		}
 		NSDictionary *env = [NSDictionary dictionaryWithObjectsAndKeys:pinentryUserData, @"PINENTRY_USER_DATA", nil];
 		gpgTask.environmentVariables = env;
+	}
+	if (passphrase) {
+		gpgTask.passphrase = passphrase;
 	}
 	
 	gpgTask.delegate = self;
