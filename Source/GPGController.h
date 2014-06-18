@@ -51,6 +51,7 @@
 	NSUInteger keyserverTimeout;
 	NSString *proxyServer;
 	NSString *gpgHome;
+	NSString *passphrase;
 	NSDictionary *userInfo;
 	NSUndoManager *undoManager;
 	BOOL useArmor;
@@ -92,6 +93,7 @@
 @property (nonatomic, strong) NSString *keyserver;
 @property (nonatomic, strong) NSString *proxyServer;
 @property (nonatomic, strong) NSString *gpgHome;
+@property (nonatomic, strong) NSString *passphrase;
 @property (nonatomic) NSUInteger keyserverTimeout;
 @property (nonatomic, strong) NSDictionary *userInfo;
 @property (nonatomic, strong) NSUndoManager *undoManager;
@@ -173,7 +175,7 @@
 - (void)setPrimaryUserID:(NSString *)hashID ofKey:(NSObject <KeyFingerprint> *)key;
 - (NSString *)generateNewKeyWithName:(NSString *)name email:(NSString *)email comment:(NSString *)comment 
 					   keyType:(GPGPublicKeyAlgorithm)keyType keyLength:(int)keyLength subkeyType:(GPGPublicKeyAlgorithm)subkeyType subkeyLength:(int)subkeyLength 
-				  daysToExpire:(int)daysToExpire preferences:(NSString *)preferences passphrase:(NSString *)passphrase;
+				  daysToExpire:(int)daysToExpire preferences:(NSString *)preferences;
 - (void)deleteKeys:(NSObject <EnumerationList> *)keys withMode:(GPGDeleteKeyMode)mode;
 - (void)setAlgorithmPreferences:(NSString *)preferences forUserID:(NSString *)hashID ofKey:(NSObject <KeyFingerprint> *)key;
 - (void)revokeSignature:(GPGUserIDSignature *)signature fromUserID:(GPGUserID *)userID ofKey:(NSObject <KeyFingerprint> *)key reason:(int)reason description:(NSString *)description;
