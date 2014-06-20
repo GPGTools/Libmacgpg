@@ -59,7 +59,7 @@ typedef enum {
 
 + (BOOL)debugLog;
 
-+ (id)sharedOptions;
++ (instancetype)sharedOptions;
 - (id)valueForKey:(NSString *)key;
 - (void)setValue:(id)value forKey:(NSString *)key;
 

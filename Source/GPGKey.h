@@ -67,12 +67,12 @@
 - (void)setSubkeys:(NSArray *)subkeys;
 - (void)setUserIDs:(NSArray *)userIDs;
 
-@property (nonatomic, readonly) NSString *keyID;
-@property (nonatomic, readonly) NSString *shortKeyID DEPRECATED_ATTRIBUTE;
-@property (nonatomic, readonly) NSString *fingerprint;
-@property (nonatomic, readonly) NSString *cardID;
-@property (nonatomic, readonly) NSDate *creationDate;
-@property (nonatomic, readonly) NSDate *expirationDate;
+@property (copy, nonatomic, readonly) NSString *keyID;
+@property (copy, nonatomic, readonly) NSString *shortKeyID;
+@property (copy, nonatomic, readonly) NSString *fingerprint;
+@property (copy, nonatomic, readonly) NSString *cardID;
+@property (copy, nonatomic, readonly) NSDate *creationDate;
+@property (copy, nonatomic, readonly) NSDate *expirationDate;
 @property (nonatomic, readonly) unsigned int length;
 @property (nonatomic, readonly) GPGPublicKeyAlgorithm algorithm;
 @property (nonatomic, readonly) NSInteger status DEPRECATED_ATTRIBUTE;
