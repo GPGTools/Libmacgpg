@@ -278,6 +278,7 @@ void *lm_memmem(const void *big, size_t big_len, const void *little, size_t litt
 @end
 @protocol KeyFingerprint
 - (NSString *)description;
+- (NSString *)keyID;
 @end
 
 @interface NSArray (IndexInfo)

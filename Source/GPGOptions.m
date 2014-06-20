@@ -848,7 +848,7 @@ void SystemConfigurationDidChange(SCPreferencesRef prefs, SCPreferencesNotificat
 
 }
 
-+ (id)sharedOptions {
++ (instancetype)sharedOptions {
     static dispatch_once_t onceToken;
     static GPGOptions *_sharedInstance = nil;
     

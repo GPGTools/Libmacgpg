@@ -64,7 +64,7 @@
 - (void)setUserIDs:(NSArray *)userIDs;
 
 @property (copy, nonatomic, readonly) NSString *keyID;
-@property (copy, nonatomic, readonly) NSString *shortKeyID DEPRECATED_ATTRIBUTE;
+@property (copy, nonatomic, readonly) NSString *shortKeyID;
 @property (copy, nonatomic, readonly) NSString *fingerprint;
 @property (copy, nonatomic, readonly) NSString *cardID;
 @property (copy, nonatomic, readonly) NSDate *creationDate;
