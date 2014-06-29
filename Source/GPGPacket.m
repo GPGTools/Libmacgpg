@@ -83,34 +83,11 @@ const int clearTextEndMarkLength = 29;
 
 
 + (id)packetsWithData:(NSData *)theData {
-	NSMutableArray *packets = [NSMutableArray array];
+	__block NSMutableArray *packets = [NSMutableArray array];
 	
-	
-	
-	theData = [self unArmor:theData];
-	if ([theData length] < 10) {
-		return nil;
-	}
-	const uint8_t *bytes = [theData bytes];
-	
-	
-	const uint8_t *endPos = bytes + [theData length];
-	const uint8_t *currentPos = bytes;
-	const uint8_t *nextPacketPos = 0;
-	
-	while (currentPos < endPos) {
-		nextPacketPos = 0;
-		GPGPacket *packet = [[self alloc] initWithBytes:currentPos length:endPos - currentPos nextPacketStart:&nextPacketPos];
-		if (packet) {
-			[packets addObject:packet];
-			[packet release];
-		}
-		if (nextPacketPos <= currentPos) {
-			break;
-		} 
-		currentPos = nextPacketPos;
-	}
-	
+	[self enumeratePacketsWithData:theData block:^(GPGPacket *packet, BOOL *stop) {
+		[packets addObject:packet];
+	}];
 	
 	return packets;
 }
@@ -118,13 +95,13 @@ const int clearTextEndMarkLength = 29;
 
 + (void)enumeratePacketsWithData:(NSData *)theData block:(void (^)(GPGPacket *packet, BOOL *stop))block {
 	theData = [self unArmor:theData];
-	if ([theData length] < 10) {
+	if (theData.length < 10) {
 		return;
 	}
-	const uint8_t *bytes = [theData bytes];
+	const uint8_t *bytes = theData.bytes;
 	
 	
-	const uint8_t *endPos = bytes + [theData length];
+	const uint8_t *endPos = bytes + theData.length;
 	const uint8_t *currentPos = bytes;
 	const uint8_t *nextPacketPos = 0;
 	BOOL stop = NO;
@@ -390,8 +367,7 @@ endOfBuffer:
     return theData;
 }
 
-+ (NSData *)unArmorFrom:(GPGStream *)input clearText:(NSData **)clearText 
-{
++ (NSData *)unArmorFrom:(GPGStream *)input clearText:(NSData **)clearText {
 	if ([input length] < 50 || ![self isArmored:[input peekByte]]) {
 		return nil;
 	}
@@ -406,7 +382,9 @@ endOfBuffer:
 	NSMutableData *decodedData = [NSMutableData data];
 	myState state = state_searchStart;
 	BOOL failed = NO;
-	
+	BOOL containsColon = YES;
+	const char *oldReadPos;
+
 	
 
 	char *mutableBytes = malloc(dataLength);
@@ -548,11 +526,23 @@ endOfBuffer:
 						if (newlineCount == 2) {
 							state = haveClearText ? state_searchStart : state_waitForEnd;
 							textStart = readPos + 1;
+						} else {
+							if (containsColon) {
+								containsColon = NO;
+								oldReadPos = readPos;
+							} else {
+								state = haveClearText ? state_searchStart : state_waitForEnd;
+								readPos = oldReadPos;
+								textStart = readPos + 1;
+							}
 						}
 					case '\r':
 					case ' ':
 					case '\t':
 						break;
+					case ':':
+						containsColon = YES;
+						//no break
 					default:
 						newlineCount = 0;
 				}
