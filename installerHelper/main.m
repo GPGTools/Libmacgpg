@@ -6,47 +6,51 @@
 BOOL checkPackage(NSString *pkgPath);
 BOOL installPackage(NSString *pkgPath, NSString *xmlPath);
 
-const char *helpText = "This tool checks the signature of an pkg file and installs it.\nYou can specify a xml-file to override the standard choices.";
+const char *helpText = "This tool checks the signature of a pkg-file and installs it.\nYou can provide a pkg-file.xml to override the standard choices.";
 
 
 
 int main(int argc, const char *argv[]) {
 	@autoreleasepool {
 	    
-	    if (argc < 2 || argc > 3) {
-			printf("Usage: installerHelper pkg-file [xml-file]\n%s\n", helpText);
+	    if (argc != 2) {
+			printf("Usage: installerHelper pkg-file\n%s\n", helpText);
 			return 1;
 		}
 		
-		NSString *pkgPath = [NSString stringWithUTF8String:argv[1]], *xmlPath = nil;
+		NSString *pkgPath = [NSString stringWithUTF8String:argv[1]];
 		
-		if (![[NSFileManager defaultManager] fileExistsAtPath:pkgPath]) {
-			printf("Can't find '%s'\n", [pkgPath UTF8String]);
+		if (![[pkgPath substringFromIndex:pkgPath.length - 4] isEqualToString:@".pkg"]) {
+			printf("Not a pkg-fil: '%s'!\n", [pkgPath UTF8String]);
 			return 2;
 		}
 		
-		if (argc > 2) {
-			xmlPath = [NSString stringWithUTF8String:argv[2]];
-			
-			if (![[NSFileManager defaultManager] fileExistsAtPath:xmlPath]) {
-				printf("Can't find '%s'\n", [xmlPath UTF8String]);
-				return 2;
-			}
+		BOOL isDir;
+		if (![[NSFileManager defaultManager] fileExistsAtPath:pkgPath isDirectory:&isDir] || isDir) {
+			printf("Can't find '%s'!\n", [pkgPath UTF8String]);
+			return 3;
+		}
+		
+		
+		NSString *xmlPath = [pkgPath stringByAppendingString:@".xml"];
+		if (![[NSFileManager defaultManager] fileExistsAtPath:xmlPath isDirectory:&isDir] || isDir) {
+			xmlPath = nil;
 		}
 		
 		
 		if (!checkPackage(pkgPath)) {
-			return 3;
+			printf("The pkg-file isn't signed correctly!\n");
+			return 4;
 		}
 		
 		if (!installPackage(pkgPath, xmlPath)) {
-			return 4;
+			printf("Installation failed!\n");
+			return 5;
 		}
 
 	}
 	return 0;
 }
-
 
 
 BOOL checkPackage(NSString *pkgPath) {
@@ -109,33 +113,40 @@ BOOL checkPackage(NSString *pkgPath) {
 
 BOOL installPackage(NSString *pkgPath, NSString *xmlPath) {
 	// Run the installer command.
-	NSString *commandString;
-	if (xmlPath) {
-		commandString = [NSString stringWithFormat:@"/usr/sbin/installer -applyChoiceChangesXML \"%@\" -pkg \"%@\" -target /", xmlPath, pkgPath];
-	}
-	else {
-		commandString = [NSString stringWithFormat:@"/usr/sbin/installer -pkg \"%@\" -target /", pkgPath];
-	}
 	
-	const char *command = [commandString UTF8String];
+	NSArray *arguments;
+	if (xmlPath) {
+		arguments = @[@"-applyChoiceChangesXML", xmlPath, @"-pkg", pkgPath, @"-target", @"/"];
+	} else {
+		arguments = @[@"-pkg", pkgPath, @"-target", @"/"];
+	}
+		
+	NSTask *task = [[NSTask alloc] init];
+	task.launchPath = @"/usr/sbin/installer";
+	task.arguments = arguments;
+	
 	
 	uid_t uid = getuid();
 	int result = setuid(0);
 	if (result == 0) {
 		//Run only this command with root privileges.
-		result = system(command);
+		[task launch];
+		[task waitUntilExit];
+		result = task.terminationStatus;
 		setuid(uid);
 	} else {
-		printf("This tool needs the setuid-bit to be set and the owner must be root!\nStart a normal installation using the GUI.\n");
+		printf("This tool needs the setuid-bit to be set and the owner must be root!\nStarting a normal installation using the GUI.\n");
 		
-		commandString = [NSString stringWithFormat:@"/usr/bin/open -Wnb com.apple.installer \"%@\"", pkgPath];
-		command = [commandString UTF8String];
-		
-		result = system(command);
+		task.launchPath = @"/usr/bin/open";
+		task.arguments = @[@"-Wnb", @"com.apple.installer", pkgPath];
+
+		[task launch];
+		[task waitUntilExit];
+		result = task.terminationStatus;
 	}
 	
 	
-	return !!result;
+	return result == 0;
 }
 
 
