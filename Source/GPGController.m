@@ -2771,15 +2771,20 @@ BOOL gpgConfigReaded = NO;
 		gpgTask.timeout = GPGTASKHELPER_DISPATCH_TIMEOUT_QUICKLY;
 		[gpgTask addArgument:@"--list-config"];
 		
+		
+		
+		
 		if ([gpgTask start] != 0) {
 			GPGTask *gpgTask2 = [GPGTask gpgTaskWithArguments:@[@"--options", @"/dev/null", @"--gpgconf-test"]];
 			gpgTask2.timeout = GPGTASKHELPER_DISPATCH_TIMEOUT_QUICKLY;
 			
-			if ([gpgTask2 start] == 0) { // Config Error.
+			// GPG could also return an error code if there is only an insignificant error. Like a missing keyring or so.
+			// So we need to test explicit for a config error.
+			if ([gpgTask2 start] != 0) { // Config Error.
 				GPGOptions *options = [GPGOptions sharedOptions];
 				[options repairGPGConf];
 				
-				if ([gpgTask start] != 0) {
+				if ([gpgTask start] != 0 && [gpgTask2 start] != 0) {
 					GPGDebugLog(@"GPGController -readGPGConfig: GPGErrorConfigurationError");
 					GPGDebugLog(@"Error text: %@\nStatus text: %@", gpgTask.errText, gpgTask.statusText);
 					if (error) {
@@ -2787,21 +2792,10 @@ BOOL gpgConfigReaded = NO;
 					}
 					return GPGErrorConfigurationError;
 				}
-			} else { // Other Error.
-				GPGDebugLog(@"GPGController -readGPGConfig: GPGErrorGeneralError");
-				GPGDebugLog(@"Error text: %@\nStatus text: %@", gpgTask.errText, gpgTask.statusText);
-				if (error) {
-					*error = [GPGException exceptionWithReason:@"GPGErrorGeneralError" errorCode:GPGErrorGeneralError gpgTask:gpgTask];
-				}
-				return GPGErrorGeneralError;
 			}
 		}
 		
 		NSString *outText = [gpgTask outText];
-		if (!outText || outText.length < 10) {
-			return GPGErrorGeneralError;
-		}
-		
 		NSArray *lines = [outText componentsSeparatedByString:@"\n"];
 		
 		for (NSString *line in lines) {
@@ -2824,6 +2818,15 @@ BOOL gpgConfigReaded = NO;
 					}
 				}
 			}
+		}
+		
+		if (!gpgVersion) {
+			GPGDebugLog(@"GPGController -readGPGConfig: GPGErrorGeneralError");
+			GPGDebugLog(@"Error text: %@\nStatus text: %@", gpgTask.errText, gpgTask.statusText);
+			if (error) {
+				*error = [GPGException exceptionWithReason:@"GPGErrorGeneralError" errorCode:GPGErrorGeneralError gpgTask:gpgTask];
+			}
+			return GPGErrorGeneralError;
 		}
 	} @catch (GPGException *exception) {
 		GPGDebugLog(@"GPGController -readGPGConfig: %@", exception.description);

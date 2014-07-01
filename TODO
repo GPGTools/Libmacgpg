@@ -1,7 +1,14 @@
 
 TODO: UnitTests!
 TODO: Consistent errorCodes and Exceptions.
-TODO: getPacketInfo: It should return informations over type of the data (Key, Signature, Message or anything), the signer key and the recipients.
 TODO: Add NSAssert (or similar).
+
+
+
+Gedanken und Aufgaben:
+
+Wir müssen den exitcode von GPG mehr oder weniger ignorieren, da er auch durch einen fehlenden secring verursacht werden kann.
+NSException durch NSError erstzen.
+Errorcodes anhand der status-fd ausgabe berechnen.
 
 
