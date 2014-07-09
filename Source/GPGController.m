@@ -1070,20 +1070,30 @@ BOOL gpgConfigReaded = NO;
 		return nil;
 	}
 	@try {
-		data = [GPGPacket unArmor:data];
-		NSSet *keys = [self keysInExportedData:data];
+        BOOL encrypted = NO;
+        data = [GPGPacket unArmor:data];
+        NSData *dataTocheck = data;
+        
+        while (dataToCheck) {
+            NSSet *keys = [self keysInExportedData:dataToCheck encrypted:&encrypted];
+
+            if (keys.count > 0) {
+                data = dataToCheck;
+                break;
+            } else {
+                if (encrypted) {
+                    // Decrypt to allow import of encrypted keys.
+                    dataToCheck = [self decryptData:dataToCheck];
+                } else {
+                    //Get keys from RTF data.
+                    dataToCheck = [[[[NSAttributedString alloc] initWithData:dataToCheck options:nil documentAttributes:nil error:nil] string] dataUsingEncoding:NSUTF8StringEncoding];
+                }
+                dataToCheck = [GPGPacket unArmor:dataToCheck];
+            }
+        }
+        
+        
 		
-		if ([keys count] == 0) {
-			//Get keys from RTF data.
-			NSData *data2 = [[[[NSAttributedString alloc] initWithData:data options:nil documentAttributes:nil error:nil] string] dataUsingEncoding:NSUTF8StringEncoding];
-			if (data2) {
-				data2 = [GPGPacket unArmor:data2];
-				keys = [self keysInExportedData:data2];
-				if ([keys count] > 0) {
-					data = data2;
-				}
-			}
-		}
 		
 		//TODO: Uncomment the following lines when keysInExportedData: fully works!
 		/*if ([keys count] == 0) {
@@ -2246,14 +2256,23 @@ BOOL gpgConfigReaded = NO;
 	return 0;
 }
 
-- (NSSet *)keysInExportedData:(NSData *)data {
+- (NSSet *)keysInExportedData:(NSData *)data encrypted:(BOOL *)encrypted {
 	NSMutableSet *keys = [NSMutableSet set];
 	NSArray *packets = [GPGPacket packetsWithData:data];
 	
+    if (encrypted) {
+        *encrypted = NO;
+    }
+
+    
 	for (GPGPacket *packet in packets) {
 		if (packet.type == GPGPublicKeyPacket || packet.type == GPGSecretKeyPacket) {
 			[keys addObject:packet.fingerprint];
-		}
+		} else if (packet.type == GPGPublicKeyEncryptedSessionKeyPacket || packet.type == GPGSymmetricEncryptedSessionKeyPacket) {
+            if (encrypted) {
+                *encrypted = YES;
+            }
+        }
 	}
 	
 	return keys;
