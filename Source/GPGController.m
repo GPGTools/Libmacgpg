@@ -1072,10 +1072,11 @@ BOOL gpgConfigReaded = NO;
 	@try {
         BOOL encrypted = NO;
         data = [GPGPacket unArmor:data];
-        NSData *dataTocheck = data;
+        NSData *dataToCheck = data;
+        NSSet *keys;
         
         while (dataToCheck) {
-            NSSet *keys = [self keysInExportedData:dataToCheck encrypted:&encrypted];
+            keys = [self keysInExportedData:dataToCheck encrypted:&encrypted];
 
             if (keys.count > 0) {
                 data = dataToCheck;
