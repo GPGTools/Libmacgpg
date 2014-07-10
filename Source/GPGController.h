@@ -197,6 +197,8 @@
 - (NSArray *)verifySignedData:(NSData *)signedData;
 - (NSArray *)algorithmPreferencesForKey:(GPGKey *)key;
 
+- (NSSet *)keysInExportedData:(NSData *)data encrypted:(BOOL *)encrypted;
+
 
 @end
 
