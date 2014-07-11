@@ -542,9 +542,15 @@ endOfBuffer:
 					readPos = textEnd + 5;
 				}
 				
+                oldReadPos = readPos; 
 				readPos = lm_memmem(readPos, endPos - readPos, armorEndMark, armorEndMarkLength);
 				if (!readPos) {
-					goto endOfBuffer;
+                    readPos = lm_memmem(oldReadPos, endPos - oldReadPos, armorEndMark + 1, armorEndMarkLength - 1);
+                    
+                    if (!readPos) {
+                        goto endOfBuffer;
+                    }
+                    readPos--;
 				}
 				
 				if (!textEnd) {
@@ -552,7 +558,8 @@ endOfBuffer:
 				}
 				
 				
-				readPos = readPos + armorEndMarkLength;
+				readPos += armorEndMarkLength;
+                
 				int length = armorTypeStrings[armorType][0];
 				canRead(length);
 				if (memcmp(armorTypeStrings[armorType]+1, readPos, armorTypeStrings[armorType][0]) != 0) {
