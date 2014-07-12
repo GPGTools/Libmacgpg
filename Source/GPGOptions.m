@@ -372,7 +372,7 @@ static NSString * const kGpgAgentConfKVKey = @"gpgAgentConf";
 }
 - (void)setValueInGPGConf:(id)value forKey:(NSString *)key {
 	[self.gpgConf setValue:value forKey:key];
-	[self valueChanged:value forKey:key  inDomain:GPGDomain_gpgConf];
+	[self valueChanged:value forKey:key inDomain:GPGDomain_gpgConf];
 	
 	if (self.autoSave) [self.gpgConf saveConfig];
 }
@@ -436,12 +436,28 @@ static NSString * const kGpgAgentConfKVKey = @"gpgAgentConf";
 
 
 
+- (void)loadGPGConfDefaults {
+	BOOL needSave = NO;
+	id value = [gpgConf valueForKey:@"emit-version"];
+	
+	if (!value) {
+		[gpgConf setValue:@(NO) forKey:@"emit-version"];
+		needSave = YES;
+	}
+	
+	if (needSave) {
+		[gpgConf saveConfig];
+	}
+}
+
+
 // Propertys.
 - (GPGConf *)gpgConf {
     @synchronized(syncRoot) {
         if (!gpgConf) {
             NSString *gpath = [[self gpgHome] stringByAppendingPathComponent:@"gpg.conf"];
             gpgConf = [[GPGConf alloc] initWithPath:gpath andDomain:GPGDomain_gpgConf];
+			[self loadGPGConfDefaults];
         }
         return [[gpgConf retain] autorelease];
     }
