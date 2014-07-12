@@ -74,12 +74,6 @@ static const char *armorTypeStrings[] = { //The first byte contains the length o
 };
 const int armorTypeStringsCount = 7;
 
-static const char clearTextBeginMark[] = "-----BEGIN PGP SIGNED MESSAGE-----";
-const int clearTextBeginMarkLength = 34;
-static const char clearTextEndMark[] = "-----BEGIN PGP SIGNATURE-----";
-const int clearTextEndMarkLength = 29;
-
-
 
 
 + (id)packetsWithData:(NSData *)theData {

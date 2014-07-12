@@ -30,7 +30,6 @@
 #import <fcntl.h>
 #import "NSBundle+Sandbox.h"
 
-static const NSUInteger kDataBufferSize = 65536; 
 
 @class GPGController;
 
@@ -316,7 +315,7 @@ char partCountForStatusCode[GPG_STATUS_COUNT];
         [defaultArguments addObjectsFromArray:[NSArray arrayWithObjects:@"--attribute-fd", @"4", nil]];
  
 	if (passphrase) {
-		NSString *passphraseFD = [NSString stringWithFormat:@"%lu", inDatas.count+5];
+		NSString *passphraseFD = [NSString stringWithFormat:@"%llu", (uint64)inDatas.count+5];
 		[defaultArguments addObjectsFromArray:[NSArray arrayWithObjects:@"--passphrase-fd", passphraseFD, nil]];
 		[self addInText:[passphrase stringByAppendingString:@"\n"]];
 	}

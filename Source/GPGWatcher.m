@@ -254,7 +254,7 @@ static id syncRoot = nil;
         
         dirWatcher = [[DirectoryWatcher alloc] init];
         dirWatcher.delegate = self;
-        dirWatcher.latency = DW_LATENCY;
+        dirWatcher.latency = (NSUInteger)DW_LATENCY;
         [self updateWatcher];
 		
 		[[NSGarbageCollector defaultCollector] disableCollectorForPointer:self];

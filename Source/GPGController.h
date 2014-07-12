@@ -92,7 +92,7 @@
 @property (nonatomic, readonly) NSArray *signatures;
 @property (nonatomic, readonly) id lastReturnValue;
 @property (nonatomic, readonly) NSException *error;
-@property (nonatomic, readonly, strong) NSString *filename;
+@property (nonatomic, readonly, retain) NSString *filename;
 @property (nonatomic, strong) NSString *forceFilename;
 @property (nonatomic, strong) NSString *keyserver;
 @property (nonatomic, strong) NSString *proxyServer;
