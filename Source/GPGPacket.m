@@ -520,7 +520,7 @@ endOfBuffer:
 						if (newlineCount == 2) {
 							state = haveClearText ? state_searchStart : state_waitForEnd;
 							textStart = readPos + 1;
-						} else {
+						} else if (armorType != 0) {
 							if (containsColon) {
 								containsColon = NO;
 								oldReadPos = readPos;
