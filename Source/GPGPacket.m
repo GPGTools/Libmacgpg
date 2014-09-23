@@ -362,8 +362,10 @@ endOfBuffer:
 }
 
 + (NSData *)unArmorFrom:(GPGStream *)input clearText:(NSData **)clearText {
+	// This methode decodes any PGP-Message and return the decoded data and the clear-text, if any.
+	
 	if ([input length] < 50 || ![self isArmored:[input peekByte]]) {
-		return nil;
+		return nil; // Don't try to decode too short messages.
 	}
 
     NSData *theData = [input readAllData];
@@ -380,7 +382,7 @@ endOfBuffer:
 	const char *oldReadPos;
 
 	
-
+	// Allocate space and copy the message, so we can manipulate the message data.
 	char *mutableBytes = malloc(dataLength);
 	if (!mutableBytes) {
 		NSLog(@"unArmorFrom:clearText: malloc failed!");
@@ -412,25 +414,30 @@ endOfBuffer:
 		}
 	}
 	readPos = bytes = mutableBytes;
-
 	
+
+	// Check if the message starts with a begin-mark without \n. "-----BEGIN PGP ".
 	if (memcmp(armorBeginMark+1, readPos, armorBeginMarkLength - 1) == 0) {
-		state = state_parseStart;
+		state = state_parseStart; // so let's search for the beginning of the base64 data.
 		readPos += armorBeginMarkLength - 1;
 	}
 	
+	
 	for (;readPos < endPos - 25; readPos++) {
 		switch (state) {
-			case state_searchStart:
+			case state_searchStart: // Look for a begin-mark. "\n-----BEGIN PGP ".
 				readPos = lm_memmem(readPos, endPos - readPos - 20, armorBeginMark, armorBeginMarkLength);
 				if (!readPos) {
 					goto endOfBuffer;
 				}
 				readPos += armorBeginMarkLength;
+				// Fall through.
 			case state_parseStart:
 				canRead(40);
 				
 				if (haveClearText) {
+					// We have a clear-text part. Return it using the clearText variable.
+					
 					armorType = 3;
 					if (memcmp(armorTypeStrings[armorType]+1, readPos, armorTypeStrings[armorType][0])) {
 						GPGDebugLog(@"GPGPacket unarmor: \"-----BEGIN PGP SIGNATURE-----\" expected but not found.")
@@ -478,24 +485,29 @@ endOfBuffer:
 					while (textEnd[-1] == ' ' || textEnd[-1] == '\t') { // Remove spaces and tabs from the end of the last line.
 						textEnd--;
 					}
-
+					
+					// Copy the clear-text...
 					memcpy(clearBytesPtr, textStart, textEnd - textStart);
 					clearBytesPtr += textEnd - textStart;
-										
+					
+					// and return it using *clearText.
 					*clearText = [NSData dataWithBytes:clearBytes length:clearBytesPtr - clearBytes];
 					free(clearBytes);
 					haveClearText = NO;
 					
+					// Set readPos to the next begin-mark.
 					readPos = textEnd + armorBeginMarkLength + armorTypeStrings[armorType][0];
+					// Wait for base64 data.
 					state = state_waitForText;
 				} else {
+					// Detect the message type.
 					BOOL found = NO;
-					for (armorType = 0; armorType < armorTypeStringsCount; armorType++) {
+					for (armorType = 0; armorType < armorTypeStringsCount; armorType++) { // Try all types.
 						if (memcmp(armorTypeStrings[armorType]+1, readPos, armorTypeStrings[armorType][0]) == 0) {						
 							readPos += armorTypeStrings[armorType][0] - 1;
 							
 							if (armorType == 0) { //Is "-----BEGIN PGP SIGNED MESSAGE-----".
-								if (clearText) {
+								if (clearText) { // If the user don't want the clear text, ignore it.
 									haveClearText = YES;
 									found = YES;
 								}
@@ -506,6 +518,7 @@ endOfBuffer:
 						}
 					}
 					if (!found) {
+						// Isn't a known message type. Let's look for the next begin-mark.
 						state = state_searchStart;
 						break;
 					}
@@ -514,18 +527,22 @@ endOfBuffer:
 				}
 				newlineCount = 0;
 			case state_waitForText:
+				// Wait for base64/clear-text.
 				switch (*readPos) {
 					case '\n':
 						newlineCount++;
 						if (newlineCount == 2) {
+							// In a normal message, the base64/clear-text comes after 2 new lines.
 							state = haveClearText ? state_searchStart : state_waitForEnd;
 							textStart = readPos + 1;
-						} else if (armorType != 0) {
+						} else if (haveClearText == NO) { // Perform the following check only, if we are looking for base64. And NOT for clear-text.
+							// In some malformed messages, the 2 new lines are missing.
+							// So we look for the first line, without a colon ":", and treat this as the base64 start.
 							if (containsColon) {
 								containsColon = NO;
 								oldReadPos = readPos;
 							} else {
-								state = haveClearText ? state_searchStart : state_waitForEnd;
+								state = state_waitForEnd;
 								readPos = oldReadPos;
 								textStart = readPos + 1;
 							}
@@ -542,6 +559,9 @@ endOfBuffer:
 				}
 				break;
 			case state_waitForEnd: {
+				// Search for the end of the base64 data.
+				
+				// Do we have a crc?
 				textEnd = lm_memmem(readPos, endPos - readPos, "\n=", 2);
 				const char *crcPos = NULL;
 				if (textEnd) {
@@ -550,6 +570,7 @@ endOfBuffer:
 					readPos = textEnd + 5;
 				}
 				
+				// Look for the end-mark.
                 oldReadPos = readPos; 
 				readPos = lm_memmem(readPos, endPos - readPos, armorEndMark, armorEndMarkLength);
 				if (!readPos) {
@@ -562,6 +583,7 @@ endOfBuffer:
 				}
 				
 				if (!textEnd) {
+					// If the text-end isn't set by the crc, set it now.
 					textEnd = readPos + 1;
 				}
 				
@@ -570,16 +592,20 @@ endOfBuffer:
                 
 				int length = armorTypeStrings[armorType][0];
 				canRead(length);
+				// Check for the type strng. It's something like "SIGNED MESSAGE-----".
 				if (memcmp(armorTypeStrings[armorType]+1, readPos, armorTypeStrings[armorType][0]) != 0) {
 					goto endOfBuffer;
 				}
 				
+				
+				// Allocate a buffer for the decoded data.
 				length = (textEnd - textStart) * 3 / 4;
 				char *binaryBuffer = malloc(length);
 				if (!binaryBuffer) {
 					goto endOfBuffer;
 				}
 				
+				// Decode base64.
 				BIO *filter = BIO_new(BIO_f_base64());
 				BIO *bio = BIO_new_mem_buf((void *)textStart, textEnd - textStart);
 				bio = BIO_push(filter, bio);
@@ -588,9 +614,11 @@ endOfBuffer:
 				
 				
 				if (crcPos) {
+					// We have a crc, so let's check it.
 					uint32_t crc1, crc2;
 					uint8_t crcBuffer[3];
 					
+					// Decode crc.
 					filter = BIO_new(BIO_f_base64());
 					bio = BIO_new_mem_buf((void *)crcPos, 6);
 					bio = BIO_push(filter, bio);
@@ -598,14 +626,19 @@ endOfBuffer:
 					BIO_free_all(bio);
 					
 					if (crcLength != 3) {
+						// Decoded crc is malformed.
 						NSLog(@"unArmorFrom:clearText: %@", localizedLibmacgpgString(@"CRC Error"));
 						failed = YES;
 						goto endOfBuffer;
 					}
 					
+					// crc array to integer.
 					crc1 = (crcBuffer[0] << 16) + (crcBuffer[1] << 8) + crcBuffer[2];
 					
+					// Calculate crc of the decoded base64 data.
 					crc2 = crc24(binaryBuffer, length);
+					
+					// Check crc.
 					if (crc1 != crc2) {
 						NSLog(@"unArmorFrom:clearText: %@", localizedLibmacgpgString(@"CRC Error"));
 						failed = YES;
@@ -614,6 +647,7 @@ endOfBuffer:
 				}
 				
 				if (length > 0) {
+					// Append decoded base64.
 					[decodedData appendBytes:binaryBuffer length:length];
 				}
 				free(binaryBuffer);
@@ -624,6 +658,7 @@ endOfBuffer:
 				break; }
 		}		
 	} //for
+	
 	
 endOfBuffer:
 	free(mutableBytes);
