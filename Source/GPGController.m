@@ -1076,9 +1076,10 @@ BOOL gpgConfigReaded = NO;
         BOOL encrypted = NO;
         data = [GPGPacket unArmor:data];
         NSData *dataToCheck = data;
-        NSSet *keys;
+        NSSet *keys = nil;
+		int i = 3; // Max 3 loops.
         
-        while (dataToCheck) {
+        while (dataToCheck && i-- > 0) {
             keys = [self keysInExportedData:dataToCheck encrypted:&encrypted];
 
             if (keys.count > 0) {
@@ -1088,14 +1089,17 @@ BOOL gpgConfigReaded = NO;
                 if (encrypted) {
                     // Decrypt to allow import of encrypted keys.
                     dataToCheck = [self decryptData:dataToCheck];
+					dataToCheck = [GPGPacket unArmor:dataToCheck];
                 } else {
                     //Get keys from RTF data.
                     dataToCheck = [[[[NSAttributedString alloc] initWithData:dataToCheck options:nil documentAttributes:nil error:nil] string] dataUsingEncoding:NSUTF8StringEncoding];
+					NSData *newData = [GPGPacket unArmor:dataToCheck];
+					if (newData == dataToCheck) {
+						break;
+					}
                 }
-                dataToCheck = [GPGPacket unArmor:dataToCheck];
             }
         }
-        
         
 		
 		
@@ -2261,7 +2265,10 @@ BOOL gpgConfigReaded = NO;
 }
 
 - (NSSet *)keysInExportedData:(NSData *)data encrypted:(BOOL *)encrypted {
+	// Returns a set of fingerprints and keyIDs of keys and key-parts (like signatures) in the data.
 	NSMutableSet *keys = [NSMutableSet set];
+	NSMutableSet *keyIDs = [NSMutableSet set];
+	
 	NSArray *packets = [GPGPacket packetsWithData:data];
 	
     if (encrypted) {
@@ -2276,8 +2283,23 @@ BOOL gpgConfigReaded = NO;
             if (encrypted) {
                 *encrypted = YES;
             }
-        }
+        } else if (packet.type == GPGSignaturePacket) {
+			if (packet.fingerprint.length > 0) {
+				[keys addObject:packet.fingerprint];
+			} else {
+				[keyIDs addObject:packet.keyID];
+			}
+		}
 	}
+	
+	if (keyIDs.count > 0) {
+		for (NSString *fingerprint in keys) {
+			NSString *keyID = fingerprint.keyID;
+			[keyIDs removeObject:keyID];
+		}
+		[keys unionSet:keyIDs];
+	}
+	
 	
 	return keys;
 }
@@ -2559,7 +2581,7 @@ BOOL gpgConfigReaded = NO;
 	
 	[undoManager disableUndoRegistration];
 	groupedKeyChange++;
-	BOOL oldAsny = self.async;
+	BOOL oldAsync = self.async;
 	self.async = NO;
 	
 	@try {
@@ -2574,7 +2596,7 @@ BOOL gpgConfigReaded = NO;
 		} 
 	}
 	
-	self.async = oldAsny;
+	self.async = oldAsync;
 	groupedKeyChange--;
 	[self keysChanged:keys];
 	[undoManager enableUndoRegistration];
@@ -2582,14 +2604,14 @@ BOOL gpgConfigReaded = NO;
 
 - (void)registerUndoForKeys:(NSObject <EnumerationList> *)keys withName:(NSString *)actionName {
 	if ([undoManager isUndoRegistrationEnabled]) {
-		BOOL oldAsny = self.async;
+		BOOL oldAsync = self.async;
 		self.async = NO;
 		if ([NSThread isMainThread]) {
 			[self registerUndoForKeys:keys];
 		} else {
 			[self performSelectorOnMainThread:@selector(registerUndoForKeys:) withObject:keys waitUntilDone:YES];
 		}
-		self.async = oldAsny;
+		self.async = oldAsync;
 		
 		if (actionName && ![undoManager isUndoing] && ![undoManager isRedoing]) {
 			[undoManager setActionName:localizedLibmacgpgString(actionName)];
