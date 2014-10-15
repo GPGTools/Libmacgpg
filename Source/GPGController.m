@@ -1914,36 +1914,6 @@ BOOL gpgConfigReaded = NO;
 	return keys;
 }
 
-- (BOOL)testKeyserver {
-	if (async && !asyncStarted) {
-		asyncStarted = YES;
-		[asyncProxy testKeyserver];
-		return NO;
-	}
-	BOOL result = NO;
-	@try {
-		[self operationDidStart];
-		self.gpgTask = [GPGTask gpgTask];
-		
-		GPGTaskOrder *order = [GPGTaskOrder order];
-		[order addCmd:@"q\n" prompt:@"keysearch.prompt" optional:YES];
-		gpgTask.userInfo = @{@"order": order};
-		
-		[self addArgumentsForOptions];
-		[self addArgumentsForKeyserver];
-		[gpgTask addArgument:@"--search-keys"];
-		[gpgTask addArgument:@" "];
-		
-		result = ([gpgTask start] == 0);
-	} @catch (NSException *e) {
-	} @finally {
-		[self cleanAfterOperation];
-	}
-
-	[self operationDidFinishWithReturnValue:@(result)];
-	return result;
-}
-
 /*- (NSString *)refreshKeysFromServer:(NSObject <EnumerationList> *)keys { //DEPRECATED!
 	return [self receiveKeysFromServer:keys];
 }
