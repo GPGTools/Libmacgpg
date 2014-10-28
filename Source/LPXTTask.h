@@ -29,6 +29,8 @@ typedef void (^lpxt_task_t)(void);
     int processIdentifier;
     int terminationStatus;
     
+    dispatch_queue_t pipeAccessQueue;
+    
     lpxt_task_t parentTask;
 
 @private

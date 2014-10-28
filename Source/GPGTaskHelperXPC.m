@@ -309,6 +309,8 @@
 		return;
     
 	NSData *response = self.processStatus(keyword, value);
+    // Response can't be nil otherwise the reply won't be send as it turns out.
+    response = response ? response : [[NSData alloc] init];
     reply(response);
 }
 

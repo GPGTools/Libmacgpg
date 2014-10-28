@@ -115,7 +115,7 @@ void withAutoreleasePool(basic_block_t block)
 
 @implementation GPGTaskHelper
 
-@synthesize inData = _inData, arguments = _arguments, output = _output, processStatus = _processStatus, task = _task,
+@synthesize inData = _inData, arguments = _arguments, output = _output, processStatus = _processStatus, task = _task, completed = _completed,
 exitStatus = _exitStatus, status = _status, errors = _errors, attributes = _attributes, readAttributes = _readAttributes,
 progressHandler = _progressHandler, userIDHint = _userIDHint, needPassphraseInfo = _needPassphraseInfo,
 checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_environmentVariables;
@@ -338,6 +338,7 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
     [_task launchAndWait];
     
     if (blockException && !_cancelled && !_pinentryCancelled) {
+        _completed = YES;
         @throw blockException;
 	}
     
@@ -349,6 +350,7 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
 	[attributeData release];
     
     _exitStatus = _task.terminationStatus;
+    _completed = YES;
     
     if(_cancelled || (_pinentryCancelled && _exitStatus != 0))
         _exitStatus = GPGErrorCancelled;
@@ -452,6 +454,11 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
 }
 
 - (void)writeData:(GPGStream *)data pipe:(NSPipe *)pipe close:(BOOL)close {
+    // If the task was already shutdown, it's still possible that
+    // responds to status messages have to be processed in XPC mode.
+    // In that case however the pipe no longer exists, so don't do anything.
+    if(!pipe)
+        return;
     __block NSFileHandle *ofh = [pipe fileHandleForWriting];
     GPGStream *input = data;
     __block NSData *tempData = nil;
@@ -468,7 +475,10 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
             [ofh closeFile];
     }
     @catch (NSException *exception) {
-        @throw exception;
+        // If the task is no longer running, there's no need to throw this exception
+        // since it's expected.
+        if(!_completed)
+            @throw exception;
         return;
     }
 }

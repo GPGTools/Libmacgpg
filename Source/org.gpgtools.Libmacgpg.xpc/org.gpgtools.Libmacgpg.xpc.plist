@@ -4,8 +4,6 @@
 <dict>
 	<key>KeepAlive</key>
 	<false/>
-	<key>Debug</key>
-	<true/>
 	<key>EnableTransactions</key>
 	<true/>
 	<key>Label</key>

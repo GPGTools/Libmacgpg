@@ -85,6 +85,7 @@ typedef void (^lp_progress_handler_t)(NSUInteger processedBytes, NSUInteger tota
 	BOOL _pinentryCancelled;
     BOOL _cancelled;
     BOOL _checkForSandbox;
+    BOOL _completed;
 #if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
     NSXPCConnection *_sandboxHelper;
 #endif
@@ -104,6 +105,7 @@ typedef void (^lp_progress_handler_t)(NSUInteger processedBytes, NSUInteger tota
 @property (nonatomic, copy) lp_progress_handler_t progressHandler;
 @property (nonatomic, assign) BOOL checkForSandbox;
 @property (nonatomic, assign) NSUInteger timeout;
+@property (nonatomic, assign) BOOL completed;
 
 /**
  Configure a new GPG 2 process and pass all command line arguments
