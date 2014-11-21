@@ -111,7 +111,7 @@ typedef enum {
 + (NSString *)standardizedKey:(NSString *)key;
 - (GPGOptionsDomain)domainForKey:(NSString *)key;
 - (BOOL) isKnownKey:(NSString *)key domainForKey:(GPGOptionsDomain)domain;
-
+- (void)registerDefaults:(NSDictionary *)dictionary;
 - (void)repairGPGConf;
 
 
