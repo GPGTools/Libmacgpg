@@ -66,6 +66,7 @@ typedef enum {
 - (id)valueForKey:(NSString *)key inDomain:(GPGOptionsDomain)domain;
 - (void)setValue:(id)value forKey:(NSString *)key inDomain:(GPGOptionsDomain)domain;
 
+- (void)registerDefaults:(NSDictionary *)dictionary;
 
 - (void)setObject:(id)value forKey:(NSString *)key;
 - (id)objectForKey:(NSString *)key;
