@@ -755,6 +755,7 @@ BOOL gpgConfigReaded = NO;
 			}
 		}
 		[order addCmd:@"\n" prompt:@"ask_revocation_reason.text" optional:YES];
+		[order addCmd:@"y\n" prompt:@"ask_revocation_reason.okay" optional:YES];
 		
 		
 		self.gpgTask = [GPGTask gpgTask];
@@ -1365,10 +1366,12 @@ BOOL gpgConfigReaded = NO;
 			
 			NSArray *userIDsignatures = userID.signatures;
 			for (GPGUserIDSignature *aSignature in userIDsignatures) {
-				if (aSignature == signature) {
-					[order addCmd:@"y\n" prompt:@"ask_revoke_sig.one"];
-				} else {
-					[order addCmd:@"n\n" prompt:@"ask_revoke_sig.one"];
+				if (aSignature.revocation == NO && aSignature.primaryKey.secret) {
+					if (aSignature == signature) {
+						[order addCmd:@"y\n" prompt:@"ask_revoke_sig.one"];
+					} else {
+						[order addCmd:@"n\n" prompt:@"ask_revoke_sig.one"];
+					}
 				}
 			}
 			[order addCmd:@"y\n" prompt:@"ask_revoke_sig.okay" optional:YES];
@@ -1380,6 +1383,7 @@ BOOL gpgConfigReaded = NO;
 				}
 			}
 			[order addCmd:@"\n" prompt:@"ask_revocation_reason.text" optional:YES];
+			[order addCmd:@"y\n" prompt:@"ask_revocation_reason.okay" optional:YES];
 			[order addCmd:@"save\n" prompt:@"keyedit.prompt"];
 			
 			
@@ -1510,6 +1514,7 @@ BOOL gpgConfigReaded = NO;
 				}
 			}
 			[order addCmd:@"\n" prompt:@"ask_revocation_reason.text" optional:YES];
+			[order addCmd:@"y\n" prompt:@"ask_revocation_reason.okay" optional:YES];
 			[order addCmd:@"save\n" prompt:@"keyedit.prompt"];
 			
 			self.gpgTask = [GPGTask gpgTask];
@@ -1638,6 +1643,7 @@ BOOL gpgConfigReaded = NO;
 				}
 			}
 			[order addCmd:@"\n" prompt:@"ask_revocation_reason.text" optional:YES];
+			[order addCmd:@"y\n" prompt:@"ask_revocation_reason.okay" optional:YES];
 			[order addCmd:@"save\n" prompt:@"keyedit.prompt"];
 			
 			self.gpgTask = [GPGTask gpgTask];
