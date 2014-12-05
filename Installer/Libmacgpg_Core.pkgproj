@@ -101,7 +101,7 @@
 								<array>
 									<dict>
 										<key>BUNDLE_CAN_DOWNGRADE</key>
-										<false/>
+										<true/>
 										<key>CHILDREN</key>
 										<array/>
 										<key>GID</key>
