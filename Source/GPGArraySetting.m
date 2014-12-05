@@ -52,8 +52,14 @@ static NSMutableCharacterSet *whspcomma_;
     else if ([value isKindOfClass:[NSArray class]]) {
         [raw_ release];
         raw_ = nil;
+        NSMutableArray *sanitizedValue = [NSMutableArray array];
+        for(id v in value) {
+            if([v isKindOfClass:[NSString class]])
+                v = [self sanitizedValueForValue:v];
+            [sanitizedValue addObject:v];
+        }
         [value_ removeAllObjects];
-        [value_ addObjectsFromArray:value];
+        [value_ addObjectsFromArray:sanitizedValue];
         self.isActive = TRUE;
     }
 }

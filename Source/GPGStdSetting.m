@@ -92,7 +92,7 @@
     raw_ = nil;        
 
     [value_ release];
-    value_ = [value copy];
+    value_ = [[self sanitizedValueForValue:value] copy];
     self.isActive = (value != nil);
 }
 
@@ -172,6 +172,14 @@
     }
 
     self->isActive_ = TRUE;
+}
+
+- (NSString *)sanitizedValueForValue:(NSString *)value {
+    NSArray *invalidChars = [NSArray arrayWithObjects:@"\n", @"\r", nil];
+    NSMutableString *validString = [value mutableCopy];
+    for(NSString *invalidChar in invalidChars)
+        [validString replaceOccurrencesOfString:invalidChar withString:@"" options:0 range:NSMakeRange(0, [validString length])];
+    return (NSString *)[validString autorelease];
 }
 
 @end

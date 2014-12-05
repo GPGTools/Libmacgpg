@@ -80,4 +80,8 @@
 // Subclasses should implement for their specific value type
 - (void) incorporate:(NSString *)setting forFullKey:(NSString *)fullKey;
 
+// Values may not contain \n chars, so those are replaced.
+// Other invalid chars might also be removed at a later point.
+- (NSString *)sanitizedValueForValue:(NSString *)value;
+
 @end

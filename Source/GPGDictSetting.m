@@ -61,8 +61,15 @@ static NSMutableCharacterSet *whspcomma_;
     else if ([value isKindOfClass:[NSDictionary class]]) {
         [raw_ release];
         raw_ = nil;
+        NSMutableDictionary *sanitizedValue = [NSMutableDictionary dictionary];
+        for(id key in value) {
+            id v = [value objectForKey:key];
+            if([v isKindOfClass:[NSString class]])
+                v = [self sanitizedValueForValue:v];
+            [sanitizedValue setObject:v forKey:key];
+        }
         [value_ removeAllObjects];
-        [value_ addEntriesFromDictionary:value];
+        [value_ addEntriesFromDictionary:sanitizedValue];
         self.isActive = TRUE;
     }
 }
