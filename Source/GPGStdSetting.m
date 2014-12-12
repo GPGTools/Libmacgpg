@@ -92,7 +92,10 @@
     raw_ = nil;        
 
     [value_ release];
-    value_ = [[self sanitizedValueForValue:value] copy];
+    if([value isKindOfClass:[NSString class]])
+        value_ = [[self sanitizedValueForValue:value] copy];
+    else
+        value_ = [value copy];
     self.isActive = (value != nil);
 }
 
