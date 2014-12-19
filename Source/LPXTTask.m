@@ -330,6 +330,7 @@ typedef struct {
     __block NSMutableArray *pipeList = nil;
     dispatch_sync(pipeAccessQueue, ^{
         NSDictionary *pipeInfo = [inheritedPipesMap valueForKey:name];
+        pipeList = [NSMutableArray array];
         for(id idx in [pipeInfo valueForKey:@"pipeIdx"]) {
             [pipeList addObject:[(NSArray *)inheritedPipes objectAtIndex:[idx intValue]]];
         }
