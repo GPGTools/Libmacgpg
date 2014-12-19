@@ -358,7 +358,7 @@ typedef struct {
             NSNumber *idx = [pipeInfo objectForKey:@"pipeIdx"];
             [inheritedPipes removeObjectAtIndex:[idx intValue]];
         }
-        [inheritedPipesMap setValue:nil forKey:name];
+        [inheritedPipesMap removeObjectForKey:name];
     });
 }
 
