@@ -327,14 +327,13 @@ typedef struct {
 
 - (NSArray *)inheritedPipesWithName:(NSString *)name {
     // Find the pipe info matching the given name.
-    __block NSDictionary *pipeInfo = nil;
+    __block NSMutableArray *pipeList = nil;
     dispatch_sync(pipeAccessQueue, ^{
-        pipeInfo = [inheritedPipesMap valueForKey:name];
+        NSDictionary *pipeInfo = [inheritedPipesMap valueForKey:name];
+        for(id idx in [pipeInfo valueForKey:@"pipeIdx"]) {
+            [pipeList addObject:[(NSArray *)inheritedPipes objectAtIndex:[idx intValue]]];
+        }
     });
-    NSMutableArray *pipeList = [NSMutableArray array];
-    for(id idx in [pipeInfo valueForKey:@"pipeIdx"]) {
-		[pipeList addObject:[(NSArray *)inheritedPipes objectAtIndex:[idx intValue]]];
-	}
     return pipeList;
 }
 
@@ -378,9 +377,10 @@ typedef struct {
 	[_environmentVariables release];
     [launchPath release];
     [parentTask release];
-	[inheritedPipes release];
-    [inheritedPipesMap release];
-    [super dealloc];
+    [self cleanupPipes];
+    dispatch_release(pipeAccessQueue);
+    pipeAccessQueue = NULL;
+	[super dealloc];
 }
 
 - (void)closePipes {
