@@ -12,16 +12,14 @@ const char *helpText = "This tool checks the signature of a pkg-file and install
 
 int main(int argc, const char *argv[]) {
 	@autoreleasepool {
-	    
-	    if (argc != 2) {
+		if (argc != 2) {
 			printf("Usage: installerHelper pkg-file\n%s\n", helpText);
 			return 1;
 		}
-		
 		NSString *pkgPath = [NSString stringWithUTF8String:argv[1]];
 		
 		if (![[pkgPath substringFromIndex:pkgPath.length - 4] isEqualToString:@".pkg"]) {
-			printf("Not a pkg-fil: '%s'!\n", [pkgPath UTF8String]);
+			printf("Not a pkg-file: '%s'!\n", [pkgPath UTF8String]);
 			return 2;
 		}
 		
@@ -62,9 +60,11 @@ BOOL checkPackage(NSString *pkgPath) {
 	X509 *certificate;
 	uint8_t *plainData, *signData;
 	EVP_PKEY *pubkey;
+	RSA *rsa = NULL;
 	uint8_t hash[20];
+	int verificiationSuccess = 0;
 	// This is the hash of the GPGTools installer certificate.
-	uint8_t goodHash[] = {0xD9, 0xD5, 0xFD, 0x43, 0x9C, 0x95, 0x16, 0xEF, 0xC7, 0x3A, 0x0E, 0x4A, 0xD0, 0xF2, 0xC5, 0xDB, 0x9E, 0xA0, 0xE3, 0x10};
+	uint8_t goodHash[] = {0x56, 0x16, 0x98, 0xDA, 0x21, 0xAF, 0xA4, 0xFB, 0x04, 0xDF, 0x54, 0x17, 0x01, 0x0B, 0x59, 0x00, 0x5D, 0x5B, 0x3A, 0xDF};
 	
 	
 	if ((pkg = xar_open([pkgPath UTF8String], READ)) == nil) {
@@ -72,44 +72,110 @@ BOOL checkPackage(NSString *pkgPath) {
 	}
 	
 	signature = xar_signature_first(pkg);
-	
-	signatureType = xar_signature_type(signature);
-	if (!signatureType || strncmp(signatureType, "RSA", 3)) {
-		return NO; // Not a RSA signature.
+	// No signature, bail out.
+	if(signature == NULL) {
+		xar_close(pkg);
+		return NO;
 	}
 	
+	signatureType = xar_signature_type(signature);
+	// No signature type available, bail out.
+	if(signatureType == NULL) {
+		xar_close(pkg);
+		return NO;
+	}
+	
+	// Signature type has to be RSA.
+	if(strlen(signatureType) != 3) {
+		xar_close(pkg);
+		return NO;
+	}
+	if(strncmp(signatureType, "RSA", 3)) {
+		xar_close(pkg);
+		return NO;
+	}
+
 	if (xar_signature_get_x509certificate_count(signature) < 1) {
+		xar_close(pkg);
 		return NO; // No certificate found.
 	}
 	
-	if (xar_signature_get_x509certificate_data(signature, 0, &data, &length) == -1) {
+	if (xar_signature_get_x509certificate_data(signature, 0, &data, &length) != 0) {
+		xar_close(pkg);
 		return NO; // Unable to extract the certificate data.
 	}
 	
 	SHA1(data, length, (uint8_t *)&hash);
-	
+
 	if (memcmp(hash, goodHash, 20) != 0) {
+		xar_close(pkg);
 		return NO; // Not the GPGTools certificate!
 	}
 	
 	certificate = d2i_X509(nil, &data, length);
-	if (xar_signature_copy_signed_data(signature, &plainData, &plainLength, &signData, &signLength, nil) != 0 || plainLength != 20) {
+	if(certificate == NULL) {
+		xar_close(pkg);
+		return NO;
+	}
+	if (xar_signature_copy_signed_data(signature, &plainData, &plainLength, &signData, &signLength, nil) != 0) {
+		X509_free(certificate);
+		xar_close(pkg);
 		return NO; // Unable to copy signed data || not SHA1.
+	}
+	// Not SHA-1
+	if(plainLength != 20) {
+		X509_free(certificate);
+		free(plainData);
+		free(signData);
+		xar_close(pkg);
+		return NO;
 	}
 	
 	pubkey = X509_get_pubkey(certificate);
-	if (!pubkey || pubkey->type != EVP_PKEY_RSA || !pubkey->pkey.rsa) {
-		return NO; // No pubkey || not RSA || no RSA.
+	// No public key available.
+		if(!pubkey) {
+		X509_free(certificate);
+		free(plainData);
+		free(signData);
+		xar_close(pkg);
+		return NO;
+	}
+	// The public key is not RSA.
+	if(pubkey->type != EVP_PKEY_RSA) {
+		X509_free(certificate);
+		free(plainData);
+		free(signData);
+		xar_close(pkg);
+		return NO;
+	}
+	// RSA is not set.
+	rsa = pubkey->pkey.rsa;
+	if(!rsa) {
+		X509_free(certificate);
+		free(plainData);
+		free(signData);
+		xar_close(pkg);
+		return NO;
 	}
 	
 	// The verfication.
-	if (RSA_verify(NID_sha1, plainData, plainLength, signData, signLength, pubkey->pkey.rsa) != 1) {
+	verificiationSuccess = RSA_verify(NID_sha1, plainData, plainLength, signData, signLength, rsa);
+	if (verificiationSuccess != 1) {
+		X509_free(certificate);
+		free(plainData);
+		free(signData);
+		xar_close(pkg);
 		return NO; // Verification failed!
 	}
 	
+	// Cleanup.
+	X509_free(certificate);
+	free(plainData);
+	free(signData);
+	xar_close(pkg);
+
 	return YES;
 }
-
 
 BOOL installPackage(NSString *pkgPath, NSString *xmlPath) {
 	// Run the installer command.
