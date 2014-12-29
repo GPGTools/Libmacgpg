@@ -50,16 +50,98 @@ int main(int argc, const char *argv[]) {
 	return 0;
 }
 
+BOOL installerCertificateIsTrustworthy(NSString *pkgPath) {
+	OSStatus error = noErr;
+	NSMutableArray *certificates = nil;
+	SecPolicyRef policy = NULL;
+	SecTrustRef trust = NULL;
+	SecTrustResultType trustResult;
+	CSSM_OID oid = CSSMOID_APPLE_X509_BASIC;
+
+	xar_t pkg = NULL;
+	xar_signature_t signature = NULL;
+	const uint8_t *certificateData = NULL;
+	uint32_t certificateLength = 0;
+	SecCertificateRef currentCertificateRef = NULL;
+
+	// Open the pkg.
+	if ((pkg = xar_open([pkgPath UTF8String], READ)) == nil) {
+		return NO; // Unable to open the pkg.
+	}
+
+	// Retrieve the first signature.
+	signature = xar_signature_first(pkg);
+	if(signature == NULL) {
+		xar_close(pkg);
+		return NO;
+	}
+
+	int32_t nrOfCerts = xar_signature_get_x509certificate_count(signature);
+	certificates = [[NSMutableArray alloc] init];
+	for(int32_t i = 0; i < nrOfCerts; i++) {
+		if(xar_signature_get_x509certificate_data(signature, i, &certificateData, &certificateLength) != 0) {
+			[certificates release];
+			xar_close(pkg);
+			return NO;
+		}
+		const CSSM_DATA cert = { (CSSM_SIZE) certificateLength, (uint8_t *) certificateData };
+		error = SecCertificateCreateFromData(&cert, CSSM_CERT_X_509v3, CSSM_CERT_ENCODING_DER, &currentCertificateRef);
+		if(error != errSecSuccess) {
+			[certificates release];
+			xar_close(pkg);
+			return NO;
+		}
+		[certificates addObject:(id)currentCertificateRef];
+	}
+
+	policy = SecPolicyCreateBasicX509();
+	error = SecTrustCreateWithCertificates((CFArrayRef)certificates, policy, &trust);
+	if(error != noErr) {
+		[certificates release];
+		if(policy)
+			CFRelease(policy);
+		if(trust)
+			CFRelease(trust);
+		xar_close(pkg);
+		return NO;
+	}
+
+	// Check if the certificate can be trusted.
+	error = SecTrustEvaluate(trust, &trustResult);
+	if(error != noErr) {
+		[certificates release];
+		if(policy)
+			CFRelease(policy);
+		if(trust)
+			CFRelease(trust);
+		xar_close(pkg);
+		return NO;
+	}
+
+	if(trustResult == kSecTrustResultProceed || trustResult == kSecTrustResultConfirm ||
+	   trustResult == kSecTrustResultUnspecified) {
+		// Clean up and return that the certificate can be trusted.
+		[certificates release];
+		if(policy)
+			CFRelease(policy);
+		if(trust)
+			CFRelease(trust);
+		xar_close(pkg);
+		return YES;
+	}
+
+	return NO;
+}
 
 BOOL checkPackage(NSString *pkgPath) {
-	xar_t pkg;
-	xar_signature_t signature;
-	const char *signatureType;
-	const uint8_t *data;
-	uint32_t length, plainLength, signLength;
-	X509 *certificate;
-	uint8_t *plainData, *signData;
-	EVP_PKEY *pubkey;
+	xar_t pkg = NULL;
+	xar_signature_t signature = NULL;
+	const char *signatureType = NULL;
+	const uint8_t *data = NULL;
+	uint32_t length = 0, plainLength = 0, signLength = 0;
+	X509 *certificate = NULL;
+	uint8_t *plainData = NULL, *signData = NULL;
+	EVP_PKEY *pubkey = NULL;
 	RSA *rsa = NULL;
 	uint8_t hash[20];
 	int verificiationSuccess = 0;
@@ -174,7 +256,7 @@ BOOL checkPackage(NSString *pkgPath) {
 	free(signData);
 	xar_close(pkg);
 
-	return YES;
+	return installerCertificateIsTrustworthy(pkgPath);
 }
 
 BOOL installPackage(NSString *pkgPath, NSString *xmlPath) {
