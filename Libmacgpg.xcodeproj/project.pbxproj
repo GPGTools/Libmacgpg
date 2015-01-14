@@ -806,6 +806,7 @@
 			buildPhases = (
 				8DC2EF500486A6940098B216 /* Headers */,
 				8DC2EF520486A6940098B216 /* Resources */,
+				30444C531A65F0080052CB94 /* Create installerHelper symlink */,
 				8DC2EF540486A6940098B216 /* Sources */,
 				8DC2EF560486A6940098B216 /* Frameworks */,
 				30C2960E16775037006EF09C /* Fill Info.plist */,
@@ -933,6 +934,7 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "[[ \"$CONFIGURATION\" == \"Debug\" ]] || exit 0\nUSER_LIBRARY=\"$HOME/Library\"\nmkdir -p \"$USER_LIBRARY/Application Support/GPGTools\"\ncp -R \"${BUILT_PRODUCTS_DIR}/org.gpgtools.Libmacgpg.xpc\" \"$USER_LIBRARY/Application Support/GPGTools\"\n# Reload the launchd.plist\nif [ -f \"/Library/LaunchAgents/org.gpgtools.Libmacgpg.xpc.plist\" ]; then\n    launchctl unload /Library/LaunchAgents/org.gpgtools.Libmacgpg.xpc.plist\nfi\nif [ -f \"$USER_LIBRARY/LaunchAgents/org.gpgtools.Libmacgpg.xpc.plist\" ]; then\n    launchctl unload \"$USER_LIBRARY/LaunchAgents/org.gpgtools.Libmacgpg.xpc.plist\"\n    sleep 3\n    launchctl load \"$USER_LIBRARY/LaunchAgents/org.gpgtools.Libmacgpg.xpc.plist\"\nfi";
+			showEnvVarsInLog = 0;
 		};
 		1B483E061619E69900D692EB /* Prepare XPC Launchd.plist for the Packager */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -947,6 +949,7 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "JAILFREE_PLIST=\"${EXECUTABLE_NAME}.plist\"\nBUILD_LAUNCHAGENT_PATH=\"${BUILD_DIR}/${JAILFREE_PLIST}\"\nINSTALL_JAILFREE_PATH=\"/Library/Application\\ Support/GPGTools/${EXECUTABLE_NAME}\"\nJAILFREE_PATH=\"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_NAME}\"\n\nXPC_NAME=$(\n    for x in $GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS; do\n        echo $x | while IFS=\"=\" read name value; do\n            if [ \"$name\" == \"JAILFREE_XPC_NAME\" ]; then\n                echo $value | sed \"s/\\\"//g\" | sed \"s/@//g\"\n                break\n            fi\n        done\n    done\n)\ncp \"${PROJECT_DIR}/Source/${EXECUTABLE_NAME}/${JAILFREE_PLIST}\" \"${BUILD_LAUNCHAGENT_PATH}\"\n/usr/libexec/PlistBuddy -c \"Delete :MachServices\" \"${BUILD_LAUNCHAGENT_PATH}\"\n/usr/libexec/PlistBuddy -c \"Add :MachServices:$XPC_NAME bool true\" \"${BUILD_LAUNCHAGENT_PATH}\"\n/usr/libexec/PlistBuddy -c \"Set :ProgramArguments:0 \\\"${INSTALL_JAILFREE_PATH}\\\"\" \"${BUILD_LAUNCHAGENT_PATH}\"";
+			showEnvVarsInLog = 0;
 		};
 		1BC07F34174660F3004263BB /* Link Libmacgpg into ~/Library/Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -961,6 +964,7 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "[[ \"$CONFIGURATION\" == \"Debug\" ]] || exit 0\n# Copy the Framework into ~/Library for testing with other libs.\nFRAMEWORKS_DIR=\"$HOME/Library/Frameworks\"\nFRAMEWORK_NAME=\"Libmacgpg.framework\"\n\n# ~/Library/Frameworks doesn't exist in most cases, create it.\nif [ ! -d \"$FRAMEWORKS_DIR\" ]; then\n   mkdir -p \"$FRAMEWORKS_DIR\"\nfi\n\nln -Fs \"$BUILT_PRODUCTS_DIR/$FRAMEWORK_NAME\" \"$FRAMEWORKS_DIR/\"\n";
+			showEnvVarsInLog = 0;
 		};
 		1BCE0CCB16176C920026DCFF /* Install XPC Launchd and Insert Mach Name */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -975,6 +979,22 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "[[ \"$CONFIGURATION\" == \"Debug\" ]] || exit 0\nUSER_LIBRARY=\"$HOME/Library\"\nJAILFREE_PLIST=\"${EXECUTABLE_NAME}.plist\"\nLAUNCHAGENT_PATH=\"${USER_LIBRARY}/LaunchAgents/${JAILFREE_PLIST}\"\nJAILFREE_PATH=\"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_NAME}\"\nBUILD_LAUNCHAGENT_PATH=\"${BUILD_DIR}/${JAILFREE_PLIST}\"\n\nif [ -d \"${USER_LIBRARY}/LaunchAgents\" ] && [ -w \"${USER_LIBRARY}/LaunchAgents\" ] && [ -x \"${USER_LIBRARY}/LaunchAgents\" ]; then\n    cp \"${BUILD_LAUNCHAGENT_PATH}\" \"${LAUNCHAGENT_PATH}\"\n    /usr/libexec/PlistBuddy -c \"Set :ProgramArguments:0 \\\"${JAILFREE_PATH}\\\"\" \"${LAUNCHAGENT_PATH}\"\nfi";
+			showEnvVarsInLog = 0;
+		};
+		30444C531A65F0080052CB94 /* Create installerHelper symlink */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Create installerHelper symlink";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "ln -fs GPGTools.app/Contents/MacOS/installerHelper \"$BUILT_PRODUCTS_DIR/$FULL_PRODUCT_NAME/Resources/\"";
+			showEnvVarsInLog = 0;
 		};
 		30C2960E16775037006EF09C /* Fill Info.plist */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -989,6 +1009,7 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "source \"$SRCROOT/Makefile.config\" || exit 1\n\nPLIST=\"$BUILT_PRODUCTS_DIR/$INFOPLIST_PATH\"\n\n/usr/libexec/PlistBuddy -c \"Set CommitHash \\\"$commitHash\\\"\" -c \"Set BuildNumber \\\"$buildNumber\\\"\" -c \"Set CFBundleVersion \\\"$build_version\\\"\" -c \"Set CFBundleShortVersionString \\\"$version\\\"\" \"$PLIST\" || exit 2\n";
+			showEnvVarsInLog = 0;
 		};
 		30C8B38C139503A800F49AA1 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
