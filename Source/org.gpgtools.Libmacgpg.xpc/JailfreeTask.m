@@ -47,9 +47,13 @@
     
 	task.processStatus = (lp_process_status_t)^(NSString *keyword, NSString *value) {
         dispatch_group_enter(taskAndStatusGroup);
-		[remoteProxy processStatusWithKey:keyword value:value reply:^(NSData *response) {
-			GPGTaskHelper *strongTask = weakTask;
-			if(response && !strongTask.completed) {
+        NSLog(@"[Jailfree][%d] -> %@ - %@", weakTask.processIdentifier, keyword, value);
+        [remoteProxy processStatusWithKey:keyword value:value reply:^(NSData *response) {
+            NSLog(@"[Jailfree][%d] -> %@ - %@ <- %@", weakTask.processIdentifier, keyword, value, [[NSString alloc] initWithData:response encoding:NSUTF8StringEncoding]);
+            GPGTaskHelper *strongTask = weakTask;
+			// Since not every process status requires an answer, but currently our protocol does,
+            // it's possible that the gpg process has already completed when responses are still coming in.
+            if(response && !strongTask.completed) {
 				@try {
 					[strongTask respond:response];
 				}

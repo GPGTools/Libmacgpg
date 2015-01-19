@@ -297,7 +297,8 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
         dispatch_group_async(collectorGroup, queue, ^{
             runBlockAndRecordExceptionSyncronized(^{
                 NSData *data;
-                while((data = [[[task inheritedPipeWithName:@"stdout"] fileHandleForReading] readDataOfLength:kDataBufferSize]) &&  [data length] > 0) {
+                NSFileHandle *stdoutFH = [[task inheritedPipeWithName:@"stdout"] fileHandleForReading];
+                while((data = [stdoutFH readDataOfLength:kDataBufferSize]) &&  [data length] > 0) {
                     withAutoreleasePool(^{
                         [object->_output writeData:data];
                     });
@@ -307,7 +308,8 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
         
         dispatch_group_async(collectorGroup, queue, ^{
             runBlockAndRecordExceptionSyncronized(^{
-                stderrData = [[[[task inheritedPipeWithName:@"stderr"] fileHandleForReading] readDataToEndOfFile] retain];
+                NSFileHandle *stderrFH = [[task inheritedPipeWithName:@"stderr"] fileHandleForReading];
+                stderrData = [[stderrFH readDataToEndOfFile] retain];
             }, &lock, &blockException);
         });
         
@@ -315,7 +317,8 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
             // Optionally get attribute data.
             dispatch_group_async(collectorGroup, queue, ^{
                 runBlockAndRecordExceptionSyncronized(^{
-                    attributeData = [[[[task inheritedPipeWithName:@"attribute"] fileHandleForReading] readDataToEndOfFile] retain];
+                    NSFileHandle *attributeFH = [[task inheritedPipeWithName:@"attribute"] fileHandleForReading];
+                    attributeData = [[attributeFH readDataToEndOfFile] retain];
                 }, &lock, &blockException);
             });
         }
@@ -338,7 +341,7 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
     [_task launchAndWait];
     
     if (blockException && !_cancelled && !_pinentryCancelled) {
-        _completed = YES;
+        _completed = _task.completed;
         @throw blockException;
 	}
     
@@ -350,7 +353,7 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
 	[attributeData release];
     
     _exitStatus = _task.terminationStatus;
-    _completed = YES;
+    _completed = _task.completed;
     
     if(_cancelled || (_pinentryCancelled && _exitStatus != 0))
         _exitStatus = GPGErrorCancelled;
@@ -364,6 +367,10 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
 - (void)progress:(NSUInteger)processedBytes total:(NSUInteger)total {
     if(self.progressHandler)
         self.progressHandler(processedBytes, total);
+}
+
+- (int)processIdentifier {
+    return _task.processIdentifier;
 }
 
 - (void)processStatusWithKey:(NSString *)keyword value:(NSString *)value reply:(void (^)(NSData *))reply {
@@ -442,8 +449,11 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
 }
 
 - (void)writeInputData {
-    if(!_task || !self.inData) return;
-    
+    if(!_task || !self.inData) {
+        NSLog(@"writeInputData: faulty setup!");
+        return;
+    }
+    NSLog(@"[%d] Writing input data to gnupg process: %d files", _task.processIdentifier, [self.inData count]);
     NSArray *pipeList = [self.task inheritedPipesWithName:@"ins"];
     __block GPGTaskHelper *bself = self;
 	[pipeList enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
@@ -459,24 +469,33 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
     // In that case however the pipe no longer exists, so don't do anything.
     if(!pipe)
         return;
-    __block NSFileHandle *ofh = [pipe fileHandleForWriting];
+    NSFileHandle *ofh = [pipe fileHandleForWriting];
     GPGStream *input = data;
-    __block NSData *tempData = nil;
+    NSData *tempData = nil;
     
+    NSLog(@"[%d] Writing data to gnupg process - fd[%d]", _task.processIdentifier, [ofh fileDescriptor]);
+    NSUInteger __block bytesWritten = 0;
     @try {
         while((tempData = [input readDataOfLength:kDataBufferSize]) && 
               [tempData length] > 0) {
             withAutoreleasePool(^{ 
-                [ofh writeData:tempData]; 
+                [ofh writeData:tempData];
+                bytesWritten += [tempData length];
+                //NSLog(@"[%d] written %lu of %llu - fd[%d]", _task.processIdentifier, (unsigned long)bytesWritten, [data length], [ofh fileDescriptor]);
             });
         }
         
-        if(close)
+        
+        NSLog(@"[%d] written %lu of %llu - fd[%d]", _task.processIdentifier, (unsigned long)bytesWritten, [data length], [ofh fileDescriptor]);
+        if(close) {
+            NSLog(@"[%d] closing data input pipe", _task.processIdentifier);
             [ofh closeFile];
+        }
     }
     @catch (NSException *exception) {
         // If the task is no longer running, there's no need to throw this exception
         // since it's expected.
+        NSLog(@"[%d] writeData: fd[%d] -> Exception: %@", _task.processIdentifier, [ofh fileDescriptor], exception);
         if(!_completed)
             @throw exception;
         return;
@@ -486,12 +505,13 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
 - (NSData *)parseStatusLines {
     NSMutableString *line = [NSMutableString string];
     NSPipe *statusPipe = [self.task inheritedPipeWithName:@"status"];
+    NSFileHandle *statusFH = [statusPipe fileHandleForReading];
     
     NSData *currentData = nil;
     NSMutableData *statusData = [NSMutableData data]; 
     NSData *NL = [@"\n" dataUsingEncoding:NSASCIIStringEncoding];
     __block GPGTaskHelper *this = self;
-	while((currentData = [[statusPipe fileHandleForReading] availableData])&& [currentData length]) {
+	while((currentData = [statusFH availableData])&& [currentData length]) {
         [statusData appendData:currentData];
         [line appendString:[currentData gpgString]];
         // Skip data without line ending. Not a full line!
@@ -642,13 +662,6 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
 - (void)respond:(id)response {
     // Try to write to the command pipe.
     NSPipe *cmdPipe = nil;
-    @try {
-        cmdPipe = [self.task inheritedPipeWithName:@"stdin"];
-    }
-    @catch (NSException *exception) {
-    }
-    if(!cmdPipe)
-        return;
     
     NSData *NL = [@"\n" dataUsingEncoding:NSASCIIStringEncoding];
     
@@ -657,8 +670,25 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
     if([responseData rangeOfData:NL options:NSDataSearchBackwards range:NSMakeRange(0, [responseData length])].location == NSNotFound)
         [responseData appendData:[@"\n" dataUsingEncoding:NSUTF8StringEncoding]];
     GPGStream *responseStream = [GPGMemoryStream memoryStream];
+    
+    @try {
+        cmdPipe = [self.task inheritedPipeWithName:@"stdin"];
+    }
+    @catch (NSException *exception) {
+    }
+    
+    if(self.completed) {
+        [responseData release];
+        return;
+    }
+    
+    if(!cmdPipe) {
+        [responseData release];
+        return;
+    }
+    
     [responseStream writeData:responseData];
-    [self writeData:responseStream pipe:[self.task inheritedPipeWithName:@"stdin"] close:NO];
+    [self writeData:responseStream pipe:cmdPipe close:NO];
 	[responseData release];
 }
 

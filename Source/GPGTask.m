@@ -547,7 +547,11 @@ char partCountForStatusCode[GPG_STATUS_COUNT];
 	// GPGPreferences and GPGServices
 	if(NSAppKitVersionNumber < NSAppKitVersionNumber10_7)
 		return NO;
-	
+    
+    // TODO: REMOVE!!!! Only to test XPC for unit tests.
+//    if([[[NSBundle mainBundle] executablePath] isEqualToString:@"/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.pjalatform/Developer/Library/Xcode/Agents/xctest"])
+//        return YES;
+    
 	static dispatch_once_t onceToken;
 	static BOOL sandboxed;
 	dispatch_once(&onceToken, ^{

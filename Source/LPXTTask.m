@@ -21,6 +21,7 @@
 #import "GPGGlobals.h"
 #import "NSPipe+NoSigPipe.h"
 #import "crt_externs.h"
+#import "GPGException.h"
 
 typedef struct {
     int fd;
@@ -35,7 +36,7 @@ typedef struct {
 
 
 @implementation LPXTTask
-@synthesize arguments, launchPath, terminationStatus, parentTask, environmentVariables=_environmentVariables;
+@synthesize arguments, launchPath, terminationStatus, parentTask, environmentVariables=_environmentVariables, completed, processIdentifier;
 
 - (id)init {
     self = [super init];
@@ -43,6 +44,7 @@ typedef struct {
         inheritedPipes = [[NSMutableArray alloc] init];
         inheritedPipesMap = [[NSMutableDictionary alloc] init];
         pipeAccessQueue = dispatch_queue_create("org.gpgtools.Libmacgpg.xpc.pipeAccess", NULL); // NULL is SERIAL on 10.7+ and serial on 10.6
+        hasCompletedQueue = dispatch_queue_create("org.gpgtools.Libmacgpg.xpc.taskHasCompleted", NULL);
     }
     return self;
 }
@@ -255,7 +257,20 @@ typedef struct {
                 GPGDebugLog(@"waitpid loop: %i errno: %i, %s", retval, e, strerror(e));
             }
         }
+        if (WIFEXITED(stat_loc))
+            NSLog(@"[%d] normal termination, exit status = %d\n", processIdentifier, WEXITSTATUS(stat_loc));
+        else if (WIFSIGNALED(stat_loc)) {
+            NSLog(@"[%d] abnormal termination, signal number = %d - termination status: %d\n", processIdentifier, WTERMSIG(stat_loc), WEXITSTATUS(stat_loc));
+        }
         terminationStatus = WEXITSTATUS(stat_loc);
+        // In case that the child process crashes or was killed by a signal,
+        // the termination status would still be 0, which is however absolutely misleading.
+        // In order to correctly handle these cases, 2 is returned as error status.
+        if(WIFSIGNALED(stat_loc))
+            terminationStatus = 2;
+        
+        self.completed = YES;
+        
         // After running, clean up all the pipes, so no data can be written at this point.
         // Wouldn't make sense anyway, since the child has shutdown already.
         [self cleanupPipes];
@@ -328,6 +343,7 @@ typedef struct {
 - (NSArray *)inheritedPipesWithName:(NSString *)name {
     // Find the pipe info matching the given name.
     __block NSMutableArray *pipeList = nil;
+    NSAssert(pipeAccessQueue != NULL, @"This task seems to have been shutdown already...");
     dispatch_sync(pipeAccessQueue, ^{
         NSDictionary *pipeInfo = [inheritedPipesMap valueForKey:name];
         pipeList = [NSMutableArray array];
@@ -339,6 +355,8 @@ typedef struct {
 }
 
 - (NSPipe *)inheritedPipeWithName:(NSString *)name {
+    if(self.completed)
+        return nil;
     NSArray *pipeList = [self inheritedPipesWithName:name];
     // If there's no pipe registered for that name, raise an error.
     if(![pipeList count] && pipeList != nil) {
@@ -362,8 +380,24 @@ typedef struct {
     });
 }
 
+- (void)setCompleted:(BOOL)hasCompleted {
+    dispatch_async(hasCompletedQueue, ^{
+        completed = YES;
+    });
+}
+
+- (BOOL)completed {
+    BOOL __block hasCompleted = NO;
+    dispatch_sync(hasCompletedQueue, ^{
+        hasCompleted = completed;
+    });
+    return hasCompleted;
+}
+
+
 - (void)cleanupPipes {
     dispatch_sync(pipeAccessQueue, ^{
+        [self closePipes];
         [inheritedPipes removeAllObjects];
         [inheritedPipes release];
         inheritedPipes = nil;
@@ -378,10 +412,16 @@ typedef struct {
 	[_environmentVariables release];
     [launchPath release];
     [parentTask release];
-    [self cleanupPipes];
+    // Submit an empty queue to be sure it's the last one and only
+    // release the queue once this has returned.
+    dispatch_sync(pipeAccessQueue, ^{});
+    NSLog(@"Tearing down the access queue.");
     dispatch_release(pipeAccessQueue);
     pipeAccessQueue = NULL;
-	[super dealloc];
+    dispatch_sync(hasCompletedQueue, ^{});
+    dispatch_release(hasCompletedQueue);
+    hasCompletedQueue = NULL;
+    [super dealloc];
 }
 
 - (void)closePipes {
@@ -393,6 +433,7 @@ typedef struct {
             [[pipe fileHandleForWriting] closeFile];
         }
         @catch (NSException *e) {
+            NSLog(@"Exception: %@", e);
             // Simply ignore.
         }
     }
