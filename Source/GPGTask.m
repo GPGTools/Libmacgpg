@@ -295,7 +295,7 @@ char partCountForStatusCode[GPG_STATUS_COUNT];
 	
     NSMutableArray *defaultArguments = [NSMutableArray arrayWithObjects:
                                         @"--no-greeting", @"--no-tty", @"--with-colons", @"--fixed-list-mode",
-										@"--utf8-strings", @"--display-charset", @"utf-8",
+										@"--utf8-strings", @"--display-charset", @"utf-8", @"--enable-special-filenames",
                                         @"--yes", @"--output", @"-", @"--status-fd", @"3", nil];
 
 	
@@ -352,8 +352,11 @@ char partCountForStatusCode[GPG_STATUS_COUNT];
 		// We had already added the fd for the passphrase.
 		count--;
 	}
+	if (count > 0 && ![arguments containsObject:@"--"]) {
+		[defaultArguments addObject:@"--"];
+	}
 	for (int i = 0; i < count; i++) {
-		[defaultArguments addObject:[NSString stringWithFormat:@"/dev/fd/%d", i+5]];
+		[defaultArguments addObject:[NSString stringWithFormat:@"-&%d", i+5]];
 	}
 	
 	
