@@ -255,7 +255,19 @@ typedef struct {
                 GPGDebugLog(@"waitpid loop: %i errno: %i, %s", retval, e, strerror(e));
             }
         }
+        if (WIFEXITED(stat_loc)) {
+            GPGDebugLog(@"[%d] normal termination, exit status = %d\n", processIdentifier, WEXITSTATUS(stat_loc));
+        }
+        else if (WIFSIGNALED(stat_loc)) {
+            GPGDebugLog(@"[%d] abnormal termination, signal number = %d - termination status: %d\n", processIdentifier, WTERMSIG(stat_loc), WEXITSTATUS(stat_loc));
+        }
         terminationStatus = WEXITSTATUS(stat_loc);
+        // In case that the child process crashes or was killed by a signal,
+        // the termination status would still be 0, which is however absolutely misleading.
+        // In order to correctly handle these cases, 2 is returned as error status.
+        if(WIFSIGNALED(stat_loc))
+            terminationStatus = 2;
+
         // After running, clean up all the pipes, so no data can be written at this point.
         // Wouldn't make sense anyway, since the child has shutdown already.
         [self cleanupPipes];
