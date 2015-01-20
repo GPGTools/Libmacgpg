@@ -107,6 +107,8 @@ typedef void (^lp_progress_handler_t)(NSUInteger processedBytes, NSUInteger tota
 @property (nonatomic, assign) NSUInteger timeout;
 @property (nonatomic, assign) BOOL completed;
 
+    
+- (int)processIdentifier;
 /**
  Configure a new GPG 2 process and pass all command line arguments
  which should be passed to the process.

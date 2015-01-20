@@ -21,6 +21,7 @@
 #import "GPGGlobals.h"
 #import "NSPipe+NoSigPipe.h"
 #import "crt_externs.h"
+#import "GPGException.h"
 
 typedef struct {
     int fd;
@@ -35,7 +36,7 @@ typedef struct {
 
 
 @implementation LPXTTask
-@synthesize arguments, launchPath, terminationStatus, parentTask, environmentVariables=_environmentVariables;
+@synthesize arguments, launchPath, terminationStatus, parentTask, environmentVariables=_environmentVariables, completed, processIdentifier;
 
 - (id)init {
     self = [super init];
@@ -43,6 +44,7 @@ typedef struct {
         inheritedPipes = [[NSMutableArray alloc] init];
         inheritedPipesMap = [[NSMutableDictionary alloc] init];
         pipeAccessQueue = dispatch_queue_create("org.gpgtools.Libmacgpg.xpc.pipeAccess", NULL); // NULL is SERIAL on 10.7+ and serial on 10.6
+        hasCompletedQueue = dispatch_queue_create("org.gpgtools.Libmacgpg.xpc.taskHasCompleted", NULL);
     }
     return self;
 }
@@ -268,6 +270,8 @@ typedef struct {
         if(WIFSIGNALED(stat_loc))
             terminationStatus = 2;
 
+        self.completed = YES;
+
         // After running, clean up all the pipes, so no data can be written at this point.
         // Wouldn't make sense anyway, since the child has shutdown already.
         [self cleanupPipes];
@@ -351,6 +355,8 @@ typedef struct {
 }
 
 - (NSPipe *)inheritedPipeWithName:(NSString *)name {
+    if(self.completed)
+        return nil;
     NSArray *pipeList = [self inheritedPipesWithName:name];
     // If there's no pipe registered for that name, raise an error.
     if(![pipeList count] && pipeList != nil) {
@@ -374,8 +380,24 @@ typedef struct {
     });
 }
 
+- (void)setCompleted:(BOOL)hasCompleted {
+    dispatch_async(hasCompletedQueue, ^{
+        completed = YES;
+    });
+}
+
+- (BOOL)completed {
+    BOOL __block hasCompleted = NO;
+    dispatch_sync(hasCompletedQueue, ^{
+        hasCompleted = completed;
+    });
+    return hasCompleted;
+}
+
+
 - (void)cleanupPipes {
     dispatch_sync(pipeAccessQueue, ^{
+        [self closePipes];
         [inheritedPipes removeAllObjects];
         [inheritedPipes release];
         inheritedPipes = nil;
@@ -390,10 +412,15 @@ typedef struct {
 	[_environmentVariables release];
     [launchPath release];
     [parentTask release];
-    [self cleanupPipes];
+    // Submit an empty queue to be sure it's the last one and only
+    // release the queue once this has returned.
+    dispatch_sync(pipeAccessQueue, ^{});
     dispatch_release(pipeAccessQueue);
     pipeAccessQueue = NULL;
-	[super dealloc];
+    dispatch_sync(hasCompletedQueue, ^{});
+    dispatch_release(hasCompletedQueue);
+    hasCompletedQueue = NULL;
+    [super dealloc];
 }
 
 - (void)closePipes {

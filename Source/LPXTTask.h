@@ -28,8 +28,10 @@ typedef void (^lpxt_task_t)(void);
     
     int processIdentifier;
     int terminationStatus;
+    BOOL completed;
     
     dispatch_queue_t pipeAccessQueue;
+    dispatch_queue_t hasCompletedQueue;
     
     lpxt_task_t parentTask;
 
@@ -51,6 +53,8 @@ typedef void (^lpxt_task_t)(void);
 @property (nonatomic, copy) NSString *launchPath;
 @property (nonatomic, readonly) int terminationStatus;
 @property (nonatomic, copy) lpxt_task_t parentTask;
+@property (nonatomic, assign) BOOL completed;
+@property (nonatomic, assign) int processIdentifier;
 
 - (void)cancel;
 
