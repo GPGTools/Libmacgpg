@@ -184,10 +184,18 @@
 			return;
 		}
 		
-		[result setObject:[info objectForKey:@"status"] forKey:@"status"];
+        // If there's a problem with the XPC service, it's possible that one of the required
+        // dictionary elements is not set. In that case, throw a general error.
+        if(![info objectForKey:@"status"] || ![info objectForKey:@"errors"] || ![info objectForKey:@"exitcode"] || ![info objectForKey:@"output"]) {
+            taskError = [[GPGException exceptionWithReason:@"Erron in XPC response" errorCode:GPGErrorXPCConnectionError] retain];
+            [self completeTask];
+
+            return;
+        }
+        [result setObject:[info objectForKey:@"status"] forKey:@"status"];
 		if([info objectForKey:@"attributes"])
 			[result setObject:[info objectForKey:@"attributes"] forKey:@"attributes"];
-		[result setObject:[info objectForKey:@"errors"] forKey:@"errors"];
+        [result setObject:[info objectForKey:@"errors"] forKey:@"errors"];
 		[result setObject:[info objectForKey:@"exitcode"] forKey:@"exitStatus"];
 		[result setObject:[info objectForKey:@"output"] forKey:@"output"];
 		
