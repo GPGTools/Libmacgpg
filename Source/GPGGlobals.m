@@ -132,6 +132,79 @@ NSString *localizedLibmacgpgString(NSString *key) {
 	
 	return retString;
 }
+
+- (NSArray *)gpgLines {
+	// Split the data object into an array of string (the lines).
+	
+	if ([self length] == 0) {
+		return @[];
+	}
+	
+	// Encode to an NSString using UTF8.
+	NSString *string = [[[NSString alloc] initWithData:self encoding:NSUTF8StringEncoding] autorelease];
+	if (string) {
+		// Split the string into lines, and return it.
+		return [string componentsSeparatedByString:@"\n"];
+	}
+	
+	// Not a pure UTF8 string. We need to parse it manually.
+	// Step byte by byte through the data to find line endings.
+	// Convert every line to an NSString, this allows a different encoding for every line.
+	
+	NSMutableArray *lines = [NSMutableArray array];
+	
+	const uint8_t *bytes = [self bytes];
+	NSUInteger i = 0, c = [self length];
+	NSUInteger start = 0;
+	NSUInteger add = 0;
+	
+	for (; i < c; i++) {
+		switch (bytes[i]) {
+			case '\r':
+				if (i+1 < c && bytes[i+1] == '\n') {
+					add = 1;
+				}
+				// No break!
+			case '\n': {
+				if (i-start > 0) {
+					NSString *line;
+					
+					// Try some encodings.
+					int encodings[3] = {NSUTF8StringEncoding, NSISOLatin1StringEncoding, NSWindowsCP1252StringEncoding};
+					for (int j = 0; j < 3; j++) {
+						line = [[[NSString alloc] initWithBytes:bytes+start length:i-start encoding:encodings[j]] autorelease];
+						
+						if (line.length > 0) {
+							GPGDebugLog(@"Used Encoding: %i", encodings[j]);
+							break;
+						}
+					}
+					
+					if (line.length == 0) {
+						// Our last chance, use gpgString.
+						NSData *subData = [[NSData alloc] initWithBytesNoCopy:(void *)(bytes+start) length:i-start freeWhenDone:NO];
+						line = [subData gpgString];
+						[subData release];
+					}
+					
+					if (line) {
+						[lines addObject:line];
+					} else {
+						[lines addObject:@""];
+					}
+				} else {
+					[lines addObject:@""];
+				}
+				
+				i += add;
+				start = i + 1;
+				break;
+			}
+		}
+	}
+	return [lines copy];
+}
+
 @end
 
 @implementation NSString (GPGExtension)

@@ -249,6 +249,7 @@ NSString *localizedLibmacgpgString(NSString *key);
 
 @interface NSData (GPGExtension)
 - (NSString *)gpgString;
+- (NSArray *)gpgLines;
 @end
 
 @interface NSString (GPGExtension)

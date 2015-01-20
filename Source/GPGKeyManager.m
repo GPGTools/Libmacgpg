@@ -56,7 +56,7 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 				
 				[gpgTask start];
 				
-				self->_secKeyInfos = [[self parseSecColonListing:gpgTask.outText] retain];
+				self->_secKeyInfos = [[self parseSecColonListing:gpgTask.outData.gpgLines] retain];
 			}
 			@catch (NSException *exception) {
 				//TODO: Set error code.
@@ -98,26 +98,26 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 		
 		
 		_attributeData = [gpgTask.attributeData retain]; //attributeData is only needed for UATs (PhotoID).
+		_keyLines = gpgTask.outData.gpgLines;
 		
-		_keyLines = [gpgTask.outText componentsSeparatedByString:@"\n"];
-		NSUInteger index = 0, count = _keyLines.count;
-		NSInteger pubStart = -1;
-		
-		for (; index < count; index++) {
+		// Loop thru all lines. Starting with the last line.
+		NSUInteger lastLine = _keyLines.count;
+		NSInteger index = lastLine - 1;
+		for (; index >= 0; index--) {
 			NSString *line = [_keyLines objectAtIndex:index];
-			if ([line hasPrefix:@"pub"] || line.length == 0) {
-				if (pubStart > -1) {
-					GPGKey *key = [[GPGKey alloc] init];
-					[newKeys addObject:key];
-					[key release];
-					
-					dispatch_group_async(dispatchGroup, dispatchQueue, ^{
-						[self fillKey:key withRange:NSMakeRange(pubStart, index - pubStart)];
-					});
-				}
-				pubStart = index;
+			if ([line hasPrefix:@"pub"]) {
+				GPGKey *key = [[GPGKey alloc] init];
+				[newKeys addObject:key];
+				[key release];
+				
+				dispatch_group_async(dispatchGroup, dispatchQueue, ^{
+					[self fillKey:key withRange:NSMakeRange(index, lastLine - index)];
+				});
+
+				lastLine = index;
 			}
 		}
+
 		
 		
 		dispatch_group_wait(dispatchGroup, DISPATCH_TIME_FOREVER);
@@ -574,9 +574,8 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 
 
 
-- (NSDictionary *)parseSecColonListing:(NSString *)colonListing {
+- (NSDictionary *)parseSecColonListing:(NSArray *)lines {
 	NSMutableDictionary *infos = [NSMutableDictionary dictionary];
-	NSArray *lines = [colonListing componentsSeparatedByString:@"\n"];
 	NSUInteger count = lines.count;
 	
 	NSDictionary *keyInfo = @{};
