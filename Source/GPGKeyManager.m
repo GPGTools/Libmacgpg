@@ -196,6 +196,9 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 		
 		[[NSDistributedNotificationCenter defaultCenter] postNotificationName:GPGKeyManagerKeysDidChangeNotification object:[[self class] description] userInfo:userInfo];
 	});
+
+	// Start the key ring watcher.
+	[self startKeyringWatcher];
 }
 
 - (void)fillKey:(GPGKey *)primaryKey withRange:(NSRange)lineRange {
@@ -430,10 +433,17 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 	[subkeys release];
 }
 
-
-
-
-
+- (void)startKeyringWatcher {
+    // The keyring watcher is only to be started after all the keys have
+    // been loaded at least once.
+    // In order to make sure of that, this method is always called after loadAllKeys
+    // has completed, but using dispatch_once we'll also make sure that it's only started
+    // once.
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        [GPGWatcher activate];
+    });
+}
 
 - (NSDictionary *)keysByKeyID {
 	static dispatch_once_t onceToken;
@@ -731,9 +741,6 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 	
 	_allKeysAndSubkeysOnce = dispatch_semaphore_create(1);
 
-	[GPGWatcher activate];
-
-	
 	return self;
 }
 
