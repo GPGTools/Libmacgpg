@@ -35,35 +35,27 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 	@try {
 		NSArray *keyArguments = [[keys valueForKey:@"description"] allObjects];
 		
-        dispatch_queue_t dispatchQueue = dispatch_queue_create("org.gpgtools.libmacgpg._loadKeys.gpgTask", DISPATCH_QUEUE_CONCURRENT);
-		dispatch_group_t dispatchGroup = dispatch_group_create();
-		
 		_fetchSignatures = fetchSignatures;
 		_fetchUserAttributes = fetchUserAttributes;
 		
-		
-		
-		dispatch_group_async(dispatchGroup, dispatchQueue, ^{
-
-			@try {
-				// Get all fingerprints of the secret keys.
-				GPGTask *gpgTask = [GPGTask gpgTask];
-				gpgTask.batchMode = YES;
-				[gpgTask addArgument:@"--list-secret-keys"];
-				[gpgTask addArgument:@"--with-fingerprint"];
-				[gpgTask addArgument:@"--with-fingerprint"];
-				[gpgTask addArguments:keyArguments];
+		// 1. Fetch all secret keys.
+		@try {
+			// Get all fingerprints of the secret keys.
+			GPGTask *gpgTask = [GPGTask gpgTask];
+			gpgTask.batchMode = YES;
+			[gpgTask addArgument:@"--list-secret-keys"];
+			[gpgTask addArgument:@"--with-fingerprint"];
+			[gpgTask addArgument:@"--with-fingerprint"];
+			[gpgTask addArguments:keyArguments];
 				
-				[gpgTask start];
+			[gpgTask start];
 				
-				self->_secKeyInfos = [[self parseSecColonListing:gpgTask.outData.gpgLines] retain];
-			}
-			@catch (NSException *exception) {
-				//TODO: Set error code.
-				GPGDebugLog(@"Unable to load secret keys.")
-			}
-		});
-		
+			self->_secKeyInfos = [[self parseSecColonListing:gpgTask.outData.gpgLines] retain];
+        }
+		@catch (NSException *exception) {
+			//TODO: Set error code.
+			GPGDebugLog(@"Unable to load secret keys.")
+		}
 		
 		// Get the infos from gpg.
 		GPGTask *gpgTask = [GPGTask gpgTask];
@@ -84,21 +76,24 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 		[gpgTask addArgument:@"--with-fingerprint"];
 		[gpgTask addArguments:keyArguments];
 		
-		
+		// TODO: We might have to retain this task, since it might be used in a delegate.
 		[gpgTask start];
 		
-		
-		dispatch_group_wait(dispatchGroup, DISPATCH_TIME_FOREVER);
-		
-		
-		
 		// ======= Parsing =======
-		
-		NSMutableArray *newKeys = [[NSMutableArray alloc] init];
-		
-		
+
 		_attributeData = [gpgTask.attributeData retain]; //attributeData is only needed for UATs (PhotoID).
 		_keyLines = gpgTask.outData.gpgLines;
+
+		dispatch_queue_t dispatchQueue = NULL;
+		if(floor(NSAppKitVersionNumber) > NSAppKitVersionNumber10_6)
+			dispatchQueue = dispatch_queue_create("org.gpgtools.libmacgpg._loadKeys.gpgTask", DISPATCH_QUEUE_CONCURRENT);
+		else {
+			dispatchQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+			dispatch_retain(dispatchQueue);
+		}
+		dispatch_group_t dispatchGroup = dispatch_group_create();
+
+		NSMutableArray *newKeys = [[NSMutableArray alloc] init];
 		
 		// Loop thru all lines. Starting with the last line.
 		NSUInteger lastLine = _keyLines.count;
@@ -117,8 +112,6 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 				lastLine = index;
 			}
 		}
-
-		
 		
 		dispatch_group_wait(dispatchGroup, DISPATCH_TIME_FOREVER);
         dispatch_release(dispatchGroup);
@@ -183,7 +176,6 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 		_allKeys = [_mutableAllKeys copy];
 		[oldAllKeys release];
 	}
-	
 	
 	// Let's check if the keys need to be reloaded again, as they have changed
 	// since we've started to load the keys.
