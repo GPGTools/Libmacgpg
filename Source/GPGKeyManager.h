@@ -15,7 +15,6 @@
 	dispatch_queue_t _keyLoadingQueue;
 	dispatch_queue_t _keyChangeNotificationQueue;
 	
-	NSSet *_publicKeys;
 	NSSet *_secretKeys;
 	
 	dispatch_queue_t _completionQueue;
@@ -38,8 +37,6 @@
 @property (nonatomic, readonly) NSSet *allKeysAndSubkeys;
 @property (nonatomic, readonly) NSDictionary *keysByKeyID;
 
-/* Subset of allKeys including only public keys. */
-@property (nonatomic, readonly) NSSet *publicKeys;
 /* Subset of allKeys including only secret keys. */
 @property (nonatomic, readonly) NSSet *secretKeys;
 

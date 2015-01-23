@@ -9,14 +9,13 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 @interface GPGKeyManager () <GPGTaskDelegate>
 
 @property (copy, readwrite) NSDictionary *keysByKeyID;
-@property (copy, readwrite) NSSet *publicKeys;
 @property (copy, readwrite) NSSet *secretKeys;
 
 @end
 
 @implementation GPGKeyManager
 
-@synthesize allKeys=_allKeys, keysByKeyID=_keysByKeyID, publicKeys=_publicKeys, secretKeys=_secretKeys, completionQueue=_completionQueue;
+@synthesize allKeys=_allKeys, keysByKeyID=_keysByKeyID, secretKeys=_secretKeys, completionQueue=_completionQueue;
 
 - (void)loadAllKeys {
 	[self loadKeys:nil fetchSignatures:NO fetchUserAttributes:NO];
@@ -136,14 +135,22 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 		
 		
 		NSMutableDictionary *keysByKeyID = [[NSMutableDictionary alloc] init];
+		NSMutableSet *secretKeys = [[NSMutableSet alloc] init];
+		
 		for (GPGKey *key in _mutableAllKeys) {
+			if (key.secret) {
+				[secretKeys addObject:key];
+			}
 			[keysByKeyID setObject:key forKey:key.keyID];
 			for (GPGKey *subkey in key.subkeys) {
 				[keysByKeyID setObject:subkey forKey:subkey.keyID];
 			}
 		}
-		self.keysByKeyID = keysByKeyID;
 		
+		self.secretKeys = secretKeys;
+		[secretKeys release];
+		
+		self.keysByKeyID = keysByKeyID;
 		if (fetchSignatures) {
 			for (GPGKey *key in _mutableAllKeys) {
 				for (GPGUserID *uid in key.userIDs) {
@@ -493,38 +500,13 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 	return _allKeysAndSubkeys;
 }
 
-
-
-- (void)rebuildKeysCache {
-	NSMutableSet *publicKeys = nil;
-	NSMutableSet *secretKeys = nil;
-	
-	[_allKeys enumerateObjectsUsingBlock:^(GPGKey *key, BOOL *stop) {
-		if(key.secret)
-			[secretKeys addObject:key];
-		else
-			[publicKeys addObject:key];
-	}];
-	
-	NSSet *oldPublicKeys = _publicKeys;
-	_publicKeys = [publicKeys copy];
-	[oldPublicKeys release];
-	
-	NSSet *oldSecretKeys = _secretKeys;
-	_secretKeys = [secretKeys copy];
-	[oldSecretKeys release];
-}
-
-- (NSSet *)publicKeys {
-	// Make sure all keys are actually loaded.
-	[self allKeys];
-	
-	return [[_publicKeys retain] autorelease];
-}
-
 - (NSSet *)secretKeys {
-	// Make sure all keys are actually loaded.
-	[self allKeys];
+	static dispatch_once_t onceToken;
+	dispatch_once(&onceToken, ^{
+		if (!_secretKeys) {
+			[self loadAllKeys];
+		}
+	});
 	
 	return [[_secretKeys retain] autorelease];
 }
