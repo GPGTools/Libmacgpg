@@ -2294,7 +2294,7 @@ BOOL gpgConfigReaded = NO;
         } else if (packet.type == GPGSignaturePacket) {
 			if (packet.fingerprint.length > 0) {
 				[keys addObject:packet.fingerprint];
-			} else {
+			} else if (packet.keyID) {
 				[keyIDs addObject:packet.keyID];
 			}
 		}
