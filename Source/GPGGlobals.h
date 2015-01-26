@@ -269,7 +269,7 @@ NSString *localizedLibmacgpgString(NSString *key);
 
 int hexToByte (const char *text);
 NSString* bytesToHexString(const uint8_t *bytes, NSUInteger length);
-NSSet *fingerprintsFromStatusText(NSString *statusText);
+NSSet *importedFingerprintsFromStatus(NSDictionary *statusDict);
 void *lm_memmem(const void *big, size_t big_len, const void *little, size_t little_len);
 
 

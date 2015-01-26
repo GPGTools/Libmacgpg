@@ -396,15 +396,12 @@ NSString* bytesToHexString(const uint8_t *bytes, NSUInteger length) {
 }
 
 
-NSSet *fingerprintsFromStatusText(NSString *statusText) {
-	NSArray *lines = [statusText componentsSeparatedByString:@"\n"];
-	NSMutableSet *fingerprints = [NSMutableSet setWithCapacity:[lines count]];
+NSSet *importedFingerprintsFromStatus(NSDictionary *statusDict) {
+	NSMutableSet *fingerprints = [NSMutableSet set];
+	NSArray *lines = [statusDict objectForKey:@"IMPORT_OK"];
 	
-	for (NSString *line in lines) {
-		if (![line hasPrefix:@"[GNUPG:] IMPORT_OK "]) {
-			continue;
-		}
-		NSString *fingerprint = [[line componentsSeparatedByString:@" "] objectAtIndex:3];
+	for (NSArray *line in lines) {
+		NSString *fingerprint = [line objectAtIndex:1];
 		[fingerprints addObject:fingerprint];
 	}
 	return [fingerprints count] ? fingerprints : nil;

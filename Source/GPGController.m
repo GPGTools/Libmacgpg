@@ -1799,11 +1799,11 @@ BOOL gpgConfigReaded = NO;
 			[gpgTask addArgument:[key description]];
 		}
 		
-		if ([gpgTask start] != 0) {
+		if ([gpgTask start] != 0 && ![gpgTask.statusDict objectForKey:@"IMPORT_RES"]) {
 			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Receive keys failed!") gpgTask:gpgTask];
 		}
 		
-		NSSet *changedKeys = fingerprintsFromStatusText(gpgTask.statusText);
+		NSSet *changedKeys = importedFingerprintsFromStatus(gpgTask.statusDict);
 		[self keysChanged:changedKeys];
 	} @catch (NSException *e) {
 		[self handleException:e];
