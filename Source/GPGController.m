@@ -915,6 +915,9 @@ BOOL gpgConfigReaded = NO;
 			if (range.length > 0) {
 				range.length = searchRange.length - range.location;
 				searchRange.length = range.location - 1;
+				if (searchRange.length == NSUIntegerMax) {
+					searchRange.length = 0;
+				}
 				compressPreferences = [[prefs substringWithRange:range] componentsSeparatedByString:@" "];
 			} else {
 				searchRange.length = stringLength;
@@ -925,6 +928,9 @@ BOOL gpgConfigReaded = NO;
 			if (range.length > 0) {
 				range.length = searchRange.length - range.location;
 				searchRange.length = range.location - 1;
+				if (searchRange.length == NSUIntegerMax) {
+					searchRange.length = 0;
+				}
 				digestPreferences = [[prefs substringWithRange:range] componentsSeparatedByString:@" "];
 			} else {
 				searchRange.length = stringLength;
@@ -935,6 +941,9 @@ BOOL gpgConfigReaded = NO;
 			if (range.length > 0) {
 				range.length = searchRange.length - range.location;
 				searchRange.length = range.location - 1;
+				if (searchRange.length == NSUIntegerMax) {
+					searchRange.length = 0;
+				}
 				cipherPreferences = [[prefs substringWithRange:range] componentsSeparatedByString:@" "];
 			} else {
 				searchRange.length = stringLength;
