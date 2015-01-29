@@ -115,7 +115,7 @@ void withAutoreleasePool(basic_block_t block)
 
 @implementation GPGTaskHelper
 
-@synthesize inData = _inData, arguments = _arguments, output = _output, processStatus = _processStatus, task = _task, completed = _completed,
+@synthesize inData = _inData, arguments = _arguments, output = _output, processStatus = _processStatus, task = _task,
 exitStatus = _exitStatus, status = _status, errors = _errors, attributes = _attributes, readAttributes = _readAttributes,
 progressHandler = _progressHandler, userIDHint = _userIDHint, needPassphraseInfo = _needPassphraseInfo,
 checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_environmentVariables;
@@ -341,7 +341,6 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
     [_task launchAndWait];
     
     if (blockException && !_cancelled && !_pinentryCancelled) {
-        _completed = _task.completed;
         @throw blockException;
 	}
     
@@ -353,15 +352,15 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
 	[attributeData release];
     
     _exitStatus = _task.terminationStatus;
-    _completed = _task.completed;
     
     if(_cancelled || (_pinentryCancelled && _exitStatus != 0))
         _exitStatus = GPGErrorCancelled;
     
-	[_task release];
-	_task = nil;
-	
-    return _exitStatus;
+	return _exitStatus;
+}
+
+- (BOOL)completed {
+	return _task.completed;
 }
 
 - (void)progress:(NSUInteger)processedBytes total:(NSUInteger)total {
@@ -486,7 +485,7 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
     @catch (NSException *exception) {
         // If the task is no longer running, there's no need to throw this exception
         // since it's expected.
-        if(!_completed)
+        if(!self.completed)
             @throw exception;
         return;
     }
@@ -651,7 +650,10 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
 
 - (void)respond:(id)response {
     // Try to write to the command pipe.
-    NSPipe *cmdPipe = nil;
+	// Ignore call, if response is empty data.
+	if([response length] == 0)
+		return;
+	NSPipe *cmdPipe = nil;
     
     NSData *NL = [@"\n" dataUsingEncoding:NSASCIIStringEncoding];
     
@@ -972,12 +974,14 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
     [_errors release];
     [_attributes release];
     [_task release];
-    [_processStatus release];
+	_task = nil;
+	[_processStatus release];
     [_userIDHint release];
     [_needPassphraseInfo release];
     [_progressHandler release];
     [_processedBytesMap release];
 	[_environmentVariables release];
+	
 #if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
     [_sandboxHelper release];
 #endif
