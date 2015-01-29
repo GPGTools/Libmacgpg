@@ -381,13 +381,20 @@ typedef struct {
 }
 
 - (void)setCompleted:(BOOL)hasCompleted {
-    dispatch_async(hasCompletedQueue, ^{
+	if(hasCompletedQueue == NULL) {
+		completed = YES;
+		return;
+	}
+	dispatch_async(hasCompletedQueue, ^{
         completed = YES;
     });
 }
 
 - (BOOL)completed {
     BOOL __block hasCompleted = NO;
+	if(hasCompletedQueue == NULL) {
+		return YES;
+	}
     dispatch_sync(hasCompletedQueue, ^{
         hasCompleted = completed;
     });
