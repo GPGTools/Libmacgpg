@@ -1135,6 +1135,7 @@ BOOL gpgConfigReaded = NO;
 			[gpgTask addArgument:@"--import-options"];
 			[gpgTask addArgument:@"import-local-sigs"];
 			[gpgTask addArgument:@"--allow-non-selfsigned-uid"];
+			[gpgTask addArgument:@"--allow-weak-digest-algos"];
 		}
 		
 		
