@@ -291,22 +291,41 @@ break;
 
 	[dict setObject:workText forKey:@"userIDDescription"];
 
-	range = [workText rangeOfString:@" <" options:NSBackwardsSearch];
-	if ([workText hasSuffix:@">"] && (range.length > 0 || ([workText hasPrefix:@"<"] && ((range.location = 0) == 0)))) {
-		range.location += 2;
-		range.length = textLength - range.location - 1;
-		[dict setObject:[workText substringWithRange:range] forKey:@"email"];
-		
-		workText = [workText substringToIndex:range.location - 2];
-		textLength -= (range.length + 3);
+	if ([workText hasSuffix:@">"]) {
+		range = [workText rangeOfString:@"<" options:NSBackwardsSearch];
+		if (range.length > 0) {
+			range.location += 1;
+			range.length = textLength - range.location - 1;
+			
+			NSString *value = [workText substringWithRange:range];
+			[dict setObject:value forKey:@"email"];
+			
+			if (range.location > 2) {
+				workText = [workText substringToIndex:range.location - 2];
+				textLength -= (range.length + 3);
+			} else {
+				workText = @"";
+				textLength = 0;
+			}
+		}
 	}
-	range = [workText rangeOfString:@" (" options:NSBackwardsSearch];
-	if ([workText hasSuffix:@")"] && (range.length > 0 || ([workText hasPrefix:@"("] && ((range.location = 0) == 0)))) {
-		range.location += 2;
-		range.length = textLength - range.location - 1;
-		[dict setObject:[workText substringWithRange:range] forKey:@"comment"];
-		
-		workText = [workText substringToIndex:range.location - 2];
+	if ([workText hasSuffix:@")"]) {
+		range = [workText rangeOfString:@"(" options:NSBackwardsSearch];
+		if (range.length > 0) {
+			range.location += 1;
+			range.length = textLength - range.location - 1;
+			
+			NSString *value = [workText substringWithRange:range];
+			[dict setObject:value forKey:@"comment"];
+			
+			if (range.location > 2) {
+				workText = [workText substringToIndex:range.location - 2];
+				textLength -= (range.length + 3);
+			} else {
+				workText = @"";
+				textLength = 0;
+			}
+		}
 	}
 	
 	[dict setObject:workText forKey:@"name"];
