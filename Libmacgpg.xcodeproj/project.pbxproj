@@ -43,7 +43,6 @@
 		3002C04416EE388B00D57C1E /* libcrypto.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3002C04316EE388B00D57C1E /* libcrypto.dylib */; };
 		3002C04616EE389100D57C1E /* libxar.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3002C04516EE389100D57C1E /* libxar.dylib */; };
 		3002C04716EE38C900D57C1E /* libcrypto.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3002C04316EE388B00D57C1E /* libcrypto.dylib */; };
-		300DD0FA1853AF300057B05F /* How to get the source code in Resources */ = {isa = PBXBuildFile; fileRef = 300DD0F91853AF300057B05F /* How to get the source code */; };
 		301D5D9F178C9871003026E7 /* GPGKeyserver.h in Headers */ = {isa = PBXBuildFile; fileRef = 301D5D9D178C9871003026E7 /* GPGKeyserver.h */; };
 		301D5DA0178C9871003026E7 /* GPGKeyserver.m in Sources */ = {isa = PBXBuildFile; fileRef = 301D5D9E178C9871003026E7 /* GPGKeyserver.m */; };
 		3026F4AF13A203A000F3CA02 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3026F4AE13A203A000F3CA02 /* Security.framework */; };
@@ -757,7 +756,7 @@
 			name = UnitTest;
 			productName = UnitTest;
 			productReference = 30C8B38E139503A800F49AA1 /* UnitTest.octest */;
-			productType = "com.apple.product-type.bundle";
+			productType = "com.apple.product-type.bundle.ocunit-test";
 		};
 		30DF7CB716D39EAA00C8225C /* installerHelper */ = {
 			isa = PBXNativeTarget;
@@ -785,6 +784,7 @@
 				8DC2EF540486A6940098B216 /* Sources */,
 				8DC2EF560486A6940098B216 /* Frameworks */,
 				30C2960E16775037006EF09C /* Fill Info.plist */,
+				1B49BC6B1A97A8D6000440E9 /* Copy "How to get the source code" into Resources */,
 				1BC07F34174660F3004263BB /* Link Libmacgpg into ~/Library/Frameworks */,
 			);
 			buildRules = (
@@ -879,7 +879,6 @@
 				30516558142281270038AAF0 /* Localizable.strings in Resources */,
 				45C6E82714F8913B00ED67C6 /* pinentry-mac.app in Resources */,
 				1B46CFA2161531DC00CF9C5F /* org.gpgtools.Libmacgpg.xpc.plist in Resources */,
-				300DD0FA1853AF300057B05F /* How to get the source code in Resources */,
 				30DF7CC416D3A12F00C8225C /* installerHelper in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -913,7 +912,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "JAILFREE_PLIST=\"${EXECUTABLE_NAME}.plist\"\nBUILD_LAUNCHAGENT_PATH=\"${BUILD_DIR}/${JAILFREE_PLIST}\"\nINSTALL_JAILFREE_PATH=\"/Library/Application\\ Support/GPGTools/${EXECUTABLE_NAME}\"\nJAILFREE_PATH=\"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_NAME}\"\n\nXPC_NAME=$(\n    for x in $GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS; do\n        echo $x | while IFS=\"=\" read name value; do\n            if [ \"$name\" == \"JAILFREE_XPC_NAME\" ]; then\n                echo $value | sed \"s/\\\"//g\" | sed \"s/@//g\"\n                break\n            fi\n        done\n    done\n)\ncp \"${PROJECT_DIR}/Source/${EXECUTABLE_NAME}/${JAILFREE_PLIST}\" \"${BUILD_LAUNCHAGENT_PATH}\"\n/usr/libexec/PlistBuddy -c \"Delete :MachServices\" \"${BUILD_LAUNCHAGENT_PATH}\"\n/usr/libexec/PlistBuddy -c \"Add :MachServices:$XPC_NAME bool true\" \"${BUILD_LAUNCHAGENT_PATH}\"\n/usr/libexec/PlistBuddy -c \"Set :ProgramArguments:0 \\\"${INSTALL_JAILFREE_PATH}\\\"\" \"${BUILD_LAUNCHAGENT_PATH}\"";
+			shellScript = "JAILFREE_PLIST=\"${EXECUTABLE_NAME}.plist\"\nBUILD_LAUNCHAGENT_PATH=\"${BUILD_DIR}/${JAILFREE_PLIST}\"\nif [[ -z \"${XPC_INSTALLATION_DIR}\" ]]; then\n    XPC_INSTALLATION_DIR=\"/Library/Application\\ Support/GPGTools\"\nfi\nXPC_INSTALLATION_PATH=\"${XPC_INSTALLATION_DIR}/${EXECUTABLE_NAME}\"\n\nXPC_NAME=$(\n    for x in $GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS; do\n        echo $x | while IFS=\"=\" read name value; do\n            if [ \"$name\" == \"JAILFREE_XPC_NAME\" ]; then\n                echo $value | sed \"s/\\\"//g\" | sed \"s/@//g\"\n                break\n            fi\n        done\n    done\n)\ncp \"${PROJECT_DIR}/Source/${EXECUTABLE_NAME}/${JAILFREE_PLIST}\" \"${BUILD_LAUNCHAGENT_PATH}\"\n/usr/libexec/PlistBuddy -c \"Delete :MachServices\" \"${BUILD_LAUNCHAGENT_PATH}\"\n/usr/libexec/PlistBuddy -c \"Add :MachServices:$XPC_NAME bool true\" \"${BUILD_LAUNCHAGENT_PATH}\"\n/usr/libexec/PlistBuddy -c \"Set :ProgramArguments:0 \\\"${XPC_INSTALLATION_PATH}\\\"\" \"${BUILD_LAUNCHAGENT_PATH}\"";
+		};
+		1B49BC6B1A97A8D6000440E9 /* Copy "How to get the source code" into Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy \"How to get the source code\" into Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "HOWTO_PATH=\"./Dependencies/GPGTools_Core/resources/How to get the source code\"\n[[ -f \"$HOWTO_PATH\" ]] || exit 0\n\ncp -R \"$HOWTO_PATH\" \"$BUILT_PRODUCTS_DIR/GPGPreferences.prefPane/Contents/Resources/\"";
+			showEnvVarsInLog = 0;
 		};
 		1BC07F34174660F3004263BB /* Link Libmacgpg into ~/Library/Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -955,7 +969,8 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "source \"$SRCROOT/Makefile.config\" || exit 1\n\nPLIST=\"$BUILT_PRODUCTS_DIR/$INFOPLIST_PATH\"\n\n/usr/libexec/PlistBuddy -c \"Set CommitHash \\\"$commitHash\\\"\" -c \"Set BuildNumber \\\"$buildNumber\\\"\" -c \"Set CFBundleVersion \\\"$build_version\\\"\" -c \"Set CFBundleShortVersionString \\\"$version\\\"\" \"$PLIST\" || exit 2\n";
+			shellScript = "source \"$SRCROOT/Makefile.config\" || exit 1\n\nPLIST=\"$BUILT_PRODUCTS_DIR/$INFOPLIST_PATH\"\n\n/usr/libexec/PlistBuddy -c \"Set CommitHash '$COMMIT_HASH'\" -c \"Set BuildNumber '$BUILD_NUMBER'\" -c \"Set CFBundleVersion '$BUILD_VERSION'\" -c \"Set CFBundleShortVersionString '$VERSION'\" \"$PLIST\" || exit 2\n";
+			showEnvVarsInLog = 0;
 		};
 		30C8B38C139503A800F49AA1 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
