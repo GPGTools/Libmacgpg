@@ -1,8 +1,8 @@
 Libmacgpg
 =========
 
-Libmacgpg is the base Framework for GPG Suite.
-
+Libmacgpg is an Objective-C framework which makes it easier to communicate with gnupg.
+It's the base framework for all apps and services of [GPG Suite](https://gpgtools.org)
 
 Updates
 -------
