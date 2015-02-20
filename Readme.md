@@ -35,7 +35,7 @@ To install Libmacgpg copy build/Release/Libmacgpg.framework to ~/Library/Framewo
 cp -R ./build/Release/Libmacgpg.framework ~/Library/Frameworks/Libmacgpg.framework
 ```
 
-If you're using GPGMail as well follow these steps to install the xpc service helper.
+If you're using GPGMail, follow these steps to install the xpc service helper.
 
 ```bash
 cp ~/build/org.gpgtools.Libmacgpg.xpc.plist ~/Library/LaunchAgents/
