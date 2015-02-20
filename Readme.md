@@ -1,42 +1,46 @@
 Libmacgpg
 =========
 
-Libmacgpg is the base Framework for the GPGTools.
+Libmacgpg is the base Framework for GPG Suite.
 
 
 Updates
 -------
 
-The latest releases of LibmacGPG is part of the GPGTools installer and can be found on our [official website](https://gpgtools.org/installer/).
+The latest releases of Libmacgpg is part of GPG Suite and can be found on our [official website](https://gpgtools.org).
 
 For the latest news and updates check our [Twitter](https://twitter.com/gpgtools).
 
-If you have any questions how to use Libmacgpg in your own App, contact us on our [support page](http://support.gpgtools.org).
+If you have any questions how to use Libmacgpg in your own App, contact us on our [support page](https://gpgtools.tenderapp.com).
 
 
 Build
 -----
 
-### Clone the repository
+#### Clone the repository
 ```bash
 git clone --recursive https://github.com/GPGTools/Libmacgpg.git
 cd Libmacgpg
 ```
 
-### Build
+#### Build
 ```bash
 make
 ```
 
-### Install
-To install Libmacgpg on your system.
-```bash
-sudo make install
-```
+#### Install
+To install Libmacgpg copy build/Release/Libmacgpg.framework to ~/Library/Frameworks/Libmacgpg.framework
 
-### More build commands
+If you're using GPGMail as well follow these steps to install the xpc service helper.
+
 ```bash
-make help
+cp ~/build/org.gpgtools.Libmacgpg.xpc.plist ~/Library/LaunchAgents/
+
+mkdir -p ~/Library/Application\ Support/GPGTools
+cp ~/build/Release/org.gpgtools.Libmacgpg.xpc ~/Library/Application\ Support/GPGTools
+
+launchctl unload ~/Library/LaunchAgents/org.gpgtools.Libmacgpg.xpc.plist
+launchctl load -w ~/Library/LaunchAgents/org.gpgtools.Libmacgpg.xpc.plist
 ```
 
 Enjoy your custom Libmacgpg.
@@ -46,4 +50,4 @@ System Requirements
 -------------------
 
 * Mac OS X >= 10.6
-* GnuPG
+* GnuPG v2.0.26
