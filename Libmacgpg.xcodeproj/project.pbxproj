@@ -926,7 +926,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "HOWTO_PATH=\"./Dependencies/GPGTools_Core/resources/How to get the source code\"\n[[ -f \"$HOWTO_PATH\" ]] || exit 0\n\ncp -R \"$HOWTO_PATH\" \"$BUILT_PRODUCTS_DIR/GPGPreferences.prefPane/Contents/Resources/\"";
+			shellScript = "HOWTO_PATH=\"./Dependencies/GPGTools_Core/resources/How to get the source code\"\n[[ -f \"$HOWTO_PATH\" ]] || exit 0\n\ncp \"$HOWTO_PATH\" \"$BUILT_PRODUCTS_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/\"";
 			showEnvVarsInLog = 0;
 		};
 		1BC07F34174660F3004263BB /* Link Libmacgpg into ~/Library/Frameworks */ = {
