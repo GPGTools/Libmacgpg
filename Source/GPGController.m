@@ -68,7 +68,7 @@
 @implementation GPGController
 @synthesize delegate, keyserver, keyserverTimeout, proxyServer, async, userInfo, useArmor, useTextMode, printVersion, useDefaultComments,
 trustAllKeys, signatures, lastSignature, gpgHome, passphrase, verbose, autoKeyRetrieve, lastReturnValue, error, undoManager, hashAlgorithm,
-timeout, filename, forceFilename, pinentryInfo=_pinentryInfo;
+timeout, filename, forceFilename, pinentryInfo=_pinentryInfo, allowNonSelfsignedUid, allowWeakDigestAlgos;
 
 NSString *gpgVersion = nil;
 NSSet *publicKeyAlgorithm = nil, *cipherAlgorithm = nil, *digestAlgorithm = nil, *compressAlgorithm = nil;
@@ -2709,6 +2709,12 @@ BOOL gpgConfigReaded = NO;
 	if (gpgHome) {
 		[gpgTask addArgument:@"--homedir"];
 		[gpgTask addArgument:gpgHome];
+	}
+	if (allowNonSelfsignedUid) {
+		[gpgTask addArgument:@"--allow-non-selfsigned-uid"];
+	}
+	if (allowWeakDigestAlgos) {
+		[gpgTask addArgument:@"--allow-weak-digest-algos"];
 	}
 	if (_pinentryInfo) {
 		NSMutableString *pinentryUserData =  [NSMutableString string];

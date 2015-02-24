@@ -62,6 +62,8 @@
 	BOOL async;
     BOOL verbose;
 	BOOL autoKeyRetrieve;
+	BOOL allowNonSelfsignedUid;
+	BOOL allowWeakDigestAlgos;
     id lastReturnValue;
 	NSDictionary *_pinentryInfo;
     
@@ -110,6 +112,8 @@
 @property (nonatomic) BOOL trustAllKeys;
 @property (nonatomic) BOOL verbose DEPRECATED_ATTRIBUTE;
 @property (nonatomic) BOOL autoKeyRetrieve;
+@property (nonatomic) BOOL allowNonSelfsignedUid;
+@property (nonatomic) BOOL allowWeakDigestAlgos;
 @property (nonatomic, readonly) NSDictionary *statusDict;
 @property (nonatomic, readonly) GPGHashAlgorithm hashAlgorithm;
 @property (nonatomic, readonly, retain) GPGTask *gpgTask;
