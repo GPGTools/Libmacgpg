@@ -214,7 +214,7 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
             }
         }
 
-		foundPath = [foundPath retain];
+		pinentryPath = [foundPath retain];
     });
 	return pinentryPath;
 }
