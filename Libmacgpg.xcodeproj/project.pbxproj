@@ -121,7 +121,6 @@
 		45B9A7F6151C9A6D00DAD67A /* OpenPGP.asc in Resources */ = {isa = PBXBuildFile; fileRef = 45B9A7F5151C9A6D00DAD67A /* OpenPGP.asc */; };
 		45C0BC03151B65C700AA8BF6 /* GPGTestVerify.m in Sources */ = {isa = PBXBuildFile; fileRef = 45C0BC02151B65C700AA8BF6 /* GPGTestVerify.m */; };
 		45C0BC18151B66F500AA8BF6 /* GPGResourceUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 45C0BC17151B66F500AA8BF6 /* GPGResourceUtil.m */; };
-		45C6E82714F8913B00ED67C6 /* pinentry-mac.app in Resources */ = {isa = PBXBuildFile; fileRef = 30C412B1149A34D80035D35F /* pinentry-mac.app */; };
 		45DD3D4C15642A0D00C9A4C1 /* GPGSignatureTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 45DD3D4B15642A0D00C9A4C1 /* GPGSignatureTest.m */; };
 		8DC2EF570486A6940098B216 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
 /* End PBXBuildFile section */
@@ -133,20 +132,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = 8DC2EF4F0486A6940098B216;
 			remoteInfo = Libmacgpg;
-		};
-		30C412B0149A34D80035D35F /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 30C412A8149A34D80035D35F /* pinentry-mac.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 8D1107320486CEB800E47090;
-			remoteInfo = "pinentry-mac";
-		};
-		30C412B3149A34E80035D35F /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 30C412A8149A34D80035D35F /* pinentry-mac.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 8D1107260486CEB800E47090;
-			remoteInfo = "pinentry-mac";
 		};
 		30C8B3931395046400F49AA1 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -245,7 +230,6 @@
 		30A70EE413EF328000EE9CD9 /* GPGException.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGException.m; sourceTree = "<group>"; };
 		30B586F4141E255C000373F1 /* Keyservers.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Keyservers.plist; sourceTree = "<group>"; };
 		30BA88F1138FE593005982D9 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
-		30C412A8149A34D80035D35F /* pinentry-mac.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "pinentry-mac.xcodeproj"; path = "Dependencies/pinentry-mac/pinentry-mac.xcodeproj"; sourceTree = "<group>"; };
 		30C60EEE12FF3321006BB8DA /* Libmacgpg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Libmacgpg.h; sourceTree = "<group>"; };
 		30C8B38E139503A800F49AA1 /* UnitTest.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = UnitTest.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		30C8B38F139503A800F49AA1 /* UnitTest-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "UnitTest-Info.plist"; sourceTree = "<group>"; };
@@ -396,7 +380,6 @@
 				0867D69AFE84028FC02AAC07 /* Frameworks */,
 				034768DFFF38A50411DB9C8B /* Products */,
 				30C8B399139504DC00F49AA1 /* UnitTest */,
-				30C412A8149A34D80035D35F /* pinentry-mac.xcodeproj */,
 			);
 			name = Libmacgpg;
 			sourceTree = "<group>";
@@ -578,14 +561,6 @@
 				1B84028617296EA4009A40E6 /* GPGUserDefaults.m */,
 			);
 			name = GPGOptions;
-			sourceTree = "<group>";
-		};
-		30C412A9149A34D80035D35F /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				30C412B1149A34D80035D35F /* pinentry-mac.app */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 		30C8B399139504DC00F49AA1 /* UnitTest */ = {
@@ -790,7 +765,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				30C412B4149A34E80035D35F /* PBXTargetDependency */,
 				30DF7CC616D3A13300C8225C /* PBXTargetDependency */,
 			);
 			name = Libmacgpg;
@@ -822,12 +796,6 @@
 			mainGroup = 0867D691FE84028FC02AAC07 /* Libmacgpg */;
 			productRefGroup = 034768DFFF38A50411DB9C8B /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = 30C412A9149A34D80035D35F /* Products */;
-					ProjectRef = 30C412A8149A34D80035D35F /* pinentry-mac.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				8DC2EF4F0486A6940098B216 /* Libmacgpg */,
@@ -838,16 +806,6 @@
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXReferenceProxy section */
-		30C412B1149A34D80035D35F /* pinentry-mac.app */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.application;
-			path = "pinentry-mac.app";
-			remoteRef = 30C412B0149A34D80035D35F /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		1BD78B9D1726B2820005F251 /* Resources */ = {
@@ -877,7 +835,6 @@
 			files = (
 				30B586F5141E255C000373F1 /* Keyservers.plist in Resources */,
 				30516558142281270038AAF0 /* Localizable.strings in Resources */,
-				45C6E82714F8913B00ED67C6 /* pinentry-mac.app in Resources */,
 				1B46CFA2161531DC00CF9C5F /* org.gpgtools.Libmacgpg.xpc.plist in Resources */,
 				30DF7CC416D3A12F00C8225C /* installerHelper in Resources */,
 			);
@@ -1084,11 +1041,6 @@
 			isa = PBXTargetDependency;
 			target = 8DC2EF4F0486A6940098B216 /* Libmacgpg */;
 			targetProxy = 1BD78BB81726B5190005F251 /* PBXContainerItemProxy */;
-		};
-		30C412B4149A34E80035D35F /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = "pinentry-mac";
-			targetProxy = 30C412B3149A34E80035D35F /* PBXContainerItemProxy */;
 		};
 		30C8B3941395046400F49AA1 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
