@@ -42,6 +42,7 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 			// Get all fingerprints of the secret keys.
 			GPGTask *gpgTask = [GPGTask gpgTask];
 			gpgTask.batchMode = YES;
+			[gpgTask addArgument:@"--allow-weak-digest-algos"];
 			[gpgTask addArgument:@"--list-secret-keys"];
 			[gpgTask addArgument:@"--with-fingerprint"];
 			[gpgTask addArgument:@"--with-fingerprint"];
@@ -71,6 +72,7 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 			gpgTask.getAttributeData = YES;
 			gpgTask.delegate = self;
 		}
+		[gpgTask addArgument:@"--allow-weak-digest-algos"];
 		[gpgTask addArgument:@"--with-fingerprint"];
 		[gpgTask addArgument:@"--with-fingerprint"];
 		[gpgTask addArguments:keyArguments];

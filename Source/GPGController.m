@@ -2256,6 +2256,7 @@ BOOL gpgConfigReaded = NO;
 	self.gpgTask = [GPGTask gpgTask];
 	[self addArgumentsForOptions];
 	[gpgTask addArgument:@"-k"];
+	[gpgTask addArgument:@"--allow-weak-digest-algos"];
 	[gpgTask addArgument:@"--with-fingerprint"];
 	[gpgTask addArgument:@"--with-fingerprint"];
 	[gpgTask addArgument:[key description]];
