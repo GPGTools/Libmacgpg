@@ -15,7 +15,9 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 
 @implementation GPGKeyManager
 
-@synthesize allKeys=_allKeys, keysByKeyID=_keysByKeyID, secretKeys=_secretKeys, completionQueue=_completionQueue;
+@synthesize allKeys=_allKeys, keysByKeyID=_keysByKeyID,
+			secretKeys=_secretKeys, completionQueue=_completionQueue,
+			allowWeakDigestAlgos=_allowWeakDigestAlgos;
 
 - (void)loadAllKeys {
 	[self loadKeys:nil fetchSignatures:NO fetchUserAttributes:NO];
@@ -42,7 +44,9 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 			// Get all fingerprints of the secret keys.
 			GPGTask *gpgTask = [GPGTask gpgTask];
 			gpgTask.batchMode = YES;
-			[gpgTask addArgument:@"--allow-weak-digest-algos"];
+			if (self.allowWeakDigestAlgos) {
+				[gpgTask addArgument:@"--allow-weak-digest-algos"];
+			}
 			[gpgTask addArgument:@"--list-secret-keys"];
 			[gpgTask addArgument:@"--with-fingerprint"];
 			[gpgTask addArgument:@"--with-fingerprint"];
@@ -72,7 +76,9 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 			gpgTask.getAttributeData = YES;
 			gpgTask.delegate = self;
 		}
-		[gpgTask addArgument:@"--allow-weak-digest-algos"];
+		if (self.allowWeakDigestAlgos) {
+			[gpgTask addArgument:@"--allow-weak-digest-algos"];
+		}
 		[gpgTask addArgument:@"--with-fingerprint"];
 		[gpgTask addArgument:@"--with-fingerprint"];
 		[gpgTask addArguments:keyArguments];
