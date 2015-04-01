@@ -249,12 +249,6 @@ BOOL gpgConfigReaded = NO;
 	return self;
 }
 
-+ (void)initialize {
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    [GPGTaskHelper pinentryPath];
-    [pool release];
-}
-
 
 - (void)cancel {
 	canceled = YES;

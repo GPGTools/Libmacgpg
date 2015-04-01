@@ -291,8 +291,10 @@ char partCountForStatusCode[GPG_STATUS_COUNT];
 - (NSInteger)start {	
 	isRunning = YES;
 	
-    // Default arguments which every call to GPG needs.
+	// Force a valid pinentry to be set in gpg-agent.conf
+	[GPGTaskHelper pinentryPath];
 	
+    // Default arguments which every call to GPG needs.
     NSMutableArray *defaultArguments = [NSMutableArray arrayWithObjects:
                                         @"--no-greeting", @"--no-tty", @"--with-colons", @"--fixed-list-mode",
 										@"--utf8-strings", @"--display-charset", @"utf-8", @"--enable-special-filenames",
