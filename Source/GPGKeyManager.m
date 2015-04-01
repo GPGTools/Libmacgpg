@@ -395,6 +395,10 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 		}
 		else if ([type isEqualToString:@"fpr"]) { // Fingerprint.
 			NSString *fingerprint = [parts objectAtIndex:9];
+			if ([fingerprint isEqualToString:@"00000000000000000000000000000000"]) {
+				fingerprint = primaryKey.keyID;
+			}
+			
 			key.fingerprint = fingerprint;
 			
 			NSDictionary *secKeyInfo = [_secKeyInfos objectForKey:fingerprint];
