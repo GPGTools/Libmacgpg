@@ -26,6 +26,7 @@
 @interface GPGUserIDSignature : NSObject <GPGUserIDProtocol> {
 	NSString *_keyID;
 	GPGPublicKeyAlgorithm _algorithm;
+	GPGHashAlgorithm _hashAlgorithm;
 	NSDate *_creationDate;
 	NSDate *_expirationDate;
 	NSString *_reason;
@@ -41,6 +42,7 @@
 
 @property (nonatomic, readonly) NSString *keyID;
 @property (nonatomic, readonly) GPGPublicKeyAlgorithm algorithm;
+@property (nonatomic, readonly) GPGHashAlgorithm hashAlgorithm;
 @property (nonatomic, readonly) NSDate *creationDate;
 @property (nonatomic, readonly) NSDate *expirationDate;
 @property (nonatomic, readonly) NSString *reason;

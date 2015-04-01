@@ -59,6 +59,40 @@
 
 @end
 
+@implementation GPGHashAlgorithmNameTransformer
+@synthesize keepUnlocalized = _keepUnlocalized;
+
++ (Class)transformedValueClass { return [NSString class]; }
++ (BOOL)allowsReverseTransformation { return NO; }
+- (id)transformedValue:(id)value {
+	return [self transformedIntegerValue:[value integerValue]];
+}
+
+- (id)transformedIntegerValue:(NSInteger)value {
+	switch (value) {
+		case GPGHashAlgorithmMD5:
+			return maybeLocalize(@"DIGEST_ALGO_MD5");
+		case GPGHashAlgorithmSHA1:
+			return maybeLocalize(@"DIGEST_ALGO_SHA1");
+		case GPGHashAlgorithmRMD160:
+			return maybeLocalize(@"DIGEST_ALGO_RMD160");
+		case GPGHashAlgorithmSHA256:
+			return maybeLocalize(@"DIGEST_ALGO_SHA256");
+		case GPGHashAlgorithmSHA384:
+			return maybeLocalize(@"DIGEST_ALGO_SHA384");
+		case GPGHashAlgorithmSHA512:
+			return maybeLocalize(@"DIGEST_ALGO_SHA512");
+		case GPGHashAlgorithmSHA224:
+			return maybeLocalize(@"DIGEST_ALGO_SHA224");
+		case 0:
+			return @"";
+		default:
+			return [NSString stringWithFormat:maybeLocalize(@"Algorithm_%i"), value];
+	}
+}
+
+@end
+
 @implementation GPGValidityDescriptionTransformer
 @synthesize keepUnlocalized = _keepUnlocalized;
 
