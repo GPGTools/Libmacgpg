@@ -385,8 +385,9 @@ typedef struct {
 		completed = YES;
 		return;
 	}
+	__block LPXTTask *weakSelf = self;
 	dispatch_async(hasCompletedQueue, ^{
-        completed = YES;
+        weakSelf->completed = YES;
     });
 }
 
@@ -395,8 +396,9 @@ typedef struct {
 	if(hasCompletedQueue == NULL) {
 		return YES;
 	}
+	__block LPXTTask *weakSelf = self;
     dispatch_sync(hasCompletedQueue, ^{
-        hasCompleted = completed;
+        hasCompleted = weakSelf->completed;
     });
     return hasCompleted;
 }
