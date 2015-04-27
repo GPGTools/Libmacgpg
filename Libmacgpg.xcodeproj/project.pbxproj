@@ -40,12 +40,18 @@
 		1BD78BBA1726B6060005F251 /* Libmacgpg.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DC2EF5B0486A6940098B216 /* Libmacgpg.framework */; };
 		1BD78BBC1726B6230005F251 /* Libmacgpg.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 8DC2EF5B0486A6940098B216 /* Libmacgpg.framework */; };
 		1BDA56BC1618A94300185C72 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4591C4D314F86D38007F6D47 /* AppKit.framework */; };
-		3002C04416EE388B00D57C1E /* libcrypto.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3002C04316EE388B00D57C1E /* libcrypto.dylib */; };
-		3002C04616EE389100D57C1E /* libxar.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3002C04516EE389100D57C1E /* libxar.dylib */; };
 		3002C04716EE38C900D57C1E /* libcrypto.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3002C04316EE388B00D57C1E /* libcrypto.dylib */; };
 		301D5D9F178C9871003026E7 /* GPGKeyserver.h in Headers */ = {isa = PBXBuildFile; fileRef = 301D5D9D178C9871003026E7 /* GPGKeyserver.h */; };
 		301D5DA0178C9871003026E7 /* GPGKeyserver.m in Sources */ = {isa = PBXBuildFile; fileRef = 301D5D9E178C9871003026E7 /* GPGKeyserver.m */; };
 		3026F4AF13A203A000F3CA02 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3026F4AE13A203A000F3CA02 /* Security.framework */; };
+		30444C461A65E3D70052CB94 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 30DF7CBB16D39EAA00C8225C /* main.m */; };
+		30444C491A65E46F0052CB94 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4591C4D514F86D38007F6D47 /* Foundation.framework */; };
+		30444C4A1A65E4740052CB94 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3026F4AE13A203A000F3CA02 /* Security.framework */; };
+		30444C4B1A65E4790052CB94 /* SecurityFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3077AE881A6547D2001EC508 /* SecurityFoundation.framework */; };
+		30444C4C1A65E4800052CB94 /* libxar.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3002C04516EE389100D57C1E /* libxar.dylib */; };
+		30444C4D1A65E4B50052CB94 /* libcrypto.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3002C04316EE388B00D57C1E /* libcrypto.dylib */; };
+		30444C4F1A65E6F00052CB94 /* gpgtools.icns in Resources */ = {isa = PBXBuildFile; fileRef = 30444C4E1A65E6F00052CB94 /* gpgtools.icns */; };
+		30444C501A65E83D0052CB94 /* GPGTools.app in Resources */ = {isa = PBXBuildFile; fileRef = 30444C181A65E0590052CB94 /* GPGTools.app */; };
 		3048830B1462B11700F2E5F4 /* DirectoryWatcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 304883091462B11700F2E5F4 /* DirectoryWatcher.h */; };
 		3048830C1462B11700F2E5F4 /* DirectoryWatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 3048830A1462B11700F2E5F4 /* DirectoryWatcher.m */; };
 		3048830F1462B22000F2E5F4 /* GPGWatcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 3048830D1462B22000F2E5F4 /* GPGWatcher.h */; };
@@ -68,10 +74,6 @@
 		30C8B3B11395072C00F49AA1 /* Libmacgpg.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DC2EF5B0486A6940098B216 /* Libmacgpg.framework */; };
 		30D5E2A41483A0F700F31454 /* GPGConf.h in Headers */ = {isa = PBXBuildFile; fileRef = 30D5E2A21483A0F700F31454 /* GPGConf.h */; };
 		30D5E2A51483A0F700F31454 /* GPGConf.m in Sources */ = {isa = PBXBuildFile; fileRef = 30D5E2A31483A0F700F31454 /* GPGConf.m */; };
-		30DF7CB916D39EAA00C8225C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1B3D64DF1565BC6600D93BBE /* Foundation.framework */; };
-		30DF7CBC16D39EAA00C8225C /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 30DF7CBB16D39EAA00C8225C /* main.m */; };
-		30DF7CC416D3A12F00C8225C /* installerHelper in Resources */ = {isa = PBXBuildFile; fileRef = 30DF7CB816D39EAA00C8225C /* installerHelper */; };
-		30DF7CD116D3A44000C8225C /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3026F4AE13A203A000F3CA02 /* Security.framework */; };
 		30FF413712FAC6CD00F39832 /* GPGController.h in Headers */ = {isa = PBXBuildFile; fileRef = 30FF411D12FAC6CD00F39832 /* GPGController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		30FF413812FAC6CD00F39832 /* GPGController.m in Sources */ = {isa = PBXBuildFile; fileRef = 30FF411E12FAC6CD00F39832 /* GPGController.m */; };
 		30FF413B12FAC6CD00F39832 /* GPGGlobals.h in Headers */ = {isa = PBXBuildFile; fileRef = 30FF412112FAC6CD00F39832 /* GPGGlobals.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -133,19 +135,19 @@
 			remoteGlobalIDString = 8DC2EF4F0486A6940098B216;
 			remoteInfo = Libmacgpg;
 		};
+		30444C471A65E3E30052CB94 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 30444C171A65E0590052CB94;
+			remoteInfo = installerHelper;
+		};
 		30C8B3931395046400F49AA1 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 8DC2EF4F0486A6940098B216;
 			remoteInfo = Libmacgpg;
-		};
-		30DF7CC516D3A13300C8225C /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 30DF7CB716D39EAA00C8225C;
-			remoteInfo = installerHelper;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -159,15 +161,6 @@
 				1BD78BBC1726B6230005F251 /* Libmacgpg.framework in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
-		};
-		30DF7CB616D39EAA00C8225C /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 1;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
@@ -211,6 +204,13 @@
 		301D5D9D178C9871003026E7 /* GPGKeyserver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGKeyserver.h; sourceTree = "<group>"; };
 		301D5D9E178C9871003026E7 /* GPGKeyserver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGKeyserver.m; sourceTree = "<group>"; };
 		3026F4AE13A203A000F3CA02 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		30444C181A65E0590052CB94 /* GPGTools.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GPGTools.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		30444C1C1A65E0590052CB94 /* installerHelper-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "installerHelper-Info.plist"; sourceTree = "<group>"; };
+		30444C331A65E0590052CB94 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		30444C3A1A65E0590052CB94 /* installerHelperTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "installerHelperTests-Info.plist"; sourceTree = "<group>"; };
+		30444C3C1A65E0590052CB94 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		30444C3E1A65E0590052CB94 /* installerHelperTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = installerHelperTests.m; sourceTree = "<group>"; };
+		30444C4E1A65E6F00052CB94 /* gpgtools.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = gpgtools.icns; path = ../../GPGTools_Core/images/gpgtools.icns; sourceTree = "<group>"; };
 		304883091462B11700F2E5F4 /* DirectoryWatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DirectoryWatcher.h; sourceTree = "<group>"; };
 		3048830A1462B11700F2E5F4 /* DirectoryWatcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DirectoryWatcher.m; sourceTree = "<group>"; };
 		3048830D1462B22000F2E5F4 /* GPGWatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGWatcher.h; sourceTree = "<group>"; };
@@ -219,6 +219,7 @@
 		3059AF1014239FAB00AD5B30 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		30691AA2136AECC4004AA469 /* GPGOptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGOptions.h; sourceTree = "<group>"; };
 		30691AA3136AECC4004AA469 /* GPGOptions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGOptions.m; sourceTree = "<group>"; };
+		3077AE881A6547D2001EC508 /* SecurityFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SecurityFoundation.framework; path = System/Library/Frameworks/SecurityFoundation.framework; sourceTree = SDKROOT; };
 		307D79101340B71A005C9C32 /* TODO */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TODO; sourceTree = "<group>"; };
 		309A18CE13E3812E0069DC0F /* GPGTransformer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGTransformer.h; sourceTree = "<group>"; };
 		309A18CF13E3812E0069DC0F /* GPGTransformer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGTransformer.m; sourceTree = "<group>"; };
@@ -237,7 +238,6 @@
 		30C8B39B1395052D00F49AA1 /* Test1.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Test1.m; sourceTree = "<group>"; };
 		30D5E2A21483A0F700F31454 /* GPGConf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = GPGConf.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		30D5E2A31483A0F700F31454 /* GPGConf.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGConf.m; sourceTree = "<group>"; };
-		30DF7CB816D39EAA00C8225C /* installerHelper */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = installerHelper; sourceTree = BUILT_PRODUCTS_DIR; };
 		30DF7CBB16D39EAA00C8225C /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		30FF411D12FAC6CD00F39832 /* GPGController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGController.h; sourceTree = "<group>"; };
 		30FF411E12FAC6CD00F39832 /* GPGController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGController.m; sourceTree = "<group>"; };
@@ -321,22 +321,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		30444C151A65E0590052CB94 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				30444C4D1A65E4B50052CB94 /* libcrypto.dylib in Frameworks */,
+				30444C4C1A65E4800052CB94 /* libxar.dylib in Frameworks */,
+				30444C4B1A65E4790052CB94 /* SecurityFoundation.framework in Frameworks */,
+				30444C4A1A65E4740052CB94 /* Security.framework in Frameworks */,
+				30444C491A65E46F0052CB94 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		30C8B38B139503A800F49AA1 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				30C8B3B11395072C00F49AA1 /* Libmacgpg.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		30DF7CB516D39EAA00C8225C /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				30DF7CD116D3A44000C8225C /* Security.framework in Frameworks */,
-				30DF7CB916D39EAA00C8225C /* Foundation.framework in Frameworks */,
-				3002C04616EE389100D57C1E /* libxar.dylib in Frameworks */,
-				3002C04416EE388B00D57C1E /* libcrypto.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -360,8 +361,8 @@
 			children = (
 				8DC2EF5B0486A6940098B216 /* Libmacgpg.framework */,
 				1B46CFCC161555DF00CF9C5F /* org.gpgtools.Libmacgpg.xpc */,
-				30DF7CB816D39EAA00C8225C /* installerHelper */,
 				1BD78B9F1726B2820005F251 /* LeakFinder.app */,
+				30444C181A65E0590052CB94 /* GPGTools.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -377,6 +378,7 @@
 				1B46CFCF161555DF00CF9C5F /* org.gpgtools.Libmacgpg.xpc */,
 				30DF7CBA16D39EAA00C8225C /* installerHelper */,
 				1BD78BA11726B2830005F251 /* LeakFinder */,
+				30444C381A65E0590052CB94 /* installerHelperTests */,
 				0867D69AFE84028FC02AAC07 /* Frameworks */,
 				034768DFFF38A50411DB9C8B /* Products */,
 				30C8B399139504DC00F49AA1 /* UnitTest */,
@@ -387,12 +389,14 @@
 		0867D69AFE84028FC02AAC07 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				3077AE881A6547D2001EC508 /* SecurityFoundation.framework */,
 				1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */,
 				30BA88F1138FE593005982D9 /* SystemConfiguration.framework */,
 				3026F4AE13A203A000F3CA02 /* Security.framework */,
 				3002C04516EE389100D57C1E /* libxar.dylib */,
 				3002C04316EE388B00D57C1E /* libcrypto.dylib */,
 				1B3D64DF1565BC6600D93BBE /* Foundation.framework */,
+				30444C331A65E0590052CB94 /* XCTest.framework */,
 				4591C4D214F86D38007F6D47 /* Other Frameworks */,
 			);
 			path = Frameworks;
@@ -540,6 +544,24 @@
 			name = GPGKey;
 			sourceTree = "<group>";
 		};
+		30444C381A65E0590052CB94 /* installerHelperTests */ = {
+			isa = PBXGroup;
+			children = (
+				30444C3E1A65E0590052CB94 /* installerHelperTests.m */,
+				30444C391A65E0590052CB94 /* Supporting Files */,
+			);
+			path = installerHelperTests;
+			sourceTree = "<group>";
+		};
+		30444C391A65E0590052CB94 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				30444C3A1A65E0590052CB94 /* installerHelperTests-Info.plist */,
+				30444C3B1A65E0590052CB94 /* InfoPlist.strings */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
 		307FAABB13F26BB4003FA99B /* GPGOptions */ = {
 			isa = PBXGroup;
 			children = (
@@ -590,6 +612,8 @@
 		30DF7CBA16D39EAA00C8225C /* installerHelper */ = {
 			isa = PBXGroup;
 			children = (
+				30444C4E1A65E6F00052CB94 /* gpgtools.icns */,
+				30444C1C1A65E0590052CB94 /* installerHelper-Info.plist */,
 				30DF7CBB16D39EAA00C8225C /* main.m */,
 			);
 			path = installerHelper;
@@ -714,6 +738,23 @@
 			productReference = 1BD78B9F1726B2820005F251 /* LeakFinder.app */;
 			productType = "com.apple.product-type.application";
 		};
+		30444C171A65E0590052CB94 /* installerHelper */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 30444C401A65E0590052CB94 /* Build configuration list for PBXNativeTarget "installerHelper" */;
+			buildPhases = (
+				30444C141A65E0590052CB94 /* Sources */,
+				30444C151A65E0590052CB94 /* Frameworks */,
+				30444C161A65E0590052CB94 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = installerHelper;
+			productName = installerHelper;
+			productReference = 30444C181A65E0590052CB94 /* GPGTools.app */;
+			productType = "com.apple.product-type.application";
+		};
 		30C8B38D139503A800F49AA1 /* UnitTest */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 30C8B392139503A900F49AA1 /* Build configuration list for PBXNativeTarget "UnitTest" */;
@@ -733,29 +774,13 @@
 			productReference = 30C8B38E139503A800F49AA1 /* UnitTest.octest */;
 			productType = "com.apple.product-type.bundle.ocunit-test";
 		};
-		30DF7CB716D39EAA00C8225C /* installerHelper */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 30DF7CC316D39EAA00C8225C /* Build configuration list for PBXNativeTarget "installerHelper" */;
-			buildPhases = (
-				30DF7CB416D39EAA00C8225C /* Sources */,
-				30DF7CB516D39EAA00C8225C /* Frameworks */,
-				30DF7CB616D39EAA00C8225C /* CopyFiles */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = installerHelper;
-			productName = installerHelper;
-			productReference = 30DF7CB816D39EAA00C8225C /* installerHelper */;
-			productType = "com.apple.product-type.tool";
-		};
 		8DC2EF4F0486A6940098B216 /* Libmacgpg */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 1DEB91AD08733DA50010E9CD /* Build configuration list for PBXNativeTarget "Libmacgpg" */;
 			buildPhases = (
 				8DC2EF500486A6940098B216 /* Headers */,
 				8DC2EF520486A6940098B216 /* Resources */,
+				30444C531A65F0080052CB94 /* Create installerHelper symlink */,
 				8DC2EF540486A6940098B216 /* Sources */,
 				8DC2EF560486A6940098B216 /* Frameworks */,
 				30C2960E16775037006EF09C /* Fill Info.plist */,
@@ -766,6 +791,7 @@
 			);
 			dependencies = (
 				30DF7CC616D3A13300C8225C /* PBXTargetDependency */,
+				30444C481A65E3E30052CB94 /* PBXTargetDependency */,
 			);
 			name = Libmacgpg;
 			productInstallPath = "$(HOME)/Library/Frameworks";
@@ -792,6 +818,7 @@
 				German,
 				en,
 				de,
+				Base,
 			);
 			mainGroup = 0867D691FE84028FC02AAC07 /* Libmacgpg */;
 			productRefGroup = 034768DFFF38A50411DB9C8B /* Products */;
@@ -801,8 +828,8 @@
 				8DC2EF4F0486A6940098B216 /* Libmacgpg */,
 				30C8B38D139503A800F49AA1 /* UnitTest */,
 				1B46CFCB161555DF00CF9C5F /* org.gpgtools.Libmacgpg.xpc */,
-				30DF7CB716D39EAA00C8225C /* installerHelper */,
 				1BD78B9E1726B2820005F251 /* LeakFinder */,
+				30444C171A65E0590052CB94 /* installerHelper */,
 			);
 		};
 /* End PBXProject section */
@@ -815,6 +842,14 @@
 				1BD78BA61726B2830005F251 /* InfoPlist.strings in Resources */,
 				1BD78BAC1726B2830005F251 /* Credits.rtf in Resources */,
 				1BD78BB21726B2830005F251 /* MainMenu.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		30444C161A65E0590052CB94 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				30444C4F1A65E6F00052CB94 /* gpgtools.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -833,10 +868,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				30444C501A65E83D0052CB94 /* GPGTools.app in Resources */,
 				30B586F5141E255C000373F1 /* Keyservers.plist in Resources */,
 				30516558142281270038AAF0 /* Localizable.strings in Resources */,
 				1B46CFA2161531DC00CF9C5F /* org.gpgtools.Libmacgpg.xpc.plist in Resources */,
-				30DF7CC416D3A12F00C8225C /* installerHelper in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -918,6 +953,21 @@
 			shellScript = "[[ \"$CONFIGURATION\" == \"Debug\" ]] || exit 0\nUSER_LIBRARY=\"$HOME/Library\"\nJAILFREE_PLIST=\"${EXECUTABLE_NAME}.plist\"\nLAUNCHAGENT_PATH=\"${USER_LIBRARY}/LaunchAgents/${JAILFREE_PLIST}\"\nJAILFREE_PATH=\"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_NAME}\"\nBUILD_LAUNCHAGENT_PATH=\"${BUILD_DIR}/${JAILFREE_PLIST}\"\n\nif [ -d \"${USER_LIBRARY}/LaunchAgents\" ] && [ -w \"${USER_LIBRARY}/LaunchAgents\" ] && [ -x \"${USER_LIBRARY}/LaunchAgents\" ]; then\n    cp \"${BUILD_LAUNCHAGENT_PATH}\" \"${LAUNCHAGENT_PATH}\"\n    /usr/libexec/PlistBuddy -c \"Set :ProgramArguments:0 \\\"${JAILFREE_PATH}\\\"\" \"${LAUNCHAGENT_PATH}\"\nfi";
 			showEnvVarsInLog = 0;
 		};
+		30444C531A65F0080052CB94 /* Create installerHelper symlink */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Create installerHelper symlink";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "ln -fs GPGTools.app/Contents/MacOS/installerHelper \"$BUILT_PRODUCTS_DIR/$FULL_PRODUCT_NAME/Resources/\"";
+			showEnvVarsInLog = 0;
+		};
 		30C2960E16775037006EF09C /* Fill Info.plist */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -968,6 +1018,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		30444C141A65E0590052CB94 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				30444C461A65E3D70052CB94 /* main.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		30C8B38A139503A800F49AA1 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -983,14 +1041,6 @@
 				45C0BC18151B66F500AA8BF6 /* GPGResourceUtil.m in Sources */,
 				45DD3D4C15642A0D00C9A4C1 /* GPGSignatureTest.m in Sources */,
 				45B8C6AC157140A600FD49CD /* NSRunLoop+TimeOutAndFlag.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		30DF7CB416D39EAA00C8225C /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				30DF7CBC16D39EAA00C8225C /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1042,15 +1092,15 @@
 			target = 8DC2EF4F0486A6940098B216 /* Libmacgpg */;
 			targetProxy = 1BD78BB81726B5190005F251 /* PBXContainerItemProxy */;
 		};
+		30444C481A65E3E30052CB94 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 30444C171A65E0590052CB94 /* installerHelper */;
+			targetProxy = 30444C471A65E3E30052CB94 /* PBXContainerItemProxy */;
+		};
 		30C8B3941395046400F49AA1 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 8DC2EF4F0486A6940098B216 /* Libmacgpg */;
 			targetProxy = 30C8B3931395046400F49AA1 /* PBXContainerItemProxy */;
-		};
-		30DF7CC616D3A13300C8225C /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 30DF7CB716D39EAA00C8225C /* installerHelper */;
-			targetProxy = 30DF7CC516D3A13300C8225C /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1077,6 +1127,14 @@
 				1BD78BB11726B2830005F251 /* en */,
 			);
 			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+		30444C3B1A65E0590052CB94 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				30444C3C1A65E0590052CB94 /* en */,
+			);
+			name = InfoPlist.strings;
 			sourceTree = "<group>";
 		};
 		30516556142281270038AAF0 /* Localizable.strings */ = {
@@ -1335,6 +1393,72 @@
 			};
 			name = Release;
 		};
+		30444C411A65E0590052CB94 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				EXECUTABLE_NAME = installerHelper;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				INFOPLIST_FILE = "installerHelper/installerHelper-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				PRODUCT_NAME = GPGTools;
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		30444C421A65E0590052CB94 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				EXECUTABLE_NAME = installerHelper;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				INFOPLIST_FILE = "installerHelper/installerHelper-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				PRODUCT_NAME = GPGTools;
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
 		30C8B390139503A900F49AA1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1397,57 +1521,6 @@
 			};
 			name = Release;
 		};
-		30DF7CC116D39EAA00C8225C /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
-				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_ENABLE_OBJC_GC = unsupported;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES;
-				INSTALL_PATH = /Library/Frameworks/Libmacgpg.framework/Resources;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Debug;
-		};
-		30DF7CC216D39EAA00C8225C /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
-				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_ENABLE_OBJC_GC = unsupported;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES;
-				INSTALL_PATH = /Library/Frameworks/Libmacgpg.framework/Resources;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1487,20 +1560,19 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		30444C401A65E0590052CB94 /* Build configuration list for PBXNativeTarget "installerHelper" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				30444C411A65E0590052CB94 /* Debug */,
+				30444C421A65E0590052CB94 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
 		30C8B392139503A900F49AA1 /* Build configuration list for PBXNativeTarget "UnitTest" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				30C8B390139503A900F49AA1 /* Debug */,
 				30C8B391139503A900F49AA1 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		30DF7CC316D39EAA00C8225C /* Build configuration list for PBXNativeTarget "installerHelper" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				30DF7CC116D39EAA00C8225C /* Debug */,
-				30DF7CC216D39EAA00C8225C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
