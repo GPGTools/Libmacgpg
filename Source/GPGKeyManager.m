@@ -510,7 +510,7 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 	
 	dispatch_semaphore_signal(_allKeysAndSubkeysOnce);
 
-	return _allKeysAndSubkeys;
+	return [[_allKeysAndSubkeys retain] autorelease];
 }
 
 - (NSSet *)secretKeys {
