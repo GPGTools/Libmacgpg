@@ -483,8 +483,8 @@ void *lm_memmem(const void *big, size_t big_len, const void *little, size_t litt
 	[pool drain];
 }
 - (void)forwardInvocation:(NSInvocation *)anInvocation {
-	[anInvocation retainArguments];
     [anInvocation setTarget:realObject];
+	[anInvocation retainArguments];
 	[NSThread detachNewThreadSelector:@selector(invokeWithPool:) toTarget:self withObject:anInvocation];
 }
 + (id)proxyWithRealObject:(NSObject *)object {
