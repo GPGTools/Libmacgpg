@@ -112,9 +112,9 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 				[newKeys addObject:key];
 				[key release];
 				
-				dispatch_group_async(dispatchGroup, dispatchQueue, ^{
+				@autoreleasepool {
 					[self fillKey:key withRange:NSMakeRange(index, lastLine - index)];
-				});
+				}
 
 				lastLine = index;
 			}
