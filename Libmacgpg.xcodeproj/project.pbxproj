@@ -964,7 +964,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "echo -e '#!/bin/bash'\"\\n\"'\"$(dirname \"$0\")/GPGTools.app/Contents/MacOS/installerHelper\" \"$@\"' > \"$BUILT_PRODUCTS_DIR/$FULL_PRODUCT_NAME/Resources/installerHelper\"\nchmod +x \"$BUILT_PRODUCTS_DIR/$FULL_PRODUCT_NAME/Resources/installerHelper\"\n";
+			shellScript = "echo -e '#!/bin/bash'\"\\n\"'\"$(dirname \"$0\")/GPGTools.app/Contents/MacOS/installerHelper\" \"$@\"' > \"$BUILT_PRODUCTS_DIR/$FULL_PRODUCT_NAME/Resources/installerHelper\" || exit 1\nchmod +x \"$BUILT_PRODUCTS_DIR/$FULL_PRODUCT_NAME/Resources/installerHelper\" || exit 1\n";
 			showEnvVarsInLog = 0;
 		};
 		30C2960E16775037006EF09C /* Fill Info.plist */ = {
