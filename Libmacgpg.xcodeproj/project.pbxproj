@@ -50,7 +50,6 @@
 		30444C4B1A65E4790052CB94 /* SecurityFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3077AE881A6547D2001EC508 /* SecurityFoundation.framework */; };
 		30444C4C1A65E4800052CB94 /* libxar.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3002C04516EE389100D57C1E /* libxar.dylib */; };
 		30444C4D1A65E4B50052CB94 /* libcrypto.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3002C04316EE388B00D57C1E /* libcrypto.dylib */; };
-		30444C4F1A65E6F00052CB94 /* gpgtools.icns in Resources */ = {isa = PBXBuildFile; fileRef = 30444C4E1A65E6F00052CB94 /* gpgtools.icns */; };
 		30444C501A65E83D0052CB94 /* GPGTools.app in Resources */ = {isa = PBXBuildFile; fileRef = 30444C181A65E0590052CB94 /* GPGTools.app */; };
 		3048830B1462B11700F2E5F4 /* DirectoryWatcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 304883091462B11700F2E5F4 /* DirectoryWatcher.h */; };
 		3048830C1462B11700F2E5F4 /* DirectoryWatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 3048830A1462B11700F2E5F4 /* DirectoryWatcher.m */; };
@@ -59,6 +58,7 @@
 		30516558142281270038AAF0 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 30516556142281270038AAF0 /* Localizable.strings */; };
 		30691AA4136AECC4004AA469 /* GPGOptions.h in Headers */ = {isa = PBXBuildFile; fileRef = 30691AA2136AECC4004AA469 /* GPGOptions.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		30691AA5136AECC4004AA469 /* GPGOptions.m in Sources */ = {isa = PBXBuildFile; fileRef = 30691AA3136AECC4004AA469 /* GPGOptions.m */; };
+		307C211C1B1745F5006B07A7 /* gpgtools.icns in Resources */ = {isa = PBXBuildFile; fileRef = 307C211B1B1745F5006B07A7 /* gpgtools.icns */; };
 		309A18D013E3812E0069DC0F /* GPGTransformer.h in Headers */ = {isa = PBXBuildFile; fileRef = 309A18CE13E3812E0069DC0F /* GPGTransformer.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		309A18D113E3812E0069DC0F /* GPGTransformer.m in Sources */ = {isa = PBXBuildFile; fileRef = 309A18CF13E3812E0069DC0F /* GPGTransformer.m */; };
 		309A20FB13587D5B0041E0AA /* GPGPacket.h in Headers */ = {isa = PBXBuildFile; fileRef = 309A20F913587D5B0041E0AA /* GPGPacket.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -200,7 +200,6 @@
 		1BD78BB11726B2830005F251 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		3002C04316EE388B00D57C1E /* libcrypto.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcrypto.dylib; path = usr/lib/libcrypto.dylib; sourceTree = SDKROOT; };
 		3002C04516EE389100D57C1E /* libxar.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxar.dylib; path = usr/lib/libxar.dylib; sourceTree = SDKROOT; };
-		300DD0F91853AF300057B05F /* How to get the source code */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "How to get the source code"; path = "../../GPGTools_Core/resources/How to get the source code"; sourceTree = "<group>"; };
 		301D5D9D178C9871003026E7 /* GPGKeyserver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGKeyserver.h; sourceTree = "<group>"; };
 		301D5D9E178C9871003026E7 /* GPGKeyserver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGKeyserver.m; sourceTree = "<group>"; };
 		3026F4AE13A203A000F3CA02 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
@@ -210,7 +209,6 @@
 		30444C3A1A65E0590052CB94 /* installerHelperTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "installerHelperTests-Info.plist"; sourceTree = "<group>"; };
 		30444C3C1A65E0590052CB94 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		30444C3E1A65E0590052CB94 /* installerHelperTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = installerHelperTests.m; sourceTree = "<group>"; };
-		30444C4E1A65E6F00052CB94 /* gpgtools.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = gpgtools.icns; path = ../../GPGTools_Core/images/gpgtools.icns; sourceTree = "<group>"; };
 		304883091462B11700F2E5F4 /* DirectoryWatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DirectoryWatcher.h; sourceTree = "<group>"; };
 		3048830A1462B11700F2E5F4 /* DirectoryWatcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DirectoryWatcher.m; sourceTree = "<group>"; };
 		3048830D1462B22000F2E5F4 /* GPGWatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGWatcher.h; sourceTree = "<group>"; };
@@ -220,6 +218,7 @@
 		30691AA2136AECC4004AA469 /* GPGOptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGOptions.h; sourceTree = "<group>"; };
 		30691AA3136AECC4004AA469 /* GPGOptions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGOptions.m; sourceTree = "<group>"; };
 		3077AE881A6547D2001EC508 /* SecurityFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SecurityFoundation.framework; path = System/Library/Frameworks/SecurityFoundation.framework; sourceTree = SDKROOT; };
+		307C211B1B1745F5006B07A7 /* gpgtools.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = gpgtools.icns; path = Resources/gpgtools.icns; sourceTree = SOURCE_ROOT; };
 		307D79101340B71A005C9C32 /* TODO */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TODO; sourceTree = "<group>"; };
 		309A18CE13E3812E0069DC0F /* GPGTransformer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGTransformer.h; sourceTree = "<group>"; };
 		309A18CF13E3812E0069DC0F /* GPGTransformer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGTransformer.m; sourceTree = "<group>"; };
@@ -405,7 +404,6 @@
 		089C1665FE841158C02AAC07 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				300DD0F91853AF300057B05F /* How to get the source code */,
 				30516556142281270038AAF0 /* Localizable.strings */,
 				30B586F4141E255C000373F1 /* Keyservers.plist */,
 				8DC2EF5A0486A6940098B216 /* Info.plist */,
@@ -612,7 +610,7 @@
 		30DF7CBA16D39EAA00C8225C /* installerHelper */ = {
 			isa = PBXGroup;
 			children = (
-				30444C4E1A65E6F00052CB94 /* gpgtools.icns */,
+				307C211B1B1745F5006B07A7 /* gpgtools.icns */,
 				30444C1C1A65E0590052CB94 /* installerHelper-Info.plist */,
 				30DF7CBB16D39EAA00C8225C /* main.m */,
 			);
@@ -786,6 +784,7 @@
 				30C2960E16775037006EF09C /* Fill Info.plist */,
 				1B49BC6B1A97A8D6000440E9 /* Copy "How to get the source code" into Resources */,
 				1BC07F34174660F3004263BB /* Link Libmacgpg into ~/Library/Frameworks */,
+				30A8B42C1B17452E002F88BB /* Copy "How to get the source code" into Resources */,
 			);
 			buildRules = (
 			);
@@ -848,7 +847,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				30444C4F1A65E6F00052CB94 /* gpgtools.icns in Resources */,
+				307C211C1B1745F5006B07A7 /* gpgtools.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -966,6 +965,20 @@
 			shellPath = /bin/sh;
 			shellScript = "echo -e '#!/bin/bash'\"\\n\"'\"$(dirname \"$0\")/GPGTools.app/Contents/MacOS/installerHelper\" \"$@\"' > \"$BUILT_PRODUCTS_DIR/$FULL_PRODUCT_NAME/Resources/installerHelper\" || exit 1\nchmod +x \"$BUILT_PRODUCTS_DIR/$FULL_PRODUCT_NAME/Resources/installerHelper\" || exit 1\n";
 			showEnvVarsInLog = 0;
+		};
+		30A8B42C1B17452E002F88BB /* Copy "How to get the source code" into Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy \"How to get the source code\" into Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "[[ -d \"$DEPLOY_RESOURCES_DIR\" ]] || exit 0\n \n HOWTO_PATH=\"$DEPLOY_RESOURCES_DIR/resources/How to get the source code\"\n cp \"$HOWTO_PATH\" \"$BUILT_PRODUCTS_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/\"";
 		};
 		30C2960E16775037006EF09C /* Fill Info.plist */ = {
 			isa = PBXShellScriptBuildPhase;
