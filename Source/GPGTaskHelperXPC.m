@@ -343,13 +343,16 @@
 }
 
 - (void)processStatusWithKey:(NSString *)keyword value:(NSString *)value reply:(void (^)(NSData *))reply {
-	if(!self.processStatus)
-		return;
-    
-	NSData *response = self.processStatus(keyword, value);
-    // Response can't be nil otherwise the reply won't be send as it turns out.
-    response = response ? response : [[NSData alloc] init];
-    reply(response);
+	// If process status is not set, we still have to reply otherwise the request might hang forever.
+	NSData *response = nil;
+	if(self.processStatus)
+		response = self.processStatus(keyword, value);
+	
+	// Response can't be nil otherwise the reply won't be send as it turns out.
+	if(!response)
+		response = [NSData data];
+	
+	reply(response);
 }
 
 - (void)progress:(NSUInteger)processedBytes total:(NSUInteger)total {
