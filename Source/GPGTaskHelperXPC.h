@@ -53,6 +53,9 @@
 	id <Jailfree> _jailfree;
 	BOOL _wasShutdown;
 	NSException *_connectionError;
+	NSException *_callError;
+	NSException *_taskError;
+	BOOL _success;
 }
 
 - (id)init;
