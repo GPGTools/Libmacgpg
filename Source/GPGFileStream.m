@@ -148,6 +148,30 @@
         [_readfh seekToFileOffset:0];
     }
 }
+- (void)seekToOffset:(NSUInteger)offset {
+	if (_fh) {
+		if (offset > _fh.offsetInFile) {
+			@throw [NSException exceptionWithName:NSRangeException reason:[NSString stringWithFormat:@"offset %lu exceeds file length", (unsigned long)offset] userInfo:nil];
+		}
+		[_fh truncateFileAtOffset:offset];
+	}
+	if (_readfh) {
+		if (offset > _flength) {
+			@throw [NSException exceptionWithName:NSRangeException reason:[NSString stringWithFormat:@"offset %lu exceeds file length", (unsigned long)offset] userInfo:nil];
+		}
+		[_readfh seekToFileOffset:offset];
+	}
+}
+- (NSUInteger)offset {
+	if (_fh) {
+		return _fh.offsetInFile;
+	}
+	if (_readfh) {
+		return _readfh.offsetInFile;
+	}
+	return NSIntegerMax;
+}
+
 
 - (unsigned long long)length
 {

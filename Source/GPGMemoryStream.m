@@ -119,6 +119,29 @@
     if (_readableData) 
         _readPos = 0;
 }
+- (void)seekToOffset:(NSUInteger)offset {
+	if (_data) {
+		if (offset > _data.length) {
+			@throw [NSException exceptionWithName:NSRangeException reason:[NSString stringWithFormat:@"offset %lu exceeds data length", (unsigned long)offset] userInfo:nil];
+		}
+		[_data setLength:offset];
+	}
+	if (_readableData) {
+		if (offset > _readableData.length) {
+			@throw [NSException exceptionWithName:NSRangeException reason:[NSString stringWithFormat:@"offset %lu exceeds data length", (unsigned long)offset] userInfo:nil];
+		}
+		_readPos = offset;
+	}
+}
+- (NSUInteger)offset {
+	if (_data) {
+		return _data.length;
+	}
+	if (_readableData) {
+		return _readPos;
+	}
+	return NSIntegerMax;
+}
 
 - (unsigned long long)length
 {

@@ -30,6 +30,11 @@
 // seek the underlying representation back to the beginning; 
 // for a writeable stream, this truncates all data
 - (void)seekToBeginning;
+// seek the underlying representation to the given offset;
+// for a writeable stream, this truncates to the given offeset
+- (void)seekToOffset:(NSUInteger)offset;
+// the current offset in the stream.
+- (NSUInteger)offset;
 
 // readable streams may indicate total length; 
 // writeable streams may indicate length written;
