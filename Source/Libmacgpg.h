@@ -35,3 +35,4 @@
 #import <Libmacgpg/GPGUserID.h>
 #import <Libmacgpg/GPGUserIDSignature.h>
 #import <Libmacgpg/NSBundle+Sandbox.h>
+#import <Libmacgpg/GPGUnArmor.h>

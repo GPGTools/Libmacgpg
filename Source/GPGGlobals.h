@@ -239,6 +239,8 @@ enum gpgStatusCodes {
 #define GPGDebugLog(...) {;}
 #endif
 
+#define LibmacgpgErrorDomain @"LibmacgpgErrorDomain"
+
 #define GPG_SERVICE_NAME "GnuPG"
 #define JAILFREE_XPC_MACH_NAME JAILFREE_XPC_NAME
 
@@ -250,6 +252,8 @@ NSString *localizedLibmacgpgString(NSString *key);
 @interface NSData (GPGExtension)
 - (NSString *)gpgString;
 - (NSArray *)gpgLines;
+- (NSData *)base64DecodedData;
+- (UInt32)crc24;
 @end
 
 @interface NSString (GPGExtension)

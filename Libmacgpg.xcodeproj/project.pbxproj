@@ -41,6 +41,8 @@
 		1BD78BBC1726B6230005F251 /* Libmacgpg.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 8DC2EF5B0486A6940098B216 /* Libmacgpg.framework */; };
 		1BDA56BC1618A94300185C72 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4591C4D314F86D38007F6D47 /* AppKit.framework */; };
 		3002C04716EE38C900D57C1E /* libcrypto.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3002C04316EE388B00D57C1E /* libcrypto.dylib */; };
+		301A44CD1B436405002A38E4 /* GPGUnArmor.h in Headers */ = {isa = PBXBuildFile; fileRef = 301A44CB1B436405002A38E4 /* GPGUnArmor.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		301A44CE1B436405002A38E4 /* GPGUnArmor.m in Sources */ = {isa = PBXBuildFile; fileRef = 301A44CC1B436405002A38E4 /* GPGUnArmor.m */; };
 		301D5D9F178C9871003026E7 /* GPGKeyserver.h in Headers */ = {isa = PBXBuildFile; fileRef = 301D5D9D178C9871003026E7 /* GPGKeyserver.h */; };
 		301D5DA0178C9871003026E7 /* GPGKeyserver.m in Sources */ = {isa = PBXBuildFile; fileRef = 301D5D9E178C9871003026E7 /* GPGKeyserver.m */; };
 		3026F4AF13A203A000F3CA02 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3026F4AE13A203A000F3CA02 /* Security.framework */; };
@@ -200,6 +202,8 @@
 		1BD78BB11726B2830005F251 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		3002C04316EE388B00D57C1E /* libcrypto.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcrypto.dylib; path = usr/lib/libcrypto.dylib; sourceTree = SDKROOT; };
 		3002C04516EE389100D57C1E /* libxar.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxar.dylib; path = usr/lib/libxar.dylib; sourceTree = SDKROOT; };
+		301A44CB1B436405002A38E4 /* GPGUnArmor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGUnArmor.h; sourceTree = "<group>"; };
+		301A44CC1B436405002A38E4 /* GPGUnArmor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGUnArmor.m; sourceTree = "<group>"; };
 		301D5D9D178C9871003026E7 /* GPGKeyserver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGKeyserver.h; sourceTree = "<group>"; };
 		301D5D9E178C9871003026E7 /* GPGKeyserver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGKeyserver.m; sourceTree = "<group>"; };
 		3026F4AE13A203A000F3CA02 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
@@ -417,6 +421,7 @@
 				1B72F73E157AE85B00101194 /* Additions */,
 				302AA377133605FE0022A371 /* GPGKey */,
 				307FAABB13F26BB4003FA99B /* GPGOptions */,
+				306C73821B45B0F200A34730 /* GPGStream */,
 				30C60EEE12FF3321006BB8DA /* Libmacgpg.h */,
 				30FF411D12FAC6CD00F39832 /* GPGController.h */,
 				30FF411E12FAC6CD00F39832 /* GPGController.m */,
@@ -428,6 +433,8 @@
 				30FF412212FAC6CD00F39832 /* GPGGlobals.m */,
 				309A20F913587D5B0041E0AA /* GPGPacket.h */,
 				309A20FA13587D5B0041E0AA /* GPGPacket.m */,
+				301A44CB1B436405002A38E4 /* GPGUnArmor.h */,
+				301A44CC1B436405002A38E4 /* GPGUnArmor.m */,
 				30FF413112FAC6CD00F39832 /* GPGTask.h */,
 				30FF413212FAC6CD00F39832 /* GPGTask.m */,
 				1B9DB26815784DB700488353 /* GPGTaskHelper.h */,
@@ -442,12 +449,6 @@
 				3048830E1462B22000F2E5F4 /* GPGWatcher.m */,
 				304883091462B11700F2E5F4 /* DirectoryWatcher.h */,
 				3048830A1462B11700F2E5F4 /* DirectoryWatcher.m */,
-				451D8827156A7AD900A0B890 /* GPGStream.h */,
-				451D8828156A7AD900A0B890 /* GPGStream.m */,
-				451D882B156A7CA300A0B890 /* GPGMemoryStream.h */,
-				451D882C156A7CA300A0B890 /* GPGMemoryStream.m */,
-				451D882F156A7E4900A0B890 /* GPGFileStream.h */,
-				451D8830156A7E4900A0B890 /* GPGFileStream.m */,
 				1B9FF20E17257A69004FB017 /* GPGTaskHelperXPC.h */,
 				1B9FF20F17257A69004FB017 /* GPGTaskHelperXPC.m */,
 				301D5D9D178C9871003026E7 /* GPGKeyserver.h */,
@@ -558,6 +559,19 @@
 				30444C3B1A65E0590052CB94 /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		306C73821B45B0F200A34730 /* GPGStream */ = {
+			isa = PBXGroup;
+			children = (
+				451D8827156A7AD900A0B890 /* GPGStream.h */,
+				451D8828156A7AD900A0B890 /* GPGStream.m */,
+				451D882B156A7CA300A0B890 /* GPGMemoryStream.h */,
+				451D882C156A7CA300A0B890 /* GPGMemoryStream.m */,
+				451D882F156A7E4900A0B890 /* GPGFileStream.h */,
+				451D8830156A7E4900A0B890 /* GPGFileStream.m */,
+			);
+			name = GPGStream;
 			sourceTree = "<group>";
 		};
 		307FAABB13F26BB4003FA99B /* GPGOptions */ = {
@@ -673,6 +687,7 @@
 				451D882D156A7CA300A0B890 /* GPGMemoryStream.h in Headers */,
 				451D8831156A7E4900A0B890 /* GPGFileStream.h in Headers */,
 				1BCE0CD11617A3DF0026DCFF /* NSBundle+Sandbox.h in Headers */,
+				301A44CD1B436405002A38E4 /* GPGUnArmor.h in Headers */,
 				1B16DD21179C83F000BC1366 /* GPGTypesRW.h in Headers */,
 				30FF414D12FAC6CD00F39832 /* GPGTaskOrder.h in Headers */,
 				1BC7A50013D300A600AE57BA /* LPXTTask.h in Headers */,
@@ -1075,6 +1090,7 @@
 				30691AA5136AECC4004AA469 /* GPGOptions.m in Sources */,
 				1BC7A50113D300A600AE57BA /* LPXTTask.m in Sources */,
 				309A18D113E3812E0069DC0F /* GPGTransformer.m in Sources */,
+				301A44CE1B436405002A38E4 /* GPGUnArmor.m in Sources */,
 				30A70EE613EF328000EE9CD9 /* GPGException.m in Sources */,
 				3048830C1462B11700F2E5F4 /* DirectoryWatcher.m in Sources */,
 				304883101462B22000F2E5F4 /* GPGWatcher.m in Sources */,
@@ -1298,7 +1314,6 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Source/Libmacgpg_Prefix.pch;
-				GCC_WARN_PEDANTIC = YES;
 				GCC_WARN_SHADOW = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				HEADER_SEARCH_PATHS = (
@@ -1332,7 +1347,6 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Source/Libmacgpg_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
-				GCC_WARN_PEDANTIC = YES;
 				GCC_WARN_SHADOW = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				HEADER_SEARCH_PATHS = (

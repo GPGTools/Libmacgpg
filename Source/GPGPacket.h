@@ -47,16 +47,15 @@
 @property (nonatomic, readonly) NSArray *subpackets; // At the moment a array of dicts. Can change at any time.
 
 
-
 + (id)packetsWithData:(NSData *)data;
 + (void)enumeratePacketsWithData:(NSData *)theData block:(void (^)(GPGPacket *packet, BOOL *stop))block;
-+ (BOOL)isArmored:(const uint8_t)byte;
-// if return nil, input stream is not armored; should be reset and used directly
-+ (NSData *)unArmorFrom:(GPGStream *)input clearText:(NSData **)clearText;
-+ (NSData *)unArmor:(NSData *)data;
-+ (NSData *)unArmor:(NSData *)theData clearText:(NSData **)clearText;
-+ (NSData *)repairPacketData:(NSData *)data;
 
-long crc24(char *bytes, NSUInteger length);
+
+
+
+// Old methods, only for compatibility:
+
++ (NSData *)unArmor:(NSData *)data DEPRECATED_ATTRIBUTE;
++ (NSData *)unArmor:(NSData *)data clearText:(NSData **)clearText DEPRECATED_ATTRIBUTE;
 
 @end
