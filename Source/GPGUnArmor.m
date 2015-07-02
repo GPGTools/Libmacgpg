@@ -586,8 +586,8 @@ typedef enum {
 	if (!found) {
 		return stateEOF;
 	}
-	
-	
+
+
 	UInt32 crc;
 	if (haveCRC) {
 		NSData *decodedCRC = nil;
