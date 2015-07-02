@@ -31,6 +31,7 @@
 #import "GPGKeyserver.h"
 #import "GPGTaskHelper.h"
 #import "GPGTask.h"
+#import "GPGUnArmor.h"
 #if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
 #import "GPGTaskHelperXPC.h"
 #import "NSBundle+Sandbox.h"
@@ -392,13 +393,7 @@ BOOL gpgConfigReaded = NO;
 
 - (void)decryptTo:(GPGStream *)output data:(GPGStream *)input {
 	@try {
-		NSData *unarmored = [GPGPacket unArmorFrom:input clearText:nil];
-        if (unarmored) {
-            input = [GPGMemoryStream memoryStreamForReading:unarmored];
-        }
-        else {
-            [input seekToBeginning];
-        }
+		input = [GPGUnArmor unArmor:input];
 		
 		self.gpgTask = [GPGTask gpgTask];
 		[self addArgumentsForOptions];
@@ -437,18 +432,11 @@ BOOL gpgConfigReaded = NO;
 	@try {
 		[self operationDidStart];
 
-		NSData *originalData = nil;		
-		NSData *unarmored = [GPGPacket unArmorFrom:signatureInput clearText:originalInput ? nil : &originalData];
-        if (unarmored) {
-            signatureInput = [GPGMemoryStream memoryStreamForReading:unarmored];
-        }
-        else {
-            [signatureInput seekToBeginning];
-        }
-
-        if (originalData)
-            originalInput = [GPGMemoryStream memoryStreamForReading:originalData];
-		
+		NSData *originalData = nil;
+		signatureInput = [GPGUnArmor unArmor:signatureInput clearText:originalInput ? nil : &originalData];
+		if (originalData) {
+			originalInput = [GPGMemoryStream memoryStreamForReading:originalData];
+		}
 		
 		self.gpgTask = [GPGTask gpgTask];
 		[self addArgumentsForOptions];
@@ -879,6 +867,7 @@ BOOL gpgConfigReaded = NO;
 
 - (NSArray *)algorithmPreferencesForKey:(GPGKey *)key {
 	self.gpgTask = [GPGTask gpgTask];
+	[self addArgumentsForOptions];
 	[gpgTask addArgument:@"--edit-key"];
 	[gpgTask addArgument:[key description]];
 	[gpgTask addArgument:@"quit"];
@@ -1079,34 +1068,42 @@ BOOL gpgConfigReaded = NO;
 		return nil;
 	}
 	@try {
-        BOOL encrypted = NO;
-        data = [GPGPacket unArmor:data];
+		
+		
         NSData *dataToCheck = data;
         NSSet *keys = nil;
 		int i = 3; // Max 3 loops.
         
-        while (dataToCheck && i-- > 0) {
+        while (dataToCheck.length > 0 && i-- > 0) {
+			NSData *unchangedData = dataToCheck;
+			BOOL encrypted = NO;
             keys = [self keysInExportedData:dataToCheck encrypted:&encrypted];
 
             if (keys.count > 0) {
                 data = dataToCheck;
                 break;
-            } else {
-                if (encrypted) {
-                    // Decrypt to allow import of encrypted keys.
-                    dataToCheck = [self decryptData:dataToCheck];
-					dataToCheck = [GPGPacket unArmor:dataToCheck];
-                } else {
-                    //Get keys from RTF data.
-                    dataToCheck = [[[[NSAttributedString alloc] initWithData:dataToCheck options:nil documentAttributes:nil error:nil] string] dataUsingEncoding:NSUTF8StringEncoding];
-					NSData *newData = [GPGPacket unArmor:dataToCheck];
-					if (newData == dataToCheck) {
-						break;
-					}
-                }
-            }
+            } else if (encrypted) {
+				// Decrypt to allow import of encrypted keys.
+				dataToCheck = [self decryptData:dataToCheck];
+				if (dataToCheck.isArmored) {
+					GPGUnArmor *unArmor = [GPGUnArmor unArmorWithGPGStream:[GPGMemoryStream memoryStreamForReading:dataToCheck]];
+					dataToCheck = [unArmor decodeAll];
+				}
+			} else if (dataToCheck.length > 4 && memcmp(dataToCheck.bytes, "{\\rtf", 4) == 0) {
+				// Data is RTF encoded.
+				
+				//Get keys from RTF data.
+				dataToCheck = [[[[NSAttributedString alloc] initWithData:data options:nil documentAttributes:nil error:nil] string] dataUsingEncoding:NSUTF8StringEncoding];
+				if (dataToCheck.isArmored) {
+					GPGUnArmor *unArmor = [GPGUnArmor unArmorWithGPGStream:[GPGMemoryStream memoryStreamForReading:dataToCheck]];
+					dataToCheck = [unArmor decodeAll];
+				}
+			}
+			if (unchangedData == dataToCheck) {
+				break;
+			}
         }
-        
+		
 		
 		
 		//TODO: Uncomment the following lines when keysInExportedData: fully works!
