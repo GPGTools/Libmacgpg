@@ -1077,10 +1077,16 @@ BOOL gpgConfigReaded = NO;
         while (dataToCheck.length > 0 && i-- > 0) {
 			NSData *unchangedData = dataToCheck;
 			BOOL encrypted = NO;
-            keys = [self keysInExportedData:dataToCheck encrypted:&encrypted];
+
+			NSData *tempData = dataToCheck;
+			if (tempData.isArmored) {
+				GPGUnArmor *unArmor = [GPGUnArmor unArmorWithGPGStream:[GPGMemoryStream memoryStreamForReading:tempData]];
+				tempData = [unArmor decodeAll];
+			}
+            keys = [self keysInExportedData:tempData encrypted:&encrypted];
 
             if (keys.count > 0) {
-                data = dataToCheck;
+                data = tempData;
                 break;
             } else if (encrypted) {
 				// Decrypt to allow import of encrypted keys.
