@@ -26,12 +26,15 @@ typedef enum {
 @property (nonatomic, readwrite, strong) NSError *error;
 @property (nonatomic, readwrite, strong) NSData *clearText;
 @property (nonatomic, readwrite, strong) NSData *data;
+
+@property (nonatomic, strong) NSData *cacheData;
 @end
 
 
 
 @implementation GPGUnArmor
 @synthesize error, clearText, data, eof;
+@synthesize cacheData;
 
 
 #pragma Public methods
@@ -700,6 +703,7 @@ typedef enum {
 		}
 		if (endMarkIndex == 22 || dashes == 5) {
 			[stream seekToOffset:streamOffset];
+			cacheIndex = cacheSize;
 			return stateFinish;
 		}
 	}
@@ -906,7 +910,7 @@ static UInt32 crc32_tab[] = {
 - (NSInteger)nextByte {
 	if (cacheIndex == cacheSize) {
 		cacheIndex = 0;
-		cacheData = [stream readDataOfLength:cacheSize];
+		self.cacheData = [stream readDataOfLength:cacheSize];
 		
 		NSUInteger cacheDataLength = cacheData.length;
 		if (cacheDataLength < cacheSize) {
@@ -972,6 +976,7 @@ static UInt32 crc32_tab[] = {
 - (void)dealloc {
 	[stream release];
 	[base64Data release];
+	self.cacheData = nil;
 	self.data = nil;
 	self.clearText = nil;
 	self.error = nil;
