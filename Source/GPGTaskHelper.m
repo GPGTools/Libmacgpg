@@ -914,56 +914,82 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
 		return NO;
 	
 	NSString *socketPath = [GPGTaskHelper gpgAgentSocket];
-	if (socketPath) {
-		int sock;
-		if ((sock = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
-			perror("socket");
-			return NO;
-		}
-		
-		unsigned long length = [socketPath lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + 3;
-		char addressInfo[length];
-		addressInfo[0] = AF_UNIX;
-		addressInfo[1] = 0;
-		strncpy(addressInfo+2, [socketPath UTF8String], length - 2);
-		
-		if (connect(sock, (const struct sockaddr *)addressInfo, (socklen_t)length ) == -1) {
-			perror("connect");
-			goto closeSocket;
-		}
-		
-		
-		struct timeval socketTimeout;
-		socketTimeout.tv_usec = 0;
-		socketTimeout.tv_sec = 2;
-		setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &socketTimeout, sizeof(socketTimeout));
-		
-		
-		char buffer[100];
-		if (recv(sock, buffer, 100, 0) > 2) {
-			if (strncmp(buffer, "OK", 2)) {
-				GPGDebugLog(@"No OK from gpg-agent.");
-				goto closeSocket;
-			}
-			NSString *command = [NSString stringWithFormat:@"GET_PASSPHRASE --no-ask %@ . . .\n", key];
-			send(sock, [command UTF8String], [command lengthOfBytesUsingEncoding:NSUTF8StringEncoding], 0);
-			
-			int pos = 0;
-			while ((length = recv(sock, buffer+pos, 100-pos, 0)) > 0) {
-				pos += length;
-				if (strnstr(buffer, "OK", pos)) {
-					return YES;
-				} else if (strnstr(buffer, "ERR", pos)) {
-					goto closeSocket;
-				}
-			}
-		} else {
-			return NO;
-		}
-	closeSocket:
-		close(sock);
+	// No socket path available? Can't query the cache, so bail.
+	if(!socketPath) {
+		GPGDebugLog(@"No gpg-agent socket path available!");
+		return NO;
 	}
-	return NO;
+
+	__block int sock = -1;
+	if ((sock = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
+		perror("+[GPGTaskHelper isPassphraseInGPGAgentCache:] failed to initiate socket");
+		return NO;
+	}
+
+	BOOL (^cleanup)(BOOL) = ^(BOOL inCache){
+		if(sock != -1)
+			close(sock);
+		return inCache;
+	};
+
+	const char *socketPathName = [socketPath UTF8String];
+	unsigned long socketPathLength = [socketPath lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
+
+	struct sockaddr_un server;
+	bzero((char *)&server, sizeof(struct sockaddr_un));
+	server.sun_family = AF_UNIX;
+	strncpy(server.sun_path, socketPathName, socketPathLength);
+	// On BSD systems, sun_path is not to be expected to be terminated with a null byte.
+	if (connect(sock, (struct sockaddr *)&server, sizeof(struct sockaddr_un)) < 0) {
+		perror("+[GPGTaskHelper isPassphraseInGPGAgentCache:] failed to connect to gpg-agent socket");
+		return cleanup(NO);
+	}
+
+	struct timeval socketTimeout;
+	socketTimeout.tv_usec = 0;
+	socketTimeout.tv_sec = 2;
+	if(setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &socketTimeout, sizeof(socketTimeout)) < 0) {
+		perror("+[GPGTaskHelper isPassphraseInGPGAgentCache:] failed to configure socket timeout");
+		return cleanup(NO);
+	}
+
+	char buffer[100];
+	bzero(&buffer, sizeof(buffer));
+	// Check if server is responding by receiving the message OK, otherwise bail.
+	if(recv(sock, buffer, 100, 0) <= 2) {
+		GPGDebugLog(@"Failed to receive OK from gpg-agent.");
+		return cleanup(NO);
+	}
+	if (strncmp(buffer, "OK", 2)) {
+		GPGDebugLog(@"No OK from gpg-agent.");
+		return cleanup(NO);
+	}
+
+	NSString *command = [NSString stringWithFormat:@"GET_PASSPHRASE --no-ask %@ . . .\n", key];
+	// Request the passphrase connected to the key.
+	send(sock, [command UTF8String], [command lengthOfBytesUsingEncoding:NSUTF8StringEncoding], 0);
+
+	int pos = 0;
+	int length = 0;
+	bzero(&buffer, sizeof(buffer));
+	BOOL inCache = NO;
+
+	while ((length = recv(sock, buffer+pos, 100-pos, 0)) > 0) {
+		pos += length;
+		// Yes, we have the passphrase in cache!
+		if(strnstr(buffer, "OK", pos)) {
+			inCache = YES;
+			break;
+		}
+		
+		// gpg-agent is saying that we don't have the passphrase in cache!
+		if(strnstr(buffer, "ERR", pos)) {
+			inCache = NO;
+			break;
+		}
+	}
+
+	return cleanup(inCache);
 }
 
 - (void)dealloc {

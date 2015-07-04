@@ -40,6 +40,8 @@
 		1BD78BBA1726B6060005F251 /* Libmacgpg.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DC2EF5B0486A6940098B216 /* Libmacgpg.framework */; };
 		1BD78BBC1726B6230005F251 /* Libmacgpg.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 8DC2EF5B0486A6940098B216 /* Libmacgpg.framework */; };
 		1BDA56BC1618A94300185C72 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4591C4D314F86D38007F6D47 /* AppKit.framework */; };
+		1BE88B3E1B47D7F900A812B6 /* GPGSocketCloseTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 1BE88B3D1B47D7F900A812B6 /* GPGSocketCloseTest.m */; };
+		1BE88B3F1B47D7F900A812B6 /* Libmacgpg.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DC2EF5B0486A6940098B216 /* Libmacgpg.framework */; };
 		3002C04716EE38C900D57C1E /* libcrypto.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3002C04316EE388B00D57C1E /* libcrypto.dylib */; };
 		301A44CD1B436405002A38E4 /* GPGUnArmor.h in Headers */ = {isa = PBXBuildFile; fileRef = 301A44CB1B436405002A38E4 /* GPGUnArmor.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		301A44CE1B436405002A38E4 /* GPGUnArmor.m in Sources */ = {isa = PBXBuildFile; fileRef = 301A44CC1B436405002A38E4 /* GPGUnArmor.m */; };
@@ -137,6 +139,13 @@
 			remoteGlobalIDString = 8DC2EF4F0486A6940098B216;
 			remoteInfo = Libmacgpg;
 		};
+		1BE88B401B47D7F900A812B6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8DC2EF4F0486A6940098B216;
+			remoteInfo = Libmacgpg;
+		};
 		30444C471A65E3E30052CB94 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
@@ -200,6 +209,9 @@
 		1BD78BAD1726B2830005F251 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		1BD78BAE1726B2830005F251 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		1BD78BB11726B2830005F251 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		1BE88B391B47D7F900A812B6 /* NewUnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NewUnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		1BE88B3C1B47D7F900A812B6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		1BE88B3D1B47D7F900A812B6 /* GPGSocketCloseTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GPGSocketCloseTest.m; sourceTree = "<group>"; };
 		3002C04316EE388B00D57C1E /* libcrypto.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcrypto.dylib; path = usr/lib/libcrypto.dylib; sourceTree = SDKROOT; };
 		3002C04516EE389100D57C1E /* libxar.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxar.dylib; path = usr/lib/libxar.dylib; sourceTree = SDKROOT; };
 		301A44CB1B436405002A38E4 /* GPGUnArmor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGUnArmor.h; sourceTree = "<group>"; };
@@ -324,6 +336,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		1BE88B361B47D7F900A812B6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1BE88B3F1B47D7F900A812B6 /* Libmacgpg.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		30444C151A65E0590052CB94 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -366,6 +386,7 @@
 				1B46CFCC161555DF00CF9C5F /* org.gpgtools.Libmacgpg.xpc */,
 				1BD78B9F1726B2820005F251 /* LeakFinder.app */,
 				30444C181A65E0590052CB94 /* GPGTools.app */,
+				1BE88B391B47D7F900A812B6 /* NewUnitTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -382,6 +403,7 @@
 				30DF7CBA16D39EAA00C8225C /* installerHelper */,
 				1BD78BA11726B2830005F251 /* LeakFinder */,
 				30444C381A65E0590052CB94 /* installerHelperTests */,
+				1BE88B3A1B47D7F900A812B6 /* NewUnitTests */,
 				0867D69AFE84028FC02AAC07 /* Frameworks */,
 				034768DFFF38A50411DB9C8B /* Products */,
 				30C8B399139504DC00F49AA1 /* UnitTest */,
@@ -519,6 +541,23 @@
 				1BD78BA71726B2830005F251 /* main.m */,
 				1BD78BA91726B2830005F251 /* LeakFinder-Prefix.pch */,
 				1BD78BAA1726B2830005F251 /* Credits.rtf */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		1BE88B3A1B47D7F900A812B6 /* NewUnitTests */ = {
+			isa = PBXGroup;
+			children = (
+				1BE88B3D1B47D7F900A812B6 /* GPGSocketCloseTest.m */,
+				1BE88B3B1B47D7F900A812B6 /* Supporting Files */,
+			);
+			path = NewUnitTests;
+			sourceTree = "<group>";
+		};
+		1BE88B3B1B47D7F900A812B6 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				1BE88B3C1B47D7F900A812B6 /* Info.plist */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -751,6 +790,24 @@
 			productReference = 1BD78B9F1726B2820005F251 /* LeakFinder.app */;
 			productType = "com.apple.product-type.application";
 		};
+		1BE88B381B47D7F900A812B6 /* NewUnitTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1BE88B421B47D7F900A812B6 /* Build configuration list for PBXNativeTarget "NewUnitTests" */;
+			buildPhases = (
+				1BE88B351B47D7F900A812B6 /* Sources */,
+				1BE88B361B47D7F900A812B6 /* Frameworks */,
+				1BE88B371B47D7F900A812B6 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1BE88B411B47D7F900A812B6 /* PBXTargetDependency */,
+			);
+			name = NewUnitTests;
+			productName = NewUnitTests;
+			productReference = 1BE88B391B47D7F900A812B6 /* NewUnitTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		30444C171A65E0590052CB94 /* installerHelper */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 30444C401A65E0590052CB94 /* Build configuration list for PBXNativeTarget "installerHelper" */;
@@ -819,6 +876,11 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 0450;
+				TargetAttributes = {
+					1BE88B381B47D7F900A812B6 = {
+						CreatedOnToolsVersion = 6.2;
+					};
+				};
 			};
 			buildConfigurationList = 1DEB91B108733DA50010E9CD /* Build configuration list for PBXProject "Libmacgpg" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -843,6 +905,7 @@
 				1B46CFCB161555DF00CF9C5F /* org.gpgtools.Libmacgpg.xpc */,
 				1BD78B9E1726B2820005F251 /* LeakFinder */,
 				30444C171A65E0590052CB94 /* installerHelper */,
+				1BE88B381B47D7F900A812B6 /* NewUnitTests */,
 			);
 		};
 /* End PBXProject section */
@@ -855,6 +918,13 @@
 				1BD78BA61726B2830005F251 /* InfoPlist.strings in Resources */,
 				1BD78BAC1726B2830005F251 /* Credits.rtf in Resources */,
 				1BD78BB21726B2830005F251 /* MainMenu.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1BE88B371B47D7F900A812B6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1045,6 +1115,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		1BE88B351B47D7F900A812B6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1BE88B3E1B47D7F900A812B6 /* GPGSocketCloseTest.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		30444C141A65E0590052CB94 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1119,6 +1197,11 @@
 			isa = PBXTargetDependency;
 			target = 8DC2EF4F0486A6940098B216 /* Libmacgpg */;
 			targetProxy = 1BD78BB81726B5190005F251 /* PBXContainerItemProxy */;
+		};
+		1BE88B411B47D7F900A812B6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8DC2EF4F0486A6940098B216 /* Libmacgpg */;
+			targetProxy = 1BE88B401B47D7F900A812B6 /* PBXContainerItemProxy */;
 		};
 		30444C481A65E3E30052CB94 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -1294,6 +1377,83 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				VALID_ARCHS = x86_64;
 				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+		1BE88B431B47D7F900A812B6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				HEADER_SEARCH_PATHS = "${PROJECT_DIR}/Dependencies/XPCKit";
+				INFOPLIST_FILE = NewUnitTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		1BE88B441B47D7F900A812B6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				HEADER_SEARCH_PATHS = "${PROJECT_DIR}/Dependencies/XPCKit";
+				INFOPLIST_FILE = NewUnitTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
 		};
@@ -1567,6 +1727,14 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
+		};
+		1BE88B421B47D7F900A812B6 /* Build configuration list for PBXNativeTarget "NewUnitTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1BE88B431B47D7F900A812B6 /* Debug */,
+				1BE88B441B47D7F900A812B6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
 		};
 		1DEB91AD08733DA50010E9CD /* Build configuration list for PBXNativeTarget "Libmacgpg" */ = {
 			isa = XCConfigurationList;
