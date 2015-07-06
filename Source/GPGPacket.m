@@ -56,7 +56,7 @@
 
 
 + (id)packetsWithData:(NSData *)theData {
-	__block NSMutableArray *packets = [NSMutableArray array];
+	NSMutableArray *packets = [NSMutableArray array];
 	
 	[self enumeratePacketsWithData:theData block:^(GPGPacket *packet, BOOL *stop) {
 		[packets addObject:packet];
@@ -66,6 +66,7 @@
 }
 
 + (void)enumeratePacketsWithData:(NSData *)theData block:(void (^)(GPGPacket *packet, BOOL *stop))block {
+	theData = [theData copy];
 	
 	if (theData.isArmored) {
 		GPGMemoryStream *stream = [GPGMemoryStream memoryStreamForReading:theData];
@@ -73,11 +74,13 @@
 		
 		[unArmor decodeAll];
 		
-		theData = unArmor.data;
+		[theData release];
+		theData = [unArmor.data retain];
 	}
 	
 	
 	if (theData.length < 10) {
+		[theData release];
 		return;
 	}
 	const uint8_t *bytes = theData.bytes;
@@ -95,6 +98,7 @@
 			block(packet, &stop);
 			[packet release];
 			if (stop) {
+				[theData release];
 				return;
 			}
 		}
@@ -103,6 +107,8 @@
 		}
 		currentPos = nextPacketPos;
 	}
+
+	[theData release];
 }
 
 - (id)initWithBytes:(const uint8_t *)bytes length:(NSUInteger)dataLength nextPacketStart:(const uint8_t **)nextPacket {
