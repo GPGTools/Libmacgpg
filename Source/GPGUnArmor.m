@@ -2,7 +2,7 @@
 #import "GPGException.h"
 #import "GPGMemoryStream.h"
 
-const NSUInteger cacheSize = 1000;
+static const NSUInteger cacheSize = 1000;
 
 typedef enum {
 	stateSearchBegin = 0,
@@ -885,6 +885,10 @@ static UInt32 crc32_tab[] = {
 			case 2:
 				length = (bytes[1] << 24) + (bytes[2] << 16) + (bytes[3] << 8) + bytes[4] + 5;
 				break;
+			case 3:
+				// Indeterminate length.
+				length = 1;
+				break;
 			default:
 				return NO;
 		}
@@ -992,23 +996,8 @@ static BOOL isArmoredByte(UInt8 byte) {
 	}
 	UInt8 tag = (byte & 0x40) ? (byte & 0x3F) : ((byte & 0x3C) >> 2);
 	switch (tag) {
-		case GPGPublicKeyEncryptedSessionKeyPacket:
-		case GPGSignaturePacket:
-		case GPGSymmetricEncryptedSessionKeyPacket:
-		case GPGOnePassSignaturePacket:
-		case GPGPublicKeyPacket:
-		case GPGPublicSubkeyPacket:
-		case GPGSecretKeyPacket:
-		case GPGSecretSubkeyPacket:
-		case GPGCompressedDataPacket:
-		case GPGSymmetricEncryptedDataPacket:
-		case GPGMarkerPacket:
-		case GPGLiteralDataPacket:
-		case GPGTrustPacket:
-		case GPGUserIDPacket:
-		case GPGUserAttributePacket:
-		case GPGSymmetricEncryptedProtectedDataPacket:
-		case GPGModificationDetectionCodePacket:
+		case 1 ... 14:
+		case 17 ... 19:
 			return NO;
 	}
 	return YES;
