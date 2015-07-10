@@ -20,6 +20,11 @@
 - (NSData *)readDataOfLength:(NSUInteger)length;
 // (re)read all data from the stream
 - (NSData *)readAllData;
+/**
+ Read the next byte from the stream.
+ @returns The next byte or EOF.
+*/
+- (NSInteger)readByte;
 // return the character at the next position, without advancing position
 - (char)peekByte;
 

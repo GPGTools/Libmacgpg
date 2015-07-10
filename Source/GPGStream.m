@@ -26,6 +26,10 @@
     @throw [NSException exceptionWithName:@"NotImplementedException" reason:@"abstract method" userInfo:nil];
 }
 
+- (NSInteger)readByte {
+	@throw [NSException exceptionWithName:@"NotImplementedException" reason:@"abstract method" userInfo:nil];
+}
+
 - (char)peekByte {
     @throw [NSException exceptionWithName:@"NotImplementedException" reason:@"abstract method" userInfo:nil];
 }

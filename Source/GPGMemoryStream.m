@@ -36,6 +36,8 @@
     if (self = [super init]) {
         // _data stays nil
         _readableData = [data retain];
+		_readableBytes = _readableData.bytes;
+		_readableLength = _readableData.length;
     }
     return self;
 }
@@ -52,15 +54,17 @@
 
 - (void)writeData:(NSData *)data
 {
-    if (!_data)
+	if (!_data) {
         @throw [NSException exceptionWithName:@"InvalidOperationException" reason:@"stream is readable" userInfo:nil];
+	}
     [_data appendData:data];
 }
 
 - (NSData *)readDataToEndOfStream
 {
-    if (!_readableData) 
-        [self openForReading];
+	if (!_readableData) {
+		[self openForReading];
+	}
 
     NSUInteger rlength = [_readableData length];
     if (_readPos >= rlength)
@@ -73,9 +77,10 @@
 
 - (NSData *)readDataOfLength:(NSUInteger)length
 {
-    if (!_readableData) 
-        [self openForReading];
-        
+	if (!_readableData) {
+		[self openForReading];
+	}
+	
     NSUInteger rlength = [_readableData length];
     if (_readPos >= rlength)
         return [NSData data];
@@ -88,16 +93,28 @@
 
 - (NSData *)readAllData 
 {
-    if (!_readableData)
-        [self openForReading];
+	if (!_readableData) {
+		[self openForReading];
+	}
 
     return _readableData;
 }
 
+- (NSInteger)readByte {
+	if (!_readableData) {
+		[self openForReading];
+	}
+	if (_readPos >= _readableLength) {
+		return -1;
+	}
+	return _readableBytes[_readPos++]; // Post-increment.
+}
+
 - (char)peekByte 
 {
-    if (!_readableData)
+	if (!_readableData) {
         [self openForReading];
+	}
 
     unsigned long long rlength = [_readableData length];
     if (_readPos >= rlength)
@@ -114,10 +131,12 @@
 
 - (void)seekToBeginning
 {
-    if (_data)
+	if (_data) {
         [_data setLength:0];
-    if (_readableData) 
+	}
+	if (_readableData) {
         _readPos = 0;
+	}
 }
 - (void)seekToOffset:(NSUInteger)offset {
 	if (_data) {
@@ -145,8 +164,9 @@
 
 - (unsigned long long)length
 {
-    if (_readableData)
+	if (_readableData) {
         return [_readableData length];
+	}
     return [_data length];
 }
 
@@ -154,8 +174,11 @@
 
 - (void)openForReading 
 {
-    if (!_readableData) 
+	if (!_readableData) {
         _readableData = [[NSData dataWithData:_data] retain];
+		_readableBytes = _readableData.bytes;
+		_readableLength = _readableData.length;
+	}
     if (_data) {
         [_data release];
         _data = nil;
