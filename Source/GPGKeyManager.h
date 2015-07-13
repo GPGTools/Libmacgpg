@@ -1,6 +1,8 @@
 
 
 @interface GPGKeyManager : NSObject {
+	NSString *_homedir;
+	
 	NSSet *_allKeys;
 	NSSet *_allKeysAndSubkeys;
 	
@@ -34,6 +36,8 @@
 	
 	dispatch_semaphore_t _allKeysAndSubkeysOnce;
 }
+@property (nonatomic, copy) NSString *homedir;
+
 @property (nonatomic) BOOL allowWeakDigestAlgos;
 
 @property (nonatomic, readonly) NSSet *allKeys;

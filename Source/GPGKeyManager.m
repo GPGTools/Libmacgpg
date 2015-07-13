@@ -17,7 +17,8 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 
 @synthesize allKeys=_allKeys, keysByKeyID=_keysByKeyID,
 			secretKeys=_secretKeys, completionQueue=_completionQueue,
-			allowWeakDigestAlgos=_allowWeakDigestAlgos;
+			allowWeakDigestAlgos=_allowWeakDigestAlgos,
+			homedir=_homedir;
 
 - (void)loadAllKeys {
 	[self loadKeys:nil fetchSignatures:NO fetchUserAttributes:NO];
@@ -43,6 +44,10 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 		@try {
 			// Get all fingerprints of the secret keys.
 			GPGTask *gpgTask = [GPGTask gpgTask];
+			if (_homedir) {
+				[gpgTask addArgument:@"--homedir"];
+				[gpgTask addArgument:_homedir];
+			}
 			gpgTask.batchMode = YES;
 			if (self.allowWeakDigestAlgos) {
 				[gpgTask addArgument:@"--allow-weak-digest-algos"];
@@ -63,6 +68,10 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 		
 		// Get the infos from gpg.
 		GPGTask *gpgTask = [GPGTask gpgTask];
+		if (_homedir) {
+			[gpgTask addArgument:@"--homedir"];
+			[gpgTask addArgument:_homedir];
+		}
 		if (fetchSignatures) {
 			[gpgTask addArgument:@"--list-sigs"];
 			[gpgTask addArgument:@"--list-options"];
