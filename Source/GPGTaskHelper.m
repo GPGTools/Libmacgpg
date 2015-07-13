@@ -906,6 +906,10 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
 	if ([self isGPGAgentSocket:socketPath]) {
 		return socketPath;
 	}
+	socketPath = [NSString stringWithFormat:@"/tmp/gpg-agent/%@/S.gpg-agent", NSUserName()];
+	if ([self isGPGAgentSocket:socketPath]) {
+		return socketPath;
+	}
 	return nil;
 }
 

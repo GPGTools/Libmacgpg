@@ -14,9 +14,23 @@
 #import <sys/proc_info.h>
 #import <libproc.h>
 #import "Libmacgpg.h"
+#import "GPGUnitTest.h"
 #import "GPGTaskHelper.h"
 
-uid_t uidFromPid(pid_t pid) {
+
+
+@interface GPGSocketCloseTest : XCTestCase
+@end
+
+@implementation GPGSocketCloseTest
+
+
++ (void)setUp {
+	[GPGUnitTest setUpTestDirectory];
+}
+
+
+- (uid_t)uidFromPid:(pid_t)pid {
 	uid_t uid = -1;
 	
 	struct kinfo_proc process;
@@ -36,11 +50,6 @@ uid_t uidFromPid(pid_t pid) {
 	return uid;
 }
 
-@interface GPGSocketCloseTest : XCTestCase
-
-@end
-
-@implementation GPGSocketCloseTest
 
 - (NSInteger)pidForProcessWithName:(NSString *)name {
 	NSMutableArray *ret = [NSMutableArray arrayWithCapacity:1];
@@ -58,7 +67,7 @@ uid_t uidFromPid(pid_t pid) {
 		NSMutableDictionary *process = [[NSMutableDictionary alloc] init];
 		
 		process[@"pid"] = @(pids[i]);
-		process[@"uid"] = @(uidFromPid(pids[i]));
+		process[@"uid"] = @([self uidFromPid:pids[i]]);
 		process[@"name"] = [@(pathBuffer) lastPathComponent];
 		
 		[ret addObject:process];
@@ -174,7 +183,6 @@ uid_t uidFromPid(pid_t pid) {
 	// This test will only pass if all sockets are properly closed after usage.
 	
 	// In order to warm the passphrase cache some random data is signed.
-	GPGController *gpgc = [[GPGController alloc] init];
 	NSString *content = @"This content is signed to warm up the passphrase cache.";
 	NSData *contentData = [content dataUsingEncoding:NSUTF8StringEncoding];
 	
@@ -185,7 +193,7 @@ uid_t uidFromPid(pid_t pid) {
 	// Eventually add warning for this.
 	gpgc.trustAllKeys = YES;
 	
-	GPGKey *signerKey = [[[GPGKeyManager sharedInstance] secretKeys] anyObject];
+	GPGKey *signerKey = [[GPGKeyManager sharedInstance].allKeys member:testKey2];
 	XCTAssert(signerKey != nil, @"For this test to run properly, it's necessary to have at least one secret key.");
 	
 	gpgc.signerKey = signerKey;

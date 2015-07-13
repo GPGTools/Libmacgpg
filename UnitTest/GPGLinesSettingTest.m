@@ -18,11 +18,11 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 #import "GPGLinesSetting.h"
 #import "GPGConfReader.h"
 
-@interface GPGLinesSettingTest : SenTestCase {
+@interface GPGLinesSettingTest : XCTestCase {
     NSString *key;
     NSArray *testlines;
 }
@@ -33,11 +33,7 @@
 
 - (void) setUp {
     key = @"comment";
-    testlines = [[NSArray arrayWithObjects:@"abc", @"def", nil] retain];
-}
-
-- (void) tearDown {
-    [testlines release];
+    testlines = [NSArray arrayWithObjects:@"abc", @"def", nil];
 }
 
 - (void) testSetValue {
@@ -45,9 +41,8 @@
     [setting setValue:testlines];
 
     id value = [setting value];
-    STAssertNotNil(value, @"Unexpectedly nil!");
-    STAssertTrue([value count] == [testlines count], @"Incorrect count!");
-    [setting release];
+    XCTAssertNotNil(value, @"Unexpectedly nil!");
+    XCTAssertTrue([value count] == [testlines count], @"Incorrect count!");
 }
 
 - (void) testSetNil {
@@ -56,18 +51,16 @@
     [setting setValue:nil];
     
     id value = [setting value];
-    STAssertNotNil(value, @"Unexpectedly nil!");
-    STAssertTrue([value count] == 0, @"Incorrect count!");
-    [setting release];
+    XCTAssertNotNil(value, @"Unexpectedly nil!");
+    XCTAssertTrue([value count] == 0, @"Incorrect count!");
 }
 
 - (void) testGetValue {    
     GPGLinesSetting *setting = [[GPGLinesSetting alloc] initForKey:key];
     [setting setValue:testlines];
     NSString* desc = [setting description];
-    STAssertEqualObjects(@"comment abc\ncomment def\n", desc, @"description not as expected!");
+    XCTAssertEqualObjects(@"comment abc\ncomment def\n", desc, @"description not as expected!");
     
-    [setting release];
 }
 
 - (void) testAppendLine {
@@ -77,9 +70,7 @@
     [setting appendLine:@"comment   line 2." withReader:reader];
     setting.isActive = FALSE;
     NSString* desc = [setting description];
-    STAssertEqualObjects(@"#comment line 1.\n#comment line 2.\n", desc, @"description not as expected!");
-    
-    [setting release];
+    XCTAssertEqualObjects(@"#comment line 1.\n#comment line 2.\n", desc, @"description not as expected!");
 }
 
 @end

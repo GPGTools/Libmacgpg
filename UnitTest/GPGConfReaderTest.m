@@ -18,14 +18,12 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 #import "GPGConfReader.h"
 #import "GPGStdSetting.h"
 #import "GPGArraySetting.h"
-#import "GPGDictSetting.h"
 
-@interface GPGConfReaderTest : SenTestCase
-
+@interface GPGConfReaderTest : XCTestCase
 @end
 
 @implementation GPGConfReaderTest
@@ -36,10 +34,10 @@
     
     NSString *input = @" a b  c ";
     NSString *trimmedInput = [input stringByTrimmingCharactersInSet:whsp];
-    STAssertEqualObjects(@"a b  c", trimmedInput, @"Not trimmed as expected!");
+    XCTAssertEqualObjects(@"a b  c", trimmedInput, @"Not trimmed as expected!");
     
     NSArray *splitTrimmed = [trimmedInput componentsSeparatedByCharactersInSet:whsp];
-	STAssertTrue(4 == [splitTrimmed count], @"Not split as expected!");
+	XCTAssertTrue(4 == [splitTrimmed count], @"Not split as expected!");
 }
 
 - (void) testSplitString {
@@ -48,29 +46,29 @@
 
     NSString *input = @"a bb  ccc  ddddd";
     NSArray *splitTrimmed = [GPGConfReader splitString:input bySet:whsp maxCount:NSIntegerMax];
-	STAssertTrue(4 == [splitTrimmed count], @"Not split as expected!");
+	XCTAssertTrue(4 == [splitTrimmed count], @"Not split as expected!");
     
-    STAssertEqualObjects(@"a", [splitTrimmed objectAtIndex:0], @"Element not as expected!");
-    STAssertEqualObjects(@"bb", [splitTrimmed objectAtIndex:1], @"Element not as expected!");
-    STAssertEqualObjects(@"ccc", [splitTrimmed objectAtIndex:2], @"Element not as expected!");
-    STAssertEqualObjects(@"ddddd", [splitTrimmed objectAtIndex:3], @"Element not as expected!");
+    XCTAssertEqualObjects(@"a", [splitTrimmed objectAtIndex:0], @"Element not as expected!");
+    XCTAssertEqualObjects(@"bb", [splitTrimmed objectAtIndex:1], @"Element not as expected!");
+    XCTAssertEqualObjects(@"ccc", [splitTrimmed objectAtIndex:2], @"Element not as expected!");
+    XCTAssertEqualObjects(@"ddddd", [splitTrimmed objectAtIndex:3], @"Element not as expected!");
 
     input = @"a     bb  ";
     splitTrimmed = [GPGConfReader splitString:input bySet:whsp maxCount:NSIntegerMax];
- 	STAssertTrue(3 == [splitTrimmed count], @"Not split as expected!");
+ 	XCTAssertTrue(3 == [splitTrimmed count], @"Not split as expected!");
    
-    STAssertEqualObjects(@"a", [splitTrimmed objectAtIndex:0], @"Element not as expected!");
-    STAssertEqualObjects(@"bb", [splitTrimmed objectAtIndex:1], @"Element not as expected!");
-    STAssertEqualObjects(@"", [splitTrimmed objectAtIndex:2], @"Element not as expected!");
+    XCTAssertEqualObjects(@"a", [splitTrimmed objectAtIndex:0], @"Element not as expected!");
+    XCTAssertEqualObjects(@"bb", [splitTrimmed objectAtIndex:1], @"Element not as expected!");
+    XCTAssertEqualObjects(@"", [splitTrimmed objectAtIndex:2], @"Element not as expected!");
 
     input = @" a    bb  ";
     splitTrimmed = [GPGConfReader splitString:input bySet:whsp maxCount:NSIntegerMax];
-	STAssertTrue(4 == [splitTrimmed count], @"Not split as expected!");
+	XCTAssertTrue(4 == [splitTrimmed count], @"Not split as expected!");
     
-    STAssertEqualObjects(@"", [splitTrimmed objectAtIndex:0], @"Element not as expected!");
-    STAssertEqualObjects(@"a", [splitTrimmed objectAtIndex:1], @"Element not as expected!");
-    STAssertEqualObjects(@"bb", [splitTrimmed objectAtIndex:2], @"Element not as expected!");
-    STAssertEqualObjects(@"", [splitTrimmed objectAtIndex:3], @"Element not as expected!");
+    XCTAssertEqualObjects(@"", [splitTrimmed objectAtIndex:0], @"Element not as expected!");
+    XCTAssertEqualObjects(@"a", [splitTrimmed objectAtIndex:1], @"Element not as expected!");
+    XCTAssertEqualObjects(@"bb", [splitTrimmed objectAtIndex:2], @"Element not as expected!");
+    XCTAssertEqualObjects(@"", [splitTrimmed objectAtIndex:3], @"Element not as expected!");
 }
 
 - (void) testLimitedSplitString {
@@ -80,45 +78,40 @@
     
     NSString *input = @"a   = bb ccc    ";
     NSArray *splitTrimmed = [GPGConfReader splitString:input bySet:whspeqsign maxCount:2];
-	STAssertTrue(2 == [splitTrimmed count], @"Not split as expected!");
+	XCTAssertTrue(2 == [splitTrimmed count], @"Not split as expected!");
     
-    STAssertEqualObjects(@"a", [splitTrimmed objectAtIndex:0], @"Element not as expected!");
-    STAssertEqualObjects(@"bb ccc    ", [splitTrimmed objectAtIndex:1], @"Element not as expected!");
+    XCTAssertEqualObjects(@"a", [splitTrimmed objectAtIndex:0], @"Element not as expected!");
+    XCTAssertEqualObjects(@"bb ccc    ", [splitTrimmed objectAtIndex:1], @"Element not as expected!");
 }
 
 - (void) testKeyForLine {
 
     GPGConfReader *reader = [GPGConfReader readerForDomain:GPGDomain_gpgConf];
     NSString *key = [reader condensedKeyForLine:@" option1 a=b"];
-    STAssertEqualObjects(@"option1", key, @"Setting key not as expected!");
+    XCTAssertEqualObjects(@"option1", key, @"Setting key not as expected!");
 
     key = [reader condensedKeyForLine:@" #option1 a=b"];
-    STAssertNil(key, @"Unknown commented option not ignored!");
+    XCTAssertNil(key, @"Unknown commented option not ignored!");
 
     key = [reader condensedKeyForLine:@" #no-sig-cache"];
-    STAssertEqualObjects(@"sig-cache", key, @"\"no-\" not removed as expected!");
+    XCTAssertEqualObjects(@"sig-cache", key, @"\"no-\" not removed as expected!");
 
     key = [reader condensedKeyForLine:@" #no-auto-key-locate"];
-    STAssertEqualObjects(@"no-auto-key-locate", key, @"Special case not handled as expected!");
+    XCTAssertEqualObjects(@"no-auto-key-locate", key, @"Special case not handled as expected!");
 }
 
 - (void) testClassForLine {
     
     GPGConfReader *reader = [GPGConfReader readerForDomain:GPGDomain_gpgConf];
     GPGStdSetting *setting = [reader buildForLine:@" #no-auto-key-locate  "];
-    STAssertNotNil(setting, @"Unexpectedly nil!");
-    STAssertEqualObjects(@"no-auto-key-locate", setting.key, @"Unexpected key!");
-    STAssertTrue([setting isKindOfClass:[GPGStdSetting class]], @"Unexpected class!"); 
-
-    setting = [reader buildForLine:@" keyserver-options k1=cert"];
-    STAssertNotNil(setting, @"Unexpectedly nil!");
-    STAssertEqualObjects(@"keyserver-options", setting.key, @"Unexpected key!");
-    STAssertTrue([setting isKindOfClass:[GPGDictSetting class]], @"Unexpected class!"); 
+    XCTAssertNotNil(setting, @"Unexpectedly nil!");
+    XCTAssertEqualObjects(@"no-auto-key-locate", setting.key, @"Unexpected key!");
+    XCTAssertTrue([setting isKindOfClass:[GPGStdSetting class]], @"Unexpected class!"); 
 
     setting = [reader buildForLine:@" export-options   export-minimal"];
-    STAssertNotNil(setting, @"Unexpectedly nil!");
-    STAssertEqualObjects(@"export-options", setting.key, @"Unexpected key!");
-    STAssertTrue([setting isKindOfClass:[GPGArraySetting class]], @"Unexpected class!"); 
+    XCTAssertNotNil(setting, @"Unexpectedly nil!");
+    XCTAssertEqualObjects(@"export-options", setting.key, @"Unexpected key!");
+    XCTAssertTrue([setting isKindOfClass:[GPGArraySetting class]], @"Unexpected class!"); 
 }
 
 @end

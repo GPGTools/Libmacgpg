@@ -18,11 +18,11 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 #import "GPGArraySetting.h"
 #import "GPGConfReader.h"
 
-@interface GPGArraySettingTest : SenTestCase {
+@interface GPGArraySettingTest : XCTestCase {
     NSString *key;
     NSArray *testwords;
 }
@@ -33,11 +33,10 @@
 
 - (void) setUp {
     key = @"auto-key-locate";
-    testwords = [[NSArray arrayWithObjects:@"cert", @"pka", nil] retain];
+    testwords = [NSArray arrayWithObjects:@"cert", @"pka", nil];
 }
 
 - (void) tearDown {
-    [testwords release];
     testwords = nil;
 }
 
@@ -46,9 +45,8 @@
     [setting setValue:testwords];
 
     id value = [setting value];
-    STAssertNotNil(value, @"Unexpectedly nil!");
-    STAssertTrue([value count] == [testwords count], @"Incorrect count!");
-    [setting release];
+    XCTAssertNotNil(value, @"Unexpectedly nil!");
+    XCTAssertTrue([value count] == [testwords count], @"Incorrect count!");
 }
 
 - (void) testSetNil {
@@ -57,18 +55,15 @@
     [setting setValue:nil];
     
     id value = [setting value];
-    STAssertNotNil(value, @"Unexpectedly nil!");
-    STAssertTrue([value count] == 0, @"Incorrect count!");
-    [setting release];
+    XCTAssertNotNil(value, @"Unexpectedly nil!");
+    XCTAssertTrue([value count] == 0, @"Incorrect count!");
 }
 
 - (void) testGetValue {    
     GPGArraySetting *setting = [[GPGArraySetting alloc] initForKey:key];
     [setting setValue:testwords];
     NSString* desc = [setting description];
-    STAssertEqualObjects(@"auto-key-locate cert pka\n", desc, @"description not as expected!");
-    
-    [setting release];
+    XCTAssertEqualObjects(@"auto-key-locate cert pka\n", desc, @"description not as expected!");
 }
 
 - (void) testAppendLine {
@@ -77,9 +72,7 @@
     [setting appendLine:@"auto-key-locate  cert,pka" withReader:reader];
     setting.isActive = FALSE;
     NSString* desc = [setting description];
-    STAssertEqualObjects(@"#auto-key-locate cert pka\n", desc, @"description not as expected!");
-    
-    [setting release];
+    XCTAssertEqualObjects(@"#auto-key-locate cert pka\n", desc, @"description not as expected!");
 }
 
 @end

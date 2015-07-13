@@ -18,11 +18,11 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 #import "GPGDictSetting.h"
 #import "GPGConfReader.h"
 
-@interface GPGDictSettingTest : SenTestCase {
+@interface GPGDictSettingTest : XCTestCase {
     NSString *key;
     NSDictionary *testdict;
 }
@@ -33,22 +33,17 @@
 
 - (void) setUp {
     key = @"keyserver-options";
-    testdict = [[NSDictionary dictionaryWithObjectsAndKeys:[NSArray arrayWithObjects:@"abc", @"def", nil], 
-                @"keyserver1", nil] retain];
+    testdict = [NSDictionary dictionaryWithObjectsAndKeys:[NSArray arrayWithObjects:@"abc", @"def", nil], @"keyserver1", nil];
 }
 
-- (void) tearDown {
-    [testdict release];
-}
 
 - (void) testSetValue {
     GPGDictSetting *setting = [[GPGDictSetting alloc] initForKey:key];
     [setting setValue:testdict];
 
     id value = [setting value];
-    STAssertNotNil(value, @"Unexpectedly nil!");
-    STAssertTrue([value count] == [testdict count], @"Incorrect count!");
-    [setting release];
+    XCTAssertNotNil(value, @"Unexpectedly nil!");
+    XCTAssertTrue([value count] == [testdict count], @"Incorrect count!");
 }
 
 - (void) testSetNil {
@@ -57,9 +52,8 @@
     [setting setValue:nil];
     
     id value = [setting value];
-    STAssertNotNil(value, @"Unexpectedly nil!");
-    STAssertTrue([value count] == 0, @"Incorrect count!");
-    [setting release];
+    XCTAssertNotNil(value, @"Unexpectedly nil!");
+    XCTAssertTrue([value count] == 0, @"Incorrect count!");
 }
 
 - (void) testGetValue {
@@ -67,9 +61,8 @@
     GPGDictSetting *setting = [[GPGDictSetting alloc] initForKey:key];
     [setting setValue:testdict];
     NSString* desc = [setting description];
-    STAssertEqualObjects(@"keyserver-options keyserver1=abc def\n", desc, @"description not as expected!");
+    XCTAssertEqualObjects(@"keyserver-options keyserver1=abc def\n", desc, @"description not as expected!");
 
-    [setting release];
 }
 
 - (void) testAppendLine {
@@ -79,9 +72,7 @@
     [setting appendLine:@"keyserver-options  keyserver1=c, d" withReader:reader];
     setting.isActive = FALSE;
     NSString* desc = [setting description];
-    STAssertEqualObjects(@"#keyserver-options keyserver1=c d\n", desc, @"description not as expected!");
-    
-    [setting release];
+    XCTAssertEqualObjects(@"#keyserver-options keyserver1=c d\n", desc, @"description not as expected!");
 }
 
 @end
