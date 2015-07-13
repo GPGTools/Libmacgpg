@@ -81,26 +81,6 @@ typedef enum {
 } GPGDeleteKeyMode;
 
 typedef enum {
-	GPGPublicKeyEncryptedSessionKeyPacket = 1,
-	GPGSignaturePacket = 2,
-	GPGSymmetricEncryptedSessionKeyPacket = 3,
-	GPGOnePassSignaturePacket = 4,
-	GPGSecretKeyPacket = 5,
-	GPGPublicKeyPacket = 6,
-	GPGSecretSubkeyPacket = 7,
-	GPGCompressedDataPacket = 8,
-	GPGSymmetricEncryptedDataPacket = 9,
-	GPGMarkerPacket = 10,
-	GPGLiteralDataPacket = 11,
-	GPGTrustPacket = 12,
-	GPGUserIDPacket = 13,
-	GPGPublicSubkeyPacket = 14,
-	GPGUserAttributePacket = 17,
-	GPGSymmetricEncryptedProtectedDataPacket = 18,
-	GPGModificationDetectionCodePacket = 19
-} GPGPacketType;
-
-typedef enum {
 	GPGBinarySignature = 0,
 	GPGTextSignature = 1,
 	GPGStandaloneSignature = 2,

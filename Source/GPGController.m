@@ -17,21 +17,12 @@
  Programm erhalten haben. Falls nicht, siehe <http://www.gnu.org/licenses/>.
 */
 
-#import "GPGController.h"
-#import "GPGKey.h"
+#import "Libmacgpg.h"
 #import "GPGTaskOrder.h"
-#import "GPGRemoteKey.h"
-#import "GPGSignature.h"
-#import "GPGOptions.h"
-#import "GPGPacket.h"
-#import "GPGWatcher.h"
-#import "GPGMemoryStream.h"
 #import "GPGTypesRW.h"
-#import "GPGKeyManager.h"
 #import "GPGKeyserver.h"
 #import "GPGTaskHelper.h"
-#import "GPGTask.h"
-#import "GPGUnArmor.h"
+#import "GPGWatcher.h"
 #if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
 #import "GPGTaskHelperXPC.h"
 #import "NSBundle+Sandbox.h"
@@ -2282,29 +2273,39 @@ BOOL gpgConfigReaded = NO;
 
 - (NSSet *)keysInExportedData:(NSData *)data encrypted:(BOOL *)encrypted {
 	// Returns a set of fingerprints and keyIDs of keys and key-parts (like signatures) in the data.
+	
 	NSMutableSet *keys = [NSMutableSet set];
 	NSMutableSet *keyIDs = [NSMutableSet set];
-	
-	NSArray *packets = [GPGPacket packetsWithData:data];
-	
-    if (encrypted) {
-        *encrypted = NO;
-    }
 
-    
-	for (GPGPacket *packet in packets) {
-		if (packet.type == GPGPublicKeyPacket || packet.type == GPGSecretKeyPacket) {
-			[keys addObject:packet.fingerprint];
-		} else if (packet.type == GPGPublicKeyEncryptedSessionKeyPacket || packet.type == GPGSymmetricEncryptedSessionKeyPacket) {
-            if (encrypted) {
-                *encrypted = YES;
-            }
-        } else if (packet.type == GPGSignaturePacket) {
-			if (packet.fingerprint.length > 0) {
-				[keys addObject:packet.fingerprint];
-			} else if (packet.keyID) {
-				[keyIDs addObject:packet.keyID];
+	
+	GPGMemoryStream *stream = [GPGMemoryStream memoryStreamForReading:data];
+	GPGPacketParser *parser = [GPGPacketParser packetParserWithStream:stream];
+	
+	GPGPacket *packet;
+	
+	while ((packet = parser.nextPacket)) {
+		switch (packet.tag) {
+			case GPGPublicKeyPacketTag:
+			case GPGSecretKeyPacketTag:
+			case GPGPublicSubkeyPacketTag:
+			case GPGSecretSubkeyPacketTag:
+				[keys addObject:[(GPGPublicKeyPacket *)packet fingerprint]];
+				break;
+			case GPGSymmetricEncryptedSessionKeyPacketTag:
+			case GPGPublicKeyEncryptedSessionKeyPacketTag:
+				if (encrypted) {
+					*encrypted = YES;
+				}
+				break;
+			case GPGSignaturePacketTag: {
+				GPGSignaturePacket *signaturePacket = (GPGSignaturePacket *)packet;
+				if (signaturePacket.keyID) {
+					[keyIDs addObject:signaturePacket.keyID];
+				}
+				break;
 			}
+			default:
+				break;
 		}
 	}
 	
@@ -2315,8 +2316,7 @@ BOOL gpgConfigReaded = NO;
 		}
 		[keys unionSet:keyIDs];
 	}
-	
-	
+
 	return keys;
 }
 

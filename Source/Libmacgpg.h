@@ -25,7 +25,6 @@
 #import <Libmacgpg/GPGKeyManager.h>
 #import <Libmacgpg/GPGMemoryStream.h>
 #import <Libmacgpg/GPGOptions.h>
-#import <Libmacgpg/GPGPacket.h>
 #import <Libmacgpg/GPGRemoteKey.h>
 #import <Libmacgpg/GPGRemoteUserID.h>
 #import <Libmacgpg/GPGSignature.h>
@@ -36,3 +35,15 @@
 #import <Libmacgpg/GPGUserIDSignature.h>
 #import <Libmacgpg/NSBundle+Sandbox.h>
 #import <Libmacgpg/GPGUnArmor.h>
+#import <Libmacgpg/GPGPacket.h>
+#import <Libmacgpg/GPGPacketParser.h>
+#import <Libmacgpg/GPGCompressedDataPacket.h>
+#import <Libmacgpg/GPGIgnoredPackets.h>
+#import <Libmacgpg/GPGKeyMaterialPacket.h>
+#import <Libmacgpg/GPGLiteralDataPacket.h>
+#import <Libmacgpg/GPGOnePassSignaturePacket.h>
+#import <Libmacgpg/GPGPublicKeyEncryptedSessionKeyPacket.h>
+#import <Libmacgpg/GPGSignaturePacket.h>
+#import <Libmacgpg/GPGSymmetricEncryptedSessionKeyPacket.h>
+#import <Libmacgpg/GPGUserAttributePacket.h>
+#import <Libmacgpg/GPGUserIDPacket.h>
