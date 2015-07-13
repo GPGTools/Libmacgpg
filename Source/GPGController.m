@@ -2500,7 +2500,7 @@ BOOL gpgConfigReaded = NO;
 	return nil;
 }
 
-- (void)gpgTaskDidStart:(GPGTask *)task {
+- (void)gpgTaskWillStart:(GPGTask *)task {
 	if ([signatures count] > 0) {
 		self.lastSignature = nil;
 		[signatures release];
