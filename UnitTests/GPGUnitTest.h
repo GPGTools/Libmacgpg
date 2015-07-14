@@ -15,5 +15,6 @@ extern GPGKeyManager *manager;
 
 + (void)setUpTestDirectory;
 + (NSData *)dataForResource:(NSString *)name;
++ (GPGStream *)streamForResource:(NSString *)name;
 
 @end

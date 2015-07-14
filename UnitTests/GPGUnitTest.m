@@ -47,6 +47,16 @@ GPGKeyManager *manager = nil;
 	return data;
 }
 
++ (GPGStream *)streamForResource:(NSString *)name {
+	NSBundle *unitTestBundle = [NSBundle bundleForClass:[self class]];
+	NSString *path = [unitTestBundle pathForResource:name ofType:@""];
+	GPGFileStream *stream = [GPGFileStream fileStreamForReadingAtPath:path];
+	if (!stream) {
+		@throw [NSException exceptionWithName:@"ApplicationException" reason:@"missing resource" userInfo:nil];
+	}
+	return stream;
+}
+
 
 @end
 
