@@ -23,6 +23,10 @@
 
 @class GPGPacketParser, GPGDecompressStream;
 
+/**
+ This packet is normally only used by GPGPacketParser.
+ Use GPGPacketParser to get it's content.
+ */
 @interface GPGCompressedDataPacket : GPGPacket {
 	NSInteger compressAlgorithm;
 	GPGDecompressStream *decompressStream;

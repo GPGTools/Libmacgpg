@@ -21,6 +21,9 @@
 
 #import <Libmacgpg/GPGPacket.h>
 
+
+// Ignore the content of these packets.
+// Still use a real subclass and report the right tag.
 @interface GPGIgnoredPacket : GPGPacket
 @end
 

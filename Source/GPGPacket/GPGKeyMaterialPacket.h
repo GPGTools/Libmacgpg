@@ -30,6 +30,9 @@
 	NSString *keyID;
 }
 
+/**
+ Public-Key Algorithm used. See: https://tools.ietf.org/html/rfc4880#section-9.1
+ */
 @property (nonatomic, readonly) NSInteger publicAlgorithm;
 @property (nonatomic, readonly) NSInteger version;
 @property (nonatomic, readonly) NSInteger validDays; // Only set on old keys.

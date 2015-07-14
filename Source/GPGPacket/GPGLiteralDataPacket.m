@@ -40,19 +40,23 @@
 		return nil;
 	}
 	
+	 // 'b': binary, 't': text (convert line-endings), 'u': like 't' but UTF8.
 	self.format = parser.byte;
 	
-	NSUInteger len = parser.byte;
-	
-	self.filename = [parser stringWithLength:len];
+	// filename could be empty.
+	NSUInteger filenameLength = parser.byte;
+	self.filename = [parser stringWithLength:filenameLength];
 	
 	self.date = parser.date;
-	length = length - 6 - len;
+	
+	// Decrement by the number of bytes read.
+	length = length - 6 - filenameLength;
 	
 	
+	
+	// Read the content bytes of the packet.
 	NSMutableData *tempData = [NSMutableData data];
 	NSUInteger i = 0;
-	
 	while (length > 0) {
 		tempData.length += length;
 		UInt8 *bytes = tempData.mutableBytes;

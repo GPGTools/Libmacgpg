@@ -46,7 +46,7 @@
 	self.publicAlgorithm = parser.byte;
 	self.keyID = parser.keyID;
 
-	[parser byte]; // Ignore (0 = the next packet is another one-pass signature)
+	[parser byte]; // Ignore (0 means the next packet is another one-pass signature)
 	
 	return self;
 }

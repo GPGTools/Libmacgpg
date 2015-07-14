@@ -66,13 +66,28 @@ typedef enum {
 
 @property (nonatomic, readonly) NSInteger publicAlgorithm;
 @property (nonatomic, readonly) NSInteger hashAlgorithm;
+/**
+ Type of the signature. See: https://tools.ietf.org/html/rfc4880#section-5.2.1
+ */
 @property (nonatomic, readonly) NSInteger type;
 @property (nonatomic, readonly) NSInteger version;
 @property (nonatomic, readonly) UInt16 hashStart;
 @property (nonatomic, copy, readonly) NSString *keyID;
 @property (nonatomic, copy, readonly) NSDate *creationDate;
+/**
+ The hashed subpackets of the GPGSignaturePacket.
+ @returns List of NSDictionarys, this can change at any time, so you're required to test for it.
+ */
 @property (nonatomic, copy, readonly) NSArray *hashedSubpackets;
+/**
+ The unhashed subpackets of the GPGSignaturePacket. They are NOT secured by the signature.
+ @returns List of NSDictionarys, this can change at any time, so you're required to test for it.
+ */
 @property (nonatomic, copy, readonly) NSArray *unhashedSubpackets;
+/**
+ Array containing all elements of unhashedSubpackets and hashedSubpackets.
+ @returns List of NSDictionarys, this can change at any time, so you're required to test for it.
+ */
 @property (nonatomic, copy, readonly) NSArray *subpackets; // Combination of unhashedSubpackets and hashedSubpackets. Order is undefined!
 
 

@@ -29,6 +29,7 @@
 
 @implementation GPGPacket
 
+// Only placeholder methods.
 - (instancetype)initWithParser:(GPGPacketParser *)parser length:(NSUInteger)length {
 	return [super init];
 }
@@ -43,6 +44,7 @@
 
 
 // Old methods, only for compatibility.
+// They will be removed in the future.
 
 - (NSInteger)type {
 	return self.tag;

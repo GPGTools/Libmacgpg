@@ -51,13 +51,10 @@
 			// Old format, deprecated and weak!
 			
 			self.creationDate = parser.date;
-			self.validDays = parser.uint16;
+			self.validDays = parser.uint16; // How many days the key is valid.
 			
-			self.publicAlgorithm = parser.byte; // Should be 1.
+			self.publicAlgorithm = parser.byte; // Should be 1 (RSA).
 			
-			
-			CC_MD5_CTX md5;
-			CC_MD5_Init(&md5);
 			
 			NSData *modulus = [parser multiPrecisionInteger]; // "RSA n"
 			if (modulus.length >= 8) {
@@ -66,14 +63,16 @@
 			}
 			NSData *exponent = [parser multiPrecisionInteger]; // "RSA e"
 			
-			CC_MD5_Update(&md5, modulus.bytes, modulus.length);
-			CC_MD5_Update(&md5, exponent.bytes, exponent.length);
-
+			
+			// The fingerprint is the MD5 of modulus and exponent.
+			CC_MD5_CTX md5;
+			CC_MD5_Init(&md5);
+			CC_MD5_Update(&md5, modulus.bytes, modulus.length); // Hash modulus,
+			CC_MD5_Update(&md5, exponent.bytes, exponent.length); // and exponent.
 			UInt8 fingerprintBytes[16];
 			CC_MD5_Final(fingerprintBytes, &md5);
-
-			// The fingerprint is the md5 hashed modulus and exponent.
 			self.fingerprint = bytesToHexString(fingerprintBytes, 16);
+			
 			
 			break;
 		}
@@ -92,19 +91,22 @@
 			bytesToHash[3] = 4; // Version
 			__block NSUInteger i = 4;
 			
+			
+			// The callback get every byte read from the parser, so we can calculate the SHA1.
 			ByteCallback callback = ^(NSInteger byte) {
 				if (i < dataLength) {
-					bytesToHash[i] = (UInt8)byte;
-					i++;
+					// Append byte to bytesToHash;
+					bytesToHash[i++] = (UInt8)byte;
 				}
 			};
-			
+			// Set the callback.
 			parser.byteCallback = callback;
 
 			
 			self.creationDate = parser.date;
 			self.publicAlgorithm = parser.byte;
 			
+			// Ignore the MPIs. But we recognize them.
 			switch (publicAlgorithm) {
 				case 1:
 				case 2:
@@ -129,18 +131,23 @@
 					break;
 			}
 			
+			// We have all bytes for the SHA1. Unset the callback.
 			parser.byteCallback = nil;
 			
-			// Get the fingerprint by hashing dataToHash using SHA1.
+			
+			// Get the fingerprint by hashing bytesToHash using SHA1.
 			uint8_t fingerprintBytes[20];
 			CC_SHA1(bytesToHash, dataLength, fingerprintBytes);
 			
+			
 			self.fingerprint = bytesToHexString(fingerprintBytes, 20);
+			// The Key ID is the low 64 bits of the fingerprint.
 			self.keyID = [fingerprint keyID];
 
 			break;
 		}
 		default:
+			// Unknown key format, ignore the content.
 			[parser skip:length - 1];
 			break;
 	}

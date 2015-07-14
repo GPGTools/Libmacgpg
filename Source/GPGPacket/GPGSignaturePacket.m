@@ -54,13 +54,15 @@
 		case 3:
 			// Old format.
 			
-			[parser byte]; // Ignore (length of type + creationDate. MUST be 5.)
+			[parser byte]; // Ignore (length of type(1 byte) and creationDate(4 bytes). MUST be 5.)
 			self.type = parser.byte;
 			self.creationDate = parser.date;
 			
+			// KeyID of the issuer.
 			self.keyID = parser.keyID;
 			self.publicAlgorithm = parser.byte;
 			self.hashAlgorithm = parser.byte;
+			// The first 16 bit of the hash, verified by this signature.
 			self.hashStart = parser.uint16;
 			
 			switch (publicAlgorithm) {
@@ -91,12 +93,15 @@
 			self.publicAlgorithm = parser.byte;
 			self.hashAlgorithm = parser.byte;
 			
-			NSUInteger hsplen = parser.uint16;
+			NSUInteger hsplen = parser.uint16; // Length of the hashed subpackets.
+			// The hashed subpackets are secured by the signature itself.
 			self.hashedSubpackets = [parser signatureSubpacketsWithLength:hsplen];
 			
-			NSUInteger usplen = parser.uint16;
+			NSUInteger usplen = parser.uint16; // Length of the unhashed subpackets.
+			// The unhashed subpackets are NOT secured. Don't trust them.
 			self.unhashedSubpackets = [parser signatureSubpacketsWithLength:usplen];
 			
+			// Combined list of subpackets for convenience.
 			NSMutableArray *theSubpackets = [NSMutableArray arrayWithArray:unhashedSubpackets];
 			[theSubpackets addObjectsFromArray:hashedSubpackets];
 			self.subpackets = theSubpackets;
@@ -117,9 +122,10 @@
 			}
 			
 			
-			
+			// The first 16 bit of the hash, verified by this signature.
 			self.hashStart = parser.uint16;
 			
+			// Ignore the MPIs.
 			switch (publicAlgorithm) {
 				case 1:
 				case 2:

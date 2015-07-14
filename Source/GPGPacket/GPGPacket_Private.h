@@ -25,7 +25,9 @@
 
 @interface GPGPacket ()
 
+// This is the designated initializer of the sub-classes.
+// This method may read up to length bytes from parser,
+// it could read more, if it's a partial packet.
 - (instancetype)initWithParser:(GPGPacketParser *)parser length:(NSUInteger)length;
-
 
 @end

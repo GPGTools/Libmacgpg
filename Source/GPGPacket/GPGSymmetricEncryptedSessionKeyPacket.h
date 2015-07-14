@@ -27,6 +27,9 @@
 	NSString *keyID;
 }
 
+/**
+ Symmetric-Key Algorithm used. See: https://tools.ietf.org/html/rfc4880#section-9.2
+ */
 @property (nonatomic, readonly) NSInteger symmetricAlgorithm;
 @property (nonatomic, readonly) NSInteger version;
 @property (nonatomic, strong, readonly) NSString *keyID;

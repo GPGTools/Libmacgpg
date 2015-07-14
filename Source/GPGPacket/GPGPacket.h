@@ -19,6 +19,9 @@
  02111-1307, USA
  */
 
+
+
+// Every subclass of GPGPacket returns one of these tags.
 typedef NS_ENUM(NSInteger, GPGPacketTag) {
 	GPGPublicKeyEncryptedSessionKeyPacketTag = 1,
 	GPGSignaturePacketTag = 2,
@@ -39,9 +42,9 @@ typedef NS_ENUM(NSInteger, GPGPacketTag) {
 };
 
 
-
-
-
+/**
+ GPGPacket is an abstract super-class and should never be used directly.
+*/
 @interface GPGPacket : NSObject
 @property (readonly) GPGPacketTag tag;
 

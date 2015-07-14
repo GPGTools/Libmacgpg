@@ -43,6 +43,7 @@
 	self.keyID = parser.keyID;
 	self.publicAlgorithm = parser.byte;
 	
+	// We ignore the MPIs at the moment.
 	switch (publicAlgorithm) {
 		case 1:
 		case 2:

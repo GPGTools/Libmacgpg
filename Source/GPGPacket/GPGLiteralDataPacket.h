@@ -21,6 +21,9 @@
 
 #import <Libmacgpg/GPGPacket.h>
 
+/**
+ See: https://tools.ietf.org/html/rfc4880#section-5.9
+*/
 @interface GPGLiteralDataPacket : GPGPacket {
 	NSInteger format;
 	NSString *filename;

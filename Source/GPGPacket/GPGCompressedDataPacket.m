@@ -28,7 +28,7 @@
 #import <zlib.h>
 #import <bzlib.h>
 
-
+// A primitive GPGStream to read data out of compressed packets.
 @interface GPGDecompressStream : GPGStream {
 	GPGPacketParser *parser;
 	NSInteger algorithm;
@@ -73,16 +73,18 @@
 	length--;
 	
 	switch (compressAlgorithm) {
-		case 0:
-		case 1:
-		case 2:
-		case 3:
+		case 0: // Uncompressed. Why should this happen?
+		case 1: // ZIP [RFC1951]
+		case 2: // ZLIB [RFC1950]
+		case 3: // BZip2
 			break;
 		default:
+			// Unknown/invalid compression algorithm.
 			[theParser skip:length];
 			return self;
 	}
 	
+	// The GPGDecompressStream will be given to a new GPGPacketParser, to decode the packets inside of this packet.
 	self.decompressStream = [[GPGDecompressStream alloc] initWithParser:theParser length:length algorithm:compressAlgorithm];
 	if (decompressStream) {
 		self.subParser = [[GPGPacketParser alloc] initWithStream:self.decompressStream];
@@ -92,6 +94,7 @@
 }
 
 - (GPGPacket *)nextPacket {
+	// Return the next decompressed packet.
 	GPGPacket *packet = [subParser nextPacket];
 	if (!packet) {
 		self.decompressStream = nil;
@@ -101,6 +104,7 @@
 }
 
 - (BOOL)canDecompress {
+	// Indicate if we are able to decompress this packet.
 	return !!subParser;
 }
 
@@ -142,8 +146,8 @@ const NSUInteger cacheSize = 1024 * 32;
 	inputData = [[NSMutableData alloc] initWithLength:cacheSize];
 	cacheData = [[NSMutableData alloc] initWithLength:cacheSize];
 
+	// Initialize the right decompression engine.
 	int status = 0;
-
 	switch (algorithm) {
 		case 0:
 			// No compresseion.
@@ -151,44 +155,56 @@ const NSUInteger cacheSize = 1024 * 32;
 			inputData = [cacheData retain];
 			break;
 		case 1:
+			// ZIP (zlib with another init)
 			status = inflateInit2(&zStream, -13);
 			break;
 		case 2:
+			// ZLIB
 			status = inflateInit(&zStream);
 			break;
 		case 3:
+			// BZip2
 			status = BZ2_bzDecompressInit(&bzStream, 0, 0);
 			break;
 	}
 	
 	if (status != 0) {
+		// Something went wrong.
 		[self release];
 		return nil;
 	}
 	
 	inputBytes = inputData.mutableBytes;
 	cacheBytes = cacheData.mutableBytes;
-	
 
 	return self;
 }
 
 - (void)fillInput {
+	// Read up to cacheSize bytes and store it in inputBytes.
+	
 	inputSize = 0;
 	if (packetLength != 0) {
 		for (; inputSize < cacheSize; inputSize++) {
+			// Read a byte.
 			NSInteger byte = parser.byteOrEOF;
 			if (byte == EOF) {
 				break;
 			}
+			// Store it in inputBytes.
 			inputBytes[inputSize] = (UInt8)byte;
 			availablePacketBytes--;
 			
+			
 			if (availablePacketBytes == 0) {
+				// We have reached the end of this packet/part.
+				
 				if (parser.partial) {
+					// It's a partial packet, we have to read the next part.
 					packetLength = parser.nextPartialLength;
 					availablePacketBytes = packetLength;
 				} else {
+					// It's a normal packet, so we are really at the end.
 					packetLength = 0;
 				}
 				if (packetLength == 0) {
@@ -202,6 +218,9 @@ const NSUInteger cacheSize = 1024 * 32;
 }
 
 - (BOOL)zlibFillCache {
+	// Fill our cache by decompressing using zlib.
+	
+	// Let zlib write directly in our cache.
 	zStream.avail_out = cacheSize;
 	zStream.next_out = cacheBytes;
 	
@@ -213,26 +232,30 @@ const NSUInteger cacheSize = 1024 * 32;
 			zStream.next_in = inputBytes;
 		}
 		
-		
+		// Decompress.
 		int status = inflate(&zStream, Z_SYNC_FLUSH);
 		
 		if (status != Z_OK) {
 			inflateEnd(&zStream);
 			streamEnd = YES;
 			if (status != Z_STREAM_END) {
+				// Something went wrong.
 				return NO;
 			}
 		}
 		
 	} while (zStream.avail_out == cacheSize);
 	
-	
+	// Calculate number of bytes in cache.
 	cacheAvailableBytes = cacheSize - zStream.avail_out;
 	
 	return YES;
 }
 
 - (BOOL)bzFillCache {
+	// Fill our cache by decompressing using bzip2.
+
+	// Let bzip2 write directly in our cache.
 	bzStream.avail_out = cacheSize;
 	bzStream.next_out = (char *)cacheBytes;
 	
@@ -244,12 +267,14 @@ const NSUInteger cacheSize = 1024 * 32;
 			bzStream.next_in = (char *)inputBytes;
 		}
 		
+		// Decompress.
 		int status = BZ2_bzDecompress(&bzStream);
 		
 		if (status != BZ_OK) {
 			BZ2_bzDecompressEnd(&bzStream);
 			streamEnd = YES;
 			if (status != BZ_STREAM_END) {
+				// Something went wrong.
 				return NO;
 			}
 		}
@@ -257,12 +282,16 @@ const NSUInteger cacheSize = 1024 * 32;
 	} while (bzStream.avail_out == cacheSize);
 	
 	
+	// Calculate number of bytes in cache.
 	cacheAvailableBytes = cacheSize - bzStream.avail_out;
 	
 	return YES;
 }
 
 - (BOOL)uncompressedFillCache {
+	// inputData and cacheData are the same, so we have simply to fill the input,
+	// and set the number of bytes in cache to inputSize.
+	
 	[self fillInput];
 	
 	if (inputSize == 0) {
@@ -275,14 +304,20 @@ const NSUInteger cacheSize = 1024 * 32;
 }
 
 - (NSInteger)readByte {
-	if (cacheAvailableBytes == 0) {
+	// Read the next byte from the cache.
+	// Refill the cache if empty.
+	
+	if (cacheAvailableBytes == 0) { // Cache is emtpy.
+		
 		if (streamEnd) {
+			// We have already reached the end of the stream.
 			return EOF;
 		}
-		cacheLocation = 0;
+		cacheLocation = 0; // Reset the cache read "pointer".
 		
+		
+		// Fill the cache.
 		BOOL moreData = NO;
-		
 		switch (algorithm) {
 			case 0:
 				moreData = [self uncompressedFillCache];
@@ -295,7 +330,10 @@ const NSUInteger cacheSize = 1024 * 32;
 				moreData = [self bzFillCache];
 				break;
 		}
+		
 		if (streamEnd) {
+			// We have reached the end of the stream.
+			// Release the parser to prevent a retain cycle.
 			[parser release];
 			parser = nil;
 		}
