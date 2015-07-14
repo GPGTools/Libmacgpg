@@ -70,11 +70,6 @@
 
 
 
-
-void a() {
-	[NSFileHandle fileHandleForReadingFromURL:nil error:nil];
-}
-
 + (instancetype)unArmorWithGPGStream:(GPGStream *)theStream;
 - (instancetype)initWithGPGStream:(GPGStream *)stream;
 
