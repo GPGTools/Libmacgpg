@@ -68,6 +68,9 @@
 		30516558142281270038AAF0 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 30516556142281270038AAF0 /* Localizable.strings */; };
 		30691AA4136AECC4004AA469 /* GPGOptions.h in Headers */ = {isa = PBXBuildFile; fileRef = 30691AA2136AECC4004AA469 /* GPGOptions.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		30691AA5136AECC4004AA469 /* GPGOptions.m in Sources */ = {isa = PBXBuildFile; fileRef = 30691AA3136AECC4004AA469 /* GPGOptions.m */; };
+		3075ADD61B566D0900A5F89A /* GPGPacketTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 3075ADD51B566D0900A5F89A /* GPGPacketTest.m */; };
+		3075ADDB1B5675D200A5F89A /* key1.gpg in Resources */ = {isa = PBXBuildFile; fileRef = 3075ADDA1B5675B500A5F89A /* key1.gpg */; };
+		3075ADDD1B56760F00A5F89A /* compressed1.gpg in Resources */ = {isa = PBXBuildFile; fileRef = 3075ADDC1B56760F00A5F89A /* compressed1.gpg */; };
 		307C211C1B1745F5006B07A7 /* gpgtools.icns in Resources */ = {isa = PBXBuildFile; fileRef = 307C211B1B1745F5006B07A7 /* gpgtools.icns */; };
 		307FDE421B4E636A00462E4E /* GPGCompressedDataPacket.h in Headers */ = {isa = PBXBuildFile; fileRef = 307FDE401B4E636A00462E4E /* GPGCompressedDataPacket.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		307FDE431B4E636A00462E4E /* GPGCompressedDataPacket.m in Sources */ = {isa = PBXBuildFile; fileRef = 307FDE411B4E636A00462E4E /* GPGCompressedDataPacket.m */; };
@@ -75,7 +78,6 @@
 		309A18D113E3812E0069DC0F /* GPGTransformer.m in Sources */ = {isa = PBXBuildFile; fileRef = 309A18CF13E3812E0069DC0F /* GPGTransformer.m */; };
 		30A058391799E2DC00E1AD20 /* GPGKeyManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 30A058371799E2DC00E1AD20 /* GPGKeyManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		30A0583A1799E2DC00E1AD20 /* GPGKeyManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 30A058381799E2DC00E1AD20 /* GPGKeyManager.m */; };
-		30A218231B5543A500D01E37 /* GPGUnarmorTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 30A218221B5543A500D01E37 /* GPGUnarmorTest.m */; };
 		30A2186B1B5579A200D01E37 /* Unarmor_DoubleNewline.res in Resources */ = {isa = PBXBuildFile; fileRef = 30A2185B1B5579A200D01E37 /* Unarmor_DoubleNewline.res */; };
 		30A2186C1B5579A200D01E37 /* Unarmor_DoubleNewline.txt in Resources */ = {isa = PBXBuildFile; fileRef = 30A2185C1B5579A200D01E37 /* Unarmor_DoubleNewline.txt */; };
 		30A2186D1B5579A200D01E37 /* Unarmor_InvalidComment.res in Resources */ = {isa = PBXBuildFile; fileRef = 30A2185D1B5579A200D01E37 /* Unarmor_InvalidComment.res */; };
@@ -265,6 +267,9 @@
 		3059AF1014239FAB00AD5B30 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		30691AA2136AECC4004AA469 /* GPGOptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGOptions.h; sourceTree = "<group>"; };
 		30691AA3136AECC4004AA469 /* GPGOptions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGOptions.m; sourceTree = "<group>"; };
+		3075ADD51B566D0900A5F89A /* GPGPacketTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGPacketTest.m; sourceTree = "<group>"; };
+		3075ADDA1B5675B500A5F89A /* key1.gpg */ = {isa = PBXFileReference; lastKnownFileType = file; path = key1.gpg; sourceTree = "<group>"; };
+		3075ADDC1B56760F00A5F89A /* compressed1.gpg */ = {isa = PBXFileReference; lastKnownFileType = file; path = compressed1.gpg; sourceTree = "<group>"; };
 		3077AE881A6547D2001EC508 /* SecurityFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SecurityFoundation.framework; path = System/Library/Frameworks/SecurityFoundation.framework; sourceTree = SDKROOT; };
 		307C211B1B1745F5006B07A7 /* gpgtools.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = gpgtools.icns; path = Resources/gpgtools.icns; sourceTree = SOURCE_ROOT; };
 		307D79101340B71A005C9C32 /* TODO */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TODO; sourceTree = "<group>"; };
@@ -682,6 +687,15 @@
 			name = GPGStream;
 			sourceTree = "<group>";
 		};
+		3075ADD71B566E9A00A5F89A /* GPGPacket */ = {
+			isa = PBXGroup;
+			children = (
+				3075ADDA1B5675B500A5F89A /* key1.gpg */,
+				3075ADDC1B56760F00A5F89A /* compressed1.gpg */,
+			);
+			path = GPGPacket;
+			sourceTree = "<group>";
+		};
 		307FAABB13F26BB4003FA99B /* GPGOptions */ = {
 			isa = PBXGroup;
 			children = (
@@ -739,6 +753,7 @@
 				45156A2C14FB506E00129FE7 /* GPGArraySettingTest.m */,
 				45156A2614FB35DC00129FE7 /* GPGDictSettingTest.m */,
 				455B17B915143D9A00FAD47D /* GPGOptionsTest.m */,
+				3075ADD51B566D0900A5F89A /* GPGPacketTest.m */,
 				45C0BC02151B65C700AA8BF6 /* GPGTestVerify.m */,
 				1BE88B3D1B47D7F900A812B6 /* GPGSocketCloseTest.m */,
 				30A218221B5543A500D01E37 /* GPGUnarmorTest.m */,
@@ -810,6 +825,7 @@
 				45891A3C151BA1C9002D7410 /* SignedInputStringCRLF.txt */,
 				45891A3D151BA1C9002D7410 /* SignedInputStringLF.txt */,
 				30A2183A1B55753100D01E37 /* Unarmor */,
+				3075ADD71B566E9A00A5F89A /* GPGPacket */,
 			);
 			name = Resources;
 			path = ../UnitTests/Resources;
@@ -1043,6 +1059,7 @@
 				30A2186B1B5579A200D01E37 /* Unarmor_DoubleNewline.res in Resources */,
 				30A2186C1B5579A200D01E37 /* Unarmor_DoubleNewline.txt in Resources */,
 				30A218781B5579A200D01E37 /* Unarmor_Version.txt in Resources */,
+				3075ADDD1B56760F00A5F89A /* compressed1.gpg in Resources */,
 				30A218701B5579A200D01E37 /* Unarmor_InvalidVersion.txt in Resources */,
 				30A218721B5579A200D01E37 /* Unarmor_MissingNewline.txt in Resources */,
 				30A2187A1B5579A200D01E37 /* Unarmor_VersionOnline.txt in Resources */,
@@ -1060,6 +1077,7 @@
 				30A218771B5579A200D01E37 /* Unarmor_Version.res in Resources */,
 				30BE73E01B541039001A2137 /* SignedInputStringLF.txt in Resources */,
 				30A2186D1B5579A200D01E37 /* Unarmor_InvalidComment.res in Resources */,
+				3075ADDB1B5675D200A5F89A /* key1.gpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1230,8 +1248,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				30A218231B5543A500D01E37 /* GPGUnarmorTest.m in Sources */,
 				30BE73EA1B541F5B001A2137 /* GPGUnitTest.m in Sources */,
+				3075ADD61B566D0900A5F89A /* GPGPacketTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
