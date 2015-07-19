@@ -314,6 +314,8 @@ typedef enum {
 		} else if (dashes < 5) {
 			if (byte == '-') {
 				dashes++;
+			} else if (byte == '\n') {
+				dashes = 0;
 			} else {
 				dashes = -1;
 			}
