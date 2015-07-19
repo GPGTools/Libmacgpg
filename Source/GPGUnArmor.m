@@ -783,9 +783,11 @@ static UInt32 crc32_tab[] = {
 	while (range.location < length) {
 		NSRange foundRange = [theData rangeOfData:newLine options:0 range:range];
 		if (foundRange.length == 0) {
+			// No newline found. So this is the last line.
 			foundRange.location = length;
 		}
 		
+		// Length of this line.
 		range.length = foundRange.location - range.location;
 		
 		// Remove leading "- ".
@@ -812,16 +814,17 @@ static UInt32 crc32_tab[] = {
 			}
 		}
 		
+		// Append the line to the result data.
 		[result appendBytes:bytes + range.location length:range.length];
-		[result appendBytes:"\r\n" length:2];
 		
+		if (foundRange.location < length) {
+			// This isn't the last line. Append CRLF.
+			[result appendBytes:"\r\n" length:2];
+		}
 		
+		// Calculate the range of the remaining data.
 		range.location = foundRange.location + 1;
 		range.length = length - range.location;
-	}
-	
-	if (result.length >= 2) {
-		result.length = result.length - 2;
 	}
 	
 	return result;
