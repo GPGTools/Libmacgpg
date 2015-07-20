@@ -26,18 +26,44 @@
 				NSString *resPath = [[filePath substringToIndex:filePath.length - 3] stringByAppendingString:@"res"];
 				NSData *expectedData = [NSData dataWithContentsOfFile:resPath];
 				
-				GPGStream *stream = [GPGFileStream fileStreamForReadingAtPath:filePath];
-				
-				// The method to test
-				NSData *unArmored = [[GPGUnArmor unArmor:stream] readAllData];
-
-				
-				if (unArmored.length == 0 || ![unArmored isEqualToData:expectedData]) {
-					XCTFail(@"Test %@ failed!", filename);
-					continue;
+				NSString *clearPath = [[filePath substringToIndex:filePath.length - 3] stringByAppendingString:@"clear"];
+				NSData *expectedClearData = nil;
+				if ([fileManager fileExistsAtPath:clearPath]) {
+					expectedClearData = [NSData dataWithContentsOfFile:clearPath];
+					if (expectedClearData == nil) {
+						XCTFail(@"Unable to read %@!", clearPath);
+					}
 				}
 				
-				printf("%s\n", [[NSString stringWithFormat:@"Test %@ passed.", filename] UTF8String]);
+				GPGStream *stream = [GPGFileStream fileStreamForReadingAtPath:filePath];
+				
+				
+				
+				GPGUnArmor *unArmor = [GPGUnArmor unArmorWithGPGStream:stream];
+
+				// The method to test
+				NSData *unArmored = [unArmor decodeAll];
+				
+				
+				
+				
+				BOOL passed = YES;
+				if (expectedClearData) {
+					NSData *clearData = unArmor.clearText;
+					if (![expectedClearData isEqualToData:clearData]) {
+						passed = NO;
+						XCTFail(@"Clear-text %@ failed!", filename);
+					}
+				}
+
+				if (unArmored.length == 0 || ![unArmored isEqualToData:expectedData]) {
+					passed = NO;
+					XCTFail(@"Test %@ failed!", filename);
+				}
+				
+				if (passed) {
+					printf("%s\n", [[NSString stringWithFormat:@"Test %@ passed.", filename] UTF8String]);
+				}
 			}
 		}
 	}

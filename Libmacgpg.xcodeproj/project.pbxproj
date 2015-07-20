@@ -53,6 +53,18 @@
 		301D29271B4C032D00599BE8 /* GPGPublicKeyEncryptedSessionKeyPacket.m in Sources */ = {isa = PBXBuildFile; fileRef = 301D29251B4C032D00599BE8 /* GPGPublicKeyEncryptedSessionKeyPacket.m */; };
 		301D5D9F178C9871003026E7 /* GPGKeyserver.h in Headers */ = {isa = PBXBuildFile; fileRef = 301D5D9D178C9871003026E7 /* GPGKeyserver.h */; };
 		301D5DA0178C9871003026E7 /* GPGKeyserver.m in Sources */ = {isa = PBXBuildFile; fileRef = 301D5D9E178C9871003026E7 /* GPGKeyserver.m */; };
+		302481D61B5CF46800C86A07 /* Unarmor_ClearsignComplicated.clear in Resources */ = {isa = PBXBuildFile; fileRef = 302481CA1B5CF46800C86A07 /* Unarmor_ClearsignComplicated.clear */; };
+		302481D71B5CF46800C86A07 /* Unarmor_ClearsignComplicated.res in Resources */ = {isa = PBXBuildFile; fileRef = 302481CB1B5CF46800C86A07 /* Unarmor_ClearsignComplicated.res */; };
+		302481D81B5CF46800C86A07 /* Unarmor_ClearsignComplicated.txt in Resources */ = {isa = PBXBuildFile; fileRef = 302481CC1B5CF46800C86A07 /* Unarmor_ClearsignComplicated.txt */; };
+		302481D91B5CF46800C86A07 /* Unarmor_ClearsignNoLF.clear in Resources */ = {isa = PBXBuildFile; fileRef = 302481CD1B5CF46800C86A07 /* Unarmor_ClearsignNoLF.clear */; };
+		302481DA1B5CF46800C86A07 /* Unarmor_ClearsignNoLF.res in Resources */ = {isa = PBXBuildFile; fileRef = 302481CE1B5CF46800C86A07 /* Unarmor_ClearsignNoLF.res */; };
+		302481DB1B5CF46800C86A07 /* Unarmor_ClearsignNoLF.txt in Resources */ = {isa = PBXBuildFile; fileRef = 302481CF1B5CF46800C86A07 /* Unarmor_ClearsignNoLF.txt */; };
+		302481DC1B5CF46800C86A07 /* Unarmor_ClearsignOneLF.clear in Resources */ = {isa = PBXBuildFile; fileRef = 302481D01B5CF46800C86A07 /* Unarmor_ClearsignOneLF.clear */; };
+		302481DD1B5CF46800C86A07 /* Unarmor_ClearsignOneLF.res in Resources */ = {isa = PBXBuildFile; fileRef = 302481D11B5CF46800C86A07 /* Unarmor_ClearsignOneLF.res */; };
+		302481DE1B5CF46800C86A07 /* Unarmor_ClearsignOneLF.txt in Resources */ = {isa = PBXBuildFile; fileRef = 302481D21B5CF46800C86A07 /* Unarmor_ClearsignOneLF.txt */; };
+		302481DF1B5CF46800C86A07 /* Unarmor_ClearsignTwoLF.clear in Resources */ = {isa = PBXBuildFile; fileRef = 302481D31B5CF46800C86A07 /* Unarmor_ClearsignTwoLF.clear */; };
+		302481E01B5CF46800C86A07 /* Unarmor_ClearsignTwoLF.res in Resources */ = {isa = PBXBuildFile; fileRef = 302481D41B5CF46800C86A07 /* Unarmor_ClearsignTwoLF.res */; };
+		302481E11B5CF46800C86A07 /* Unarmor_ClearsignTwoLF.txt in Resources */ = {isa = PBXBuildFile; fileRef = 302481D51B5CF46800C86A07 /* Unarmor_ClearsignTwoLF.txt */; };
 		3026F4AF13A203A000F3CA02 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3026F4AE13A203A000F3CA02 /* Security.framework */; };
 		30444C461A65E3D70052CB94 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 30DF7CBB16D39EAA00C8225C /* main.m */; };
 		30444C491A65E46F0052CB94 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4591C4D514F86D38007F6D47 /* Foundation.framework */; };
@@ -261,6 +273,18 @@
 		301D29281B4C049C00599BE8 /* GPGPacketParser_Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GPGPacketParser_Private.h; path = GPGPacket/GPGPacketParser_Private.h; sourceTree = "<group>"; };
 		301D5D9D178C9871003026E7 /* GPGKeyserver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGKeyserver.h; sourceTree = "<group>"; };
 		301D5D9E178C9871003026E7 /* GPGKeyserver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGKeyserver.m; sourceTree = "<group>"; };
+		302481CA1B5CF46800C86A07 /* Unarmor_ClearsignComplicated.clear */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Unarmor_ClearsignComplicated.clear; path = Unarmor/Unarmor_ClearsignComplicated.clear; sourceTree = "<group>"; };
+		302481CB1B5CF46800C86A07 /* Unarmor_ClearsignComplicated.res */ = {isa = PBXFileReference; lastKnownFileType = file; name = Unarmor_ClearsignComplicated.res; path = Unarmor/Unarmor_ClearsignComplicated.res; sourceTree = "<group>"; };
+		302481CC1B5CF46800C86A07 /* Unarmor_ClearsignComplicated.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Unarmor_ClearsignComplicated.txt; path = Unarmor/Unarmor_ClearsignComplicated.txt; sourceTree = "<group>"; };
+		302481CD1B5CF46800C86A07 /* Unarmor_ClearsignNoLF.clear */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Unarmor_ClearsignNoLF.clear; path = Unarmor/Unarmor_ClearsignNoLF.clear; sourceTree = "<group>"; };
+		302481CE1B5CF46800C86A07 /* Unarmor_ClearsignNoLF.res */ = {isa = PBXFileReference; lastKnownFileType = file; name = Unarmor_ClearsignNoLF.res; path = Unarmor/Unarmor_ClearsignNoLF.res; sourceTree = "<group>"; };
+		302481CF1B5CF46800C86A07 /* Unarmor_ClearsignNoLF.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Unarmor_ClearsignNoLF.txt; path = Unarmor/Unarmor_ClearsignNoLF.txt; sourceTree = "<group>"; };
+		302481D01B5CF46800C86A07 /* Unarmor_ClearsignOneLF.clear */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Unarmor_ClearsignOneLF.clear; path = Unarmor/Unarmor_ClearsignOneLF.clear; sourceTree = "<group>"; };
+		302481D11B5CF46800C86A07 /* Unarmor_ClearsignOneLF.res */ = {isa = PBXFileReference; lastKnownFileType = file; name = Unarmor_ClearsignOneLF.res; path = Unarmor/Unarmor_ClearsignOneLF.res; sourceTree = "<group>"; };
+		302481D21B5CF46800C86A07 /* Unarmor_ClearsignOneLF.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Unarmor_ClearsignOneLF.txt; path = Unarmor/Unarmor_ClearsignOneLF.txt; sourceTree = "<group>"; };
+		302481D31B5CF46800C86A07 /* Unarmor_ClearsignTwoLF.clear */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Unarmor_ClearsignTwoLF.clear; path = Unarmor/Unarmor_ClearsignTwoLF.clear; sourceTree = "<group>"; };
+		302481D41B5CF46800C86A07 /* Unarmor_ClearsignTwoLF.res */ = {isa = PBXFileReference; lastKnownFileType = file; name = Unarmor_ClearsignTwoLF.res; path = Unarmor/Unarmor_ClearsignTwoLF.res; sourceTree = "<group>"; };
+		302481D51B5CF46800C86A07 /* Unarmor_ClearsignTwoLF.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Unarmor_ClearsignTwoLF.txt; path = Unarmor/Unarmor_ClearsignTwoLF.txt; sourceTree = "<group>"; };
 		3026F4AE13A203A000F3CA02 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		30444C181A65E0590052CB94 /* GPGTools.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GPGTools.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		30444C1C1A65E0590052CB94 /* installerHelper-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "installerHelper-Info.plist"; sourceTree = "<group>"; };
@@ -709,6 +733,18 @@
 		30A2183A1B55753100D01E37 /* Unarmor */ = {
 			isa = PBXGroup;
 			children = (
+				302481CA1B5CF46800C86A07 /* Unarmor_ClearsignComplicated.clear */,
+				302481CB1B5CF46800C86A07 /* Unarmor_ClearsignComplicated.res */,
+				302481CC1B5CF46800C86A07 /* Unarmor_ClearsignComplicated.txt */,
+				302481CD1B5CF46800C86A07 /* Unarmor_ClearsignNoLF.clear */,
+				302481CE1B5CF46800C86A07 /* Unarmor_ClearsignNoLF.res */,
+				302481CF1B5CF46800C86A07 /* Unarmor_ClearsignNoLF.txt */,
+				302481D01B5CF46800C86A07 /* Unarmor_ClearsignOneLF.clear */,
+				302481D11B5CF46800C86A07 /* Unarmor_ClearsignOneLF.res */,
+				302481D21B5CF46800C86A07 /* Unarmor_ClearsignOneLF.txt */,
+				302481D31B5CF46800C86A07 /* Unarmor_ClearsignTwoLF.clear */,
+				302481D41B5CF46800C86A07 /* Unarmor_ClearsignTwoLF.res */,
+				302481D51B5CF46800C86A07 /* Unarmor_ClearsignTwoLF.txt */,
 				30A2185B1B5579A200D01E37 /* Unarmor_DoubleNewline.res */,
 				30A2185C1B5579A200D01E37 /* Unarmor_DoubleNewline.txt */,
 				30A2185D1B5579A200D01E37 /* Unarmor_InvalidComment.res */,
@@ -1043,21 +1079,32 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				302481DE1B5CF46800C86A07 /* Unarmor_ClearsignOneLF.txt in Resources */,
+				302481DA1B5CF46800C86A07 /* Unarmor_ClearsignNoLF.res in Resources */,
 				30A2186B1B5579A200D01E37 /* Unarmor_DoubleNewline.res in Resources */,
 				30A2186C1B5579A200D01E37 /* Unarmor_DoubleNewline.txt in Resources */,
 				30A218781B5579A200D01E37 /* Unarmor_Version.txt in Resources */,
 				3075ADDD1B56760F00A5F89A /* compressed1.gpg in Resources */,
+				302481DB1B5CF46800C86A07 /* Unarmor_ClearsignNoLF.txt in Resources */,
 				30A218701B5579A200D01E37 /* Unarmor_InvalidVersion.txt in Resources */,
 				30A218721B5579A200D01E37 /* Unarmor_MissingNewline.txt in Resources */,
 				30A2187A1B5579A200D01E37 /* Unarmor_VersionOnline.txt in Resources */,
+				302481E01B5CF46800C86A07 /* Unarmor_ClearsignTwoLF.res in Resources */,
+				302481DD1B5CF46800C86A07 /* Unarmor_ClearsignOneLF.res in Resources */,
+				302481D81B5CF46800C86A07 /* Unarmor_ClearsignComplicated.txt in Resources */,
+				302481D91B5CF46800C86A07 /* Unarmor_ClearsignNoLF.clear in Resources */,
 				30BE73DD1B541039001A2137 /* OpenPGP.asc in Resources */,
+				302481DC1B5CF46800C86A07 /* Unarmor_ClearsignOneLF.clear in Resources */,
 				30A218731B5579A200D01E37 /* Unarmor_NoNewline.res in Resources */,
+				302481D61B5CF46800C86A07 /* Unarmor_ClearsignComplicated.clear in Resources */,
 				30A218711B5579A200D01E37 /* Unarmor_MissingNewline.res in Resources */,
 				30BE73DE1B541039001A2137 /* SignedInputStringCR.txt in Resources */,
 				30A218791B5579A200D01E37 /* Unarmor_VersionOnline.res in Resources */,
 				30A218751B5579A200D01E37 /* Unarmor_Normal.res in Resources */,
 				30BE73DF1B541039001A2137 /* SignedInputStringCRLF.txt in Resources */,
 				30A2186F1B5579A200D01E37 /* Unarmor_InvalidVersion.res in Resources */,
+				302481D71B5CF46800C86A07 /* Unarmor_ClearsignComplicated.res in Resources */,
+				302481DF1B5CF46800C86A07 /* Unarmor_ClearsignTwoLF.clear in Resources */,
 				30A2186E1B5579A200D01E37 /* Unarmor_InvalidComment.txt in Resources */,
 				30A218761B5579A200D01E37 /* Unarmor_Normal.txt in Resources */,
 				30A218741B5579A200D01E37 /* Unarmor_NoNewline.txt in Resources */,
@@ -1065,6 +1112,7 @@
 				30BE73E01B541039001A2137 /* SignedInputStringLF.txt in Resources */,
 				30A2186D1B5579A200D01E37 /* Unarmor_InvalidComment.res in Resources */,
 				3075ADDB1B5675D200A5F89A /* key1.gpg in Resources */,
+				302481E11B5CF46800C86A07 /* Unarmor_ClearsignTwoLF.txt in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
