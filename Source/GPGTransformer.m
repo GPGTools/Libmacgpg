@@ -19,6 +19,8 @@
 
 #import "GPGTransformer.h"
 #import "GPGGlobals.h"
+#import "GPGKey.h"
+#import "GPGUserIDSignature.h"
 
 #define maybeLocalize(key) (!_keepUnlocalized ? localizedLibmacgpgString(key) : key)
 
@@ -100,7 +102,19 @@
 + (BOOL)allowsReverseTransformation { return NO; }
 - (id)transformedValue:(id)value {
 	NSMutableArray *strings = [NSMutableArray array];
-	NSInteger intValue = [value integerValue];
+	NSInteger intValue;
+	GPGUserIDSignature *revSig = nil;
+	
+	if ([value isKindOfClass:[NSNumber class]]) {
+		intValue = [value integerValue];
+	} else {
+		GPGKey *key = value;
+		intValue = key.validity;
+		if ([key respondsToSelector:@selector(revocationSignature)]) {
+			revSig = key.revocationSignature;
+		}
+	}
+	
 	
 	switch (intValue & 7) {
 		case 2:
@@ -126,7 +140,18 @@
 		[strings addObject:maybeLocalize(@"Invalid")];
 	}
 	if (intValue & GPGValidityRevoked) {
-		[strings addObject:maybeLocalize(@"Revoked")];
+		NSString *revString = maybeLocalize(@"Revoked");
+		if (revSig) {
+			NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+			dateFormatter.timeStyle = NSDateFormatterNoStyle;
+			dateFormatter.dateStyle = NSDateFormatterLongStyle;
+			
+			NSString *dateString = [dateFormatter stringFromDate:revSig.creationDate];
+			
+			revString = [NSString stringWithFormat:@"%@ (%@)", revString, dateString];
+		}
+		
+		[strings addObject:revString];
 	}
 	if (intValue & GPGValidityExpired) {
 		[strings addObject:maybeLocalize(@"Expired")];

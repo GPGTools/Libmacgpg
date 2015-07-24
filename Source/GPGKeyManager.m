@@ -246,7 +246,7 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 		if (([type isEqualToString:@"pub"] && (isPub = YES)) || [type isEqualToString:@"sub"]) { // Primary-key or subkey.
 			if (_fetchSignatures) {
 				signedObject.signatures = signatures;
-				signatures = nil;
+				signatures = [NSMutableArray array];
 			}
 			if (isPub) {
 				key = primaryKey;
