@@ -209,16 +209,9 @@ NSString *localizedLibmacgpgString(NSString *key) {
 	NSData *result = nil;
 	
 	if (floor(NSAppKitVersionNumber) < NSAppKitVersionNumber10_9) {
-		SecTransformRef transform = SecDecodeTransformCreate(kSecBase64Encoding, nil);
-		if (!transform) {
-			return nil;
-		}
-		
-		if (SecTransformSetAttribute(transform, kSecTransformInputAttributeName, self, nil)) {
-			result = (NSData *)SecTransformExecute(transform, nil);
-		}
-		
-		CFRelease(transform);
+		NSString *base64String = [[NSString alloc] initWithData:self encoding:NSASCIIStringEncoding];
+		result = [[NSData alloc] initWithBase64Encoding:base64String];
+		[base64String release];
 	} else {
 		result = [[NSData alloc] initWithBase64EncodedData:self options:NSDataBase64DecodingIgnoreUnknownCharacters];
 	}
