@@ -435,7 +435,9 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 			signature.signatureClass = hexToByte([field UTF8String]);
 			signature.local = [field hasSuffix:@"l"];
 			
-			signature.hashAlgorithm = [[parts objectAtIndex:15] intValue];
+			if (parts.count > 15) {
+				signature.hashAlgorithm = [[parts objectAtIndex:15] intValue];
+			}
 			
 			[signatures addObject:signature];
 			
