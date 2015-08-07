@@ -171,50 +171,33 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
     static dispatch_once_t pinentryToken;
     dispatch_once(&pinentryToken, ^{
 		
-		// New checking order:
-		// 1. a defined "pinentry-program" in gpg-agent.conf
-		// 2. pinentry-mac in a bundle named "org.gpgtools.Libmacgpg"
-		// 3. a pinentry-mac executable in a set of dirs (e.g., /usr/local/bin)
-
-		
-		NSString *foundPath = nil;
-		
 		NSFileManager *fileManager = [NSFileManager defaultManager];
 		static NSString * const kPinentry_program = @"pinentry-program";
         GPGOptions *options = [GPGOptions sharedOptions];
 		
-		// 1.
-		// Read pinentry path from gpg-agent.conf
-        NSString *inconfPath = [options valueForKey:kPinentry_program inDomain:GPGDomain_gpgAgentConf];
-        inconfPath = [inconfPath stringByStandardizingPath];
-        
-		if (inconfPath && [fileManager isExecutableFileAtPath:inconfPath]) {
-            foundPath = inconfPath; // Use it, if valid.
-		} else { // No valid pinentryPath.
-			inconfPath = nil;
-			
-			// 2.
-			// Search for pinentry in Libmacgpg.
-			NSString *bundlePath = [[NSBundle bundleWithIdentifier:@"org.gpgtools.Libmacgpg"] pathForResource:@"pinentry-mac" ofType:@"" inDirectory:@"pinentry-mac.app/Contents/MacOS"];
-			if (bundlePath && [fileManager isExecutableFileAtPath:bundlePath])
-				foundPath = bundlePath;
+		// MacGPG2 has the default path to pinentry-mac hardcoded
+		// so we don't need to force set a path in gpg-agent.conf.
+		
+		
+		// Read pinentry path from gpg-agent.conf.
+        pinentryPath = [options valueForKey:kPinentry_program inDomain:GPGDomain_gpgAgentConf];
+        pinentryPath = [pinentryPath stringByStandardizingPath];
+		
+		if (pinentryPath) {
+			// Remove an invalid path from gpg-agent.conf.
+			// A pinentry in Libmacgpg is an old version, don't use it anymore.
+			if ([pinentryPath rangeOfString:@"/Libmacgpg.framework/"].length > 0 || ![fileManager isExecutableFileAtPath:pinentryPath]) {
+				pinentryPath = nil;
+				[options setValue:nil forKey:kPinentry_program inDomain:GPGDomain_gpgAgentConf];
+				[options gpgAgentFlush];
+			}
+		}
+
+		if (!pinentryPath) {
+			pinentryPath = @"/usr/local/MacGPG2/libexec/pinentry-mac.app/Contents/MacOS/pinentry-mac";
 		}
 		
-		
-		
-		if (!inconfPath) { // No (valid) pinentry ing pg-agent.conf
-            if (!foundPath) {
-				// 3.
-                foundPath = [self findExecutableWithName:@"../libexec/pinentry-mac.app/Contents/MacOS/pinentry-mac"];
-            }
-            if (foundPath) {
-				// Set valid pinentry.
-                [options setValue:foundPath forKey:kPinentry_program inDomain:GPGDomain_gpgAgentConf];
-                [options gpgAgentFlush];
-            }
-        }
-
-		pinentryPath = [foundPath retain];
+		[pinentryPath retain];
     });
 	return pinentryPath;
 }
