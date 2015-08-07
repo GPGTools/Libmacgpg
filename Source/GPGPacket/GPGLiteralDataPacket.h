@@ -27,13 +27,13 @@
 @interface GPGLiteralDataPacket : GPGPacket {
 	NSInteger format;
 	NSString *filename;
-	NSDate *date;
+	NSUInteger time;
 	NSData *content;
 }
 
 @property (nonatomic, readonly) NSInteger format;
 @property (nonatomic, strong, readonly) NSString *filename; // "_CONSOLE" means "for your eyes only".
-@property (nonatomic, strong, readonly) NSDate *date;
+@property (nonatomic, readonly) NSUInteger time;
 @property (nonatomic, copy, readonly) NSData *content;
 
 @end

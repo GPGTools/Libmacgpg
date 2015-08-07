@@ -29,14 +29,14 @@
 @property (nonatomic, readwrite) NSInteger publicAlgorithm;
 @property (nonatomic, readwrite) NSInteger version;
 @property (nonatomic, readwrite) NSInteger validDays;
-@property (nonatomic, strong, readwrite) NSDate *creationDate;
+@property (nonatomic, readwrite) NSUInteger creationTime;
 @property (nonatomic, strong, readwrite) NSString *fingerprint;
 @property (nonatomic, strong, readwrite) NSString *keyID;
 @end
 
 
 @implementation GPGPublicKeyPacket
-@synthesize publicAlgorithm, version, validDays, creationDate, fingerprint, keyID;
+@synthesize publicAlgorithm, version, validDays, creationTime, fingerprint, keyID;
 
 - (instancetype)initWithParser:(GPGPacketParser *)parser length:(NSUInteger)length {
 	self = [super init];
@@ -50,7 +50,7 @@
 		case 3: {
 			// Old format, deprecated and weak!
 			
-			self.creationDate = parser.date;
+			self.creationTime = parser.time;
 			self.validDays = parser.uint16; // How many days the key is valid.
 			
 			self.publicAlgorithm = parser.byte; // Should be 1 (RSA).
@@ -103,7 +103,7 @@
 			parser.byteCallback = callback;
 
 			
-			self.creationDate = parser.date;
+			self.creationTime = parser.time;
 			self.publicAlgorithm = parser.byte;
 			
 			// Ignore the MPIs. But we recognize them.
@@ -160,8 +160,16 @@
 	return 6;
 }
 
+- (NSString *)description {
+	return [NSString stringWithFormat:@"%@ v%li: %li\nFingerprint: %@\nKeyID: %@\nCreation Time: %lu", self.className,
+			(long)self.version,
+			(long)self.publicAlgorithm,
+			self.fingerprint,
+			self.keyID,
+			(unsigned long)self.creationTime];
+}
+
 - (void)dealloc {
-	self.creationDate = nil;
 	self.fingerprint = nil;
 	self.keyID = nil;
 	[super dealloc];

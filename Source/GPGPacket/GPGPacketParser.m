@@ -336,7 +336,7 @@ static BOOL isPartial(NSInteger c) {
 	return data;
 }
 
-- (NSDate *)date {
+- (NSUInteger)time {
 	// Read a date. Consumes 4 bytes.
 
 	NSUInteger time;
@@ -346,13 +346,7 @@ static BOOL isPartial(NSInteger c) {
 	time |= self.byte << 8;
 	time |= self.byte;
 	
-	if (time == 0) {
-		return nil;
-	}
-	
-	NSDate *date = [NSDate dateWithTimeIntervalSince1970:time];
-	
-	return date;
+	return time;
 }
 
 - (UInt16)uint16 {
@@ -428,9 +422,9 @@ static BOOL isPartial(NSInteger c) {
 			case GPGSignatureCreationTimeTag:
 			case GPGSignatureExpirationTimeTag:
 			case GPGKeyExpirationTimeTag: {
-				NSDate *date = [self date];
-				if (date) {
-					packet[@"date"] = date;
+				NSUInteger time = [self time];
+				if (time) {
+					packet[@"time"] = @(time);
 				}
 				break;
 			}

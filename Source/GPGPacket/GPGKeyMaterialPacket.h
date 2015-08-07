@@ -25,7 +25,7 @@
 	NSInteger publicAlgorithm;
 	NSInteger version;
 	NSInteger validDays;
-	NSDate *creationDate;
+	NSUInteger creationTime;
 	NSString *fingerprint;
 	NSString *keyID;
 }
@@ -36,7 +36,7 @@
 @property (nonatomic, readonly) NSInteger publicAlgorithm;
 @property (nonatomic, readonly) NSInteger version;
 @property (nonatomic, readonly) NSInteger validDays; // Only set on old keys.
-@property (nonatomic, strong, readonly) NSDate *creationDate;
+@property (nonatomic, readonly) NSUInteger creationTime;
 @property (nonatomic, strong, readonly) NSString *fingerprint;
 @property (nonatomic, strong, readonly) NSString *keyID;
 

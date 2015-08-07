@@ -37,7 +37,7 @@
 
 - (NSString *)keyID;
 - (id)multiPrecisionInteger;
-- (NSDate *)date;
+- (NSUInteger)time;
 - (UInt16)uint16;
 - (NSString *)stringWithLength:(NSUInteger)length;
 - (NSArray *)signatureSubpacketsWithLength:(NSUInteger)fullLength;

@@ -29,8 +29,8 @@
 @property (nonatomic, readwrite) NSInteger type;
 @property (nonatomic, readwrite) NSInteger version;
 @property (nonatomic, readwrite) UInt16 hashStart;
+@property (nonatomic, readwrite) NSUInteger creationTime;
 @property (nonatomic, copy, readwrite) NSString *keyID;
-@property (nonatomic, copy, readwrite) NSDate *creationDate;
 @property (nonatomic, copy, readwrite) NSArray *hashedSubpackets;
 @property (nonatomic, copy, readwrite) NSArray *unhashedSubpackets;
 @property (nonatomic, copy, readwrite) NSArray *subpackets;
@@ -38,7 +38,7 @@
 
 
 @implementation GPGSignaturePacket
-@synthesize publicAlgorithm, hashAlgorithm, type, version, hashStart, keyID, creationDate,
+@synthesize publicAlgorithm, hashAlgorithm, type, version, hashStart, keyID, creationTime,
 	hashedSubpackets, unhashedSubpackets, subpackets;
 
 - (instancetype)initWithParser:(GPGPacketParser *)parser length:(NSUInteger)length {
@@ -54,9 +54,9 @@
 		case 3:
 			// Old format.
 			
-			[parser byte]; // Ignore (length of type(1 byte) and creationDate(4 bytes). MUST be 5.)
+			[parser byte]; // Ignore (length of type(1 byte) and creationTime(4 bytes). MUST be 5.)
 			self.type = parser.byte;
-			self.creationDate = parser.date;
+			self.creationTime = parser.time;
 			
 			// KeyID of the issuer.
 			self.keyID = parser.keyID;
@@ -111,7 +111,7 @@
 			for (NSDictionary *subpacket in subpackets) {
 				switch ((GPGSubpacketTag)[subpacket[@"tag"] integerValue]) {
 					case GPGSignatureCreationTimeTag:
-						self.creationDate = subpacket[@"date"];
+						self.creationTime = [subpacket[@"time"] unsignedIntegerValue];
 						break;
 					case GPGIssuerTag:
 						self.keyID = subpacket[@"keyID"];
@@ -161,16 +161,15 @@
 }
 
 - (NSString *)description {
-	return [NSString stringWithFormat:@"%@ v%li: %li\nIssuer: %@\nCreation Date: %@", self.className,
+	return [NSString stringWithFormat:@"%@ v%li: %li\nIssuer: %@\nCreation Time: %lu", self.className,
 			(long)self.version,
 			(long)self.type,
 			self.keyID,
-			self.creationDate];
+			(unsigned long)self.creationTime];
 }
 
 - (void)dealloc {
 	self.keyID = nil;
-	self.creationDate = nil;
 	self.hashedSubpackets = nil;
 	self.unhashedSubpackets = nil;
 	[super dealloc];

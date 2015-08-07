@@ -58,7 +58,7 @@ typedef enum {
 	NSInteger version;
 	UInt16 hashStart;
 	NSString *keyID;
-	NSDate *creationDate;
+	NSUInteger creationTime;
 	NSArray *hashedSubpackets;
 	NSArray *unhashedSubpackets;
 	NSArray *subpackets;
@@ -73,7 +73,7 @@ typedef enum {
 @property (nonatomic, readonly) NSInteger version;
 @property (nonatomic, readonly) UInt16 hashStart;
 @property (nonatomic, copy, readonly) NSString *keyID;
-@property (nonatomic, copy, readonly) NSDate *creationDate;
+@property (nonatomic, readonly) NSUInteger creationTime;
 /**
  The hashed subpackets of the GPGSignaturePacket.
  @returns List of NSDictionarys, this can change at any time, so you're required to test for it.

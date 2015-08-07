@@ -25,13 +25,13 @@
 @interface GPGLiteralDataPacket ()
 @property (nonatomic, readwrite) NSInteger format;
 @property (nonatomic, strong, readwrite) NSString *filename;
-@property (nonatomic, strong, readwrite) NSDate *date;
+@property (nonatomic, readwrite) NSUInteger time;
 @property (nonatomic, copy, readwrite) NSData *content;
 @end
 
 
 @implementation GPGLiteralDataPacket
-@synthesize format, filename, date, content;
+@synthesize format, filename, time, content;
 
 
 - (instancetype)initWithParser:(GPGPacketParser *)parser length:(NSUInteger)length {
@@ -47,7 +47,7 @@
 	NSUInteger filenameLength = parser.byte;
 	self.filename = [parser stringWithLength:filenameLength];
 	
-	self.date = parser.date;
+	self.time = parser.time;
 	
 	// Decrement by the number of bytes read.
 	length = length - 6 - filenameLength;
@@ -84,7 +84,6 @@
 
 - (void)dealloc {
 	self.filename = nil;
-	self.date = nil;
 	self.content = nil;
 	[super dealloc];
 }
