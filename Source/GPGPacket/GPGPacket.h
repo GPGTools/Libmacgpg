@@ -50,14 +50,18 @@ typedef NS_ENUM(NSInteger, GPGPacketTag) {
 
 
 
++ (NSDictionary *)capabilitiesOfPackets:(NSArray *)packets;
+
++ (id)packetsWithData:(NSData *)data;
++ (void)enumeratePacketsWithData:(NSData *)theData block:(void (^)(GPGPacket *packet, BOOL *stop))block;
+
+
 // Old methods, only for compatibility:
 
 - (NSInteger)type UNAVAILABLE_ATTRIBUTE;
 - (NSString *)keyID UNAVAILABLE_ATTRIBUTE;
 - (NSInteger)signatureType UNAVAILABLE_ATTRIBUTE;
 
-+ (id)packetsWithData:(NSData *)data DEPRECATED_ATTRIBUTE;
-+ (void)enumeratePacketsWithData:(NSData *)theData block:(void (^)(GPGPacket *packet, BOOL *stop))block DEPRECATED_ATTRIBUTE;
 + (NSData *)unArmor:(NSData *)data DEPRECATED_ATTRIBUTE;
 + (NSData *)unArmor:(NSData *)data clearText:(NSData **)clearText DEPRECATED_ATTRIBUTE;
 
