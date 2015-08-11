@@ -1583,9 +1583,9 @@
 					/usr/include,
 				);
 				INFOPLIST_FILE = Resources/Info.plist;
-				INSTALL_PATH = "@loader_path/../Frameworks";
-				LD_DYLIB_INSTALL_NAME = "@rpath/$(EXECUTABLE_PATH)";
-				LD_RUNPATH_SEARCH_PATHS = "@loader_path/Frameworks";
+				INSTALL_PATH = /Library/Frameworks;
+				LD_DYLIB_INSTALL_NAME = "/Library/Frameworks/$(EXECUTABLE_PATH)";
+				LD_RUNPATH_SEARCH_PATHS = /Library/Frameworks;
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = Libmacgpg;
 				WRAPPER_EXTENSION = framework;
