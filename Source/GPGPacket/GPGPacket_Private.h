@@ -21,6 +21,11 @@
 
 #import "GPGPacketParser_Private.h"
 
+// If the end of file is reached during init, the packet
+// is invalid: Release it and return nil.
+#define cancelInitOnEOF() if (parser.eofReached) {[self release]; return nil;}
+
+
 @class GPGPacketParser;
 
 @interface GPGPacket ()

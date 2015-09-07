@@ -50,7 +50,13 @@
 #define CRITICAL_BIT    0x80
 #define CRITICAL_MASK   0x7f
 
-static NSString * const endOfFileException = @"endOfFileException";
+// Return a GPGErrorEOF, if the end of file is reached unexpected.
+#define returnErrorOnEOF() if (eofReached) {self.error = [NSError errorWithDomain:LibmacgpgErrorDomain code:GPGErrorEOF userInfo:nil]; return nil;}
+// Return 0 or nil, if the end of file is reached.
+#define stopOnEOF()	if (eofReached) {return 0;}
+
+
+
 static NSArray *tagClasses = nil;
 
 @interface GPGPacketParser ()
@@ -68,10 +74,14 @@ static NSArray *tagClasses = nil;
 #pragma mark Main methods
 
 - (GPGPacket *)nextPacket {
+
+	returnErrorOnEOF();
+
 	@try {
 		if (compressedPacket.canDecompress) {
 			// We have a compressed packet, get the next decompressed packet.
 			GPGPacket *tempPacket = [compressedPacket nextPacket];
+			returnErrorOnEOF();
 			if (tempPacket) {
 				return tempPacket;
 			} else {
@@ -103,8 +113,11 @@ static NSArray *tagClasses = nil;
 			
 			// Get the packet length.
 			c = self.byte;
+			returnErrorOnEOF();
+
 			length = [self getNewLen:c];
-			
+			returnErrorOnEOF();
+
 			partial = isPartial(c);
 			if (partial && length < 512) {
 				// The first partial packet MUST be at least 512 byte long.
@@ -113,11 +126,11 @@ static NSArray *tagClasses = nil;
 			}
 		} else {
 			// Old format.
-			
+
 			// The two low-bits define how the length of the packet is stored.
 			// So we have to shift the tag accordingly.
 			tag >>= OLD_TAG_SHIFT;
-			
+
 			switch (c & OLD_LEN_MASK) {
 				case 0:
 					length = self.byte;
@@ -136,6 +149,8 @@ static NSArray *tagClasses = nil;
 					length = NSUIntegerMax;
 					break;
 			}
+
+			returnErrorOnEOF();
 		}
 		
 		GPGPacket *packet = nil;
@@ -154,6 +169,8 @@ static NSArray *tagClasses = nil;
 				// The packet content is parsed in -initWithParser:length:.
 				packet = [[[class alloc] initWithParser:self length:length] autorelease];
 				
+				returnErrorOnEOF();
+
 				
 				if (tag == TAG_COMPRESSED && [(GPGCompressedDataPacket *)packet canDecompress]) {
 					// We have a compressed packet, we are able to decompress.
@@ -163,6 +180,7 @@ static NSArray *tagClasses = nil;
 					
 					// Get the first packet inside of the compressed packet.
 					GPGPacket *tempPacket = [compressedPacket nextPacket];
+					returnErrorOnEOF();
 					if (tempPacket) {
 						return tempPacket;
 					} else {
@@ -176,27 +194,24 @@ static NSArray *tagClasses = nil;
 			// Skip unknown packets.
 			[self skip:length];
 		}
-		
+		returnErrorOnEOF();
+
 		// Skip remaining data of a partial packet.
 		while (partial == YES) {
 			c = self.byte;
 			length = [self getNewLen:c];
 			partial = isPartial(c);
-			
+			returnErrorOnEOF();
+
 			[self skip:length];
 		}
+		returnErrorOnEOF();
 		
 		return packet;
 	} @catch (NSException *exception) {
-		if ([exception.name isEqualToString:endOfFileException]) {
-			// An endOfFileException is thrown by [self byte], when a unexpected EOF is reached.
-			// Set self.error to signal this.
-			self.error = [NSError errorWithDomain:LibmacgpgErrorDomain code:GPGErrorEOF userInfo:nil];
-		} else {
-			// Never throw an exception, instead log it and set self.error.
-			NSLog(@"Uncaught exception in [GPGPacketParser nextPacket]: \"%@\"", exception);
-			self.error = [NSError errorWithDomain:LibmacgpgErrorDomain code:GPGErrorUnexpected userInfo:@{@"exception": exception}];
-		}
+		// Never throw an exception, instead log it and set self.error.
+		NSLog(@"Uncaught exception in [GPGPacketParser nextPacket]: \"%@\"", exception);
+		self.error = [NSError errorWithDomain:LibmacgpgErrorDomain code:GPGErrorUnexpected userInfo:@{@"exception": exception}];
 	}
 
 	return nil;
@@ -206,40 +221,35 @@ static NSArray *tagClasses = nil;
 #pragma mark Helper
 
 - (NSInteger)byte {
-	// Get the next byte from the strem.
+	// Gets the next byte from the strem.
+	// If the end of file is reached sets eofReached and returns EOF.
+	
+	if (eofReached) {
+		return EOF;
+	}
 	
 	NSInteger byte = [stream readByte];
-	if (byte == EOF) {
-		@throw [NSException exceptionWithName:endOfFileException reason:@"unexpected end of file." userInfo:nil];
-	}
-	
 	packetLength--;
 	
-	if (byteCallback) {
-		// Return the byte via byteCallback AND as a normal return value.
+	if (byte == EOF) {
+		eofReached = YES;
+	} else if (byteCallback) {
 		byteCallback(byte);
 	}
-
+	
 	return byte;
 }
 
-- (NSInteger)byteOrEOF {
-	// Same as [self byte], but can also return EOF.
-	
-	NSInteger byte = [stream readByte];
-	packetLength--;
-	
-	if (byteCallback && byte != EOF) {
-		byteCallback(byte);
-	}
-	
-	return byte;
+- (BOOL)eofReached {
+	return eofReached;
 }
 
 - (void)skip:(NSUInteger)count {
 	// skip count bytes.
 	for (; count > 0; count--) {
-		[self byte];
+		if (self.byte == EOF) {
+			return;
+		}
 	}
 }
 
@@ -268,6 +278,8 @@ static BOOL isPartial(NSInteger c) {
 	} else {
 		length = 1 << (c & PARTIAL_MASK);
 	}
+	stopOnEOF();
+
 	return length;
 }
 
@@ -276,15 +288,17 @@ static BOOL isPartial(NSInteger c) {
 
 - (NSUInteger)nextPartialLength {
 	// Returns the length of the next part.
-	
+
 	if (partial == NO) {
 		return 0;
 	}
-	
+
 	NSInteger c = self.byte;
 	NSUInteger length = [self getNewLen:c];
 	partial = isPartial(c);
-	
+
+	stopOnEOF();
+
 	return length;
 }
 
@@ -314,6 +328,7 @@ static BOOL isPartial(NSInteger c) {
 					   (UInt8)self.byte,
 					   (UInt8)self.byte];
 	
+	stopOnEOF();
 	return keyID;
 }
 
@@ -324,12 +339,14 @@ static BOOL isPartial(NSInteger c) {
 	NSUInteger bits = self.byte * 256;
 	bits += self.byte;
 	byteCount = (bits + 7) / 8;
-	
+	stopOnEOF();
+
 	NSMutableData *data = [NSMutableData dataWithLength:byteCount];
 	UInt8 *bytes = data.mutableBytes;
 	
 	for (NSUInteger i = 0; i < byteCount; i++) {
 		bytes[i] = (UInt8)self.byte;
+		stopOnEOF();
 	}
 	
 	
@@ -346,38 +363,44 @@ static BOOL isPartial(NSInteger c) {
 	time |= self.byte << 8;
 	time |= self.byte;
 	
+	stopOnEOF();
 	return time;
 }
 
 - (UInt16)uint16 {
 	// Read a unsigned 16-bit integer. Consumes 2 bytes.
-	
+
 	UInt16 value = (UInt16)((self.byte << 8) | self.byte);
+
+	stopOnEOF();
 	return value;
 }
 
 - (NSString *)stringWithLength:(NSUInteger)length {
 	// Read an UTF8 string.
 
+	stopOnEOF();
 	char tempString[length + 1];
 	tempString[length] = 0;
 	for (NSUInteger i = 0; i < length; i++) {
 		tempString[i] = (char)self.byte;
+		stopOnEOF();
 	}
-	
+
 	NSString *string = [NSString stringWithUTF8String:tempString];
-	
+
 	return string;
 }
 
 - (NSArray *)signatureSubpacketsWithLength:(NSUInteger)fullLength {
 	// Parse the signature subpackets.
 	// fullLength is the length of all subpackets.
-	
+
+	stopOnEOF();
 	NSMutableArray *packets = [NSMutableArray array];
-	
+
 	while (fullLength > 0) {
-		
+
 		// Get the length of the subpacket.
 		NSUInteger length = self.byte;
 		if (length < 192) {
@@ -393,15 +416,17 @@ static BOOL isPartial(NSInteger c) {
 			fullLength -= 5;
 		}
 		fullLength -= length;
-		
+
+
 		// Used to skip the remaining subpacket bytes.
 		NSUInteger remainingLength = packetLength - length;
 
-		
+
 		GPGSubpacketTag subtag = self.byte; // length includes this byte.
+		stopOnEOF();
 		length--;
-		
-		
+
+
 		/* Handle critical bit of subpacket type */
 		BOOL critical = NO;
 		if (subtag & CRITICAL_BIT) {
@@ -479,12 +504,14 @@ static BOOL isPartial(NSInteger c) {
 				packet[@"hashAlgorithm"] = @(self.byte);
 				length -= 2;
 				
+				stopOnEOF();
 				NSMutableData *data = [NSMutableData dataWithLength:length];
 				if (data) {
 					UInt8 *bytes = data.mutableBytes;
 					
 					for (NSUInteger i = 0; i < length; i++) {
 						bytes[i] = (UInt8)self.byte;
+						stopOnEOF();
 					}
 					
 					packet[@"hash"] = [[data copy] autorelease];
@@ -494,16 +521,21 @@ static BOOL isPartial(NSInteger c) {
 			default:
 				break;
 		}
-		
+
+		stopOnEOF();
+
+
 		// Add the subpacket to the list.
 		[packets addObject:packet];
 		
 		// Skip all remaining bytes of this subpacket, if any.
 		length = packetLength - remainingLength;
 		[self skip:length];
+
+		stopOnEOF();
 	}
 
-	
+
 	return packets;
 }
 

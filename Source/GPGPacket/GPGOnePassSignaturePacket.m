@@ -48,6 +48,7 @@
 
 	[parser byte]; // Ignore (0 means the next packet is another one-pass signature)
 	
+	cancelInitOnEOF();
 	return self;
 }
 

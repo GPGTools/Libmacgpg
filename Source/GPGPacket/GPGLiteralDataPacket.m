@@ -52,7 +52,7 @@
 	// Decrement by the number of bytes read.
 	length = length - 6 - filenameLength;
 	
-	
+	cancelInitOnEOF();
 	
 	// Read the content bytes of the packet.
 	NSMutableData *tempData = [NSMutableData data];
@@ -63,6 +63,7 @@
 		
 		for (NSUInteger j = 0; j < length; j++) {
 			bytes[i++] = (UInt8)parser.byte;
+			cancelInitOnEOF();
 		}
 		
 		if (parser.partial) {
@@ -74,7 +75,7 @@
 	
 	self.content = tempData;
 	
-	
+	cancelInitOnEOF();
 	return self;
 }
 

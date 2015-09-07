@@ -31,6 +31,7 @@
 	}
 	
 	[parser skip:length];
+	cancelInitOnEOF();
 	return self;
 }
 @end

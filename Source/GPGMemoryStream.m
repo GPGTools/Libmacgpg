@@ -105,7 +105,7 @@
 		[self openForReading];
 	}
 	if (_readPos >= _readableLength) {
-		return -1;
+		return EOF;
 	}
 	return _readableBytes[_readPos++]; // Post-increment.
 }

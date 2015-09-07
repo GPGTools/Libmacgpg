@@ -47,6 +47,7 @@
 	
 	[parser skipRemaining];
 	
+	cancelInitOnEOF();
 	return self;
 }
 

@@ -269,7 +269,7 @@
 		301D29201B4BFD9800599BE8 /* GPGPacket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GPGPacket.m; path = GPGPacket/GPGPacket.m; sourceTree = "<group>"; };
 		301D29231B4BFDCE00599BE8 /* GPGPacket_Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GPGPacket_Private.h; path = GPGPacket/GPGPacket_Private.h; sourceTree = "<group>"; };
 		301D29241B4C032D00599BE8 /* GPGPublicKeyEncryptedSessionKeyPacket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGPublicKeyEncryptedSessionKeyPacket.h; path = GPGPacket/GPGPublicKeyEncryptedSessionKeyPacket.h; sourceTree = "<group>"; };
-		301D29251B4C032D00599BE8 /* GPGPublicKeyEncryptedSessionKeyPacket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GPGPublicKeyEncryptedSessionKeyPacket.m; path = GPGPacket/GPGPublicKeyEncryptedSessionKeyPacket.m; sourceTree = "<group>"; };
+		301D29251B4C032D00599BE8 /* GPGPublicKeyEncryptedSessionKeyPacket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = GPGPublicKeyEncryptedSessionKeyPacket.m; path = GPGPacket/GPGPublicKeyEncryptedSessionKeyPacket.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		301D29281B4C049C00599BE8 /* GPGPacketParser_Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GPGPacketParser_Private.h; path = GPGPacket/GPGPacketParser_Private.h; sourceTree = "<group>"; };
 		301D5D9D178C9871003026E7 /* GPGKeyserver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGKeyserver.h; sourceTree = "<group>"; };
 		301D5D9E178C9871003026E7 /* GPGKeyserver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGKeyserver.m; sourceTree = "<group>"; };
@@ -304,7 +304,7 @@
 		307C211B1B1745F5006B07A7 /* gpgtools.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = gpgtools.icns; path = Resources/gpgtools.icns; sourceTree = SOURCE_ROOT; };
 		307D79101340B71A005C9C32 /* TODO */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TODO; sourceTree = "<group>"; };
 		307FDE401B4E636A00462E4E /* GPGCompressedDataPacket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGCompressedDataPacket.h; path = GPGPacket/GPGCompressedDataPacket.h; sourceTree = "<group>"; };
-		307FDE411B4E636A00462E4E /* GPGCompressedDataPacket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GPGCompressedDataPacket.m; path = GPGPacket/GPGCompressedDataPacket.m; sourceTree = "<group>"; };
+		307FDE411B4E636A00462E4E /* GPGCompressedDataPacket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = GPGCompressedDataPacket.m; path = GPGPacket/GPGCompressedDataPacket.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		309A18CE13E3812E0069DC0F /* GPGTransformer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGTransformer.h; sourceTree = "<group>"; };
 		309A18CF13E3812E0069DC0F /* GPGTransformer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGTransformer.m; sourceTree = "<group>"; };
 		30A058371799E2DC00E1AD20 /* GPGKeyManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGKeyManager.h; sourceTree = "<group>"; };
@@ -327,25 +327,25 @@
 		30A218691B5579A200D01E37 /* Unarmor_VersionOnline.res */ = {isa = PBXFileReference; lastKnownFileType = file; name = Unarmor_VersionOnline.res; path = Unarmor/Unarmor_VersionOnline.res; sourceTree = "<group>"; };
 		30A2186A1B5579A200D01E37 /* Unarmor_VersionOnline.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Unarmor_VersionOnline.txt; path = Unarmor/Unarmor_VersionOnline.txt; sourceTree = "<group>"; };
 		30A48E8C1B4C1344006AD363 /* GPGSignaturePacket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGSignaturePacket.h; path = GPGPacket/GPGSignaturePacket.h; sourceTree = "<group>"; };
-		30A48E8D1B4C1344006AD363 /* GPGSignaturePacket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GPGSignaturePacket.m; path = GPGPacket/GPGSignaturePacket.m; sourceTree = "<group>"; };
+		30A48E8D1B4C1344006AD363 /* GPGSignaturePacket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = GPGSignaturePacket.m; path = GPGPacket/GPGSignaturePacket.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		30A70EE313EF328000EE9CD9 /* GPGException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGException.h; sourceTree = "<group>"; };
 		30A70EE413EF328000EE9CD9 /* GPGException.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGException.m; sourceTree = "<group>"; };
 		30B586F4141E255C000373F1 /* Keyservers.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Keyservers.plist; sourceTree = "<group>"; };
 		30BA88F1138FE593005982D9 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		30BB7C661B4D2742006A1E47 /* GPGSymmetricEncryptedSessionKeyPacket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGSymmetricEncryptedSessionKeyPacket.h; path = GPGPacket/GPGSymmetricEncryptedSessionKeyPacket.h; sourceTree = "<group>"; };
-		30BB7C671B4D2742006A1E47 /* GPGSymmetricEncryptedSessionKeyPacket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GPGSymmetricEncryptedSessionKeyPacket.m; path = GPGPacket/GPGSymmetricEncryptedSessionKeyPacket.m; sourceTree = "<group>"; };
+		30BB7C671B4D2742006A1E47 /* GPGSymmetricEncryptedSessionKeyPacket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = GPGSymmetricEncryptedSessionKeyPacket.m; path = GPGPacket/GPGSymmetricEncryptedSessionKeyPacket.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		30BB7C6A1B4D2E38006A1E47 /* GPGOnePassSignaturePacket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGOnePassSignaturePacket.h; path = GPGPacket/GPGOnePassSignaturePacket.h; sourceTree = "<group>"; };
-		30BB7C6B1B4D2E38006A1E47 /* GPGOnePassSignaturePacket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GPGOnePassSignaturePacket.m; path = GPGPacket/GPGOnePassSignaturePacket.m; sourceTree = "<group>"; };
+		30BB7C6B1B4D2E38006A1E47 /* GPGOnePassSignaturePacket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = GPGOnePassSignaturePacket.m; path = GPGPacket/GPGOnePassSignaturePacket.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		30BB7C6E1B4D3244006A1E47 /* GPGKeyMaterialPacket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGKeyMaterialPacket.h; path = GPGPacket/GPGKeyMaterialPacket.h; sourceTree = "<group>"; };
-		30BB7C6F1B4D3244006A1E47 /* GPGKeyMaterialPacket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GPGKeyMaterialPacket.m; path = GPGPacket/GPGKeyMaterialPacket.m; sourceTree = "<group>"; };
+		30BB7C6F1B4D3244006A1E47 /* GPGKeyMaterialPacket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = GPGKeyMaterialPacket.m; path = GPGPacket/GPGKeyMaterialPacket.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		30BB7C761B4D3F24006A1E47 /* GPGIgnoredPackets.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGIgnoredPackets.h; path = GPGPacket/GPGIgnoredPackets.h; sourceTree = "<group>"; };
-		30BB7C771B4D3F24006A1E47 /* GPGIgnoredPackets.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GPGIgnoredPackets.m; path = GPGPacket/GPGIgnoredPackets.m; sourceTree = "<group>"; };
+		30BB7C771B4D3F24006A1E47 /* GPGIgnoredPackets.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = GPGIgnoredPackets.m; path = GPGPacket/GPGIgnoredPackets.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		30BB7C7A1B4D4146006A1E47 /* GPGLiteralDataPacket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGLiteralDataPacket.h; path = GPGPacket/GPGLiteralDataPacket.h; sourceTree = "<group>"; };
-		30BB7C7B1B4D4146006A1E47 /* GPGLiteralDataPacket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GPGLiteralDataPacket.m; path = GPGPacket/GPGLiteralDataPacket.m; sourceTree = "<group>"; };
+		30BB7C7B1B4D4146006A1E47 /* GPGLiteralDataPacket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = GPGLiteralDataPacket.m; path = GPGPacket/GPGLiteralDataPacket.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		30BB7C7E1B4D4A59006A1E47 /* GPGUserIDPacket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGUserIDPacket.h; path = GPGPacket/GPGUserIDPacket.h; sourceTree = "<group>"; };
-		30BB7C7F1B4D4A59006A1E47 /* GPGUserIDPacket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GPGUserIDPacket.m; path = GPGPacket/GPGUserIDPacket.m; sourceTree = "<group>"; };
+		30BB7C7F1B4D4A59006A1E47 /* GPGUserIDPacket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = GPGUserIDPacket.m; path = GPGPacket/GPGUserIDPacket.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		30BB7C821B4D4BF8006A1E47 /* GPGUserAttributePacket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGUserAttributePacket.h; path = GPGPacket/GPGUserAttributePacket.h; sourceTree = "<group>"; };
-		30BB7C831B4D4BF8006A1E47 /* GPGUserAttributePacket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GPGUserAttributePacket.m; path = GPGPacket/GPGUserAttributePacket.m; sourceTree = "<group>"; };
+		30BB7C831B4D4BF8006A1E47 /* GPGUserAttributePacket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = GPGUserAttributePacket.m; path = GPGPacket/GPGUserAttributePacket.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		30BE73BE1B54015C001A2137 /* UnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = UnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		30BE73C11B54015C001A2137 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		30BE73E81B541F5B001A2137 /* GPGUnitTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGUnitTest.h; sourceTree = "<group>"; };
@@ -355,8 +355,6 @@
 		30D5E2A21483A0F700F31454 /* GPGConf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = GPGConf.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		30D5E2A31483A0F700F31454 /* GPGConf.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGConf.m; sourceTree = "<group>"; };
 		30D68BC41B4FF5D500F7865C /* COPYING.pgpdump */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = COPYING.pgpdump; path = Source/GPGPacket/COPYING.pgpdump; sourceTree = SOURCE_ROOT; };
-		30D8099D1B5004FE007E9D63 /* GPGPacket2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GPGPacket2.h; sourceTree = "<group>"; };
-		30D8099E1B5004FE007E9D63 /* GPGPacket2.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GPGPacket2.m; sourceTree = "<group>"; };
 		30DF7CBB16D39EAA00C8225C /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		30FF411D12FAC6CD00F39832 /* GPGController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGController.h; sourceTree = "<group>"; };
 		30FF411E12FAC6CD00F39832 /* GPGController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGController.m; sourceTree = "<group>"; };
@@ -632,8 +630,6 @@
 		301D291A1B4BE47100599BE8 /* GPGPacket */ = {
 			isa = PBXGroup;
 			children = (
-				30D8099D1B5004FE007E9D63 /* GPGPacket2.h */,
-				30D8099E1B5004FE007E9D63 /* GPGPacket2.m */,
 				301D291B1B4BE4F500599BE8 /* GPGPacketParser.h */,
 				301D29281B4C049C00599BE8 /* GPGPacketParser_Private.h */,
 				301D291C1B4BE4F500599BE8 /* GPGPacketParser.m */,

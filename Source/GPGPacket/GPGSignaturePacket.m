@@ -48,6 +48,7 @@
 	}
 	
 	self.version = parser.byte;
+	cancelInitOnEOF();
 	
 	switch (version) {
 		case 2:
@@ -100,13 +101,15 @@
 			NSUInteger usplen = parser.uint16; // Length of the unhashed subpackets.
 			// The unhashed subpackets are NOT secured. Don't trust them.
 			self.unhashedSubpackets = [parser signatureSubpacketsWithLength:usplen];
-			
+
+			cancelInitOnEOF();
+
 			// Combined list of subpackets for convenience.
 			NSMutableArray *theSubpackets = [NSMutableArray arrayWithArray:unhashedSubpackets];
 			[theSubpackets addObjectsFromArray:hashedSubpackets];
 			self.subpackets = theSubpackets;
-			
-			
+
+
 			// Get some infos out of the subpackets.
 			for (NSDictionary *subpacket in subpackets) {
 				switch ((GPGSubpacketTag)[subpacket[@"tag"] integerValue]) {
@@ -153,6 +156,7 @@
 			break;
 	}
 	
+	cancelInitOnEOF();
 	return self;
 }
 

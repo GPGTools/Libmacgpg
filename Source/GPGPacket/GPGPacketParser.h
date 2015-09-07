@@ -37,6 +37,10 @@ typedef void (^ByteCallback)(NSInteger);
 	
 	BOOL partial;
 	NSUInteger packetLength;
+
+
+	// Private
+	BOOL eofReached;
 }
 
 @property (nonatomic, readonly, strong) NSError *error;

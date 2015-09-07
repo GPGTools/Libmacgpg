@@ -64,7 +64,7 @@
 			break;
 	}
 	
-	
+	cancelInitOnEOF();
 	return self;
 }
 

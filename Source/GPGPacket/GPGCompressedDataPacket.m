@@ -64,12 +64,12 @@
 @implementation GPGCompressedDataPacket
 @synthesize compressAlgorithm, decompressStream, subParser;
 
-- (instancetype)initWithParser:(GPGPacketParser *)theParser length:(NSUInteger)length {
+- (instancetype)initWithParser:(GPGPacketParser *)parser length:(NSUInteger)length {
 	self = [super init];
 	if (!self) {
 		return nil;
 	}
-	self.compressAlgorithm = theParser.byte;
+	self.compressAlgorithm = parser.byte;
 	length--;
 	
 	switch (compressAlgorithm) {
@@ -80,16 +80,18 @@
 			break;
 		default:
 			// Unknown/invalid compression algorithm.
-			[theParser skip:length];
+			[parser skip:length];
 			return self;
 	}
+	cancelInitOnEOF();
 	
 	// The GPGDecompressStream will be given to a new GPGPacketParser, to decode the packets inside of this packet.
-	self.decompressStream = [[GPGDecompressStream alloc] initWithParser:theParser length:length algorithm:compressAlgorithm];
+	self.decompressStream = [[GPGDecompressStream alloc] initWithParser:parser length:length algorithm:compressAlgorithm];
 	if (decompressStream) {
 		self.subParser = [[GPGPacketParser alloc] initWithStream:self.decompressStream];
 	}
 	
+	cancelInitOnEOF();
 	return self;
 }
 
@@ -187,7 +189,7 @@ const NSUInteger cacheSize = 1024 * 32;
 	if (packetLength != 0) {
 		for (; inputSize < cacheSize; inputSize++) {
 			// Read a byte.
-			NSInteger byte = parser.byteOrEOF;
+			NSInteger byte = parser.byte;
 			if (byte == EOF) {
 				break;
 			}

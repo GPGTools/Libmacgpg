@@ -28,9 +28,9 @@
 @property (nonatomic, copy) ByteCallback byteCallback; // Called every time a byte is read.
 
 - (NSInteger)byte;
-- (NSInteger)byteOrEOF;
 - (void)skip:(NSUInteger)count;
 - (void)skipRemaining;
+- (BOOL)eofReached;
 
 - (NSUInteger)nextPartialLength;
 - (BOOL)partial;

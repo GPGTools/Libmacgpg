@@ -39,6 +39,7 @@
 	
 	self.userID = [parser stringWithLength:length];
 	
+	cancelInitOnEOF();
 	return self;
 }
 

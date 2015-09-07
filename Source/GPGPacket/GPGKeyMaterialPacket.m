@@ -43,8 +43,10 @@
 	if (!self) {
 		return nil;
 	}
-	
+
 	self.version = parser.byte;
+	cancelInitOnEOF();
+
 	switch (version) {
 		case 2:
 		case 3: {
@@ -62,7 +64,8 @@
 				self.keyID = bytesToHexString(modulus.bytes + modulus.length - 8, 8);
 			}
 			NSData *exponent = [parser multiPrecisionInteger]; // "RSA e"
-			
+			cancelInitOnEOF();
+
 			
 			// The fingerprint is the MD5 of modulus and exponent.
 			CC_MD5_CTX md5;
@@ -134,6 +137,8 @@
 			// We have all bytes for the SHA1. Unset the callback.
 			parser.byteCallback = nil;
 			
+			cancelInitOnEOF();
+
 			
 			// Get the fingerprint by hashing bytesToHash using SHA1.
 			uint8_t fingerprintBytes[20];
@@ -151,8 +156,8 @@
 			[parser skip:length - 1];
 			break;
 	}
-	
-	
+
+	cancelInitOnEOF();
 	return self;
 }
 

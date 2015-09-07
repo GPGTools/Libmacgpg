@@ -96,6 +96,7 @@
 						UInt8 *bytes = tempData.mutableBytes;
 						for (NSUInteger i = 0; i < subLength; i++) {
 							bytes[i] = (UInt8)parser.byte;
+							cancelInitOnEOF();
 						}
 						
 						subLength = 0;
@@ -122,6 +123,7 @@
 
 	self.subpackets = packets;
 	
+	cancelInitOnEOF();
 	return self;
 }
 
