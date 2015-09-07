@@ -95,6 +95,11 @@
 }
 
 
+
+
+
+
+
 #pragma mark Internal methods
 
 - (void)start {
@@ -132,6 +137,8 @@
 	if (!port) {
 		if ([url.scheme isEqualToString:@"http"]) {
 			port = @"80";
+		} else if ([url.scheme isEqualToString:@"https"]) {
+			port = @"443";
 		} else {
 			port = @"11371";
 		}

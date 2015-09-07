@@ -97,6 +97,8 @@
 		307FDE431B4E636A00462E4E /* GPGCompressedDataPacket.m in Sources */ = {isa = PBXBuildFile; fileRef = 307FDE411B4E636A00462E4E /* GPGCompressedDataPacket.m */; };
 		309A18D013E3812E0069DC0F /* GPGTransformer.h in Headers */ = {isa = PBXBuildFile; fileRef = 309A18CE13E3812E0069DC0F /* GPGTransformer.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		309A18D113E3812E0069DC0F /* GPGTransformer.m in Sources */ = {isa = PBXBuildFile; fileRef = 309A18CF13E3812E0069DC0F /* GPGTransformer.m */; };
+		309D8A121B87469B00D945BA /* GPGKeyFetcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 309D8A101B87469B00D945BA /* GPGKeyFetcher.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		309D8A131B87469B00D945BA /* GPGKeyFetcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 309D8A111B87469B00D945BA /* GPGKeyFetcher.m */; };
 		30A058391799E2DC00E1AD20 /* GPGKeyManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 30A058371799E2DC00E1AD20 /* GPGKeyManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		30A0583A1799E2DC00E1AD20 /* GPGKeyManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 30A058381799E2DC00E1AD20 /* GPGKeyManager.m */; };
 		30A2186B1B5579A200D01E37 /* Unarmor_DoubleNewline.res in Resources */ = {isa = PBXBuildFile; fileRef = 30A2185B1B5579A200D01E37 /* Unarmor_DoubleNewline.res */; };
@@ -307,6 +309,8 @@
 		307FDE411B4E636A00462E4E /* GPGCompressedDataPacket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = GPGCompressedDataPacket.m; path = GPGPacket/GPGCompressedDataPacket.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		309A18CE13E3812E0069DC0F /* GPGTransformer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGTransformer.h; sourceTree = "<group>"; };
 		309A18CF13E3812E0069DC0F /* GPGTransformer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGTransformer.m; sourceTree = "<group>"; };
+		309D8A101B87469B00D945BA /* GPGKeyFetcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGKeyFetcher.h; sourceTree = "<group>"; };
+		309D8A111B87469B00D945BA /* GPGKeyFetcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGKeyFetcher.m; sourceTree = "<group>"; };
 		30A058371799E2DC00E1AD20 /* GPGKeyManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGKeyManager.h; sourceTree = "<group>"; };
 		30A058381799E2DC00E1AD20 /* GPGKeyManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGKeyManager.m; sourceTree = "<group>"; };
 		30A218221B5543A500D01E37 /* GPGUnarmorTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGUnarmorTest.m; sourceTree = "<group>"; };
@@ -557,6 +561,8 @@
 				3048830A1462B11700F2E5F4 /* DirectoryWatcher.m */,
 				301D5D9D178C9871003026E7 /* GPGKeyserver.h */,
 				301D5D9E178C9871003026E7 /* GPGKeyserver.m */,
+				309D8A101B87469B00D945BA /* GPGKeyFetcher.h */,
+				309D8A111B87469B00D945BA /* GPGKeyFetcher.m */,
 			);
 			name = Classes;
 			path = Source;
@@ -886,6 +892,7 @@
 				30A058391799E2DC00E1AD20 /* GPGKeyManager.h in Headers */,
 				451D882D156A7CA300A0B890 /* GPGMemoryStream.h in Headers */,
 				30BB7C781B4D3F24006A1E47 /* GPGIgnoredPackets.h in Headers */,
+				309D8A121B87469B00D945BA /* GPGKeyFetcher.h in Headers */,
 				451D8831156A7E4900A0B890 /* GPGFileStream.h in Headers */,
 				1BCE0CD11617A3DF0026DCFF /* NSBundle+Sandbox.h in Headers */,
 				301A44CD1B436405002A38E4 /* GPGUnArmor.h in Headers */,
@@ -1317,6 +1324,7 @@
 				1BC7A50113D300A600AE57BA /* LPXTTask.m in Sources */,
 				309A18D113E3812E0069DC0F /* GPGTransformer.m in Sources */,
 				301A44CE1B436405002A38E4 /* GPGUnArmor.m in Sources */,
+				309D8A131B87469B00D945BA /* GPGKeyFetcher.m in Sources */,
 				307FDE431B4E636A00462E4E /* GPGCompressedDataPacket.m in Sources */,
 				30A70EE613EF328000EE9CD9 /* GPGException.m in Sources */,
 				3048830C1462B11700F2E5F4 /* DirectoryWatcher.m in Sources */,
