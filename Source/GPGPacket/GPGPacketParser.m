@@ -380,7 +380,13 @@ static BOOL isPartial(NSInteger c) {
 	// Read an UTF8 string.
 
 	stopOnEOF();
-	char tempString[length + 1];
+	if (length > 100000) {
+		return nil;
+	}
+	char *tempString = malloc(length + 1);
+	if (tempString == nil) {
+		return nil;
+	}
 	tempString[length] = 0;
 	for (NSUInteger i = 0; i < length; i++) {
 		tempString[i] = (char)self.byte;
@@ -388,6 +394,7 @@ static BOOL isPartial(NSInteger c) {
 	}
 
 	NSString *string = [NSString stringWithUTF8String:tempString];
+	free(tempString);
 
 	return string;
 }
