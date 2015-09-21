@@ -45,9 +45,9 @@
 	BOOL canEncrypt = NO;
 	BOOL canSign = NO;
 	BOOL revoked = NO;
-	BOOL expired = NO;
 	BOOL invalid = NO;
 	BOOL stop = NO;
+	NSUInteger expirationTime = 0;
 	GPGPacketTag lastTag;
 	GPGPacket *lastPacket;
 	
@@ -115,10 +115,14 @@
 								NSInteger subTag = [subpacket[@"tag"] integerValue];
 
 								if (subTag == 9) { // Key Expiration Time
-									NSUInteger expirationTime = [subpacket[@"time"] unsignedIntegerValue];
-									if (expirationTime && now - mainPacket.creationTime >= expirationTime) {
-										// The key is expired.
-										expired = YES;
+									NSUInteger tempExpirationTime = [subpacket[@"time"] unsignedIntegerValue];
+									if (tempExpirationTime) {
+										tempExpirationTime = realPacket.creationTime + tempExpirationTime;
+										
+										if (tempExpirationTime > expirationTime) {
+											// Save the latest expiration time.
+											expirationTime = tempExpirationTime;
+										}
 										break;
 									}
 								} else if (subTag == 27) {
@@ -139,8 +143,8 @@
 							for (NSDictionary *subpacket in realPacket.subpackets) {
 								NSInteger subTag = [subpacket[@"tag"] integerValue];
 								if (subTag == 9) { // Key Expiration Time
-									NSUInteger expirationTime = [subpacket[@"time"] unsignedIntegerValue];
-									if (expirationTime && now - [(GPGPublicSubkeyPacket *)lastPacket creationTime] >= expirationTime) {
+									NSUInteger tempExpirationTime = [subpacket[@"time"] unsignedIntegerValue];
+									if (tempExpirationTime && now - [(GPGPublicSubkeyPacket *)lastPacket creationTime] >= tempExpirationTime) {
 										// The subkey is expired.
 										subkeyCanEncrypt = NO;
 										subkeyCanSign = NO;
@@ -181,6 +185,7 @@
 		}
 	}
 	
+	BOOL expired = expirationTime > 0 && now >= expirationTime;
 	
 	NSDictionary *capabilities = @{@"canEncrypt": @(canEncrypt),
 								   @"canSign": @(canSign),
