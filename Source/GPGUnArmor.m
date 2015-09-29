@@ -3,6 +3,7 @@
 #import "GPGMemoryStream.h"
 
 static const NSUInteger cacheSize = 1000;
+static const NSUInteger cacheReserve = 2; // Allow to read more bytes after the real buffer. See -getByte:
 
 typedef enum {
 	stateSearchBegin = 0,
@@ -20,21 +21,23 @@ typedef enum {
 	stateFinish
 } parsingState;
 
+typedef enum {
+	charTypeNormal = 0,
+	charTypeWhitespace,
+	charTypeNewline
+} charaterType;
 
 
 @interface GPGUnArmor ()
 @property (nonatomic, readwrite, strong) NSError *error;
 @property (nonatomic, readwrite, strong) NSData *clearText;
 @property (nonatomic, readwrite, strong) NSData *data;
-
-@property (nonatomic, strong) NSData *cacheData;
 @end
 
 
 
 @implementation GPGUnArmor
 @synthesize error, clearText, data, eof;
-@synthesize cacheData;
 
 
 #pragma Public methods
@@ -268,23 +271,21 @@ typedef enum {
 	NSInteger newlineCount = 0;
 	
 	while ((byte = [self nextByte]) >= 0) {
-		switch (byte) {
-			case '\n':
+		NSInteger type = [self characterType:byte];
+		switch (type) {
+			case charTypeWhitespace:
+				break;
+			case charTypeNewline:
 				newlineCount++;
 				if (newlineCount == 2) {
 					// The clear-text comes after 2 new lines.
 					return stateParseClearText;
 				}
-			case '\r':
-			case ' ':
-			case '\t':
-			case 0:
 				break;
 			default:
 				newlineCount = 0;
 				break;
 		}
-		
 	}
 	
 	return stateEOF;
@@ -308,13 +309,13 @@ typedef enum {
 		[tempClearData appendBytes:&theByte length:1];
 		
 		if (dashes == -1) {
-			if (byte == '\n') {
+			if ([self characterType:byte] == charTypeNewline) {
 				dashes = 0;
 			}
 		} else if (dashes < 5) {
 			if (byte == '-') {
 				dashes++;
-			} else if (byte == '\n') {
+			} else if ([self characterType:byte] == charTypeNewline) {
 				dashes = 0;
 			} else {
 				dashes = -1;
@@ -334,7 +335,7 @@ typedef enum {
 				}
 			} else {
 				beginMarkIndex = 0;
-				if (byte == '\n') {
+				if ([self characterType:byte] == charTypeNewline) {
 					dashes = 0;
 				} else {
 					dashes = -1;
@@ -357,13 +358,9 @@ typedef enum {
 	NSInteger byte;
 	
 	while ((byte = [self nextByte]) >= 0) {
-		switch (byte) {
-			case '\n':
-			case '\r':
-			case ' ':
-			case '\t':
-			case 0:
-				return stateSearchBase64;
+		NSInteger type = [self characterType:byte];
+		if (type >= 1) {
+			return stateSearchBase64;
 		}
 	}
 	
@@ -380,13 +377,12 @@ typedef enum {
 	NSInteger byte;
 	
 	while ((byte = [self nextByte]) >= 0) {
+		NSInteger type = [self characterType:byte];
+		if (type >= 1) {
+			continue;
+		}
+
 		switch (byte) {
-			case '\n':
-			case '\r':
-			case ' ':
-			case '\t':
-			case 0:
-				break;
 			case 'g'...'z':
 			case '0'...'9':
 			case '+':
@@ -422,6 +418,19 @@ typedef enum {
 	
 	
 	while ((byte = [self nextByte]) >= 0) {
+		NSInteger type = [self characterType:byte];
+		switch (type) {
+			case charTypeWhitespace:
+				continue;
+			case charTypeNewline:
+				if (alternativeStart == 0) {
+					alternativeStart = base64Data.length;
+					preferAlternative = isLineInvalid;
+					isLineInvalid = NO;
+				}
+				continue;
+		}
+
 		switch (byte) {
 			case 'a'...'z':
 			case 'A'...'Z':
@@ -429,18 +438,6 @@ typedef enum {
 			case '+':
 			case '/':
 				[base64Data appendBytes:&byte length:1];
-				break;
-			case '\n':
-				if (alternativeStart == 0) {
-					alternativeStart = base64Data.length;
-					preferAlternative = isLineInvalid;
-					isLineInvalid = NO;
-				}
-				break;
-			case '\r':
-			case ' ':
-			case '\t':
-			case 0:
 				break;
 			case '-':
 				return stateParseEnd;
@@ -471,48 +468,41 @@ typedef enum {
 	
 	while ((byte = [self nextByte]) >= 0) {
 		if (crcLength == -1) {
-			switch (byte) {
-				case '\n':
-				case '\r':
-				case ' ':
-				case '\t':
-				case 0:
-					break;
-				case '=':
-					equalsAdded++;
-					if (equalsAdded == 2) {
-						crcLength = 0;
-					}
-					[base64Data appendBytes:"=" length:1];
-					break;
-				case 'a'...'z':
-				case 'A'...'Z':
-				case '0'...'9':
-				case '+':
-				case '/':
-					if (lastByte != '=') {
+			if ([self characterType:byte] == charTypeNormal) {
+				switch (byte) {
+					case '=':
+						equalsAdded++;
+						if (equalsAdded == 2) {
+							crcLength = 0;
+						}
+						[base64Data appendBytes:"=" length:1];
+						break;
+					case 'a'...'z':
+					case 'A'...'Z':
+					case '0'...'9':
+					case '+':
+					case '/':
+						if (lastByte != '=') {
+							return stateSearchSeperator;
+						}
+						crcBytes[0] = (UInt8)byte;
+						crcLength = 1;
+						break;
+					case '-':
+						equalsAdded++;
+						[base64Data appendBytes:"=" length:1];
+						return stateParseEnd;
+					default:
 						return stateSearchSeperator;
-					}
-					crcBytes[0] = (UInt8)byte;
-					crcLength = 1;
-					break;
-				case '-':
-					equalsAdded++;
-					[base64Data appendBytes:"=" length:1];
-					return stateParseEnd;
-				default:
-					return stateSearchSeperator;
-					break;
+						break;
+				}
 			}
 			lastByte = (UInt8)byte;
 		} else if (crcLength < 4) {
+			if ([self characterType:byte] >= 1) {
+				return stateSearchBase64;
+			}
 			switch (byte) {
-				case '\n':
-				case '\r':
-				case ' ':
-				case '\t':
-				case 0:
-					return stateSearchBase64;
 				case 'a'...'z':
 				case 'A'...'Z':
 				case '0'...'9':
@@ -526,14 +516,8 @@ typedef enum {
 					break;
 			}
 			lastByte = (UInt8)byte;
-		} else {
+		} else if ([self characterType:byte] == charTypeNormal) {
 			switch (byte) {
-				case '\n':
-				case '\r':
-				case ' ':
-				case '\t':
-				case 0:
-					break;
 				case '-':
 					if (crcLength == 4) {
 						haveCRC = YES;
@@ -576,15 +560,10 @@ typedef enum {
 		} else {
 			haveCRC = NO;
 			endMarkIndex = 0;
-			switch (byte) {
-				case '\n':
-				case '\r':
-				case ' ':
-				case '\t':
-				case 0:
-					return stateSearchBase64;
-				default:
-					return stateSearchSeperator;
+			if ([self characterType:byte] == charTypeNormal) {
+				return stateSearchSeperator;
+			} else {
+				return stateSearchBase64;
 			}
 		}
 	}
@@ -915,18 +894,55 @@ static UInt32 crc32_tab[] = {
 }
 
 
+- (charaterType)characterType:(NSInteger)byte {
+	
+	switch (byte) {
+		case '\r':
+		case ' ':
+		case '\t':
+		case 0:
+			return charTypeWhitespace;
+		case '\n':
+			return charTypeNewline;
+		case 0xE2: { // Possible an unicode separator.
+			byte = [self getByte:0];
+			if (byte != 0x80) {
+				return charTypeNormal; // Not an separator;
+			}
+			
+			byte = [self getByte:1];
+			if (byte != 0xA8 && byte != 0xA9) {
+				return charTypeNormal; // Not an separator;
+			}
+			
+			[self nextByte]; // Consume the whole multi-byte caracter.
+			[self nextByte];
+			
+			return charTypeNewline;
+		}
+		default:
+			return charTypeNormal;
+	}
+
+}
+
 
 - (NSInteger)nextByte {
-	if (cacheIndex == cacheSize) {
-		cacheIndex = 0;
-		self.cacheData = [stream readDataOfLength:cacheSize];
+	if (cacheIndex >= cacheSize) {
+		NSData *tempData = [stream readDataOfLength:cacheSize];
+		NSUInteger tempDataLength = tempData.length;
 		
-		NSUInteger cacheDataLength = cacheData.length;
-		if (cacheDataLength < cacheSize) {
-			cacheEnd = cacheDataLength;
+		if (cacheIndex == NSUIntegerMax) {
+			cacheIndex = 2;
+		} else {
+			[cacheData replaceBytesInRange:NSMakeRange(0, cacheReserve) withBytes:cacheBytes+cacheSize];
+			cacheIndex = 0;
 		}
+		[cacheData replaceBytesInRange:NSMakeRange(cacheReserve, tempDataLength) withBytes:tempData.bytes];
 		
-		cacheBytes = cacheData.bytes;
+		if (tempDataLength < cacheSize) {
+			cacheEnd = tempDataLength;
+		}
 	}
 	if (cacheIndex == cacheEnd) {
 		return -1;
@@ -936,6 +952,7 @@ static UInt32 crc32_tab[] = {
 	cacheIndex++;
 	streamOffset++;
 	
+	//TODO: Handle Unicode line seperators!
 	switch (byte) {
 		case '\n':
 			invalidCharInLine = NO;
@@ -959,6 +976,19 @@ static UInt32 crc32_tab[] = {
 	return byte;
 }
 
+- (NSInteger)getByte:(NSUInteger)offset {
+	NSAssert(offset < cacheReserve, @"offset greater than cacheReserve!");
+
+	NSUInteger index = cacheIndex + offset;
+	if (index >= cacheEnd) {
+		return -1;
+	}
+	
+	UInt8 byte = cacheBytes[index];
+	return byte;
+}
+
+
 
 #pragma init, dealloc, etc.
 
@@ -975,9 +1005,10 @@ static UInt32 crc32_tab[] = {
 	stream = [theStream retain];
 	streamOffset = stream.offset;
 	cacheEnd = NSUIntegerMax;
-	cacheIndex = cacheSize;
+	cacheIndex = NSUIntegerMax;
 	base64Data = [[NSMutableData alloc] init];
-	
+	cacheData = [[NSMutableData alloc] initWithLength:cacheSize + cacheReserve];
+	cacheBytes = cacheData.mutableBytes;
 	
 	return self;
 }
@@ -985,7 +1016,7 @@ static UInt32 crc32_tab[] = {
 - (void)dealloc {
 	[stream release];
 	[base64Data release];
-	self.cacheData = nil;
+	[cacheData release];
 	self.data = nil;
 	self.clearText = nil;
 	self.error = nil;

@@ -8,7 +8,7 @@
 	GPGStream *stream;
 	
 	// Cache
-	NSData *cacheData;
+	NSMutableData *cacheData;
 	const UInt8 *cacheBytes;
 	NSUInteger cacheIndex;
 	NSUInteger cacheEnd;
