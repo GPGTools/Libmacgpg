@@ -15,6 +15,8 @@
     NSMutableData *_data;
     NSData *_readableData;
     NSUInteger _readPos;
+	const UInt8 *_readableBytes;
+	NSUInteger _readableLength;
 }
 
 // return a new, autoreleased memory stream

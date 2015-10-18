@@ -15,7 +15,10 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 
 @implementation GPGKeyManager
 
-@synthesize allKeys=_allKeys, keysByKeyID=_keysByKeyID, secretKeys=_secretKeys, completionQueue=_completionQueue;
+@synthesize allKeys=_allKeys, keysByKeyID=_keysByKeyID,
+			secretKeys=_secretKeys, completionQueue=_completionQueue,
+			allowWeakDigestAlgos=_allowWeakDigestAlgos,
+			homedir=_homedir;
 
 - (void)loadAllKeys {
 	[self loadKeys:nil fetchSignatures:NO fetchUserAttributes:NO];
@@ -41,7 +44,14 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 		@try {
 			// Get all fingerprints of the secret keys.
 			GPGTask *gpgTask = [GPGTask gpgTask];
+			if (_homedir) {
+				[gpgTask addArgument:@"--homedir"];
+				[gpgTask addArgument:_homedir];
+			}
 			gpgTask.batchMode = YES;
+			if (self.allowWeakDigestAlgos) {
+				[gpgTask addArgument:@"--allow-weak-digest-algos"];
+			}
 			[gpgTask addArgument:@"--list-secret-keys"];
 			[gpgTask addArgument:@"--with-fingerprint"];
 			[gpgTask addArgument:@"--with-fingerprint"];
@@ -58,6 +68,10 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 		
 		// Get the infos from gpg.
 		GPGTask *gpgTask = [GPGTask gpgTask];
+		if (_homedir) {
+			[gpgTask addArgument:@"--homedir"];
+			[gpgTask addArgument:_homedir];
+		}
 		if (fetchSignatures) {
 			[gpgTask addArgument:@"--list-sigs"];
 			[gpgTask addArgument:@"--list-options"];
@@ -70,6 +84,9 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 			_attributeDataLocation = 0;
 			gpgTask.getAttributeData = YES;
 			gpgTask.delegate = self;
+		}
+		if (self.allowWeakDigestAlgos) {
+			[gpgTask addArgument:@"--allow-weak-digest-algos"];
 		}
 		[gpgTask addArgument:@"--with-fingerprint"];
 		[gpgTask addArgument:@"--with-fingerprint"];
@@ -104,9 +121,9 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 				[newKeys addObject:key];
 				[key release];
 				
-				dispatch_group_async(dispatchGroup, dispatchQueue, ^{
+				@autoreleasepool {
 					[self fillKey:key withRange:NSMakeRange(index, lastLine - index)];
-				});
+				}
 
 				lastLine = index;
 			}
@@ -229,7 +246,7 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 		if (([type isEqualToString:@"pub"] && (isPub = YES)) || [type isEqualToString:@"sub"]) { // Primary-key or subkey.
 			if (_fetchSignatures) {
 				signedObject.signatures = signatures;
-				signatures = nil;
+				signatures = [NSMutableArray array];
 			}
 			if (isPub) {
 				key = primaryKey;
@@ -387,6 +404,10 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 		}
 		else if ([type isEqualToString:@"fpr"]) { // Fingerprint.
 			NSString *fingerprint = [parts objectAtIndex:9];
+			if ([fingerprint isEqualToString:@"00000000000000000000000000000000"]) {
+				fingerprint = primaryKey.keyID;
+			}
+			
 			key.fingerprint = fingerprint;
 			
 			NSDictionary *secKeyInfo = [_secKeyInfos objectForKey:fingerprint];
@@ -414,6 +435,9 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 			signature.signatureClass = hexToByte([field UTF8String]);
 			signature.local = [field hasSuffix:@"l"];
 			
+			if (parts.count > 15) {
+				signature.hashAlgorithm = [[parts objectAtIndex:15] intValue];
+			}
 			
 			[signatures addObject:signature];
 			
@@ -497,7 +521,7 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 	
 	dispatch_semaphore_signal(_allKeysAndSubkeysOnce);
 
-	return _allKeysAndSubkeys;
+	return [[_allKeysAndSubkeys retain] autorelease];
 }
 
 - (NSSet *)secretKeys {

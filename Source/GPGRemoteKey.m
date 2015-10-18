@@ -26,7 +26,7 @@
 @property (nonatomic) NSUInteger length;
 @property (nonatomic) BOOL expired;
 @property (nonatomic) BOOL revoked;
-@property (nonatomic, retain) NSString *keyID;
+@property (nonatomic, retain) NSString *fingerprint;
 @property (nonatomic, retain) NSDate *creationDate;
 @property (nonatomic, retain) NSDate *expirationDate;
 @property (nonatomic, retain) NSArray *userIDs;
@@ -35,7 +35,7 @@
 
 
 @implementation GPGRemoteKey
-@synthesize keyID, algorithm, length, creationDate, expirationDate, expired, revoked, userIDs;
+@synthesize fingerprint, algorithm, length, creationDate, expirationDate, expired, revoked, userIDs;
 
 
 
@@ -75,7 +75,7 @@
 	
 	NSArray *splitedLine = [[listing objectAtIndex:0] componentsSeparatedByString:@":"];
 	
-	self.keyID = [[splitedLine objectAtIndex:1] shortKeyID];
+	self.fingerprint = splitedLine[1];
 	self.algorithm = [[splitedLine objectAtIndex:2] intValue];
 	self.length = [[splitedLine objectAtIndex:3] integerValue];
 	
@@ -107,8 +107,12 @@
 	return self;	
 }
 
+- (NSString *)keyID {
+	return self.fingerprint.shortKeyID;
+}
+
 - (void)dealloc {
-	[keyID release];
+	[fingerprint release];
 	[creationDate release];
 	[expirationDate release];
 	[userIDs release];
@@ -116,13 +120,13 @@
 }
 
 - (NSUInteger)hash {
-	return [keyID hash];
+	return [fingerprint hash];
 }
 - (BOOL)isEqual:(id)anObject {
-	return [keyID isEqualToString:[anObject description]];
+	return [fingerprint isEqualToString:[anObject description]];
 }
 - (NSString *)description {
-	return [[keyID retain] autorelease];
+	return [[fingerprint retain] autorelease];
 }
 
 

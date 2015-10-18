@@ -17,20 +17,12 @@
  Programm erhalten haben. Falls nicht, siehe <http://www.gnu.org/licenses/>.
 */
 
-#import "GPGController.h"
-#import "GPGKey.h"
+#import "Libmacgpg.h"
 #import "GPGTaskOrder.h"
-#import "GPGRemoteKey.h"
-#import "GPGSignature.h"
-#import "GPGOptions.h"
-#import "GPGPacket.h"
-#import "GPGWatcher.h"
-#import "GPGMemoryStream.h"
 #import "GPGTypesRW.h"
-#import "GPGKeyManager.h"
 #import "GPGKeyserver.h"
 #import "GPGTaskHelper.h"
-#import "GPGTask.h"
+#import "GPGWatcher.h"
 #if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
 #import "GPGTaskHelperXPC.h"
 #import "NSBundle+Sandbox.h"
@@ -249,12 +241,6 @@ BOOL gpgConfigReaded = NO;
 	return self;
 }
 
-+ (void)initialize {
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    [GPGTaskHelper pinentryPath];
-    [pool release];
-}
-
 
 - (void)cancel {
 	canceled = YES;
@@ -398,13 +384,7 @@ BOOL gpgConfigReaded = NO;
 
 - (void)decryptTo:(GPGStream *)output data:(GPGStream *)input {
 	@try {
-		NSData *unarmored = [GPGPacket unArmorFrom:input clearText:nil];
-        if (unarmored) {
-            input = [GPGMemoryStream memoryStreamForReading:unarmored];
-        }
-        else {
-            [input seekToBeginning];
-        }
+		input = [GPGUnArmor unArmor:input];
 		
 		self.gpgTask = [GPGTask gpgTask];
 		[self addArgumentsForOptions];
@@ -443,18 +423,11 @@ BOOL gpgConfigReaded = NO;
 	@try {
 		[self operationDidStart];
 
-		NSData *originalData = nil;		
-		NSData *unarmored = [GPGPacket unArmorFrom:signatureInput clearText:originalInput ? nil : &originalData];
-        if (unarmored) {
-            signatureInput = [GPGMemoryStream memoryStreamForReading:unarmored];
-        }
-        else {
-            [signatureInput seekToBeginning];
-        }
-
-        if (originalData)
-            originalInput = [GPGMemoryStream memoryStreamForReading:originalData];
-		
+		NSData *originalData = nil;
+		signatureInput = [GPGUnArmor unArmor:signatureInput clearText:originalInput ? nil : &originalData];
+		if (originalData) {
+			originalInput = [GPGMemoryStream memoryStreamForReading:originalData];
+		}
 		
 		self.gpgTask = [GPGTask gpgTask];
 		[self addArgumentsForOptions];
@@ -885,6 +858,7 @@ BOOL gpgConfigReaded = NO;
 
 - (NSArray *)algorithmPreferencesForKey:(GPGKey *)key {
 	self.gpgTask = [GPGTask gpgTask];
+	[self addArgumentsForOptions];
 	[gpgTask addArgument:@"--edit-key"];
 	[gpgTask addArgument:[key description]];
 	[gpgTask addArgument:@"quit"];
@@ -1085,34 +1059,48 @@ BOOL gpgConfigReaded = NO;
 		return nil;
 	}
 	@try {
-        BOOL encrypted = NO;
-        data = [GPGPacket unArmor:data];
+		
+		
         NSData *dataToCheck = data;
         NSSet *keys = nil;
 		int i = 3; // Max 3 loops.
         
-        while (dataToCheck && i-- > 0) {
-            keys = [self keysInExportedData:dataToCheck encrypted:&encrypted];
+        while (dataToCheck.length > 0 && i-- > 0) {
+			NSData *unchangedData = dataToCheck;
+			BOOL encrypted = NO;
+
+			NSData *tempData = dataToCheck;
+			if (tempData.isArmored) {
+				GPGUnArmor *unArmor = [GPGUnArmor unArmorWithGPGStream:[GPGMemoryStream memoryStreamForReading:tempData]];
+				tempData = [unArmor decodeAll];
+			}
+            keys = [self keysInExportedData:tempData encrypted:&encrypted];
 
             if (keys.count > 0) {
-                data = dataToCheck;
+                data = tempData;
                 break;
-            } else {
-                if (encrypted) {
-                    // Decrypt to allow import of encrypted keys.
-                    dataToCheck = [self decryptData:dataToCheck];
-					dataToCheck = [GPGPacket unArmor:dataToCheck];
-                } else {
-                    //Get keys from RTF data.
-                    dataToCheck = [[[[NSAttributedString alloc] initWithData:dataToCheck options:nil documentAttributes:nil error:nil] string] dataUsingEncoding:NSUTF8StringEncoding];
-					NSData *newData = [GPGPacket unArmor:dataToCheck];
-					if (newData == dataToCheck) {
-						break;
-					}
-                }
-            }
+            } else if (encrypted) {
+				// Decrypt to allow import of encrypted keys.
+				dataToCheck = [self decryptData:dataToCheck];
+				if (dataToCheck.isArmored) {
+					GPGUnArmor *unArmor = [GPGUnArmor unArmorWithGPGStream:[GPGMemoryStream memoryStreamForReading:dataToCheck]];
+					dataToCheck = [unArmor decodeAll];
+				}
+			} else if (dataToCheck.length > 4 && memcmp(dataToCheck.bytes, "{\\rtf", 4) == 0) {
+				// Data is RTF encoded.
+				
+				//Get keys from RTF data.
+				dataToCheck = [[[[NSAttributedString alloc] initWithData:data options:nil documentAttributes:nil error:nil] string] dataUsingEncoding:NSUTF8StringEncoding];
+				if (dataToCheck.isArmored) {
+					GPGUnArmor *unArmor = [GPGUnArmor unArmorWithGPGStream:[GPGMemoryStream memoryStreamForReading:dataToCheck]];
+					dataToCheck = [unArmor decodeAll];
+				}
+			}
+			if (unchangedData == dataToCheck) {
+				break;
+			}
         }
-        
+		
 		
 		
 		//TODO: Uncomment the following lines when keysInExportedData: fully works!
@@ -2256,6 +2244,7 @@ BOOL gpgConfigReaded = NO;
 	self.gpgTask = [GPGTask gpgTask];
 	[self addArgumentsForOptions];
 	[gpgTask addArgument:@"-k"];
+	[gpgTask addArgument:@"--allow-weak-digest-algos"];
 	[gpgTask addArgument:@"--with-fingerprint"];
 	[gpgTask addArgument:@"--with-fingerprint"];
 	[gpgTask addArgument:[key description]];
@@ -2284,29 +2273,39 @@ BOOL gpgConfigReaded = NO;
 
 - (NSSet *)keysInExportedData:(NSData *)data encrypted:(BOOL *)encrypted {
 	// Returns a set of fingerprints and keyIDs of keys and key-parts (like signatures) in the data.
+	
 	NSMutableSet *keys = [NSMutableSet set];
 	NSMutableSet *keyIDs = [NSMutableSet set];
-	
-	NSArray *packets = [GPGPacket packetsWithData:data];
-	
-    if (encrypted) {
-        *encrypted = NO;
-    }
 
-    
-	for (GPGPacket *packet in packets) {
-		if (packet.type == GPGPublicKeyPacket || packet.type == GPGSecretKeyPacket) {
-			[keys addObject:packet.fingerprint];
-		} else if (packet.type == GPGPublicKeyEncryptedSessionKeyPacket || packet.type == GPGSymmetricEncryptedSessionKeyPacket) {
-            if (encrypted) {
-                *encrypted = YES;
-            }
-        } else if (packet.type == GPGSignaturePacket) {
-			if (packet.fingerprint.length > 0) {
-				[keys addObject:packet.fingerprint];
-			} else if (packet.keyID) {
-				[keyIDs addObject:packet.keyID];
+	
+	GPGMemoryStream *stream = [GPGMemoryStream memoryStreamForReading:data];
+	GPGPacketParser *parser = [GPGPacketParser packetParserWithStream:stream];
+	
+	GPGPacket *packet;
+	
+	while ((packet = parser.nextPacket)) {
+		switch (packet.tag) {
+			case GPGPublicKeyPacketTag:
+			case GPGSecretKeyPacketTag:
+			case GPGPublicSubkeyPacketTag:
+			case GPGSecretSubkeyPacketTag:
+				[keys addObject:[(GPGPublicKeyPacket *)packet fingerprint]];
+				break;
+			case GPGSymmetricEncryptedSessionKeyPacketTag:
+			case GPGPublicKeyEncryptedSessionKeyPacketTag:
+				if (encrypted) {
+					*encrypted = YES;
+				}
+				break;
+			case GPGSignaturePacketTag: {
+				GPGSignaturePacket *signaturePacket = (GPGSignaturePacket *)packet;
+				if (signaturePacket.keyID) {
+					[keyIDs addObject:signaturePacket.keyID];
+				}
+				break;
 			}
+			default:
+				break;
 		}
 	}
 	
@@ -2317,8 +2316,7 @@ BOOL gpgConfigReaded = NO;
 		}
 		[keys unionSet:keyIDs];
 	}
-	
-	
+
 	return keys;
 }
 
@@ -2502,7 +2500,7 @@ BOOL gpgConfigReaded = NO;
 	return nil;
 }
 
-- (void)gpgTaskDidStart:(GPGTask *)task {
+- (void)gpgTaskWillStart:(GPGTask *)task {
 	if ([signatures count] > 0) {
 		self.lastSignature = nil;
 		[signatures release];

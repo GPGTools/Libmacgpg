@@ -92,6 +92,7 @@
 @property (assign, readwrite) int signatureClass;
 @property (assign, readwrite) BOOL revocation;
 @property (assign, readwrite) BOOL local;
+@property (assign, readwrite) GPGHashAlgorithm hashAlgorithm;
 
 @property (assign, readwrite) GPGKey *primaryKey;
 

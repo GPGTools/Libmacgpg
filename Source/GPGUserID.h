@@ -19,7 +19,7 @@
 
 #import <Libmacgpg/GPGGlobals.h>
 
-@class GPGKey, NSImage;
+@class GPGKey, NSImage, GPGUserIDSignature;
 
 
 @protocol GPGUserIDProtocol <NSObject>
@@ -44,6 +44,7 @@
 	
 	GPGKey *_primaryKey;
 	NSArray *_signatures;
+	GPGUserIDSignature *_revocationSignature;
 	
 }
 
@@ -61,6 +62,7 @@
 @property (nonatomic, readonly) GPGValidity validity;
 
 @property (nonatomic, readonly) NSArray *signatures;
+@property (nonatomic, readonly) GPGUserIDSignature *revocationSignature;
 @property (nonatomic, readonly) GPGKey *primaryKey;
 
 @end

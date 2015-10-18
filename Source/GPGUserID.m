@@ -22,7 +22,7 @@
 
 
 @implementation GPGUserID
-@synthesize userIDDescription=_userIDDescription, name=_name, email=_email, comment=_comment, hashID=_hashID, primaryKey=_primaryKey, signatures=_signatures, image=_image, expirationDate=_expirationDate, creationDate=_creationDate, validity=_validity;
+@synthesize userIDDescription=_userIDDescription, name=_name, email=_email, comment=_comment, hashID=_hashID, primaryKey=_primaryKey, image=_image, expirationDate=_expirationDate, creationDate=_creationDate, validity=_validity;
 
 - (instancetype)init {
 	return [self initWithUserIDDescription:nil];
@@ -46,6 +46,35 @@
 - (NSString *)description {
 	return self.hashID;
 }
+
+- (void)setSignatures:(NSArray *)signatures {
+	if (signatures != _signatures) {
+		id oldValue = _signatures;
+		_signatures = [signatures copy];
+		[oldValue release];
+		
+		GPGUserIDSignature *revSig = nil;
+		for (GPGUserIDSignature *sig in signatures) {
+			if (sig.revocation) {
+				revSig = sig;
+				break;
+			}
+		}
+		if (revSig != _revocationSignature) {
+			oldValue = _revocationSignature;
+			_revocationSignature = [revSig retain];
+			[oldValue release];
+		}
+		
+	}
+}
+- (NSArray *)signatures {
+	return [[_signatures retain] autorelease];
+}
+- (GPGUserIDSignature *)revocationSignature {
+	return [[_revocationSignature retain] autorelease];
+}
+
 
 //- (void)updatePreferences:(NSString *)listing {
 //	NSArray *split = [[[listing componentsSeparatedByString:@":"] objectAtIndex:12] componentsSeparatedByString:@","];
@@ -103,6 +132,8 @@
 	_image = nil;
 	[_hashID release];
 	_hashID = nil;
+	[_revocationSignature release];
+	_revocationSignature = nil;
 	
 	_primaryKey = nil;
 	[_signatures release];

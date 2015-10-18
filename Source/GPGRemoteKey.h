@@ -21,7 +21,7 @@
 
 
 @interface GPGRemoteKey : NSObject {
-	NSString *keyID;
+	NSString *fingerprint;
 	GPGPublicKeyAlgorithm algorithm;
 	NSUInteger length;
 	NSDate *creationDate;
@@ -35,6 +35,7 @@
 @property (nonatomic, readonly) NSUInteger length;
 @property (nonatomic, readonly) BOOL expired;
 @property (nonatomic, readonly) BOOL revoked;
+@property (nonatomic, readonly, retain) NSString *fingerprint;
 @property (nonatomic, readonly, retain) NSString *keyID;
 @property (nonatomic, readonly, retain) NSDate *creationDate;
 @property (nonatomic, readonly, retain) NSDate *expirationDate;

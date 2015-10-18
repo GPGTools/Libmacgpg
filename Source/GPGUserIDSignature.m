@@ -22,7 +22,9 @@
 
 @implementation GPGUserIDSignature
 
-@synthesize keyID=_keyID, algorithm=_algorithm, creationDate=_creationDate, expirationDate=_expirationDate, reason=_reason, signatureClass=_signatureClass, revocation=_revocation, local=_local, primaryKey=_primaryKey;
+@synthesize keyID=_keyID, algorithm=_algorithm, creationDate=_creationDate, expirationDate=_expirationDate,
+reason=_reason, signatureClass=_signatureClass, revocation=_revocation, local=_local, primaryKey=_primaryKey,
+hashAlgorithm=_hashAlgorithm;
 
 - (instancetype)init {
 	return [self initWithKeyID:nil];

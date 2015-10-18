@@ -19,6 +19,8 @@
 
 #import "GPGTransformer.h"
 #import "GPGGlobals.h"
+#import "GPGKey.h"
+#import "GPGUserIDSignature.h"
 
 #define maybeLocalize(key) (!_keepUnlocalized ? localizedLibmacgpgString(key) : key)
 
@@ -59,6 +61,40 @@
 
 @end
 
+@implementation GPGHashAlgorithmNameTransformer
+@synthesize keepUnlocalized = _keepUnlocalized;
+
++ (Class)transformedValueClass { return [NSString class]; }
++ (BOOL)allowsReverseTransformation { return NO; }
+- (id)transformedValue:(id)value {
+	return [self transformedIntegerValue:[value integerValue]];
+}
+
+- (id)transformedIntegerValue:(NSInteger)value {
+	switch (value) {
+		case GPGHashAlgorithmMD5:
+			return maybeLocalize(@"DIGEST_ALGO_MD5");
+		case GPGHashAlgorithmSHA1:
+			return maybeLocalize(@"DIGEST_ALGO_SHA1");
+		case GPGHashAlgorithmRMD160:
+			return maybeLocalize(@"DIGEST_ALGO_RMD160");
+		case GPGHashAlgorithmSHA256:
+			return maybeLocalize(@"DIGEST_ALGO_SHA256");
+		case GPGHashAlgorithmSHA384:
+			return maybeLocalize(@"DIGEST_ALGO_SHA384");
+		case GPGHashAlgorithmSHA512:
+			return maybeLocalize(@"DIGEST_ALGO_SHA512");
+		case GPGHashAlgorithmSHA224:
+			return maybeLocalize(@"DIGEST_ALGO_SHA224");
+		case 0:
+			return @"";
+		default:
+			return [NSString stringWithFormat:maybeLocalize(@"Algorithm_%i"), value];
+	}
+}
+
+@end
+
 @implementation GPGValidityDescriptionTransformer
 @synthesize keepUnlocalized = _keepUnlocalized;
 
@@ -66,7 +102,19 @@
 + (BOOL)allowsReverseTransformation { return NO; }
 - (id)transformedValue:(id)value {
 	NSMutableArray *strings = [NSMutableArray array];
-	NSInteger intValue = [value integerValue];
+	NSInteger intValue;
+	GPGUserIDSignature *revSig = nil;
+	
+	if ([value isKindOfClass:[NSNumber class]]) {
+		intValue = [value integerValue];
+	} else {
+		GPGKey *key = value;
+		intValue = key.validity;
+		if ([key respondsToSelector:@selector(revocationSignature)]) {
+			revSig = key.revocationSignature;
+		}
+	}
+	
 	
 	switch (intValue & 7) {
 		case 2:
@@ -92,7 +140,18 @@
 		[strings addObject:maybeLocalize(@"Invalid")];
 	}
 	if (intValue & GPGValidityRevoked) {
-		[strings addObject:maybeLocalize(@"Revoked")];
+		NSString *revString = maybeLocalize(@"Revoked");
+		if (revSig) {
+			NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+			dateFormatter.timeStyle = NSDateFormatterNoStyle;
+			dateFormatter.dateStyle = NSDateFormatterLongStyle;
+			
+			NSString *dateString = [dateFormatter stringFromDate:revSig.creationDate];
+			
+			revString = [NSString stringWithFormat:@"%@ (%@)", revString, dateString];
+		}
+		
+		[strings addObject:revString];
 	}
 	if (intValue & GPGValidityExpired) {
 		[strings addObject:maybeLocalize(@"Expired")];

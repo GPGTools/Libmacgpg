@@ -39,12 +39,15 @@
 @property (nonatomic) dispatch_semaphore_t taskLock;
 @property (nonatomic) BOOL wasShutdown;
 @property (nonatomic, retain, readwrite) NSException *connectionError;
+@property (nonatomic, retain, readwrite) NSException *callError;
+@property (nonatomic, retain, readwrite) NSException *taskError;
+@property (nonatomic) BOOL success;
 
 @end
 
 @implementation GPGTaskHelperXPC
 
-@synthesize connection=_connection, taskLock=_taskLock, progressHandler=_progressHandler, processStatus=_processStatus, wasShutdown=_wasShutdown, connectionError=_connectionError;
+@synthesize connection=_connection, taskLock=_taskLock, progressHandler=_progressHandler, processStatus=_processStatus, wasShutdown=_wasShutdown, connectionError=_connectionError, callError=_callError, taskError=_taskError, success=_success;
 
 #pragma mark - XPC connection helpers
 
@@ -56,9 +59,11 @@
 		_connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Jail)];
 		_connection.exportedObject = self;
 		
+		_success = false;
+
 		// The invalidation handler is called when there's a problem establishing
 		// the connection to the xpc service or it can't be found at all.
-		__block typeof(self) weakSelf = self;
+		__block GPGTaskHelperXPC *weakSelf = self;
 		_connection.invalidationHandler = ^{
 			// Signal any outstanding tasks that they are done.
 			// This handler is always called, when the connection is shutdown,
@@ -69,13 +74,14 @@
 			
 			weakSelf.connectionError = [GPGException exceptionWithReason:@"[Libmacgpg] Failed to establish connection to org.gpgtools.Libmacgpg.xpc" errorCode:GPGErrorXPCConnectionError];
 			
-			[weakSelf completeTask];
+			[weakSelf completeTaskWithFailure];
 		};
 		
 		_taskLock = dispatch_semaphore_create(0);
 		
 		// Setup the remote object with error handler.
 		_connectionError = nil;
+		_callError = nil;
 		
 		// The error handler is invoked in the following cases:
 		// - The xpc service crashes due to some error (for example overrelease.)
@@ -88,9 +94,9 @@
 			if(weakSelf.wasShutdown)
 				return;
 			
-			weakSelf.connectionError = [GPGException exceptionWithReason:@"[Libmacgpg] Failed to invoke XPC method" errorCode:GPGErrorXPCConnectionInterruptedError];
+			weakSelf.callError = [GPGException exceptionWithReason:@"[Libmacgpg] Failed to invoke XPC method" errorCode:GPGErrorXPCConnectionInterruptedError];
 			
-			[weakSelf completeTask];
+			[weakSelf completeTaskWithFailure];
 		}];
 	}
 	return self;
@@ -115,13 +121,14 @@
 - (void)prepareTask {
 	// Reset connection error.
 	self.connectionError = nil;
+	self.callError = nil;
 	
 	// NSXPCConnection is not checking if the binary for the xpc service actually
 	// exists and hence doesn't invoke an error handler if it doesn't.
 	// So we do the check for it, and throw an error if necessary.
 	if(![self healthyXPCBinaryExists]) {
 		self.connectionError = [GPGException exceptionWithReason:@"[Libmacgpg] The xpc service binary is not available. Please re-install GPGTools from https://gpgtools.org" errorCode:GPGErrorXPCBinaryError];
-		[self shutdownAndThrowError:self.connectionError];
+		[self shutdownAndThrowError];
 	}
 	// Resume will trigger the invalidationHandler if the connection can't
 	// be established, for example, if the xpc service is not registered.
@@ -135,29 +142,49 @@
 	_taskLock = nil;
 	
 	if(shutdown) {
-		if(self.connectionError && throwException)
-			[self shutdownAndThrowError:self.connectionError];
+		if(!_success && throwException)
+			[self shutdownAndThrowError];
 		else
 			[self shutdown];
 	}
 }
 
-- (void)shutdownAndThrowError:(NSException *)error {
-	NSException *errorCopy = nil;
-	if(error == self.connectionError) {
-		errorCopy = [_connectionError copy];
-	}
-	// Connection error is set to nil, so throw the errorCopy;
+- (void)shutdownAndThrowError {
+	NSException *errorToThrow = nil;
+	
+	// Errors are thrown in the following order:
+	// - taskError
+	// - connectionError
+	// - callError
+	//
+	// If connection error is set, call error is most likely also set, since both error
+	// handlers are invoked by XPC Connection in case of a connection error.
+	
+	if(self.taskError)
+		errorToThrow = [self.taskError copy];
+	else if(self.connectionError)
+		errorToThrow = [self.connectionError copy];
+	else if(self.callError)
+		errorToThrow = [self.callError copy];
+	
 	[self shutdown];
 	
-	@throw errorCopy != nil ? [errorCopy autorelease] : error;
+	@throw [errorToThrow autorelease];
 }
 
-- (void)completeTask {
+- (void)completeTaskWithStatus:(BOOL)status {
+	_success = status == true ? true : false;
 	if(_taskLock != NULL)
 		dispatch_semaphore_signal(_taskLock);
 }
 
+- (void)completeTaskWithSuccess {
+	[self completeTaskWithStatus:true];
+}
+
+- (void)completeTaskWithFailure {
+	[self completeTaskWithStatus:false];
+}
 #pragma mark XPC service methods
 
 - (NSDictionary *)launchGPGWithArguments:(NSArray *)arguments data:(NSArray *)data readAttributes:(BOOL)readAttributes {
@@ -179,7 +206,7 @@
 			}
 			
 			taskError = [exception retain];
-			[self completeTask];
+			[self completeTaskWithFailure];
 			
 			return;
 		}
@@ -188,7 +215,7 @@
         // dictionary elements is not set. In that case, throw a general error.
         if(![info objectForKey:@"status"] || ![info objectForKey:@"errors"] || ![info objectForKey:@"exitcode"] || ![info objectForKey:@"output"]) {
             taskError = [[GPGException exceptionWithReason:@"Erron in XPC response" errorCode:GPGErrorXPCConnectionError] retain];
-            [self completeTask];
+            [self completeTaskWithFailure];
 
             return;
         }
@@ -199,14 +226,17 @@
 		[result setObject:[info objectForKey:@"exitcode"] forKey:@"exitStatus"];
 		[result setObject:[info objectForKey:@"output"] forKey:@"output"];
 		
-        [self completeTask];
+        [self completeTaskWithSuccess];
 	}];
 	
 	[self waitForTaskToCompleteAndShutdown:NO throwExceptionIfNecessary:NO];
 	
-	if(self.connectionError || taskError) {
+	if(!_success) {
+		if(taskError)
+			self.taskError = taskError;
+		
 		[result release];
-		[self shutdownAndThrowError:self.connectionError ? self.connectionError : taskError];
+		[self shutdownAndThrowError];
 		return nil;
 	}
 	
@@ -224,14 +254,14 @@
 		if(content)
 			[result appendString:content];
 		
-		[self completeTask];
+		[self completeTaskWithSuccess];
 	}];
 	
 	[self waitForTaskToCompleteAndShutdown:NO throwExceptionIfNecessary:NO];
 	
-	if(self.connectionError) {
+	if(!_success) {
 		[result release];
-		[self shutdownAndThrowError:self.connectionError];
+		[self shutdownAndThrowError];
 		return nil;
 	}
 	
@@ -249,14 +279,14 @@
 		if(defaults)
 			[result addEntriesFromDictionary:defaults];
 			
-		[self completeTask];
+		[self completeTaskWithSuccess];
 	}];
 	
 	[self waitForTaskToCompleteAndShutdown:NO throwExceptionIfNecessary:NO];
 	
-	if(self.connectionError) {
+	if(!_success) {
 		[result release];
-		[self shutdownAndThrowError:self.connectionError];
+		[self shutdownAndThrowError];
 		return nil;
 	}
 	
@@ -273,7 +303,7 @@
 	[_jailfree setUserDefaults:domain forName:domainName reply:^(BOOL result) {
 		success = result;
 		
-		[self completeTask];
+		[self completeTaskWithSuccess];
 	}];
 	
 	[self waitForTaskToCompleteAndShutdown:YES throwExceptionIfNecessary:YES];
@@ -288,7 +318,7 @@
 	[_jailfree launchGeneralTask:path withArguments:arguments wait:wait reply:^(BOOL result) {
 		success = result;
 		
-		[self completeTask];
+		[self completeTaskWithSuccess];
 	}];
 	
 	[self waitForTaskToCompleteAndShutdown:YES throwExceptionIfNecessary:YES];
@@ -304,7 +334,7 @@
 	[_jailfree isPassphraseForKeyInGPGAgentCache:key reply:^(BOOL result) {
 		inCache = result;
 		
-		[self completeTask];
+		[self completeTaskWithSuccess];
 	}];
 	
 	[self waitForTaskToCompleteAndShutdown:YES throwExceptionIfNecessary:YES];
@@ -313,13 +343,16 @@
 }
 
 - (void)processStatusWithKey:(NSString *)keyword value:(NSString *)value reply:(void (^)(NSData *))reply {
-	if(!self.processStatus)
-		return;
-    
-	NSData *response = self.processStatus(keyword, value);
-    // Response can't be nil otherwise the reply won't be send as it turns out.
-    response = response ? response : [[NSData alloc] init];
-    reply(response);
+	// If process status is not set, we still have to reply otherwise the request might hang forever.
+	NSData *response = nil;
+	if(self.processStatus)
+		response = self.processStatus(keyword, value);
+	
+	// Response can't be nil otherwise the reply won't be send as it turns out.
+	if(!response)
+		response = [NSData data];
+	
+	reply(response);
 }
 
 - (void)progress:(NSUInteger)processedBytes total:(NSUInteger)total {
@@ -331,6 +364,13 @@
 
 - (void)shutdown {
 	self.wasShutdown = YES;
+	_success = false;
+	
+	[_taskError release];
+	_taskError = nil;
+	
+	[_callError release];
+	_callError = nil;
 	
 	[_connectionError release];
 	_connectionError = nil;

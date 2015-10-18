@@ -29,6 +29,15 @@
 - (id)transformedIntegerValue:(NSInteger)value;
 @end
 
+@interface GPGHashAlgorithmNameTransformer : NSValueTransformer {
+	BOOL _keepUnlocalized; // default NO; used for Unit Testing
+}
+// default NO
+@property (nonatomic, assign) BOOL keepUnlocalized;
+
+- (id)transformedIntegerValue:(NSInteger)value;
+@end
+
 @interface GPGValidityDescriptionTransformer : NSValueTransformer {
     BOOL _keepUnlocalized; // default NO; used for Unit Testing
 }

@@ -57,6 +57,33 @@
 	if([_userIDs count])
 		self.primaryUserID = [_userIDs objectAtIndex:0];
 }
+- (void)setSignatures:(NSArray *)signatures {
+	if (signatures != _signatures) {
+		id oldValue = _signatures;
+		_signatures = [signatures copy];
+		[oldValue release];
+		
+		GPGUserIDSignature *revSig = nil;
+		for (GPGUserIDSignature *sig in signatures) {
+			if (sig.revocation) {
+				revSig = sig;
+				break;
+			}
+		}
+		if (revSig != _revocationSignature) {
+			oldValue = _revocationSignature;
+			_revocationSignature = [revSig retain];
+			[oldValue release];
+		}
+
+	}
+}
+- (NSArray *)signatures {
+	return [[_signatures retain] autorelease];
+}
+- (GPGUserIDSignature *)revocationSignature {
+	return [[_revocationSignature retain] autorelease];
+}
 
 - (NSString *)email {
 	return self.primaryUserID.email;
@@ -173,6 +200,9 @@
 	
 	[_cardID release];
 	_cardID = nil;
+	
+	[_revocationSignature release];
+	_revocationSignature = nil;
 	
 	
 	dispatch_release(_textForFilterOnce);

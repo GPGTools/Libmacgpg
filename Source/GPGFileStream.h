@@ -19,6 +19,14 @@
     NSFileHandle *_readfh;
     // for readable files
     unsigned long long _flength;
+	
+	// cache to speed-up byte wise reading.
+	NSData *_cacheData;
+	const UInt8 *_cacheBytes;
+	NSUInteger _cacheLocation;
+	NSUInteger _cacheAvailableBytes;
+	NSUInteger _realOffset;
+	
 }
 
 // returns nil if creating file for writing failed

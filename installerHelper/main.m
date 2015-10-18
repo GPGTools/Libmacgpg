@@ -1,17 +1,30 @@
 #import <Foundation/Foundation.h>
 #import <Security/Security.h>
+#import <SecurityFoundation/SFAuthorization.h>
 #import <openssl/x509.h>
 #import <xar/xar.h>
 
+BOOL isBundleValidSigned(NSBundle *bundle);
 BOOL checkPackage(NSString *pkgPath);
+BOOL installerCertificateIsTrustworthy(NSString *pkgPath);
 BOOL installPackage(NSString *pkgPath, NSString *xmlPath);
+BOOL executeWithPrivilegesAndWait(NSString *executable, NSArray *arguments);
 
 const char *helpText = "This tool checks the signature of a pkg-file and installs it.\nYou can provide a pkg-file.xml to override the standard choices.";
 
 
 
-int main(int argc, const char *argv[]) {
+int main(int argc, char *argv[]) {
 	@autoreleasepool {
+#ifdef CODE_SIGN_CHECK
+		/* Check the validity of the code signature. */
+		if (!isBundleValidSigned([NSBundle mainBundle])) {
+			printf("installerHelper isn't signed correctly!\n");
+			return 66;
+		}
+#endif
+
+		
 		if (argc != 2) {
 			printf("Usage: installerHelper pkg-file\n%s\n", helpText);
 			return 1;
@@ -50,13 +63,30 @@ int main(int argc, const char *argv[]) {
 	return 0;
 }
 
+BOOL isBundleValidSigned(NSBundle *bundle) {
+	SecRequirementRef requirement = nil;
+    SecStaticCodeRef staticCode = nil;
+	
+    SecStaticCodeCreateWithPath((__bridge CFURLRef)[bundle bundleURL], 0, &staticCode);
+	SecRequirementCreateWithString(CFSTR("anchor apple generic and cert leaf = H\"233B4E43187B51BF7D6711053DD652DDF54B43BE\""), 0, &requirement);
+	
+	OSStatus result = SecStaticCodeCheckValidity(staticCode, 0, requirement);
+    
+    if (staticCode) CFRelease(staticCode);
+    if (requirement) CFRelease(requirement);
+    return result == noErr;
+}
+
+
+
+
+
 BOOL installerCertificateIsTrustworthy(NSString *pkgPath) {
 	OSStatus error = noErr;
 	NSMutableArray *certificates = nil;
 	SecPolicyRef policy = NULL;
 	SecTrustRef trust = NULL;
 	SecTrustResultType trustResult;
-	CSSM_OID oid = CSSMOID_APPLE_X509_BASIC;
 
 	xar_t pkg = NULL;
 	xar_signature_t signature = NULL;
@@ -261,44 +291,65 @@ BOOL checkPackage(NSString *pkgPath) {
 
 BOOL installPackage(NSString *pkgPath, NSString *xmlPath) {
 	// Run the installer command.
-	
 	NSArray *arguments;
 	if (xmlPath) {
 		arguments = @[@"-applyChoiceChangesXML", xmlPath, @"-pkg", pkgPath, @"-target", @"/"];
 	} else {
 		arguments = @[@"-pkg", pkgPath, @"-target", @"/"];
 	}
-		
-	NSTask *task = [[NSTask alloc] init];
-	task.launchPath = @"/usr/sbin/installer";
-	task.arguments = arguments;
 	
+	BOOL result = executeWithPrivilegesAndWait(@"/usr/sbin/installer", arguments);
 	
-	uid_t uid = getuid();
-	int result = setuid(0);
-	if (result == 0) {
-		//Run only this command with root privileges.
-		[task launch];
-		[task waitUntilExit];
-		result = task.terminationStatus;
-		setuid(uid);
-	} else {
-		printf("This tool needs the setuid-bit to be set and the owner must be root!\nStarting a normal installation using the GUI.\n");
-		
-		task.launchPath = @"/usr/bin/open";
-		task.arguments = @[@"-Wnb", @"com.apple.installer", pkgPath];
-
-		[task launch];
-		[task waitUntilExit];
-		result = task.terminationStatus;
-	}
-	
-	
-	return result == 0;
+	return result;
 }
 
 
 
+BOOL executeWithPrivilegesAndWait(NSString *executable, NSArray *arguments) {
+	const char *path = executable.UTF8String;
+	
+	NSUInteger i = 0;
+	NSUInteger count = arguments.count;
+	const char *args[count + 1];
+	
+	for (; i < count; i++) {
+		args[i] = [[arguments objectAtIndex:i]  UTF8String];
+	}
+	args[i] = nil;
+	
+	
+	AuthorizationItem items[1];
+	items[0].name = kAuthorizationRightExecute;
+	items[0].value = (void *)path;
+	items[0].valueLength = strlen(path);
+	items[0].flags = 0;
+	
+	AuthorizationRights rights;
+	rights.count = 1;
+	rights.items = items;
+	
+	SFAuthorization *sfAuth = [SFAuthorization authorizationWithFlags:kAuthorizationFlagInteractionAllowed | kAuthorizationFlagExtendRights
+															   rights:&rights
+														  environment:nil];
+	AuthorizationRef authRef = [sfAuth authorizationRef];
+	
+	if(authRef) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+		OSStatus result = AuthorizationExecuteWithPrivileges(authRef, path, 0, (char* const*)args, nil);
+#pragma clang diagnostic pop
+		
+		if (result == errAuthorizationSuccess) {
+			int status;
+			pid_t pid = wait(&status);
+			if (pid != -1 && WIFEXITED(status) && WEXITSTATUS(status) == 0) {
+				return YES;
+			}
+		}
+	}
+	
+	return NO;
+}
 
 
 

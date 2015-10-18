@@ -1,6 +1,8 @@
 
 
 @interface GPGKeyManager : NSObject {
+	NSString *_homedir;
+	
 	NSSet *_allKeys;
 	NSSet *_allKeysAndSubkeys;
 	
@@ -29,10 +31,15 @@
 	NSUInteger _attributeDataLocation;
 	BOOL _fetchUserAttributes;
 	BOOL _fetchSignatures;
-	
+	BOOL _allowWeakDigestAlgos;
+
 	
 	dispatch_semaphore_t _allKeysAndSubkeysOnce;
 }
+@property (nonatomic, copy) NSString *homedir;
+
+@property (nonatomic) BOOL allowWeakDigestAlgos;
+
 @property (nonatomic, readonly) NSSet *allKeys;
 @property (nonatomic, readonly) NSSet *allKeysAndSubkeys;
 @property (nonatomic, readonly) NSDictionary *keysByKeyID;

@@ -26,6 +26,10 @@
     @throw [NSException exceptionWithName:@"NotImplementedException" reason:@"abstract method" userInfo:nil];
 }
 
+- (NSInteger)readByte {
+	@throw [NSException exceptionWithName:@"NotImplementedException" reason:@"abstract method" userInfo:nil];
+}
+
 - (char)peekByte {
     @throw [NSException exceptionWithName:@"NotImplementedException" reason:@"abstract method" userInfo:nil];
 }
@@ -39,7 +43,14 @@
 }
 
 - (void)seekToBeginning {
-    @throw [NSException exceptionWithName:@"NotImplementedException" reason:@"abstract method" userInfo:nil];    
+	@throw [NSException exceptionWithName:@"NotImplementedException" reason:@"abstract method" userInfo:nil];
+}
+- (void)seekToOffset:(NSUInteger)offset {
+	@throw [NSException exceptionWithName:@"NotImplementedException" reason:@"abstract method" userInfo:nil];
+}
+- (NSUInteger)offset {
+	@throw [NSException exceptionWithName:@"NotImplementedException" reason:@"abstract method" userInfo:nil];
+	return NSIntegerMax;
 }
 
 - (unsigned long long)length {
