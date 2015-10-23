@@ -463,9 +463,20 @@ BOOL gpgConfigReaded = NO;
 
 #pragma mark Edit keys
 
-- (NSString *)generateNewKeyWithName:(NSString *)name email:(NSString *)email comment:(NSString *)comment 
-					   keyType:(GPGPublicKeyAlgorithm)keyType keyLength:(int)keyLength subkeyType:(GPGPublicKeyAlgorithm)subkeyType subkeyLength:(int)subkeyLength
-				  daysToExpire:(int)daysToExpire preferences:(NSString *)preferences {
+- (NSString *)generateNewKeyWithName:(NSString *)name email:(NSString *)email comment:(NSString *)comment
+							 keyType:(GPGPublicKeyAlgorithm)keyType keyLength:(int)keyLength
+						  subkeyType:(GPGPublicKeyAlgorithm)subkeyType subkeyLength:(int)subkeyLength
+						daysToExpire:(int)daysToExpire preferences:(NSString *)preferences {
+	return [self generateNewKeyWithName:name email:email comment:comment
+								keyType:keyType keyLength:keyLength
+							 subkeyType:subkeyType subkeyLength:subkeyLength
+						   daysToExpire:daysToExpire preferences:preferences revCert:NO];
+}
+
+- (NSString *)generateNewKeyWithName:(NSString *)name email:(NSString *)email comment:(NSString *)comment
+							 keyType:(GPGPublicKeyAlgorithm)keyType keyLength:(int)keyLength
+						  subkeyType:(GPGPublicKeyAlgorithm)subkeyType subkeyLength:(int)subkeyLength
+						daysToExpire:(int)daysToExpire preferences:(NSString *)preferences revCert:(BOOL)revCert {
 	if (async && !asyncStarted) {
 		asyncStarted = YES;
 		[asyncProxy generateNewKeyWithName:name email:email comment:comment 
@@ -535,6 +546,28 @@ BOOL gpgConfigReaded = NO;
 			
 			[[GPGKeyManager sharedInstance] loadKeys:[NSSet setWithObject:fingerprint] fetchSignatures:NO fetchUserAttributes:NO];
 			[self keyChanged:fingerprint];
+		
+			if (revCert) {
+				// Create and save revocation certificate.
+				NSString *path = [[GPGOptions sharedOptions] gpgHome];
+				path = [path stringByAppendingPathComponent:[NSString stringWithFormat:@"RevCerts/%@_rev.asc", fingerprint.keyID]];
+				
+				GPGTaskOrder *order = [GPGTaskOrder orderWithYesToAll];
+				[order addInt:0 prompt:@"ask_revocation_reason.code" optional:YES];
+				[order addCmd:@"\n" prompt:@"ask_revocation_reason.text" optional:YES];
+				[order addCmd:@"y\n" prompt:@"ask_revocation_reason.okay" optional:YES];
+				
+				self.gpgTask = [GPGTask gpgTask];
+				[self addArgumentsForOptions];
+				gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"];
+				[gpgTask addArgument:@"-a"];
+				[gpgTask addArgument:@"-o"];
+				[gpgTask addArgument:path];
+				[gpgTask addArgument:@"--gen-revoke"];
+				[gpgTask addArgument:fingerprint];
+				[gpgTask start];
+			}
+		
 		} else {
 			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Generate new key failed!") gpgTask:gpgTask];
 		}
