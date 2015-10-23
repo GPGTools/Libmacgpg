@@ -59,6 +59,7 @@
 			}
 			dispatch_group_leave(taskAndStatusGroup);
 		}];
+		return [NSData data];
     };
     
 	task.progressHandler = ^(NSUInteger processedBytes, NSUInteger totalBytes) {
