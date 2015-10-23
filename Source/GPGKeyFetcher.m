@@ -15,22 +15,11 @@
 	
 	
 	NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"https://keys.whiteout.io/%@", mailAddress]];
-	NSURLRequest *request = [[[NSURLRequest alloc] initWithURL:url cachePolicy:0 timeoutInterval:10] autorelease];
+	NSMutableURLRequest *request = [[[NSMutableURLRequest alloc] initWithURL:url cachePolicy:0 timeoutInterval:30] autorelease];
+	request.HTTPShouldUsePipelining = YES;
 	
 	
-	NSOperationQueue *queue = [NSOperationQueue currentQueue];
-	if (!queue) {
-		queue = [NSOperationQueue mainQueue];
-		if (!queue) {
-			@throw [NSException exceptionWithName:NSInternalInconsistencyException reason:@"No operation queue" userInfo:nil];
-
-		}
-	}
-	
-	[NSURLConnection sendAsynchronousRequest:request
-									   queue:queue
-						   completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError)
-	{
+	[[session dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *connectionError) {
 		NSString *verifiedMail = nil;
 
 		// A valid response contains at least 100 bytes of data and is armored.
@@ -92,7 +81,7 @@
 		}
 		
 		block(data, verifiedMail, connectionError);
-	}];
+	}] resume];
 	
 }
 
@@ -109,12 +98,14 @@
 	}
 	
 	cache = [NSCache new];
+	session = [[NSURLSession sessionWithConfiguration:nil] retain];
 	
 	return self;
 }
 
 - (void)dealloc {
 	[cache release];
+	[session release];
 	[super dealloc];
 }
 
