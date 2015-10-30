@@ -232,6 +232,13 @@ typedef enum {
 			case '-':
 				dashes++;
 				if (dashes == 5) {
+					// Detect CR line-ending.
+					if ([self getByte:0] == '\r' && [self getByte:1] != '\n') {
+						crLineEnding = YES;
+					} else {
+						crLineEnding = NO;
+					}
+					
 					if (headerType == 0x99FC7209) {
 						// SIGNED MESSAGE: Clear-text follows.
 						return stateSearchClearText;
@@ -898,6 +905,11 @@ static UInt32 crc32_tab[] = {
 	
 	switch (byte) {
 		case '\r':
+			if (crLineEnding) {
+				return charTypeNewline;
+			} else {
+				return charTypeWhitespace;
+			}
 		case ' ':
 		case '\t':
 		case 0:

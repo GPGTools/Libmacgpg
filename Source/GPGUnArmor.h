@@ -24,6 +24,7 @@
 	NSInteger equalsAdded;
 	BOOL haveCRC;
 	UInt8 crcBytes[4];
+	BOOL crLineEnding;
 	
 	
 	// Properties
