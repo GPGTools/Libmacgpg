@@ -454,11 +454,13 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
     NSData *tempData = nil;
     
     @try {
-        while((tempData = [input readDataOfLength:kDataBufferSize]) && 
-              [tempData length] > 0) {
-            withAutoreleasePool(^{ 
-                [ofh writeData:tempData];
-            });
+        while ((tempData = [input readDataOfLength:kDataBufferSize]) && tempData.length > 0) {
+			@autoreleasepool {
+				// NSMutableData is required to prevent an uncatchable exception in -writeData:
+				tempData = [NSMutableData dataWithData:tempData];
+				
+				[ofh writeData:tempData];
+			}
         }
         
         if(close) {
