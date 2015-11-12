@@ -2690,7 +2690,12 @@ BOOL gpgConfigReaded = NO;
 - (void)addArgumentsForSignerKeys {
 	for (GPGKey *key in signerKeys) {
 		[gpgTask addArgument:@"-u"];
-		[gpgTask addArgument:[key description]];		
+		if ([key isKindOfClass:[GPGKey class]] && key.primaryKey != key) {
+			// Is a subkey. Force gpg to use exact this subkey.
+			[gpgTask addArgument:[NSString stringWithFormat:@"%@!", key.description]];
+		} else {
+			[gpgTask addArgument:key.description];
+		}
 	}
 }
 
