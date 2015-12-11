@@ -63,6 +63,7 @@
 	
 	BOOL cancelled;
 	BOOL isRunning;
+	BOOL nonBlocking;
 	
 	BOOL progressInfo;
 	
@@ -93,6 +94,7 @@
 @property (nonatomic, readonly) GPGTaskHelper *taskHelper;
 @property (nonatomic, assign) NSUInteger timeout;
 @property (nonatomic, retain) NSDictionary *environmentVariables;
+@property (nonatomic, assign) BOOL nonBlocking;
 
 
 + (NSString *)nameOfStatusCode:(NSInteger)statusCode;

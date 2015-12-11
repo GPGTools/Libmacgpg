@@ -50,9 +50,10 @@
 
 NSDictionary *statusCodes;
 char partCountForStatusCode[GPG_STATUS_COUNT];
+static NSLock *gpgTaskLock;
 
 @synthesize isRunning, batchMode, getAttributeData, delegate, userInfo, exitcode, errorCode, errData, statusData, attributeData, cancelled,
-            progressInfo, statusDict, taskHelper = taskHelper, timeout, environmentVariables=_environmentVariables, passphrase;
+            progressInfo, statusDict, taskHelper = taskHelper, timeout, environmentVariables=_environmentVariables, passphrase, nonBlocking;
 @synthesize outStream;
 
 
@@ -99,6 +100,7 @@ char partCountForStatusCode[GPG_STATUS_COUNT];
 
 
 + (void)initialize {
+	gpgTaskLock = [NSLock new];
 	[self initializeStatusCodes];
 }
 
@@ -291,6 +293,10 @@ char partCountForStatusCode[GPG_STATUS_COUNT];
 - (NSInteger)start {	
 	isRunning = YES;
 	
+	if (nonBlocking == NO) {
+		[gpgTaskLock lock];
+	}
+	
 	// Force a valid pinentry to be set in gpg-agent.conf
 	[GPGTaskHelper pinentryPath];
 	
@@ -368,9 +374,13 @@ char partCountForStatusCode[GPG_STATUS_COUNT];
     }
     
     // Allow the target to abort.
-    if (cancelled)
+	if (cancelled) {
+		if (nonBlocking == NO) {
+			[gpgTaskLock unlock];
+		}
 		return GPGErrorCancelled;
-    
+	}
+	
     __block GPGTask* cself = self;
     taskHelper = [[GPGTaskHelper alloc] initWithArguments:defaultArguments];
     if([delegate isKindOfClass:[GPGController class]])
@@ -407,6 +417,9 @@ char partCountForStatusCode[GPG_STATUS_COUNT];
     @catch (NSException *exception) {
         [taskHelper release];
 		taskHelper = nil;
+		if (nonBlocking == NO) {
+			[gpgTaskLock unlock];
+		}
 		@throw exception;
     }
     
@@ -433,6 +446,9 @@ char partCountForStatusCode[GPG_STATUS_COUNT];
 	[taskHelper release];
 	taskHelper = nil;
 	
+	if (nonBlocking == NO) {
+		[gpgTaskLock unlock];
+	}
     return exitcode;
 }
 

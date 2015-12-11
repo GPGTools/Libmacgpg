@@ -44,6 +44,7 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 		@try {
 			// Get all fingerprints of the secret keys.
 			GPGTask *gpgTask = [GPGTask gpgTask];
+			gpgTask.nonBlocking = YES;
 			if (_homedir) {
 				[gpgTask addArgument:@"--homedir"];
 				[gpgTask addArgument:_homedir];
@@ -68,6 +69,7 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 		
 		// Get the infos from gpg.
 		GPGTask *gpgTask = [GPGTask gpgTask];
+		gpgTask.nonBlocking = YES;
 		if (_homedir) {
 			[gpgTask addArgument:@"--homedir"];
 			[gpgTask addArgument:_homedir];
