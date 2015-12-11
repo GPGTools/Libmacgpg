@@ -75,13 +75,13 @@ static NSArray *tagClasses = nil;
 
 - (GPGPacket *)nextPacket {
 
-	returnErrorOnEOF();
+	
 
 	@try {
 		if (compressedPacket.canDecompress) {
 			// We have a compressed packet, get the next decompressed packet.
 			GPGPacket *tempPacket = [compressedPacket nextPacket];
-			returnErrorOnEOF();
+			
 			if (tempPacket) {
 				return tempPacket;
 			} else {
@@ -90,6 +90,7 @@ static NSArray *tagClasses = nil;
 				self.compressedPacket = nil;
 			}
 		}
+		returnErrorOnEOF();
 		
 		NSInteger c = [stream readByte];
 		if (c == EOF) {
@@ -180,7 +181,7 @@ static NSArray *tagClasses = nil;
 					
 					// Get the first packet inside of the compressed packet.
 					GPGPacket *tempPacket = [compressedPacket nextPacket];
-					returnErrorOnEOF();
+					
 					if (tempPacket) {
 						return tempPacket;
 					} else {
