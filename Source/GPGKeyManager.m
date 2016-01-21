@@ -220,7 +220,7 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 			userInfo = [NSDictionary dictionaryWithObject:affectedKeys forKey:@"affectedKeys"];
 		}
 		
-		[[NSNotificationCenter defaultCenter] postNotificationName:GPGKeyManagerKeysDidChangeNotification object:[[self class] description] userInfo:userInfo];
+		[[NSDistributedNotificationCenter defaultCenter] postNotificationName:GPGKeyManagerKeysDidChangeNotification object:[[self class] description] userInfo:userInfo];
 	});
 
 	// Start the key ring watcher.
