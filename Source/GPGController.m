@@ -303,13 +303,28 @@ BOOL gpgConfigReaded = NO;
 			if ([recipients count] + [hiddenRecipients count] == 0) {
 				[NSException raise:NSInvalidArgumentException format:@"No recipient specified!"];
 			}
-			for (NSString *recipient in recipients) {
+			
+			Class gpgKeyClass = [GPGKey class];
+			
+			for (GPGKey *recipient in recipients) {
 				[gpgTask addArgument:@"--recipient"];
-				[gpgTask addArgument:[recipient description]];		
+				
+				if ([recipient isKindOfClass:gpgKeyClass] && recipient.primaryKey != recipient) {
+					// Is a subkey. Force gpg to use exact this subkey.
+					[gpgTask addArgument:[NSString stringWithFormat:@"%@!", recipient.description]];
+				} else {
+					[gpgTask addArgument:recipient.description];
+				}
 			}
-			for (NSString *recipient in hiddenRecipients) {
+			for (GPGKey *recipient in hiddenRecipients) {
 				[gpgTask addArgument:@"--hidden-recipient"];
-				[gpgTask addArgument:[recipient description]];		
+				
+				if ([recipient isKindOfClass:gpgKeyClass] && recipient.primaryKey != recipient) {
+					// Is a subkey. Force gpg to use exact this subkey.
+					[gpgTask addArgument:[NSString stringWithFormat:@"%@!", recipient.description]];
+				} else {
+					[gpgTask addArgument:recipient.description];
+				}
 			}
 		}
 		if (mode & GPGSymetricEncrypt) {
