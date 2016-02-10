@@ -634,10 +634,11 @@ typedef enum {
 		result = [preferedData base64DecodedData];
 	}
 	NSData *alternativeResult = result;
+	UInt32 dataCRC;
 	
 	if (haveCRC && result) {
 		// Calculate crc of the decoded base64 data.
-		UInt32 dataCRC = result.crc24;
+		dataCRC = result.crc24;
 		
 		if (crc != dataCRC) {
 			result = nil;
@@ -649,22 +650,27 @@ typedef enum {
 			result = [secondData base64DecodedData];
 		}
 		if (!result) {
-			NSLog(@"unArmor: 'No Data'");
-			self.error = [NSError errorWithDomain:LibmacgpgErrorDomain code:GPGErrorNoData userInfo:nil];
-			return stateSearchBegin;
-		}
-		
-		if (haveCRC) {
-			// Calculate crc of the decoded base64 data.
-			UInt32 dataCRC = result.crc24;
-			
-			if (crc != dataCRC) {
-				if (alternativeResult) {
-					result = alternativeResult;
-				}
-				
+			if (alternativeResult) {
+				result = alternativeResult;
 				NSLog(@"unArmor: 'CRC Error'");
 				self.error = [NSError errorWithDomain:LibmacgpgErrorDomain code:GPGErrorChecksumError userInfo:nil];
+			} else {
+				NSLog(@"unArmor: 'No Data'");
+				self.error = [NSError errorWithDomain:LibmacgpgErrorDomain code:GPGErrorNoData userInfo:nil];
+				return stateSearchBegin;
+			}
+		} else {
+			if (haveCRC) {
+				// Calculate crc of the decoded base64 data.
+				dataCRC = result.crc24;
+				if (crc != dataCRC) {
+					NSLog(@"unArmor: 'CRC Error'");
+					self.error = [NSError errorWithDomain:LibmacgpgErrorDomain code:GPGErrorChecksumError userInfo:nil];
+					
+					if (alternativeResult) {
+						result = alternativeResult;
+					}
+				}
 			}
 		}
 	}
