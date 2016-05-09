@@ -75,8 +75,6 @@ static NSArray *tagClasses = nil;
 
 - (GPGPacket *)nextPacket {
 
-	
-
 	@try {
 		if (compressedPacket.canDecompress) {
 			// We have a compressed packet, get the next decompressed packet.
@@ -92,6 +90,7 @@ static NSArray *tagClasses = nil;
 		}
 		returnErrorOnEOF();
 		
+		
 		NSInteger c = [stream readByte];
 		if (c == EOF) {
 			// We have no (more) data.
@@ -102,6 +101,12 @@ static NSArray *tagClasses = nil;
 			// The high-bit of the first byte MUST be 1.
 			self.error = [NSError errorWithDomain:LibmacgpgErrorDomain code:GPGErrorInvalidData userInfo:nil];
 			return nil;
+		}
+		
+		packetData = [NSMutableData data];
+		{
+			char bytes[] = {(char)c};
+			[packetData appendBytes:bytes length:1];
 		}
 		
 		
@@ -208,6 +213,11 @@ static NSArray *tagClasses = nil;
 		}
 		returnErrorOnEOF();
 		
+		if (packetData) {
+			packet.data = packetData;
+			packetData = nil;
+		}
+		
 		return packet;
 	} @catch (NSException *exception) {
 		// Never throw an exception, instead log it and set self.error.
@@ -234,8 +244,14 @@ static NSArray *tagClasses = nil;
 	
 	if (byte == EOF) {
 		eofReached = YES;
-	} else if (byteCallback) {
-		byteCallback(byte);
+	} else {
+		if (packetData) {
+			char bytes[] = {(char)byte};
+			[packetData appendBytes:bytes length:1];
+		}
+		if (byteCallback) {
+			byteCallback(byte);
+		}
 	}
 	
 	return byte;

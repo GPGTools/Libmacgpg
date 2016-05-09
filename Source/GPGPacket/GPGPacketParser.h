@@ -41,6 +41,7 @@ typedef void (^ByteCallback)(NSInteger);
 
 	// Private
 	BOOL eofReached;
+	NSMutableData *packetData;
 }
 
 @property (nonatomic, readonly, strong) NSError *error;

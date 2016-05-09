@@ -45,8 +45,11 @@ typedef NS_ENUM(NSInteger, GPGPacketTag) {
 /**
  GPGPacket is an abstract super-class and should never be used directly.
 */
-@interface GPGPacket : NSObject
+@interface GPGPacket : NSObject {
+	NSData *_data;
+}
 @property (readonly) GPGPacketTag tag;
+@property (nonatomic, copy, readonly) NSData *data;
 
 
 

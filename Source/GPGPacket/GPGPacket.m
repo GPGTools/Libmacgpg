@@ -29,6 +29,7 @@
 
 
 @implementation GPGPacket
+@synthesize data=_data;
 
 // Only placeholder methods.
 - (instancetype)initWithParser:(GPGPacketParser *)parser length:(NSUInteger)length {
@@ -37,7 +38,6 @@
 - (GPGPacketTag)tag {
 	return 0;
 }
-
 
 
 

@@ -29,6 +29,7 @@
 @class GPGPacketParser;
 
 @interface GPGPacket ()
+@property (nonatomic, copy, readwrite) NSData *data;
 
 // This is the designated initializer of the sub-classes.
 // This method may read up to length bytes from parser,
