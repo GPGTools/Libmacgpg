@@ -148,6 +148,8 @@
 		30D5E2A41483A0F700F31454 /* GPGConf.h in Headers */ = {isa = PBXBuildFile; fileRef = 30D5E2A21483A0F700F31454 /* GPGConf.h */; };
 		30D5E2A51483A0F700F31454 /* GPGConf.m in Sources */ = {isa = PBXBuildFile; fileRef = 30D5E2A31483A0F700F31454 /* GPGConf.m */; };
 		30D68BC51B4FF5D500F7865C /* COPYING.pgpdump in Resources */ = {isa = PBXBuildFile; fileRef = 30D68BC41B4FF5D500F7865C /* COPYING.pgpdump */; };
+		30F45A8C1CE0B5F600D2B42D /* GPGUpdateController.h in Headers */ = {isa = PBXBuildFile; fileRef = 30F45A8A1CE0B5F600D2B42D /* GPGUpdateController.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		30F45A8D1CE0B5F600D2B42D /* GPGUpdateController.m in Sources */ = {isa = PBXBuildFile; fileRef = 30F45A8B1CE0B5F600D2B42D /* GPGUpdateController.m */; };
 		30FF413712FAC6CD00F39832 /* GPGController.h in Headers */ = {isa = PBXBuildFile; fileRef = 30FF411D12FAC6CD00F39832 /* GPGController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		30FF413812FAC6CD00F39832 /* GPGController.m in Sources */ = {isa = PBXBuildFile; fileRef = 30FF411E12FAC6CD00F39832 /* GPGController.m */; };
 		30FF413B12FAC6CD00F39832 /* GPGGlobals.h in Headers */ = {isa = PBXBuildFile; fileRef = 30FF412112FAC6CD00F39832 /* GPGGlobals.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -360,6 +362,8 @@
 		30D5E2A31483A0F700F31454 /* GPGConf.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGConf.m; sourceTree = "<group>"; };
 		30D68BC41B4FF5D500F7865C /* COPYING.pgpdump */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = COPYING.pgpdump; path = Source/GPGPacket/COPYING.pgpdump; sourceTree = SOURCE_ROOT; };
 		30DF7CBB16D39EAA00C8225C /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		30F45A8A1CE0B5F600D2B42D /* GPGUpdateController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGUpdateController.h; sourceTree = "<group>"; };
+		30F45A8B1CE0B5F600D2B42D /* GPGUpdateController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGUpdateController.m; sourceTree = "<group>"; };
 		30FF411D12FAC6CD00F39832 /* GPGController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGController.h; sourceTree = "<group>"; };
 		30FF411E12FAC6CD00F39832 /* GPGController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGController.m; sourceTree = "<group>"; };
 		30FF412112FAC6CD00F39832 /* GPGGlobals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGGlobals.h; sourceTree = "<group>"; };
@@ -563,6 +567,8 @@
 				301D5D9E178C9871003026E7 /* GPGKeyserver.m */,
 				309D8A101B87469B00D945BA /* GPGKeyFetcher.h */,
 				309D8A111B87469B00D945BA /* GPGKeyFetcher.m */,
+				30F45A8A1CE0B5F600D2B42D /* GPGUpdateController.h */,
+				30F45A8B1CE0B5F600D2B42D /* GPGUpdateController.m */,
 			);
 			name = Classes;
 			path = Source;
@@ -894,6 +900,7 @@
 				30BB7C781B4D3F24006A1E47 /* GPGIgnoredPackets.h in Headers */,
 				309D8A121B87469B00D945BA /* GPGKeyFetcher.h in Headers */,
 				451D8831156A7E4900A0B890 /* GPGFileStream.h in Headers */,
+				30F45A8C1CE0B5F600D2B42D /* GPGUpdateController.h in Headers */,
 				1BCE0CD11617A3DF0026DCFF /* NSBundle+Sandbox.h in Headers */,
 				301A44CD1B436405002A38E4 /* GPGUnArmor.h in Headers */,
 				1B16DD21179C83F000BC1366 /* GPGTypesRW.h in Headers */,
@@ -1318,6 +1325,7 @@
 				301D29221B4BFD9800599BE8 /* GPGPacket.m in Sources */,
 				30FF414C12FAC6CD00F39832 /* GPGTask.m in Sources */,
 				30FF414E12FAC6CD00F39832 /* GPGTaskOrder.m in Sources */,
+				30F45A8D1CE0B5F600D2B42D /* GPGUpdateController.m in Sources */,
 				30BB7C6D1B4D2E38006A1E47 /* GPGOnePassSignaturePacket.m in Sources */,
 				30FF415012FAC6CD00F39832 /* GPGUserID.m in Sources */,
 				30691AA5136AECC4004AA469 /* GPGOptions.m in Sources */,

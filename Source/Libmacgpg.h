@@ -47,3 +47,4 @@
 #import <Libmacgpg/GPGSymmetricEncryptedSessionKeyPacket.h>
 #import <Libmacgpg/GPGUserAttributePacket.h>
 #import <Libmacgpg/GPGUserIDPacket.h>
+#import <Libmacgpg/GPGUpdateController.h>
