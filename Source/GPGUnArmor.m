@@ -172,7 +172,7 @@ typedef enum {
 	NSInteger beginMarkIndex = 0;
 	
 	while ((byte = [self nextByte]) >= 0) {
-		if (dashes < 5) {
+		if (dashes < 4) {
 			if (byte == '-') {
 				dashes++;
 			} else {
@@ -231,7 +231,7 @@ typedef enum {
 		switch (byte) {
 			case '-':
 				dashes++;
-				if (dashes == 5) {
+				if (dashes >= 4 && [self getByte:0] != '-') {
 					// Detect CR line-ending.
 					if ([self getByte:0] == '\r' && [self getByte:1] != '\n') {
 						crLineEnding = YES;
@@ -551,14 +551,18 @@ typedef enum {
 	// Success: trashEnd.
 	// Fail: searchSeperator, searchBase64, searchBegin.
 
-	const char endMark[] = "----END PGP ";
+	const char endMark[] = "END PGP ";
 	NSInteger byte;
 	NSInteger endMarkIndex = 0;
 	BOOL found = NO;
+	NSInteger dashes = 0;
+
 	
 	
 	while ((byte = [self nextByte]) >= 0) {
-		if (byte == endMark[endMarkIndex]) {
+		if (byte == '-' && endMarkIndex == 0) {
+			dashes++;
+		} else if (dashes >= 3 && byte == endMark[endMarkIndex]) {
 			endMarkIndex++;
 			if (endMark[endMarkIndex] == 0) {
 				found = YES;
@@ -566,7 +570,6 @@ typedef enum {
 			}
 		} else {
 			haveCRC = NO;
-			endMarkIndex = 0;
 			if ([self characterType:byte] == charTypeNormal) {
 				return stateSearchSeperator;
 			} else {
@@ -694,6 +697,10 @@ typedef enum {
 		endMarkIndex++;
 		if (byte == '-') {
 			dashes++;
+		} else if (dashes > 1) {
+			// Had 2 or more dashes and it's another char.
+			// It's invalid. but let's treat as the end.
+			dashes = 5;
 		}
 		if (endMarkIndex == 22 || dashes == 5) {
 			[stream seekToOffset:streamOffset];
