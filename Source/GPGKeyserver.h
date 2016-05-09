@@ -15,9 +15,10 @@ typedef void (^gpg_ks_finishedHandler)(GPGKeyserver *server);
 	NSDictionary *userInfo;
 	BOOL isRunning;
 	SEL lastOperation;
-	NSException *exception;
+	NSError *_error;
 	gpg_ks_finishedHandler finishedHandler;
 	NSUInteger timeout;
+	NSHTTPURLResponse *_response;
 	
 	NSMutableData *receivedData;
 	NSURLConnection *connection;
@@ -29,8 +30,9 @@ typedef void (^gpg_ks_finishedHandler)(GPGKeyserver *server);
 @property (retain, nonatomic) NSDictionary *userInfo;
 @property (readonly, nonatomic) BOOL isRunning;
 @property (readonly, nonatomic) SEL lastOperation;
-@property (readonly, retain, nonatomic) NSException *exception;
+@property (readonly, retain, nonatomic) NSError *error;
 @property (nonatomic) NSUInteger timeout;
+@property (readonly, retain, nonatomic) NSHTTPURLResponse *response;
 
 @property (nonatomic, copy) gpg_ks_finishedHandler finishedHandler;
 

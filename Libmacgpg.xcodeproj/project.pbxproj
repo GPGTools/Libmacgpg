@@ -51,7 +51,7 @@
 		301D29221B4BFD9800599BE8 /* GPGPacket.m in Sources */ = {isa = PBXBuildFile; fileRef = 301D29201B4BFD9800599BE8 /* GPGPacket.m */; };
 		301D29261B4C032D00599BE8 /* GPGPublicKeyEncryptedSessionKeyPacket.h in Headers */ = {isa = PBXBuildFile; fileRef = 301D29241B4C032D00599BE8 /* GPGPublicKeyEncryptedSessionKeyPacket.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		301D29271B4C032D00599BE8 /* GPGPublicKeyEncryptedSessionKeyPacket.m in Sources */ = {isa = PBXBuildFile; fileRef = 301D29251B4C032D00599BE8 /* GPGPublicKeyEncryptedSessionKeyPacket.m */; };
-		301D5D9F178C9871003026E7 /* GPGKeyserver.h in Headers */ = {isa = PBXBuildFile; fileRef = 301D5D9D178C9871003026E7 /* GPGKeyserver.h */; };
+		301D5D9F178C9871003026E7 /* GPGKeyserver.h in Headers */ = {isa = PBXBuildFile; fileRef = 301D5D9D178C9871003026E7 /* GPGKeyserver.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		301D5DA0178C9871003026E7 /* GPGKeyserver.m in Sources */ = {isa = PBXBuildFile; fileRef = 301D5D9E178C9871003026E7 /* GPGKeyserver.m */; };
 		302481D61B5CF46800C86A07 /* Unarmor_ClearsignComplicated.clear in Resources */ = {isa = PBXBuildFile; fileRef = 302481CA1B5CF46800C86A07 /* Unarmor_ClearsignComplicated.clear */; };
 		302481D71B5CF46800C86A07 /* Unarmor_ClearsignComplicated.res in Resources */ = {isa = PBXBuildFile; fileRef = 302481CB1B5CF46800C86A07 /* Unarmor_ClearsignComplicated.res */; };
@@ -121,6 +121,7 @@
 		30A48E8F1B4C1344006AD363 /* GPGSignaturePacket.m in Sources */ = {isa = PBXBuildFile; fileRef = 30A48E8D1B4C1344006AD363 /* GPGSignaturePacket.m */; };
 		30A70EE513EF328000EE9CD9 /* GPGException.h in Headers */ = {isa = PBXBuildFile; fileRef = 30A70EE313EF328000EE9CD9 /* GPGException.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		30A70EE613EF328000EE9CD9 /* GPGException.m in Sources */ = {isa = PBXBuildFile; fileRef = 30A70EE413EF328000EE9CD9 /* GPGException.m */; };
+		30B570931C6E250700F68EEB /* sks-keyservers.netCA.der in Resources */ = {isa = PBXBuildFile; fileRef = 30B570921C6E250700F68EEB /* sks-keyservers.netCA.der */; };
 		30B586F5141E255C000373F1 /* Keyservers.plist in Resources */ = {isa = PBXBuildFile; fileRef = 30B586F4141E255C000373F1 /* Keyservers.plist */; };
 		30BA88F2138FE593005982D9 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 30BA88F1138FE593005982D9 /* SystemConfiguration.framework */; };
 		30BB7C681B4D2742006A1E47 /* GPGSymmetricEncryptedSessionKeyPacket.h in Headers */ = {isa = PBXBuildFile; fileRef = 30BB7C661B4D2742006A1E47 /* GPGSymmetricEncryptedSessionKeyPacket.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -336,6 +337,7 @@
 		30A48E8D1B4C1344006AD363 /* GPGSignaturePacket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = GPGSignaturePacket.m; path = GPGPacket/GPGSignaturePacket.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		30A70EE313EF328000EE9CD9 /* GPGException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGException.h; sourceTree = "<group>"; };
 		30A70EE413EF328000EE9CD9 /* GPGException.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGException.m; sourceTree = "<group>"; };
+		30B570921C6E250700F68EEB /* sks-keyservers.netCA.der */ = {isa = PBXFileReference; lastKnownFileType = file; path = "sks-keyservers.netCA.der"; sourceTree = "<group>"; };
 		30B586F4141E255C000373F1 /* Keyservers.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Keyservers.plist; sourceTree = "<group>"; };
 		30BA88F1138FE593005982D9 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		30BB7C661B4D2742006A1E47 /* GPGSymmetricEncryptedSessionKeyPacket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGSymmetricEncryptedSessionKeyPacket.h; path = GPGPacket/GPGSymmetricEncryptedSessionKeyPacket.h; sourceTree = "<group>"; };
@@ -533,6 +535,7 @@
 				30B586F4141E255C000373F1 /* Keyservers.plist */,
 				8DC2EF5A0486A6940098B216 /* Info.plist */,
 				30D68BC41B4FF5D500F7865C /* COPYING.pgpdump */,
+				30B570921C6E250700F68EEB /* sks-keyservers.netCA.der */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -901,6 +904,7 @@
 				309D8A121B87469B00D945BA /* GPGKeyFetcher.h in Headers */,
 				451D8831156A7E4900A0B890 /* GPGFileStream.h in Headers */,
 				30F45A8C1CE0B5F600D2B42D /* GPGUpdateController.h in Headers */,
+				301D5D9F178C9871003026E7 /* GPGKeyserver.h in Headers */,
 				1BCE0CD11617A3DF0026DCFF /* NSBundle+Sandbox.h in Headers */,
 				301A44CD1B436405002A38E4 /* GPGUnArmor.h in Headers */,
 				1B16DD21179C83F000BC1366 /* GPGTypesRW.h in Headers */,
@@ -917,7 +921,6 @@
 				1B72F741157AE89600101194 /* NSPipe+NoSigPipe.h in Headers */,
 				1BA5FE5B1619BE6700FC6A2C /* JailfreeTask.h in Headers */,
 				3048830F1462B22000F2E5F4 /* GPGWatcher.h in Headers */,
-				301D5D9F178C9871003026E7 /* GPGKeyserver.h in Headers */,
 				1B9FF21017257A69004FB017 /* GPGTaskHelperXPC.h in Headers */,
 				1B9FF21517261470004FB017 /* JailfreeProtocol.h in Headers */,
 				1B89B68E1726F8FD004863FC /* PLWeakCompatibilityStubs.h in Headers */,
@@ -1135,6 +1138,7 @@
 				30D68BC51B4FF5D500F7865C /* COPYING.pgpdump in Resources */,
 				30516558142281270038AAF0 /* Localizable.strings in Resources */,
 				1B46CFA2161531DC00CF9C5F /* org.gpgtools.Libmacgpg.xpc.plist in Resources */,
+				30B570931C6E250700F68EEB /* sks-keyservers.netCA.der in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

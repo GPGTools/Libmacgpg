@@ -139,6 +139,8 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 		[_attributeInfos release];
 		_attributeInfos = nil;
 		
+		// TODO: Es kann vorkommen, dass ein Key doppelt von gpg2 gelistet wird. Einmal mit und einmal ohne Signaturen.
+		// Wenn das passiert, kann es sein, dass der Key mit mehr Signaturen nicht im newKeysSet landet.
 		newKeysSet = [NSSet setWithArray:newKeys];
 		[newKeys release];
 		

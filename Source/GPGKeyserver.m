@@ -12,12 +12,13 @@
 
 @interface GPGKeyserver ()
 @property (retain, nonatomic) NSURLConnection *connection;
-@property (retain, nonatomic) GPGException *exception;
+@property (retain, nonatomic) NSError *error;
+@property (retain, nonatomic) NSHTTPURLResponse *response;
 @end
 
 
 @implementation GPGKeyserver
-@synthesize keyserver, connection, receivedData, userInfo, isRunning, lastOperation, finishedHandler, exception, timeout;
+@synthesize keyserver, connection, receivedData, userInfo, isRunning, lastOperation, finishedHandler, error=_error, timeout, response=_response;
 
 
 #pragma mark Public methods
@@ -90,7 +91,7 @@
 		_cancelled = YES;
 		[connection cancel];
 		self.connection = nil;
-		[self failedWithException:[GPGException exceptionWithReason:localizedLibmacgpgString(@"Operation cancelled") errorCode:GPGErrorCancelled]];
+		[self failedWithError:[NSError errorWithDomain:LibmacgpgErrorDomain code:GPGErrorCancelled userInfo:nil]];
 	}
 }
 
@@ -133,14 +134,14 @@
 		}
 	}
 	
-	id port = url.port;
-	if (!port) {
+	NSUInteger port = url.port.unsignedIntegerValue;
+	if (port == 0) {
 		if ([url.scheme isEqualToString:@"http"]) {
-			port = @"80";
-		} else if ([url.scheme isEqualToString:@"https"]) {
-			port = @"443";
+			port = 80;
+		} else if ([url.scheme isEqualToString:@"https"] || [url.scheme isEqualToString:@"hkps"]) {
+			port = 443;
 		} else {
-			port = @"11371";
+			port = 11371;
 		}
 	}
 	
@@ -172,28 +173,34 @@
 	}
 	
 	NSString *fragment = url.fragment ? [NSString stringWithFormat:@"#%@", url.fragment] : @"";
+	NSString *protocol = port == 443 ? @"https" : @"http";
 	
-	
-	NSString *urlString = [NSString stringWithFormat:@"http://%@%@:%@%@%@%@%@", auth, url.host, port, path, parameterString, query, fragment];
+	NSString *urlString = [NSString stringWithFormat:@"%@://%@%@:%lu%@%@%@%@", protocol, auth, url.host, (unsigned long)port, path, parameterString, query, fragment];
 	
 	return [NSURL URLWithString:urlString];
 }
 
 - (void)sendRequestWithQuery:(NSString *)query postData:(NSData *)postData {
 	receivedData.length = 0;
-	NSError *error = nil;
-	NSURL *url = [self keyserverURLWithQuery:query error:&error];
+	NSError *theError = nil;
+	NSURL *url = [self keyserverURLWithQuery:query error:&theError];
 	if (!url) {
-		GPGErrorCode errorCode = GPGErrorKeyServerError;
-		if (error) {
-			errorCode = error.code;
+		if (theError) {
+			[self failedWithError:theError];
+		} else {
+			[self failedWithError:[NSError errorWithDomain:LibmacgpgErrorDomain
+													  code:GPGErrorKeyServerError
+												  userInfo:@{NSLocalizedDescriptionKey: @"keyserverURLWithQuery failed!"}]];
 		}
-		[self failedWithException:[GPGException exceptionWithReason:@"keyserverURLWithQuery failed!" errorCode:errorCode]];
+		return;
 	}
 		
 	NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url cachePolicy:0 timeoutInterval:self.timeout];
 	if (!request) {
-		[self failedWithException:[GPGException exceptionWithReason:@"NSURLRequest failed!" errorCode:GPGErrorKeyServerError]];
+		[self failedWithError:[NSError errorWithDomain:LibmacgpgErrorDomain
+												  code:GPGErrorKeyServerError
+											  userInfo:@{NSLocalizedDescriptionKey: @"NSURLRequest failed!"}]];
+		return;
 	}
 	if (postData) {
 		request.HTTPMethod = @"POST";
@@ -209,12 +216,14 @@
 		self.connection = theConnection;
 		[theConnection release];
 	} else {
-		[self failedWithException:[GPGException exceptionWithReason:@"NSURLConnection failed!" errorCode:GPGErrorKeyServerError]];
+		[self failedWithError:[NSError errorWithDomain:LibmacgpgErrorDomain
+												  code:GPGErrorKeyServerError
+											  userInfo:@{NSLocalizedDescriptionKey: @"NSURLConnection failed!"}]];
 	}
 }
 
-- (void)failedWithException:(NSException *)e {
-	self.exception = e;
+- (void)failedWithError:(NSError *)e {
+	self.error = e;
 	
 	if (finishedHandler) {
 		finishedHandler(self);
@@ -227,6 +236,7 @@
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSHTTPURLResponse *)response {
 	if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
+		self.response = response;
 		NSInteger statusCode = response.statusCode;
 		
 		switch (statusCode) {
@@ -234,11 +244,14 @@
 			case 404:
 			case 500:
 				break;
-			default:
-				self.exception = [GPGException exceptionWithReason:[NSString stringWithFormat:@"Server returned status code %li (%@)", (long)statusCode, [NSHTTPURLResponse localizedStringForStatusCode:statusCode]]
-														  userInfo:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInteger:statusCode], @"statusCode", nil]
-														 errorCode:GPGErrorKeyServerError gpgTask:nil];
+			default: {
+				NSString *errorDescription = [NSString stringWithFormat:localizedLibmacgpgString(@"Server returned status code %li (%@)"), (long)statusCode, [NSHTTPURLResponse localizedStringForStatusCode:statusCode]];
+				
+				self.error = [NSError errorWithDomain:LibmacgpgErrorDomain
+												 code:GPGErrorKeyServerError
+											 userInfo:@{NSLocalizedDescriptionKey: errorDescription}];
 				break;
+			}
 		}
 	}
 	
@@ -250,7 +263,7 @@
 }
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
-	[self failedWithException:[GPGException exceptionWithReason:error.localizedDescription userInfo:error.userInfo errorCode:GPGErrorKeyServerError gpgTask:nil]];
+	[self failedWithError:error];
 	self.connection = nil;
 }
 
@@ -260,6 +273,45 @@
 	}
 	
 	self.connection = nil;
+}
+
+
+- (void)connection:(NSURLConnection *)connection willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge {
+	// Allow sks-keyservers.netCA.der as a valid root certificate.
+	
+	BOOL trusted = NO;
+	if ([challenge.protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust]) {
+		SecTrustRef serverTrust = challenge.protectionSpace.serverTrust;
+
+		NSString *thePath = [[NSBundle bundleForClass:self.class] pathForResource:@"sks-keyservers.netCA" ofType:@"der"];
+		NSData *certData = [NSData dataWithContentsOfFile:thePath];
+		
+		SecCertificateRef cert = SecCertificateCreateWithData(NULL, (CFDataRef)certData);
+		SecCertificateRef certArray[] = {cert};
+
+		CFArrayRef certArrayRef = CFArrayCreate(NULL, (void *)certArray, 1, NULL);
+		SecTrustSetAnchorCertificates(serverTrust, certArrayRef);
+		//SecTrustSetAnchorCertificatesOnly(serverTrust, 0); // also allow regular CAs.
+		
+		SecTrustResultType trustResult = 0;
+		SecTrustEvaluate(serverTrust, &trustResult);
+
+		switch (trustResult) {
+			case kSecTrustResultUnspecified:
+			case kSecTrustResultProceed:
+				trusted = YES;
+				break;
+		}
+
+		CFRelease(certArrayRef);
+		CFRelease(cert);
+	}
+	
+	if (trusted) {
+		[challenge.sender useCredential:[NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust] forAuthenticationChallenge:challenge];
+	} else {
+		[challenge.sender performDefaultHandlingForAuthenticationChallenge:challenge];
+	}
 }
 
 
@@ -274,7 +326,7 @@
 	self.finishedHandler = handler;
 	self.keyserver = [[GPGOptions sharedOptions] keyserver];
 	receivedData = [[NSMutableData alloc] init];
-	self.timeout = 30;
+	self.timeout = 20;
 	
 	return self;
 }
