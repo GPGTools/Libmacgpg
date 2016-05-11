@@ -87,3 +87,9 @@ GPG_DiffieHellmanAlgorithm = "DiffieHellman";
 "Signature error" = "Signature error";
 "Unverifiable signature" = "Unverifiable signature";
 "Signed by stranger" = "Signed by stranger";
+
+
+
+UpdaterNotWorking_Title = "The GPGSuite Updater doesn't work as expected!";
+UpdaterNotWorking_Msg = "Please download and re-install GPG Suite from https://gpgtools.org";
+

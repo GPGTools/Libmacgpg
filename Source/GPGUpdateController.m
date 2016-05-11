@@ -59,11 +59,23 @@ static NSString *const GPGBetaUpdatesKey = @"BetaUpdates";
 #pragma mark IBActions
 
 - (IBAction)checkForUpdates:(id)sender {
-	[[NSWorkspace sharedWorkspace] openURLs:@[[NSURL URLWithString:@"gpgsuite-updater://checknow"]]
-					withAppBundleIdentifier:@"org.gpgtools.updater"
-									options:0
-			 additionalEventParamDescriptor:nil
-						  launchIdentifiers:nil];
+	NSString *updaterPath = @"/Library/Application Support/GPGTools/GPGSuite_Updater.app";
+	OSStatus status = 1;
+	
+	BOOL isDir = NO;
+	if ([[NSFileManager defaultManager] fileExistsAtPath:updaterPath isDirectory:&isDir] && isDir == YES) {
+		LSLaunchURLSpec urlSpec;
+		urlSpec.appURL = (CFURLRef)[NSURL fileURLWithPath:updaterPath];
+		urlSpec.itemURLs = (CFArrayRef)@[[NSURL URLWithString:@"gpgsuite-updater://checknow"]];
+		urlSpec.passThruParams = nil;
+		urlSpec.launchFlags = kLSLaunchAsync;
+		urlSpec.asyncRefCon = nil;
+		status = LSOpenFromURLSpec(&urlSpec, nil);
+	}
+	
+	if (status != 0) {
+		NSRunAlertPanel(localizedLibmacgpgString(@"UpdaterNotWorking_Title"), @"%@", nil, nil, nil, localizedLibmacgpgString(@"UpdaterNotWorking_Msg"));
+	}
 }
 
 - (IBAction)showReleaseNotes:(id)sender {
