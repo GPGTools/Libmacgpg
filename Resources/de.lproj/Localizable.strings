@@ -5,7 +5,7 @@ PassphraseLabel = "Passphrase:";
 
 
 
-//Für den Schlüssel-Status
+//For Key-Status
 "Invalid" = "Ungültig";
 "Revoked" = "Widerrufen";
 "Expired" = "Abgelaufen";
@@ -16,7 +16,7 @@ PassphraseLabel = "Passphrase:";
 "Ultimate" = "Absolut";
 
 
-//Für Widerrufen und Wiederholen
+//For Undo and Redo
 Undo_NewKey = "Schlüssel erstellen";
 Undo_Delete = "Löschen";
 Undo_CleanKey = "Säubern";
@@ -76,3 +76,20 @@ GPG_EllipticCurveAlgorithm = "EllipticCurve";
 GPG_ECDSAAlgorithm = "ECDSA";
 GPG_ElgamalAlgorithm = "ELG";
 GPG_DiffieHellmanAlgorithm = "DiffieHellman";
+"Algorithm_%i" = "Algorithm_%i";
+
+/* GPGSignature humanReadableDescription */
+"Signed" = "Signed";
+"Signature expired" = "Signature expired";
+"Key expired" = "Key expired";
+"Bad signature" = "Bad signature";
+"Signature revoked" = "Signature revoked";
+"Signature error" = "Signature error";
+"Unverifiable signature" = "Unverifiable signature";
+"Signed by stranger" = "Signed by stranger";
+
+
+
+UpdaterNotWorking_Title = "The GPGSuite Updater doesn't work as expected!";
+UpdaterNotWorking_Msg = "Please download and re-install GPG Suite from https://gpgtools.org";
+
