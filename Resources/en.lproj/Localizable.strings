@@ -82,11 +82,11 @@ GPG_DiffieHellmanAlgorithm = "DiffieHellman";
 "Signed" = "Signed";
 "Signature expired" = "Signature expired";
 "Key expired" = "Key expired";
-"Bad signature" = "Bad signature";
+"Bad signature" = "Signature and data do not match. This could mean the data has been tampered with.";
 "Signature revoked" = "Signature revoked";
 "Signature error" = "Signature error";
-"Unverifiable signature" = "Unverifiable signature";
-"Signed by stranger" = "Signed by stranger";
+"Unverifiable signature" = "Signature can not be verified.";
+"Signed by stranger" = "Signature can not be verified, because the corresponding public key is missing.";
 
 
 
