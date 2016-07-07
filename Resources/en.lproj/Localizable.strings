@@ -1,7 +1,7 @@
 
-GetPassphraseDescription = "You need a passphrase to unlock the secret key for user: \"%@\", ID %@";
-GetPassphraseDescription_Subkey = "You need a passphrase to unlock the secret key for user: \"%@\", ID %@, (main key ID %@)";
-PassphraseLabel = "Passphrase:";
+GetPassphraseDescription = "You need a password to unlock the secret key for user: \"%@\", ID %@";
+GetPassphraseDescription_Subkey = "You need a password to unlock the secret key for user: \"%@\", ID %@, (main key ID %@)";
+PassphraseLabel = "Password:";
 
 
 
@@ -23,7 +23,7 @@ Undo_CleanKey = "Clean";
 Undo_MinimizeKey = "Minimize";
 Undo_RevokeKey = "Revoke Key";
 Undo_ChangeExpirationDate = "Change Expiration Date";
-Undo_ChangePassphrase = "Change Passphrase";
+Undo_ChangePassphrase = "Change Password";
 Undo_AlgorithmPreferences = "Change Algorithm Preferences";
 Undo_Import = "Import";
 Undo_AddSignature = "Add Signature";
