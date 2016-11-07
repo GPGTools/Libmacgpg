@@ -1,8 +1,8 @@
 #import <Foundation/Foundation.h>
 #import <Security/Security.h>
 #import <SecurityFoundation/SFAuthorization.h>
-#import <openssl/x509.h>
 #import <xar/xar.h>
+#import <CommonCrypto/CommonCrypto.h>
 
 BOOL isBundleValidSigned(NSBundle *bundle);
 BOOL checkPackage(NSString *pkgPath);
@@ -164,17 +164,16 @@ BOOL installerCertificateIsTrustworthy(NSString *pkgPath) {
 }
 
 BOOL checkPackage(NSString *pkgPath) {
+	OSStatus error = noErr;
+	SecCertificateRef certificate = nil;
+	SecKeyRef publicKey = nil;
 	xar_t pkg = NULL;
 	xar_signature_t signature = NULL;
 	const char *signatureType = NULL;
 	const uint8_t *data = NULL;
-	uint32_t length = 0, plainLength = 0, signLength = 0;
-	X509 *certificate = NULL;
-	uint8_t *plainData = NULL, *signData = NULL;
-	EVP_PKEY *pubkey = NULL;
-	RSA *rsa = NULL;
+	uint32_t length = 0, plainLength = 0, signatureLength = 0;
+	uint8_t *plainBytes = NULL, *signatureBytes = NULL;
 	uint8_t hash[20];
-	int verificiationSuccess = 0;
 	// This is the hash of the GPGTools installer certificate.
 	uint8_t goodHash[] = {0x56, 0x16, 0x98, 0xDA, 0x21, 0xAF, 0xA4, 0xFB, 0x04, 0xDF, 0x54, 0x17, 0x01, 0x0B, 0x59, 0x00, 0x5D, 0x5B, 0x3A, 0xDF};
 	
@@ -217,73 +216,81 @@ BOOL checkPackage(NSString *pkgPath) {
 		return NO; // Unable to extract the certificate data.
 	}
 	
-	SHA1(data, length, (uint8_t *)&hash);
-
+	
+	// Is the certificate the pinned GPGTools certificate.
+	CC_SHA1(data, length, (uint8_t *)&hash);
 	if (memcmp(hash, goodHash, 20) != 0) {
 		xar_close(pkg);
 		return NO; // Not the GPGTools certificate!
 	}
 	
-	certificate = d2i_X509(nil, &data, length);
-	if(certificate == NULL) {
-		xar_close(pkg);
-		return NO;
-	}
-	if (xar_signature_copy_signed_data(signature, &plainData, &plainLength, &signData, &signLength, nil) != 0) {
-		X509_free(certificate);
+	// Extract the signature and signed data.
+	if (xar_signature_copy_signed_data(signature, &plainBytes, &plainLength, &signatureBytes, &signatureLength, nil) != 0) {
+		CFRelease(certificate);
 		xar_close(pkg);
 		return NO; // Unable to copy signed data || not SHA1.
 	}
+	
 	// Not SHA-1
 	if(plainLength != 20) {
-		X509_free(certificate);
-		free(plainData);
-		free(signData);
+		free(plainBytes);
+		free(signatureBytes);
+		CFRelease(certificate);
 		xar_close(pkg);
 		return NO;
 	}
 	
-	pubkey = X509_get_pubkey(certificate);
+	
+	NSData *signatureData = [NSData dataWithBytesNoCopy:signatureBytes length:signatureLength freeWhenDone:YES];
+	NSData *sourceData = [NSData dataWithBytesNoCopy:plainBytes length:plainLength freeWhenDone:YES];
+	NSData *certificateData = [NSData dataWithBytes:data length:length];
+
+	
+	// Create the SecCertificateRef.
+	certificate = SecCertificateCreateWithData(nil, (CFDataRef)certificateData);
+	if (certificate == nil) {
+		xar_close(pkg);
+		return NO;
+	}
+	
+	
+	error = SecCertificateCopyPublicKey(certificate, &publicKey);
 	// No public key available.
-		if(!pubkey) {
-		X509_free(certificate);
-		free(plainData);
-		free(signData);
-		xar_close(pkg);
-		return NO;
-	}
-	// The public key is not RSA.
-	if(pubkey->type != EVP_PKEY_RSA) {
-		X509_free(certificate);
-		free(plainData);
-		free(signData);
-		xar_close(pkg);
-		return NO;
-	}
-	// RSA is not set.
-	rsa = pubkey->pkey.rsa;
-	if(!rsa) {
-		X509_free(certificate);
-		free(plainData);
-		free(signData);
+	if(error != noErr || !publicKey) {
+		CFRelease(certificate);
 		xar_close(pkg);
 		return NO;
 	}
 	
-	// The verfication.
-	verificiationSuccess = RSA_verify(NID_sha1, plainData, plainLength, signData, signLength, rsa);
-	if (verificiationSuccess != 1) {
-		X509_free(certificate);
-		free(plainData);
-		free(signData);
+	
+	// Prepare verification.
+	SecTransformRef verifier = SecVerifyTransformCreate(publicKey, (CFDataRef)signatureData, nil);
+	if(!verifier) {
+		CFRelease(publicKey);
+		CFRelease(certificate);
 		xar_close(pkg);
-		return NO; // Verification failed!
+		return NO;
 	}
+	SecTransformSetAttribute(verifier, kSecTransformInputAttributeName, (CFDataRef)sourceData, nil);
+	SecTransformSetAttribute(verifier, kSecInputIsAttributeName, kSecInputIsDigest, nil);
+	SecTransformSetAttribute(verifier, kSecDigestTypeAttribute, kSecDigestSHA1, nil);
+
+	
+	// Verify the signature.
+	CFBooleanRef result = SecTransformExecute(verifier, nil);
+	if (result != kCFBooleanTrue) {
+		CFRelease(verifier);
+		CFRelease(publicKey);
+		CFRelease(certificate);
+		xar_close(pkg);
+		return NO;
+	}
+	
 	
 	// Cleanup.
-	X509_free(certificate);
-	free(plainData);
-	free(signData);
+	CFRelease(verifier);
+	CFRelease(publicKey);
+	CFRelease(certificate);
 	xar_close(pkg);
 
 	return installerCertificateIsTrustworthy(pkgPath);
