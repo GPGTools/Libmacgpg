@@ -1,7 +1,7 @@
 
-GetPassphraseDescription = "You need a passphrase to unlock the secret key for user: \"%@\", ID %@";
-GetPassphraseDescription_Subkey = "You need a passphrase to unlock the secret key for user: \"%@\", ID %@, (main key ID %@)";
-PassphraseLabel = "Passphrase:";
+GetPassphraseDescription = "Du benötigst ein Passwort, um den geheimen Schlüssel von Benutzer \"%@\", ID %@ zu entsperren.";
+GetPassphraseDescription_Subkey = "Du benötigst ein Passwort, um den geheimen Schlüssel von Benutzer \"%@\", ID %@, (Hauptschlüssel ID %@) zu entsperren.";
+PassphraseLabel = "Passwort:";
 
 
 
@@ -23,7 +23,7 @@ Undo_CleanKey = "Säubern";
 Undo_MinimizeKey = "Minimieren";
 Undo_RevokeKey = "Schlüssel widerrufen";
 Undo_ChangeExpirationDate = "Verfallsdatum ändern";
-Undo_ChangePassphrase = "Passphrase ändern";
+Undo_ChangePassphrase = "Passwort ändern";
 Undo_AlgorithmPreferences = "Bevorzugten Algorithmus ändern";
 Undo_Import = "Importieren";
 Undo_AddSignature = "Beglaubigen";
@@ -76,20 +76,20 @@ GPG_EllipticCurveAlgorithm = "EllipticCurve";
 GPG_ECDSAAlgorithm = "ECDSA";
 GPG_ElgamalAlgorithm = "ELG";
 GPG_DiffieHellmanAlgorithm = "DiffieHellman";
-"Algorithm_%i" = "Algorithm_%i";
+"Algorithm_%i" = "Algorithmus_%i";
 
 /* GPGSignature humanReadableDescription */
-"Signed" = "Signed";
-"Signature expired" = "Signature expired";
-"Key expired" = "Key expired";
-"Bad signature" = "Bad signature";
-"Signature revoked" = "Signature revoked";
-"Signature error" = "Signature error";
-"Unverifiable signature" = "Unverifiable signature";
-"Signed by stranger" = "Signed by stranger";
+"Signed" = "Signiert";
+"Signature expired" = "Signatur abgelaufen";
+"Key expired" = "Schlüssel abgelaufen";
+"Bad signature" = "Signatur und Daten passen nicht zusammen. Eventuell wurden die Daten verändert.";
+"Signature revoked" = "Signatur widerrufen";
+"Signature error" = "Fehler mit der Signatur";
+"Unverifiable signature" = "Signatur kann nicht verifiziert werden.";
+"Signed by stranger" = "Signatur kann nicht verifiziert werden, weil der entsprechende öffentliche Schlüssel fehlt.";
 
 
 
-UpdaterNotWorking_Title = "The GPGSuite Updater doesn't work as expected!";
-UpdaterNotWorking_Msg = "Please download and re-install GPG Suite from https://gpgtools.org";
+UpdaterNotWorking_Title = "Der GPG Suite Updater funktioniert nicht wie erwartet!";
+UpdaterNotWorking_Msg = "Bitte lade GPG Suite von https://gpgtools.org herunter und führe eine erneute Installation durch.";
 
