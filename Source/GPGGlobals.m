@@ -20,15 +20,19 @@
 #import "GPGGlobals.h"
 #import "GPGTask.h"
 #import "GPGKey.h"
+#import "NSBundle+GPGLocalization.h"
 
 
 NSString *localizedLibmacgpgString(NSString *key) {
+	
+	static dispatch_once_t onceToken;
 	static NSBundle *bundle = nil, *englishBundle = nil;
-	if (!bundle) {
+	dispatch_once(&onceToken, ^{
 		bundle = [[NSBundle bundleWithIdentifier:@"org.gpgtools.Libmacgpg"] retain];
+		[bundle useGPGLocalizations];
 		englishBundle = [[NSBundle bundleWithPath:[bundle pathForResource:@"en" ofType:@"lproj"]] retain];
-	}
-
+	});
+	
 	NSString *notFoundValue = @"~#*?*#~";
 	NSString *localized = [bundle localizedStringForKey:key value:notFoundValue table:nil];
 	if (localized == notFoundValue) {
