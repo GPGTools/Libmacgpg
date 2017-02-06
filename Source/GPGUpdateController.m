@@ -99,7 +99,8 @@ static NSString *const GPGBetaUpdatesKey = @"BetaUpdates";
 	if (value) {
 		return value.boolValue;
 	} else {
-		NSString *version = [[NSBundle bundleForClass:[self class]] objectForInfoDictionaryKey:@"CFBundleVersion"];
+		NSBundle *updaterBundle = [NSBundle bundleWithPath:@"/Library/Application Support/GPGTools/GPGSuite_Updater.app"];
+		NSString *version = [updaterBundle objectForInfoDictionaryKey:@"CFBundleVersion"];
 		if ([version rangeOfCharacterFromSet:[NSCharacterSet characterSetWithCharactersInString:@"abAB"]].length > 0) {
 			return YES;
 		}
