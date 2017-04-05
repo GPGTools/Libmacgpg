@@ -521,11 +521,13 @@ BOOL gpgConfigReaded = NO;
 			}
 		}
 		
-		[cmdText appendFormat:@"Name-Real: %@\n", name];
-		if ([email length] > 0) {
+		if (name.length > 0) {
+			[cmdText appendFormat:@"Name-Real: %@\n", name];
+		}
+		if (email.length > 0) {
 			[cmdText appendFormat:@"Name-Email: %@\n", email];
 		}
-		if ([comment length] > 0) {
+		if (comment.length > 0) {
 			[cmdText appendFormat:@"Name-Comment: %@\n", comment];
 		}
 		
