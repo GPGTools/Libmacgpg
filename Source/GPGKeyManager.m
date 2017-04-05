@@ -222,6 +222,9 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 			userInfo = [NSDictionary dictionaryWithObject:affectedKeys forKey:@"affectedKeys"];
 		}
 		
+		[[NSNotificationCenter defaultCenter] postNotificationName:GPGKeyManagerKeysDidChangeNotification object:[[self class] description] userInfo:userInfo];
+		
+#warning Remove the NSDistributedNotificationCenter line in the next version. It's only for compatibility.
 		[[NSDistributedNotificationCenter defaultCenter] postNotificationName:GPGKeyManagerKeysDidChangeNotification object:[[self class] description] userInfo:userInfo];
 	});
 
