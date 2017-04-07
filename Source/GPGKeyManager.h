@@ -11,15 +11,17 @@
 	
 	dispatch_once_t _once_keysByKeyID;
 	
-	BOOL _keysNeedToBeReloaded;
 	
-	NSLock *_keyLoadingCheckLock;
 	dispatch_queue_t _keyLoadingQueue;
 	dispatch_queue_t _keyChangeNotificationQueue;
 	
 	NSSet *_secretKeys;
 	
 	dispatch_queue_t _completionQueue;
+	
+	NSMutableArray *_keyLoadingOperations;
+	dispatch_queue_t _keyLoadingOperationsLock;
+
 	
 	//For loadKeys
 	
@@ -67,6 +69,13 @@
 - (void)loadKeys:(NSSet *)keys fetchSignatures:(BOOL)fetchSignatures fetchUserAttributes:(BOOL)fetchUserAttributes;
 
 - (void)loadAllKeys;
+
+
+/* Load the specified keys.
+ * completionHandler will be called once the keys are loaded, and pass
+ * the loaded keys as argument.
+ */
+- (void)loadKeys:(NSSet *)keys completionHandler:(void(^)(NSSet *))completionHandler;
 
 /* Load signatures for the specified keys.
  * completionHandler will be called once the signatures are loaded, and pass
