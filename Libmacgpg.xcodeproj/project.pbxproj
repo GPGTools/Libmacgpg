@@ -277,7 +277,6 @@
 		302481D41B5CF46800C86A07 /* Unarmor_ClearsignTwoLF.res */ = {isa = PBXFileReference; lastKnownFileType = file; name = Unarmor_ClearsignTwoLF.res; path = Unarmor/Unarmor_ClearsignTwoLF.res; sourceTree = "<group>"; };
 		302481D51B5CF46800C86A07 /* Unarmor_ClearsignTwoLF.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Unarmor_ClearsignTwoLF.txt; path = Unarmor/Unarmor_ClearsignTwoLF.txt; sourceTree = "<group>"; };
 		3026F4AE13A203A000F3CA02 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
-		30444C1C1A65E0590052CB94 /* installerHelper-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "installerHelper-Info.plist"; sourceTree = "<group>"; };
 		30444C331A65E0590052CB94 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		304883091462B11700F2E5F4 /* DirectoryWatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DirectoryWatcher.h; sourceTree = "<group>"; };
 		3048830A1462B11700F2E5F4 /* DirectoryWatcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DirectoryWatcher.m; sourceTree = "<group>"; };
@@ -301,8 +300,6 @@
 		3075ADDA1B5675B500A5F89A /* key1.gpg */ = {isa = PBXFileReference; lastKnownFileType = file; path = key1.gpg; sourceTree = "<group>"; };
 		3075ADDC1B56760F00A5F89A /* compressed1.gpg */ = {isa = PBXFileReference; lastKnownFileType = file; path = compressed1.gpg; sourceTree = "<group>"; };
 		3077AE881A6547D2001EC508 /* SecurityFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SecurityFoundation.framework; path = System/Library/Frameworks/SecurityFoundation.framework; sourceTree = SDKROOT; };
-		307C211B1B1745F5006B07A7 /* gpgtools.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = gpgtools.icns; path = Resources/gpgtools.icns; sourceTree = SOURCE_ROOT; };
-		307D79101340B71A005C9C32 /* TODO */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TODO; sourceTree = "<group>"; };
 		307FDE401B4E636A00462E4E /* GPGCompressedDataPacket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGCompressedDataPacket.h; path = GPGPacket/GPGCompressedDataPacket.h; sourceTree = "<group>"; };
 		307FDE411B4E636A00462E4E /* GPGCompressedDataPacket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = GPGCompressedDataPacket.m; path = GPGPacket/GPGCompressedDataPacket.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		309A18CE13E3812E0069DC0F /* GPGTransformer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGTransformer.h; sourceTree = "<group>"; };
@@ -358,7 +355,6 @@
 		30D5E2A21483A0F700F31454 /* GPGConf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = GPGConf.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		30D5E2A31483A0F700F31454 /* GPGConf.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGConf.m; sourceTree = "<group>"; };
 		30D68BC41B4FF5D500F7865C /* COPYING.pgpdump */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = COPYING.pgpdump; path = Source/GPGPacket/COPYING.pgpdump; sourceTree = SOURCE_ROOT; };
-		30DF7CBB16D39EAA00C8225C /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		30E38DC91E448655001AC933 /* NSBundle+GPGLocalization.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSBundle+GPGLocalization.h"; sourceTree = "<group>"; };
 		30E38DCA1E448655001AC933 /* NSBundle+GPGLocalization.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSBundle+GPGLocalization.m"; sourceTree = "<group>"; };
 		30F45A8A1CE0B5F600D2B42D /* GPGUpdateController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGUpdateController.h; sourceTree = "<group>"; };
@@ -478,13 +474,11 @@
 		0867D691FE84028FC02AAC07 /* Libmacgpg */ = {
 			isa = PBXGroup;
 			children = (
-				307D79101340B71A005C9C32 /* TODO */,
 				08FB77AEFE84172EC02AAC07 /* Classes */,
 				32C88DFF0371C24200C91783 /* Other Sources */,
 				1B53AB201615254D00F4ECB2 /* Interfaces */,
 				089C1665FE841158C02AAC07 /* Resources */,
 				1B46CFCF161555DF00CF9C5F /* org.gpgtools.Libmacgpg.xpc */,
-				30DF7CBA16D39EAA00C8225C /* installerHelper */,
 				1BD78BA11726B2830005F251 /* LeakFinder */,
 				30BE73BF1B54015C001A2137 /* UnitTests */,
 				0867D69AFE84028FC02AAC07 /* Frameworks */,
@@ -805,16 +799,6 @@
 				1B9FF20F17257A69004FB017 /* GPGTaskHelperXPC.m */,
 			);
 			name = GPGTask;
-			sourceTree = "<group>";
-		};
-		30DF7CBA16D39EAA00C8225C /* installerHelper */ = {
-			isa = PBXGroup;
-			children = (
-				307C211B1B1745F5006B07A7 /* gpgtools.icns */,
-				30444C1C1A65E0590052CB94 /* installerHelper-Info.plist */,
-				30DF7CBB16D39EAA00C8225C /* main.m */,
-			);
-			path = installerHelper;
 			sourceTree = "<group>";
 		};
 		32C88DFF0371C24200C91783 /* Other Sources */ = {
