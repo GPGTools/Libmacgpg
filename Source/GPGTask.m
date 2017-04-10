@@ -304,12 +304,18 @@ static NSLock *gpgTaskLock;
     NSMutableArray *defaultArguments = [NSMutableArray arrayWithObjects:
                                         @"--no-greeting", @"--no-tty", @"--with-colons", @"--fixed-list-mode",
 										@"--utf8-strings", @"--display-charset", @"utf-8", @"--enable-special-filenames",
-                                        @"--yes", @"--output", @"-", @"--status-fd", @"3", nil];
+                                        @"--yes", @"--status-fd", @"3", nil];
 
 	
 	if (progressInfo && [delegate respondsToSelector:@selector(gpgTask:progressed:total:)]) {
 		[defaultArguments addObject:@"--enable-progress-filter"];
     }
+	
+	NSSet *genKeyArgs = [NSSet setWithObjects:@"--gen-key", @"--generate-key", @"--full-gen-key", @"--full-generate-key", nil];
+	if (![[NSSet setWithArray:arguments] intersectsSet:genKeyArgs]) {
+		[defaultArguments addObject:@"--output"];
+		[defaultArguments addObject:@"-"];
+	}
 	
     // If batch mode is not set, add the command-fd using stdin.
     if (batchMode) {
