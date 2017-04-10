@@ -8,8 +8,8 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 
 @interface GPGKeyManager () <GPGTaskDelegate>
 
-@property (copy, readwrite) NSDictionary *keysByKeyID;
-@property (copy, readwrite) NSSet *secretKeys;
+@property (nonatomic, copy, readwrite) NSDictionary *keysByKeyID;
+@property (nonatomic, copy, readwrite) NSSet *secretKeys;
 
 @end
 
@@ -186,10 +186,6 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 					// Remove this operation from _keyLoadingOperations.
 					[indexesToRemove addIndex:i];
 				}
-			}
-			
-			if (indexesToRemove.count > 1) {
-				NSLog(@"%i", indexesToRemove.count);
 			}
 			
 			// Locked access to _keyLoadingOperations.

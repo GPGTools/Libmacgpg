@@ -147,6 +147,7 @@
 			dateFormatter.dateStyle = NSDateFormatterLongStyle;
 			
 			NSString *dateString = [dateFormatter stringFromDate:revSig.creationDate];
+			[dateFormatter release];
 			
 			revString = [NSString stringWithFormat:@"%@ (%@)", revString, dateString];
 		}

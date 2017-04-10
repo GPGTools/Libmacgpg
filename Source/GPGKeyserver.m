@@ -301,6 +301,8 @@
 			case kSecTrustResultProceed:
 				trusted = YES;
 				break;
+			default:
+				break;
 		}
 
 		CFRelease(certArrayRef);

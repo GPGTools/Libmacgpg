@@ -35,80 +35,80 @@
 
 @interface GPGKey ()
 
-@property (copy, readwrite) NSString *keyID;
-@property (copy, readwrite) NSString *fingerprint;
-@property (copy, readwrite) NSString *cardID;
-@property (copy, readwrite) NSDate *creationDate;
-@property (copy, readwrite) NSDate *expirationDate;
-@property (assign, readwrite) unsigned int length;
-@property (assign, readwrite) GPGPublicKeyAlgorithm algorithm;
-@property (assign, readwrite) GPGValidity ownerTrust;
-@property (assign, readwrite) GPGValidity validity;
+@property (nonatomic, copy, readwrite) NSString *keyID;
+@property (nonatomic, copy, readwrite) NSString *fingerprint;
+@property (nonatomic, copy, readwrite) NSString *cardID;
+@property (nonatomic, copy, readwrite) NSDate *creationDate;
+@property (nonatomic, copy, readwrite) NSDate *expirationDate;
+@property (nonatomic, assign, readwrite) unsigned int length;
+@property (nonatomic, assign, readwrite) GPGPublicKeyAlgorithm algorithm;
+@property (nonatomic, assign, readwrite) GPGValidity ownerTrust;
+@property (nonatomic, assign, readwrite) GPGValidity validity;
 
-@property (copy, readwrite) NSArray *subkeys;
-@property (copy, readwrite) NSArray *userIDs;
-@property (copy, readwrite) NSArray *signatures;
+@property (nonatomic, copy, readwrite) NSArray *subkeys;
+@property (nonatomic, copy, readwrite) NSArray *userIDs;
+@property (nonatomic, copy, readwrite) NSArray *signatures;
 
-@property (assign, readwrite) GPGKey *primaryKey;
-@property (assign, readwrite) GPGUserID *primaryUserID;
+@property (nonatomic, assign, readwrite) GPGKey *primaryKey;
+@property (nonatomic, assign, readwrite) GPGUserID *primaryUserID;
 
-@property (assign, readwrite) BOOL secret;
+@property (nonatomic, assign, readwrite) BOOL secret;
 
-@property (assign, readwrite) BOOL canSign;
-@property (assign, readwrite) BOOL canEncrypt;
-@property (assign, readwrite) BOOL canCertify;
-@property (assign, readwrite) BOOL canAuthenticate;
-@property (assign, readwrite) BOOL canAnySign;
-@property (assign, readwrite) BOOL canAnyEncrypt;
-@property (assign, readwrite) BOOL canAnyCertify;
-@property (assign, readwrite) BOOL canAnyAuthenticate;
+@property (nonatomic, assign, readwrite) BOOL canSign;
+@property (nonatomic, assign, readwrite) BOOL canEncrypt;
+@property (nonatomic, assign, readwrite) BOOL canCertify;
+@property (nonatomic, assign, readwrite) BOOL canAuthenticate;
+@property (nonatomic, assign, readwrite) BOOL canAnySign;
+@property (nonatomic, assign, readwrite) BOOL canAnyEncrypt;
+@property (nonatomic, assign, readwrite) BOOL canAnyCertify;
+@property (nonatomic, assign, readwrite) BOOL canAnyAuthenticate;
 
 @end
 
 @interface GPGUserID ()
 
-@property (copy, readwrite) NSString *userIDDescription;
-@property (copy, readwrite) NSString *name;
-@property (copy, readwrite) NSString *email;
-@property (copy, readwrite) NSString *comment;
-@property (copy, readwrite) NSString *hashID;
-@property (copy, readwrite) NSImage *image;
-@property (copy, readwrite) NSDate *creationDate;
-@property (copy, readwrite) NSDate *expirationDate;
-@property (assign, readwrite) GPGValidity validity;
+@property (nonatomic, copy, readwrite) NSString *userIDDescription;
+@property (nonatomic, copy, readwrite) NSString *name;
+@property (nonatomic, copy, readwrite) NSString *email;
+@property (nonatomic, copy, readwrite) NSString *comment;
+@property (nonatomic, copy, readwrite) NSString *hashID;
+@property (nonatomic, copy, readwrite) NSImage *image;
+@property (nonatomic, copy, readwrite) NSDate *creationDate;
+@property (nonatomic, copy, readwrite) NSDate *expirationDate;
+@property (nonatomic, assign, readwrite) GPGValidity validity;
 
-@property (copy, readwrite) NSArray *signatures;
-@property (assign, readwrite) GPGKey *primaryKey;
+@property (nonatomic, copy, readwrite) NSArray *signatures;
+@property (nonatomic, assign, readwrite) GPGKey *primaryKey;
 
 @end
 
 @interface GPGUserIDSignature ()
 
-@property (copy, readwrite) NSString *keyID;
-@property (assign, readwrite) GPGPublicKeyAlgorithm algorithm;
-@property (copy, readwrite) NSDate *creationDate;
-@property (copy, readwrite) NSDate *expirationDate;
-@property (copy, readwrite) NSString *reason;
-@property (assign, readwrite) int signatureClass;
-@property (assign, readwrite) BOOL revocation;
-@property (assign, readwrite) BOOL local;
-@property (assign, readwrite) GPGHashAlgorithm hashAlgorithm;
+@property (nonatomic, copy, readwrite) NSString *keyID;
+@property (nonatomic, assign, readwrite) GPGPublicKeyAlgorithm algorithm;
+@property (nonatomic, copy, readwrite) NSDate *creationDate;
+@property (nonatomic, copy, readwrite) NSDate *expirationDate;
+@property (nonatomic, copy, readwrite) NSString *reason;
+@property (nonatomic, assign, readwrite) int signatureClass;
+@property (nonatomic, assign, readwrite) BOOL revocation;
+@property (nonatomic, assign, readwrite) BOOL local;
+@property (nonatomic, assign, readwrite) GPGHashAlgorithm hashAlgorithm;
 
-@property (assign, readwrite) GPGKey *primaryKey;
+@property (nonatomic, assign, readwrite) GPGKey *primaryKey;
 
 @end
 
 @interface GPGSignature ()
 
-@property (assign, readwrite) GPGValidity trust;
-@property (assign, readwrite) GPGErrorCode status;
-@property (copy, readwrite) NSString *fingerprint;
-@property (copy, readwrite) NSDate *creationDate;
-@property (assign, readwrite) int signatureClass;
-@property (copy, readwrite) NSDate *expirationDate;
-@property (assign, readwrite) int version;
-@property (assign, readwrite) GPGPublicKeyAlgorithm publicKeyAlgorithm;
-@property (assign, readwrite) GPGHashAlgorithm hashAlgorithm;
+@property (nonatomic, assign, readwrite) GPGValidity trust;
+@property (nonatomic, assign, readwrite) GPGErrorCode status;
+@property (nonatomic, copy, readwrite) NSString *fingerprint;
+@property (nonatomic, copy, readwrite) NSDate *creationDate;
+@property (nonatomic, assign, readwrite) int signatureClass;
+@property (nonatomic, copy, readwrite) NSDate *expirationDate;
+@property (nonatomic, assign, readwrite) int version;
+@property (nonatomic, assign, readwrite) GPGPublicKeyAlgorithm publicKeyAlgorithm;
+@property (nonatomic, assign, readwrite) GPGHashAlgorithm hashAlgorithm;
 
 @end
 

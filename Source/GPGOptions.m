@@ -739,6 +739,12 @@ void SystemConfigurationDidChange(SCPreferencesRef prefs, SCPreferencesNotificat
 
 // Alloc, init etc.
 + (void)initialize {
+	static BOOL initialized = NO;
+	if (initialized) {
+		// Prevent double initialization.
+		return;
+	}
+	initialized = YES;
 	environmentPlistDir = [[NSHomeDirectory() stringByAppendingPathComponent:@".MacOSX"] retain];
 	environmentPlistPath = [[environmentPlistDir stringByAppendingPathComponent:@"environment.plist"] retain];
 
