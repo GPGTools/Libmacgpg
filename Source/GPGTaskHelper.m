@@ -958,8 +958,8 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
 	// Request the passphrase connected to the key.
 	send(sock, [command UTF8String], [command lengthOfBytesUsingEncoding:NSUTF8StringEncoding], 0);
 
-	int pos = 0;
-	int length = 0;
+	size_t pos = 0;
+	ssize_t length = 0;
 	bzero(&buffer, sizeof(buffer));
 	BOOL inCache = NO;
 

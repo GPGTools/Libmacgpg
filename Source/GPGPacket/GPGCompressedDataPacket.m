@@ -230,7 +230,7 @@ const NSUInteger cacheSize = 1024 * 32;
 		if (zStream.avail_in == 0) {
 			// We need more input Data, fill the buffer.
 			[self fillInput];
-			zStream.avail_in = inputSize;
+			zStream.avail_in = (uInt)inputSize;
 			zStream.next_in = inputBytes;
 		}
 		
@@ -265,7 +265,7 @@ const NSUInteger cacheSize = 1024 * 32;
 		if (bzStream.avail_in == 0) {
 			// We need more input Data, fill the buffer.
 			[self fillInput];
-			bzStream.avail_in = inputSize;
+			bzStream.avail_in = (uInt)inputSize;
 			bzStream.next_in = (char *)inputBytes;
 		}
 		

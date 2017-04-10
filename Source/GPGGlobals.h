@@ -105,7 +105,7 @@ typedef enum {
 	GPGContent_Key
 } GPGContentType;
 
-typedef enum {
+typedef NS_ENUM(NSInteger, GPGHashAlgorithm) {
     GPGHashAlgorithmMD5 = 1,
     GPGHashAlgorithmSHA1 = 2,
     GPGHashAlgorithmRMD160 = 3,
@@ -113,7 +113,7 @@ typedef enum {
     GPGHashAlgorithmSHA384 = 9,
     GPGHashAlgorithmSHA512 = 10,
     GPGHashAlgorithmSHA224 = 11
-} GPGHashAlgorithm;
+};
 
 enum gpgStatusCodes {
 	GPG_STATUS_NONE = 0, //No Status Code!

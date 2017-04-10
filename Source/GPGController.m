@@ -842,7 +842,7 @@ BOOL gpgConfigReaded = NO;
 		GPGTaskOrder *order = [GPGTaskOrder orderWithYesToAll];
 		
 		if (subkey) {
-			int index = [self indexOfSubkey:subkey fromKey:key];
+			int index = (int)[self indexOfSubkey:subkey fromKey:key];
 			if (index > 0) {
 				[order addCmd:[NSString stringWithFormat:@"key %i\n", index] prompt:@"keyedit.prompt"];
 			} else {
@@ -999,12 +999,12 @@ BOOL gpgConfigReaded = NO;
 		GPGTaskOrder *order = [GPGTaskOrder orderWithYesToAll];
 		
 		if (hashID) {
-			int uid = [self indexOfUserID:hashID fromKey:key];
+			NSInteger uid = [self indexOfUserID:hashID fromKey:key];
 			
 			if (uid <= 0) {
 				@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"UserID not found!") userInfo:[NSDictionary dictionaryWithObjectsAndKeys:hashID, @"hashID", key, @"key", nil] errorCode:GPGErrorNoUserID gpgTask:nil];
 			}
-			[order addCmd:[NSString stringWithFormat:@"uid %i\n", uid] prompt:@"keyedit.prompt"];
+			[order addCmd:[NSString stringWithFormat:@"uid %li\n", (long)uid] prompt:@"keyedit.prompt"];
 		}
 		[order addCmd:[NSString stringWithFormat:@"setpref %@\n", preferences] prompt:@"keyedit.prompt"];
 		[order addCmd:@"save\n" prompt:@"keyedit.prompt"];
@@ -1061,7 +1061,7 @@ BOOL gpgConfigReaded = NO;
 - (void)key:(NSObject <KeyFingerprint> *)key setOwnerTrust:(GPGValidity)trust {
 	if (async && !asyncStarted) {
 		asyncStarted = YES;
-		[asyncProxy key:key setOwnerTrsut:trust];
+		[asyncProxy key:key setOwnerTrust:trust];
 		return;
 	}
 	@try {
@@ -1140,7 +1140,7 @@ BOOL gpgConfigReaded = NO;
 				// Data is RTF encoded.
 				
 				//Get keys from RTF data.
-				dataToCheck = [[[[NSAttributedString alloc] initWithData:data options:nil documentAttributes:nil error:nil] string] dataUsingEncoding:NSUTF8StringEncoding];
+				dataToCheck = [[[[NSAttributedString alloc] initWithData:data options:@{} documentAttributes:nil error:nil] string] dataUsingEncoding:NSUTF8StringEncoding];
 				if (dataToCheck.isArmored) {
 					GPGUnArmor *unArmor = [GPGUnArmor unArmorWithGPGStream:[GPGMemoryStream memoryStreamForReading:dataToCheck]];
 					dataToCheck = [unArmor decodeAll];
@@ -1300,7 +1300,7 @@ BOOL gpgConfigReaded = NO;
 		if (!hashID) {
 			uid = @"uid *\n";
 		} else {
-			int uidIndex = [self indexOfUserID:hashID fromKey:key];
+			int uidIndex = (int)[self indexOfUserID:hashID fromKey:key];
 			if (uidIndex > 0) {
 				uid = [NSString stringWithFormat:@"uid %i\n", uidIndex];
 			} else {
@@ -1352,11 +1352,11 @@ BOOL gpgConfigReaded = NO;
 		[self operationDidStart];
 		[self registerUndoForKey:key withName:@"Undo_RemoveSignature"];
 
-		int uid = [self indexOfUserID:userID.hashID fromKey:key];
+		NSInteger uid = [self indexOfUserID:userID.hashID fromKey:key];
 		
 		if (uid > 0) {
 			GPGTaskOrder *order = [GPGTaskOrder orderWithNoToAll];
-			[order addCmd:[NSString stringWithFormat:@"uid %i\n", uid] prompt:@"keyedit.prompt"];
+			[order addCmd:[NSString stringWithFormat:@"uid %li\n", (long)uid] prompt:@"keyedit.prompt"];
 			[order addCmd:@"delsig\n" prompt:@"keyedit.prompt"];
 			
 			NSArray *userIDsignatures = userID.signatures;
@@ -1407,7 +1407,7 @@ BOOL gpgConfigReaded = NO;
 		[self operationDidStart];
 		[self registerUndoForKey:key withName:@"Undo_RevokeSignature"];
 
-		int uid = [self indexOfUserID:userID.hashID fromKey:key];
+		int uid = (int)[self indexOfUserID:userID.hashID fromKey:key];
 		
 		if (uid > 0) {
 			GPGTaskOrder *order = [GPGTaskOrder orderWithNoToAll];
@@ -1510,11 +1510,11 @@ BOOL gpgConfigReaded = NO;
 		[self operationDidStart];
 		[self registerUndoForKey:key withName:@"Undo_RemoveSubkey"];
 
-		int index = [self indexOfSubkey:subkey fromKey:key];
+		NSInteger index = [self indexOfSubkey:subkey fromKey:key];
 		
 		if (index > 0) {
 			GPGTaskOrder *order = [GPGTaskOrder orderWithYesToAll];
-			[order addCmd:[NSString stringWithFormat:@"key %i\n", index] prompt:@"keyedit.prompt"];
+			[order addCmd:[NSString stringWithFormat:@"key %li\n", (long)index] prompt:@"keyedit.prompt"];
 			[order addCmd:@"delkey\n" prompt:@"keyedit.prompt"];
 			[order addCmd:@"save\n" prompt:@"keyedit.prompt"];
 			
@@ -1550,11 +1550,11 @@ BOOL gpgConfigReaded = NO;
 		[self operationDidStart];
 		[self registerUndoForKey:key withName:@"Undo_RevokeSubkey"];
 
-		int index = [self indexOfSubkey:subkey fromKey:key];
+		NSInteger index = [self indexOfSubkey:subkey fromKey:key];
 		
 		if (index > 0) {
 			GPGTaskOrder *order = [GPGTaskOrder orderWithYesToAll];
-			[order addCmd:[NSString stringWithFormat:@"key %i\n", index] prompt:@"keyedit.prompt"];
+			[order addCmd:[NSString stringWithFormat:@"key %li\n", (long)index] prompt:@"keyedit.prompt"];
 			[order addCmd:@"revkey\n" prompt:@"keyedit.prompt"];
 			[order addInt:reason prompt:@"ask_revocation_reason.code" optional:YES];
 			if (description) {
@@ -1639,11 +1639,11 @@ BOOL gpgConfigReaded = NO;
 		[self operationDidStart];
 		[self registerUndoForKey:key withName:@"Undo_RemoveUserID"];
 		
-		int uid = [self indexOfUserID:hashID fromKey:key];
+		NSInteger uid = [self indexOfUserID:hashID fromKey:key];
 		
 		if (uid > 0) {
 			GPGTaskOrder *order = [GPGTaskOrder orderWithYesToAll];
-			[order addCmd:[NSString stringWithFormat:@"uid %i\n", uid] prompt:@"keyedit.prompt"];
+			[order addCmd:[NSString stringWithFormat:@"uid %li\n", (long)uid] prompt:@"keyedit.prompt"];
 			[order addCmd:@"deluid\n" prompt:@"keyedit.prompt"];
 			[order addCmd:@"save\n" prompt:@"keyedit.prompt"];
 			
@@ -1679,11 +1679,11 @@ BOOL gpgConfigReaded = NO;
 		[self operationDidStart];
 		[self registerUndoForKey:key withName:@"Undo_RevokeUserID"];
 		
-		int uid = [self indexOfUserID:hashID fromKey:key];
+		NSInteger uid = [self indexOfUserID:hashID fromKey:key];
 		
 		if (uid > 0) {
 			GPGTaskOrder *order = [GPGTaskOrder orderWithYesToAll];
-			[order addCmd:[NSString stringWithFormat:@"uid %i\n", uid] prompt:@"keyedit.prompt"];
+			[order addCmd:[NSString stringWithFormat:@"uid %li\n", (long)uid] prompt:@"keyedit.prompt"];
 			[order addCmd:@"revuid\n" prompt:@"keyedit.prompt"];
 			[order addInt:reason prompt:@"ask_revocation_reason.code" optional:YES];
 			if (description) {
@@ -1728,14 +1728,14 @@ BOOL gpgConfigReaded = NO;
 		[self operationDidStart];
 		[self registerUndoForKey:key withName:@"Undo_PrimaryUserID"];
 		
-		int uid = [self indexOfUserID:hashID fromKey:key];
+		NSInteger uid = [self indexOfUserID:hashID fromKey:key];
 		
 		if (uid > 0) {
 			self.gpgTask = [GPGTask gpgTask];
 			[self addArgumentsForOptions];
 			[gpgTask addArgument:@"--edit-key"];
 			[gpgTask addArgument:[key description]];
-			[gpgTask addArgument:[NSString stringWithFormat:@"%i", uid]];
+			[gpgTask addArgument:[NSString stringWithFormat:@"%li", (long)uid]];
 			[gpgTask addArgument:@"primary"];
 			[gpgTask addArgument:@"save"];
 			
@@ -2240,7 +2240,7 @@ BOOL gpgConfigReaded = NO;
 
 - (BOOL)isPassphraseForKeyInKeychain:(NSObject <KeyFingerprint> *)key {
 	NSString *fingerprint = [key description];
-	return SecKeychainFindGenericPassword (nil, strlen(GPG_SERVICE_NAME), GPG_SERVICE_NAME, [fingerprint UTF8Length], [fingerprint UTF8String], nil, nil, nil) == 0; 
+	return SecKeychainFindGenericPassword (nil, strlen(GPG_SERVICE_NAME), GPG_SERVICE_NAME, (UInt32)fingerprint.UTF8Length, fingerprint.UTF8String, nil, nil, nil) == 0;
 }
 
 - (BOOL)isPassphraseForKeyInGPGAgentCache:(NSObject <KeyFingerprint> *)key {
@@ -2269,9 +2269,7 @@ BOOL gpgConfigReaded = NO;
 	[gpgTask addArgument:@"-k"];
 	[gpgTask addArgument:[key description]];
 	
-	if ([gpgTask start] != 0) {
-		@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"indexOfUserID failed!") gpgTask:gpgTask];
-	}
+	[gpgTask start];
 	
 	NSString *outText = gpgTask.outText;
 	
