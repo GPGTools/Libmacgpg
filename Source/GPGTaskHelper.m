@@ -563,8 +563,21 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
 		[currentData replaceBytesInRange:rangeToRemove withBytes:"" length:0];
 	}
 	
-	if (currentData.length > 0) {
-		NSLog(@"asd");
+	NSUInteger currentDataLength = currentData.length;
+	if (currentDataLength > 0) {
+		if (attributeLength > 0) {
+			NSUInteger length = MIN(attributeLength, currentDataLength);
+			attributeLength -= length;
+			
+			NSRange subRange = NSMakeRange(0, length);
+			NSData *subData = [currentData subdataWithRange:subRange];
+			[attributeData appendData:subData];
+			
+			[currentData replaceBytesInRange:subRange withBytes:"" length:0];
+			currentDataLength = currentData.length;
+		}
+
+		[errData appendData:currentData];
 	}
 	
 	if (errorData) {
