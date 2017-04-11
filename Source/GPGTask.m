@@ -22,7 +22,7 @@
 #import "GPGTaskHelper.h"
 #import "GPGGlobals.h"
 #import "GPGOptions.h"
-#import "LPXTTask.h"
+//#import "LPXTTask.h"
 #import "GPGMemoryStream.h"
 #import "GPGException.h"
 #import "GPGGlobals.h"
@@ -304,7 +304,7 @@ static NSLock *gpgTaskLock;
     NSMutableArray *defaultArguments = [NSMutableArray arrayWithObjects:
                                         @"--no-greeting", @"--no-tty", @"--with-colons", @"--fixed-list-mode",
 										@"--utf8-strings", @"--display-charset", @"utf-8", @"--enable-special-filenames",
-                                        @"--yes", @"--status-fd", @"3", nil];
+                                        @"--yes", @"--status-fd", @"2", nil];
 
 	
 	if (progressInfo && [delegate respondsToSelector:@selector(gpgTask:progressed:total:)]) {
@@ -325,13 +325,14 @@ static NSLock *gpgTaskLock;
 	}
 	
     // If the attribute data is required, add the attribute-fd.
-    if (getAttributeData)
-        [defaultArguments addObjectsFromArray:[NSArray arrayWithObjects:@"--attribute-fd", @"4", nil]];
+	if (getAttributeData) {
+        [defaultArguments addObjectsFromArray:[NSArray arrayWithObjects:@"--attribute-fd", @"2", nil]];
+	}
  
 	if (passphrase) {
-		NSString *passphraseFD = [NSString stringWithFormat:@"%llu", (uint64)inDatas.count+5];
-		[defaultArguments addObjectsFromArray:[NSArray arrayWithObjects:@"--passphrase-fd", passphraseFD, nil]];
-		[self addInText:[passphrase stringByAppendingString:@"\n"]];
+//		[defaultArguments addObject:@"--passphrase-fd"];
+//		[defaultArguments addObject:@"0"];
+		// TODO: Prepend stdin with [passphrase stringByAppendingString:@"\n"]
 	}
 	
 	// TODO: Optimize and make more generic.
@@ -362,15 +363,11 @@ static NSLock *gpgTaskLock;
 	
     // Last but not least, add the fd's used to read the in-data from.
 	NSUInteger count = inDatas.count;
-	if (passphrase) {
-		// We had already added the fd for the passphrase.
-		count--;
-	}
 	if (count > 0 && ![arguments containsObject:@"--"]) {
 		[defaultArguments addObject:@"--"];
 	}
 	for (int i = 0; i < count; i++) {
-		[defaultArguments addObject:[NSString stringWithFormat:@"-&%d", i+5]];
+		[defaultArguments addObject:[NSString stringWithFormat:@"-&%d", i+3]];
 	}
 	
 	
