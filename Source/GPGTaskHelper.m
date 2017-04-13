@@ -222,9 +222,13 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
     
     GPGDebugLog(@"$> %@ %@", _task.launchPath, [_task.arguments componentsJoinedByString:@" "]);
 	
+    // Create read pipes for status and attribute information.
+    [_task inheritPipeWithMode:O_RDONLY dup:3 name:@"status"];
+    [_task inheritPipeWithMode:O_RDONLY dup:4 name:@"attribute"];
+    
     // Create write pipes for the data to pass in.
     __block NSMutableArray *dupList = [[NSMutableArray alloc] init];
-    __block int i = 3;
+    __block int i = 5;
     __block NSUInteger totalData = 0;
     [self.inData enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         [dupList addObject:[NSNumber numberWithInt:i++]];
@@ -287,13 +291,29 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
         
         dispatch_group_async(collectorGroup, queue, ^{
             runBlockAndRecordExceptionSyncronized(^{
-				[object parseOutput:&stderrData status:&statusData attribute:&attributeData];
-				[stderrData retain];
-				[statusData retain];
-				[attributeData retain];
+                NSFileHandle *stderrFH = [[task inheritedPipeWithName:@"stderr"] fileHandleForReading];
+                stderrData = [[stderrFH readDataToEndOfFile] retain];
             }, &lock, &blockException);
         });
-		
+        
+        if(object.readAttributes) {
+            // Optionally get attribute data.
+            dispatch_group_async(collectorGroup, queue, ^{
+                runBlockAndRecordExceptionSyncronized(^{
+                    NSFileHandle *attributeFH = [[task inheritedPipeWithName:@"attribute"] fileHandleForReading];
+                    attributeData = [[attributeFH readDataToEndOfFile] retain];
+                }, &lock, &blockException);
+            });
+        }
+        
+        dispatch_group_async(collectorGroup, queue, ^{
+            runBlockAndRecordExceptionSynchronizedWithHandlers(^{
+                statusData = [[object parseStatusLines] retain];
+            }, ^{
+                [object cancel];
+            }, NULL, &lock, &blockException);
+        });
+        
         // Wait for all jobs to complete.
         dispatch_group_wait(collectorGroup, DISPATCH_TIME_FOREVER);
         
@@ -455,143 +475,6 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
         return;
     }
 }
-
-
-- (void)parseOutput:(__autoreleasing NSData **)errorData status:(__autoreleasing NSData **)status attribute:(__autoreleasing NSData **)attribute {
-	
-	NSPipe *pipe = [self.task inheritedPipeWithName:@"stderr"];
-	NSFileHandle *fileHandle = pipe.fileHandleForReading;
-	
-	
-	
-	NSMutableData *errData = [NSMutableData data];
-	NSMutableData *statusData = [NSMutableData data];
-	NSMutableData *attributeData = [NSMutableData data];
-
-	
-	
-	
-	NSData *nl = @"\n".UTF8Data;
-	NSData *space = @" ".UTF8Data;
-	NSData *statusPrefix = GPG_STATUS_PREFIX.UTF8Data;
-	NSUInteger statusPrefixLength = statusPrefix.length;
-	
-	
-	
-	NSMutableData *currentData = [NSMutableData data];
-	NSInteger attributeLength = 0;
-
-	
-	NSData *readData = nil;
-	while ((readData = fileHandle.availableData) && readData.length) {
-		[currentData appendData:readData];
-		
-		
-		NSUInteger currentDataLength = currentData.length;
-		
-		
-		if (attributeLength > 0) {
-			NSUInteger length = MIN(attributeLength, currentDataLength);
-			attributeLength -= length;
-			
-			NSRange subRange = NSMakeRange(0, length);
-			NSData *subData = [currentData subdataWithRange:subRange];
-			[attributeData appendData:subData];
-			
-			[currentData replaceBytesInRange:subRange withBytes:"" length:0];
-			currentDataLength = currentData.length;
-		}
-		
-		
-		
-		
-		NSRange searchRange;
-		searchRange.location = 0;
-		searchRange.length = currentDataLength;
-		
-		
-		NSUInteger nextLineStart = 0;
-		NSRange lineRange;
-		NSRange nlRange;
-		
-		
-		while (attributeLength == 0 && (nlRange = [currentData rangeOfData:nl options:0 range:searchRange]).length > 0) {
-
-			lineRange.location = nextLineStart;
-			lineRange.length = nlRange.location - lineRange.location + 1;
-			nextLineStart = nlRange.location + 1;
-			
-			NSData *lineData = [currentData subdataWithRange:lineRange];
-			
-			
-			if ([lineData rangeOfData:statusPrefix options:NSDataSearchAnchored range:NSMakeRange(0, lineData.length)].length > 0) {
-				// Line is a status line. Line starts with "[GNUPG:] ".
-
-				[statusData appendData:lineData];
-				
-				NSRange statusRange = NSMakeRange(statusPrefixLength, lineData.length - statusPrefixLength - 1);
-				NSRange spaceRange = [lineData rangeOfData:space options:0 range:statusRange];
-				
-				// Split line in keyword and value.
-				NSString *keyword, *value = @"";
-				if (spaceRange.length == 0) {
-					keyword = [lineData subdataWithRange:statusRange].gpgString;
-				} else {
-					keyword = [lineData subdataWithRange:NSMakeRange(statusRange.location, spaceRange.location - statusRange.location)].gpgString;
-					value = [lineData subdataWithRange:NSMakeRange(spaceRange.location + 1, statusRange.location + statusRange.length - spaceRange.location - 1)].gpgString;
-				}
-				
-				if ([keyword isEqualToString:@"ATTRIBUTE"]) {
-					NSArray *parts = [value componentsSeparatedByString:@" "];
-					if (parts.count >= 2) {
-						attributeLength = [parts[1] integerValue];
-					}
-				}
-				
-				[self processStatusWithKeyword:keyword value:value];
-			} else {
-				[errData appendData:lineData];
-				//[outStream writeData:lineData];
-			}
-			
-			
-			searchRange.location = nextLineStart;
-			searchRange.length = currentDataLength - searchRange.location;
-		}
-		
-		NSRange rangeToRemove = NSMakeRange(0, searchRange.location);
-		[currentData replaceBytesInRange:rangeToRemove withBytes:"" length:0];
-	}
-	
-	NSUInteger currentDataLength = currentData.length;
-	if (currentDataLength > 0) {
-		if (attributeLength > 0) {
-			NSUInteger length = MIN(attributeLength, currentDataLength);
-			attributeLength -= length;
-			
-			NSRange subRange = NSMakeRange(0, length);
-			NSData *subData = [currentData subdataWithRange:subRange];
-			[attributeData appendData:subData];
-			
-			[currentData replaceBytesInRange:subRange withBytes:"" length:0];
-			currentDataLength = currentData.length;
-		}
-
-		[errData appendData:currentData];
-	}
-	
-	if (errorData) {
-		*errorData = [[errData copy] autorelease];
-	}
-	if (status) {
-		*status = [[statusData copy] autorelease];
-	}
-	if (attribute) {
-		*attribute = [[attributeData copy] autorelease];
-	}
-}
-
-
 
 - (NSData *)parseStatusLines {
     NSMutableString *line = [NSMutableString string];
