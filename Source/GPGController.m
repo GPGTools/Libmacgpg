@@ -541,6 +541,7 @@ BOOL gpgConfigReaded = NO;
 		[cmdText appendString:@"%commit\n"];
 		
 		self.gpgTask = [GPGTask gpgTaskWithArgument:@"--gen-key"];
+		[gpgTask addArgument:@"--allow-freeform-uid"];
 		[self addArgumentsForOptions];
 		gpgTask.batchMode = YES;
 		[gpgTask addInText:cmdText];
@@ -1611,6 +1612,7 @@ BOOL gpgConfigReaded = NO;
 		
 		
 		self.gpgTask = [GPGTask gpgTask];
+		[gpgTask addArgument:@"--allow-freeform-uid"];
 		[self addArgumentsForOptions];
 		gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"]; 
 		[gpgTask addArgument:@"--edit-key"];
