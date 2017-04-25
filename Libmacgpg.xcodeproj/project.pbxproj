@@ -963,7 +963,6 @@
 			buildPhases = (
 				8DC2EF500486A6940098B216 /* Headers */,
 				8DC2EF520486A6940098B216 /* Resources */,
-				30444C531A65F0080052CB94 /* Create installerHelper symlink */,
 				8DC2EF540486A6940098B216 /* Sources */,
 				8DC2EF560486A6940098B216 /* Frameworks */,
 				30C2960E16775037006EF09C /* Fill Info.plist */,
@@ -1170,21 +1169,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "[[ \"$CONFIGURATION\" == \"Debug\" ]] || exit 0\nUSER_LIBRARY=\"$HOME/Library\"\nJAILFREE_PLIST=\"${EXECUTABLE_NAME}.plist\"\nLAUNCHAGENT_PATH=\"${USER_LIBRARY}/LaunchAgents/${JAILFREE_PLIST}\"\nJAILFREE_PATH=\"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_NAME}\"\nBUILD_LAUNCHAGENT_PATH=\"${BUILD_DIR}/${JAILFREE_PLIST}\"\n\nif [ -d \"${USER_LIBRARY}/LaunchAgents\" ] && [ -w \"${USER_LIBRARY}/LaunchAgents\" ] && [ -x \"${USER_LIBRARY}/LaunchAgents\" ]; then\n    cp \"${BUILD_LAUNCHAGENT_PATH}\" \"${LAUNCHAGENT_PATH}\"\n    /usr/libexec/PlistBuddy -c \"Set :ProgramArguments:0 \\\"${JAILFREE_PATH}\\\"\" \"${LAUNCHAGENT_PATH}\"\nfi";
-			showEnvVarsInLog = 0;
-		};
-		30444C531A65F0080052CB94 /* Create installerHelper symlink */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Create installerHelper symlink";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "echo -e '#!/bin/bash'\"\\n\"'\"$(dirname \"$0\")/GPGTools.app/Contents/MacOS/installerHelper\" \"$@\"' > \"$BUILT_PRODUCTS_DIR/$FULL_PRODUCT_NAME/Resources/installerHelper\" || exit 1\nchmod +x \"$BUILT_PRODUCTS_DIR/$FULL_PRODUCT_NAME/Resources/installerHelper\" || exit 1\n";
 			showEnvVarsInLog = 0;
 		};
 		30A8B42C1B17452E002F88BB /* Copy "How to get the source code" into Resources */ = {
