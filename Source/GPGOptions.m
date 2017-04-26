@@ -282,7 +282,11 @@ static NSString * const kGpgAgentConfKVKey = @"gpgAgentConf";
 
 
 - (id)valueInCommonDefaultsForKey:(NSString *)key {
-	return [self.commonDefaults objectForKey:key];
+	id value = [self.commonDefaults objectForKey:key];
+	if (!value) {
+		value = [@{@"UseKeychain": @YES} valueForKey:key];
+	}
+	return value;
 }
 - (void)setValueInCommonDefaults:(id)value forKey:(NSString *)key {
     NSObject *oldValue = [self.commonDefaults objectForKey:key];
