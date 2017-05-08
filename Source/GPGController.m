@@ -2002,6 +2002,169 @@ BOOL gpgConfigReaded = NO;
 	return result;
 }
 
+
+- (void)keysExistOnServer:(NSArray *)keys callback:(void (^)(BOOL result))callback {
+	
+	// Check if GPGKeyserver should be used.
+	// GPGKeyserver is faster than gpg, but only supports http(s) requests.
+	BOOL useGPGKeyserver = NO;
+	NSURL *url = [NSURL URLWithString:[[GPGOptions sharedOptions] keyserver]];
+	if (url) {
+		NSString *scheme = url.scheme;
+		if (!scheme || [scheme isEqualToString:@"hkp"] || [scheme isEqualToString:@"hkps"] || [scheme isEqualToString:@"http"] || [scheme isEqualToString:@"https"]) {
+			useGPGKeyserver = YES;
+		}
+	}
+	
+	
+	// Prepare cache.
+	NSDictionary *cache = [[GPGOptions sharedOptions] valueInCommonDefaultsForKey:@"KeysOnServerCache"];
+	if (![cache isKindOfClass:[NSDictionary class]]) {
+		cache = [[NSDictionary new] autorelease];
+	}
+	NSDate *now = [NSDate date];
+	NSTimeInterval maxCacheTime = [now timeIntervalSinceReferenceDate] - 3600;
+	
+	
+	
+	NSUInteger count = keys.count;
+	NSUInteger i = 0;
+	// resultsData is used as an array. 0 = error, -1 = not on server, 1 = extists on server.
+	__block NSMutableData *resultsData = [[NSMutableData alloc] initWithLength:count];
+	__block char *results = resultsData.mutableBytes;
+	
+	
+	// runCallback is can be called multiple times.
+	// Only the first time it calls the callback.
+	__block uint32_t onceToken = 0;
+	void (^runCallback)(BOOL) = ^(BOOL result) {
+		if (OSAtomicTestAndSet(0, &onceToken) == NO) {
+			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+				callback(result);
+			});
+		}
+	};
+	
+	
+	// This block fills the cache and runs the callback.
+	// It's called once for every key in keys and does it's work on the last call.
+	__block OSAtomic_int64_aligned64_t runningTasks = count;
+	void (^taskFinished)() = ^{
+		if (OSAtomicDecrement64Barrier(&runningTasks) != 0) {
+			return;
+		}
+		
+		BOOL allExist = YES;
+		NSMutableDictionary *mutableCache = [[cache mutableCopy] autorelease];
+		
+		for (NSUInteger j = 0; j < count; j++) {
+			NSInteger value = results[j];
+			
+			if (value == 0) {
+				// Errors are not cached.
+				allExist = NO;
+			} else {
+				NSString *fingerprint = [keys[j] description];
+				mutableCache[fingerprint] = @{@"exists": @(value == 1), @"date": now};
+				
+				if (value == -1) {
+					allExist = NO;
+				}
+			}
+		}
+		
+		[[GPGOptions sharedOptions] setValueInCommonDefaults:mutableCache forKey:@"KeysOnServerCache"];
+		runCallback(allExist);
+		[resultsData release];
+	};
+	
+	
+	// Search async for every key in the array.
+	for (GPGKey *key in keys) {
+		NSString *fingerprint = key.description;
+		
+		
+		// Is there a cached result?
+		NSDictionary *cacheEntry = cache[fingerprint];
+		BOOL cacheUsed = NO;
+		if (cacheEntry) {
+			if ([cacheEntry[@"exists"] boolValue]) {
+				cacheUsed = YES;
+				results[i] = 1;
+			} else if ([cacheEntry[@"date"] timeIntervalSinceReferenceDate] > maxCacheTime) {
+				// Non-exist cache entry are only respected if they are not older than maxCacheTime.
+				cacheUsed = YES;
+				results[i] = -1;
+				runCallback(NO);
+			}
+		}
+		
+		
+		if (cacheUsed) {
+			taskFinished();
+		} else {
+			
+			if (useGPGKeyserver) {
+				
+				GPGKeyserver *keyserver = [[GPGKeyserver new] autorelease];
+				
+				keyserver.finishedHandler = ^(GPGKeyserver *server) {
+					if (server.error) {
+						runCallback(NO);
+					} else {
+						NSData *receivedData = server.receivedData;
+						NSData *searchData = [[NSString stringWithFormat:@"pub:%@:", fingerprint] dataUsingEncoding:NSUTF8StringEncoding];
+						
+						if ([receivedData rangeOfData:searchData options:0 range:NSMakeRange(0, receivedData.length)].length > 0) {
+							results[i] = 1;
+						} else {
+							results[i] = -1;
+							runCallback(NO);
+						}
+					}
+					taskFinished();
+				};
+				[keyserver searchKey:[@"0x" stringByAppendingString:fingerprint]];
+				
+			} else {
+				
+				self.gpgTask = [GPGTask gpgTask];
+				[self addArgumentsForOptions];
+				gpgTask.batchMode = YES;
+				[self addArgumentsForKeyserver];
+				gpgTask.nonBlocking = YES;
+				[gpgTask addArgument:@"--search-keys"];
+				[gpgTask addArgument:@"--"];
+				[gpgTask addArgument:[@"0x" stringByAppendingString:fingerprint]];
+				GPGTask *searchTask = gpgTask;
+				
+				
+				dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+					if ([searchTask start] != 0 && (gpgTask.errorCode & 0xFFF) != GPGErrorNoData) {
+						runCallback(NO);
+					} else {
+						NSData *receivedData = searchTask.outData;
+						NSData *searchData = [[NSString stringWithFormat:@"pub:%@:", fingerprint] dataUsingEncoding:NSUTF8StringEncoding];
+						
+						if ([receivedData rangeOfData:searchData options:0 range:NSMakeRange(0, receivedData.length)].length > 0) {
+							results[i] = 1;
+						} else {
+							results[i] = -1;
+							runCallback(NO);
+						}
+					}
+					taskFinished();
+				});
+				
+			}
+		}
+		i++;
+	}
+
+}
+
+
+
 /*- (NSString *)refreshKeysFromServer:(NSObject <EnumerationList> *)keys { //DEPRECATED!
 	return [self receiveKeysFromServer:keys];
 }
