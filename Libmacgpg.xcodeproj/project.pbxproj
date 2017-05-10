@@ -114,6 +114,8 @@
 		30A70EE613EF328000EE9CD9 /* GPGException.m in Sources */ = {isa = PBXBuildFile; fileRef = 30A70EE413EF328000EE9CD9 /* GPGException.m */; };
 		30B570931C6E250700F68EEB /* sks-keyservers.netCA.der in Resources */ = {isa = PBXBuildFile; fileRef = 30B570921C6E250700F68EEB /* sks-keyservers.netCA.der */; };
 		30B586F5141E255C000373F1 /* Keyservers.plist in Resources */ = {isa = PBXBuildFile; fileRef = 30B586F4141E255C000373F1 /* Keyservers.plist */; };
+		30B7CE161EAE0F640050B9C5 /* GPGControllerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 30B7CE151EAE0F640050B9C5 /* GPGControllerTest.m */; };
+		30B7CE181EAE195B0050B9C5 /* Encrypted.gpg in Resources */ = {isa = PBXBuildFile; fileRef = 30B7CE171EAE193F0050B9C5 /* Encrypted.gpg */; };
 		30BA88F2138FE593005982D9 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 30BA88F1138FE593005982D9 /* SystemConfiguration.framework */; };
 		30BB7C681B4D2742006A1E47 /* GPGSymmetricEncryptedSessionKeyPacket.h in Headers */ = {isa = PBXBuildFile; fileRef = 30BB7C661B4D2742006A1E47 /* GPGSymmetricEncryptedSessionKeyPacket.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		30BB7C691B4D2742006A1E47 /* GPGSymmetricEncryptedSessionKeyPacket.m in Sources */ = {isa = PBXBuildFile; fileRef = 30BB7C671B4D2742006A1E47 /* GPGSymmetricEncryptedSessionKeyPacket.m */; };
@@ -331,6 +333,8 @@
 		30A70EE413EF328000EE9CD9 /* GPGException.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGException.m; sourceTree = "<group>"; };
 		30B570921C6E250700F68EEB /* sks-keyservers.netCA.der */ = {isa = PBXFileReference; lastKnownFileType = file; path = "sks-keyservers.netCA.der"; sourceTree = "<group>"; };
 		30B586F4141E255C000373F1 /* Keyservers.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Keyservers.plist; sourceTree = "<group>"; };
+		30B7CE151EAE0F640050B9C5 /* GPGControllerTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGControllerTest.m; sourceTree = "<group>"; };
+		30B7CE171EAE193F0050B9C5 /* Encrypted.gpg */ = {isa = PBXFileReference; lastKnownFileType = file; path = Encrypted.gpg; sourceTree = "<group>"; };
 		30BA88F1138FE593005982D9 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		30BB7C661B4D2742006A1E47 /* GPGSymmetricEncryptedSessionKeyPacket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGSymmetricEncryptedSessionKeyPacket.h; path = GPGPacket/GPGSymmetricEncryptedSessionKeyPacket.h; sourceTree = "<group>"; };
 		30BB7C671B4D2742006A1E47 /* GPGSymmetricEncryptedSessionKeyPacket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = GPGSymmetricEncryptedSessionKeyPacket.m; path = GPGPacket/GPGSymmetricEncryptedSessionKeyPacket.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
@@ -770,6 +774,7 @@
 				45C0BC02151B65C700AA8BF6 /* GPGTestVerify.m */,
 				1BE88B3D1B47D7F900A812B6 /* GPGSocketCloseTest.m */,
 				30A218221B5543A500D01E37 /* GPGUnarmorTest.m */,
+				30B7CE151EAE0F640050B9C5 /* GPGControllerTest.m */,
 				45C0BC13151B664D00AA8BF6 /* Resources */,
 				30BE73C01B54015C001A2137 /* Supporting Files */,
 			);
@@ -823,6 +828,7 @@
 		45C0BC13151B664D00AA8BF6 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				30B7CE171EAE193F0050B9C5 /* Encrypted.gpg */,
 				45B9A7F5151C9A6D00DAD67A /* OpenPGP.asc */,
 				45891A40151BA1EC002D7410 /* SignedInputStringCR.txt */,
 				45891A3C151BA1C9002D7410 /* SignedInputStringCRLF.txt */,
@@ -1044,6 +1050,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				30B7CE181EAE195B0050B9C5 /* Encrypted.gpg in Resources */,
 				302481DE1B5CF46800C86A07 /* Unarmor_ClearsignOneLF.txt in Resources */,
 				302481DA1B5CF46800C86A07 /* Unarmor_ClearsignNoLF.res in Resources */,
 				30A2186B1B5579A200D01E37 /* Unarmor_DoubleNewline.res in Resources */,
@@ -1225,6 +1232,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				30B7CE161EAE0F640050B9C5 /* GPGControllerTest.m in Sources */,
 				30BE73EA1B541F5B001A2137 /* GPGUnitTest.m in Sources */,
 				307698C81B56B61500566B20 /* GPGConfReaderTest.m in Sources */,
 				307698C91B56B61500566B20 /* GPGStdSettingTest.m in Sources */,

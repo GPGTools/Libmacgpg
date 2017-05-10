@@ -31,6 +31,7 @@ GPGKeyManager *manager = nil;
 		
 		gpgc = [[GPGController alloc] init];
 		gpgc.gpgHome = unitTestHome;
+		gpgc.passphrase = @"123";
 		
 		NSData *data = [self dataForResource:@"OpenPGP.asc"];
 		[gpgc importFromData:data fullImport:TRUE];
