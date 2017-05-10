@@ -1956,7 +1956,7 @@ BOOL gpgConfigReaded = NO;
 		[gpgTask addArgument:@"--"];
 		[gpgTask addArgument:pattern];
 		
-		if ([gpgTask start] != 0) {
+		if ([gpgTask start] != 0 && (gpgTask.errorCode & 0xFFF) != GPGErrorNoData) {
 			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Search keys failed!") gpgTask:gpgTask];
 		}
 		
@@ -2949,6 +2949,10 @@ BOOL gpgConfigReaded = NO;
 	}
 	if (passphrase) {
 		gpgTask.passphrase = passphrase;
+		if ([[[self.class gpgVersion] substringToIndex:3] isEqualToString:@"2.1"]) {
+			[gpgTask addArgument:@"--pinentry-mode"];
+			[gpgTask addArgument:@"loopback"];
+		}
 	}
 	
 	gpgTask.delegate = self;
