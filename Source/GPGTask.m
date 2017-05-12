@@ -22,7 +22,6 @@
 #import "GPGTaskHelper.h"
 #import "GPGGlobals.h"
 #import "GPGOptions.h"
-#import "LPXTTask.h"
 #import "GPGMemoryStream.h"
 #import "GPGException.h"
 #import "GPGGlobals.h"
@@ -64,17 +63,18 @@ static NSLock *gpgTaskLock;
     return [outStream readAllData];
 }
 
-- (void)addInput:(GPGStream *)stream
-{
-	if (!inDatas) 
-		inDatas = [[NSMutableArray alloc] init];
-	[inDatas addObject:stream];
+- (void)setInput:(GPGStream *)stream {
+	[stream retain];
+	if (inData) {
+		[inData release];
+	}
+	inData = stream;
 }
-- (void)addInData:(NSData *)data {
-    [self addInput:[GPGMemoryStream memoryStreamForReading:data]];
+- (void)setInData:(NSData *)data {
+    [self setInput:[GPGMemoryStream memoryStreamForReading:data]];
 }
-- (void)addInText:(NSString *)string {
-	[self addInData:[string UTF8Data]];
+- (void)setInText:(NSString *)string {
+	[self setInData:[string UTF8Data]];
 }
 
 - (NSString *)outText {
@@ -175,7 +175,7 @@ static NSLock *gpgTaskLock;
 	[outText release];
 	[errText release];
 	[statusText release];
-	[inDatas release];
+	[inData release];
     [errorCodes release];
 	[statusDict release];
 	[_environmentVariables release];
@@ -209,7 +209,7 @@ static NSLock *gpgTaskLock;
     NSMutableArray *defaultArguments = [NSMutableArray arrayWithObjects:
                                         @"--no-greeting", @"--no-tty", @"--with-colons", @"--fixed-list-mode",
 										@"--utf8-strings", @"--display-charset", @"utf-8", @"--enable-special-filenames",
-                                        @"--yes", @"--status-fd", @"3", nil];
+                                        @"--yes", @"--status-fd", @"2", nil];
 
 	
 	if (progressInfo && [delegate respondsToSelector:@selector(gpgTask:progressed:total:)]) {
@@ -230,14 +230,22 @@ static NSLock *gpgTaskLock;
 	}
 	
     // If the attribute data is required, add the attribute-fd.
-    if (getAttributeData)
-        [defaultArguments addObjectsFromArray:[NSArray arrayWithObjects:@"--attribute-fd", @"4", nil]];
- 
-	if (passphrase) {
-		NSString *passphraseFD = [NSString stringWithFormat:@"%llu", (uint64)inDatas.count+5];
-		[defaultArguments addObjectsFromArray:[NSArray arrayWithObjects:@"--passphrase-fd", passphraseFD, nil]];
-		[self addInText:[passphrase stringByAppendingString:@"\n"]];
+	if (getAttributeData) {
+        [defaultArguments addObjectsFromArray:[NSArray arrayWithObjects:@"--attribute-fd", @"2", nil]];
 	}
+ 
+	
+	BOOL closeInput = inData.length > 0;
+	GPGStream *input = inData;
+	if (passphrase) {
+		[defaultArguments addObject:@"--passphrase-fd"];
+		[defaultArguments addObject:@"0"];
+		NSMutableData *fullInput = [NSMutableData dataWithData:passphrase.UTF8Data];
+		[fullInput appendBytes:"\n" length:1];
+		[fullInput appendData:inData.readAllData];
+		input = [GPGMemoryStream memoryStreamForReading:fullInput];
+	}
+	
 	
 	// TODO: Optimize and make more generic.
     //Für Funktionen wie --decrypt oder --verify muss "--no-armor" nicht gesetzt sein.
@@ -265,20 +273,6 @@ static NSLock *gpgTaskLock;
     [defaultArguments addObjectsFromArray:arguments];
 	
 	
-    // Last but not least, add the fd's used to read the in-data from.
-	NSUInteger count = inDatas.count;
-	if (passphrase) {
-		// We had already added the fd for the passphrase.
-		count--;
-	}
-	if (count > 0 && ![arguments containsObject:@"--"]) {
-		[defaultArguments addObject:@"--"];
-	}
-	for (int i = 0; i < count; i++) {
-		[defaultArguments addObject:[NSString stringWithFormat:@"-&%d", i+5]];
-	}
-	
-	
 	
     if ([delegate respondsToSelector:@selector(gpgTaskWillStart:)]) {
         [delegate gpgTaskWillStart:self];
@@ -303,7 +297,8 @@ static NSLock *gpgTaskLock;
         self.outStream = [GPGMemoryStream memoryStream];
     
     taskHelper.output = outStream;
-    taskHelper.inData = inDatas;
+    taskHelper.inData = input;
+	taskHelper.closeInput = closeInput;
     taskHelper.processStatus = (lp_process_status_t)^(NSString *keyword, NSString *value){
         return [cself processStatusWithKeyword:keyword value:value];
     };

@@ -47,7 +47,7 @@
 	BOOL getAttributeData;
 	NSDictionary *_environmentVariables;
 	
-	NSMutableArray *inDatas;
+	GPGStream *inData;
 	NSString *passphrase;
 	
     GPGTaskHelper *taskHelper;
@@ -105,9 +105,9 @@
 - (NSInteger)start;
 
 - (NSData *)outData;
-- (void)addInput:(GPGStream *)stream;
-- (void)addInData:(NSData *)data;
-- (void)addInText:(NSString *)string;
+- (void)setInput:(GPGStream *)stream;
+- (void)setInData:(NSData *)data;
+- (void)setInText:(NSString *)string;
 
 - (void)cancel;
 

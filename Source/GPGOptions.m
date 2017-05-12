@@ -402,7 +402,7 @@ static NSString * const kGpgAgentConfKVKey = @"gpgAgentConf";
 	GPGTask *gpgTask = [GPGTask gpgTaskWithArguments:@[@"--gpgconf-test", @"--options"]];
 	gpgTask.timeout = GPGTASKHELPER_DISPATCH_TIMEOUT_QUICKLY;
 	[gpgTask setEnvironmentVariables:@{@"LANG": @"C"}];
-	[gpgTask addInText:config];
+	[gpgTask setInText:config];
 	if ([gpgTask start] == 0) {
 		return;
 	}

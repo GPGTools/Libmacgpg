@@ -59,7 +59,7 @@
 }
 
 - (id)init;
-- (NSDictionary *)launchGPGWithArguments:(NSArray *)arguments data:(NSArray *)data readAttributes:(BOOL)readAttributes;
+- (NSDictionary *)launchGPGWithArguments:(NSArray *)arguments data:(NSData *)data readAttributes:(BOOL)readAttributes closeInput:(BOOL)closeInput;
 - (BOOL)launchGeneralTask:(NSString *)path withArguments:(NSArray *)arguments wait:(BOOL)wait;
 - (void)shutdown;
 - (NSString *)loadConfigFileAtPath:(NSString *)path;

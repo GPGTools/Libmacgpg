@@ -23,6 +23,7 @@
 #import "GPGKeyserver.h"
 #import "GPGTaskHelper.h"
 #import "GPGWatcher.h"
+#import <sys/stat.h>
 #if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
 #import "GPGTaskHelperXPC.h"
 #import "NSBundle+Sandbox.h"
@@ -369,7 +370,7 @@ BOOL gpgConfigReaded = NO;
 		}
 		
 		gpgTask.outStream = output;
-		[gpgTask addInput:input];
+		[gpgTask setInput:input];
 
 		if ([gpgTask start] != 0 && gpgTask.outData.length == 0) { // Check outData because gpg sometime returns an exitcode != 0, but the data is correct encrypted/signed. 
 			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Encrypt/sign failed!") gpgTask:gpgTask];
@@ -404,7 +405,7 @@ BOOL gpgConfigReaded = NO;
 		self.gpgTask = [GPGTask gpgTask];
 		[self addArgumentsForOptions];
 		[self addArgumentsForKeyserver];
-		[gpgTask addInput:input];
+		[gpgTask setInput:input];
 		gpgTask.outStream = output;
 		
 		[gpgTask addArgument:@"--decrypt"];
@@ -447,17 +448,65 @@ BOOL gpgConfigReaded = NO;
 		self.gpgTask = [GPGTask gpgTask];
 		[self addArgumentsForOptions];
 		[self addArgumentsForKeyserver];
-		[gpgTask addInput:signatureInput];
-		if (originalInput) {
-			[gpgTask addInput:originalInput];
-		}
-		
+		[gpgTask setInput:signatureInput];
 		[gpgTask addArgument:@"--verify"];
 		
-		if ([gpgTask start] != 0) {
-			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Verify failed!") gpgTask:gpgTask];
-		}
+		[gpgTask addArgument:@"-"];
 		
+		NSString *fifoPath = nil;
+		if (originalInput) {
+			
+			NSString *guid = [NSProcessInfo processInfo].globallyUniqueString ;
+			NSString *fifoName = [NSString stringWithFormat:@"gpgtmp_%@.fifo", guid];
+			fifoPath = [NSTemporaryDirectory() stringByAppendingPathComponent:fifoName];
+			
+			if (mkfifo(fifoPath.UTF8String, 0600) != 0) {
+				[NSException raise:NSGenericException format:@"mkfifo failed: %s", strerror(errno)];
+			}
+			
+
+			dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+			dispatch_async(queue, ^{
+				@autoreleasepool {
+					@try {
+						NSFileHandle *fileHandle = [NSFileHandle fileHandleForWritingAtPath:fifoPath];
+						NSData *dataToWrite;
+						if ([originalInput isKindOfClass:[GPGMemoryStream class]]) {
+							// A GPGMemoryStream already holds the whole data in the RAM.
+							dataToWrite = originalInput.readAllData;
+							[fileHandle writeData:dataToWrite];
+						} else {
+							// A GPGFileStream doesn't contain to whole data in the RAM. Do a chunked read/write.
+							BOOL hasData = YES;
+							const NSUInteger chunkSize = 1024 * 1024 * 20;
+							do {
+								@autoreleasepool {
+									dataToWrite = [originalInput readDataOfLength:chunkSize];
+									if (dataToWrite.length < chunkSize) {
+										hasData = NO;
+									}
+									if (dataToWrite.length > 0) {
+										[fileHandle writeData:dataToWrite];
+									}
+								}
+							} while (hasData);
+						}
+						[fileHandle closeFile];
+					} @catch (NSException *exception) {
+						// An exception is possible, when the file handle has closed too soon.
+						// Simply ignore it.
+					}
+				}
+			});
+
+			[gpgTask addArgument:fifoPath];
+		}
+
+		[gpgTask start];
+		
+		if (fifoPath) {
+			[[NSFileManager defaultManager] removeItemAtPath:fifoPath error:nil];
+		}
 	} @catch (NSException *e) {
 		[self handleException:e];
 	} @finally {
@@ -544,7 +593,7 @@ BOOL gpgConfigReaded = NO;
 		[gpgTask addArgument:@"--allow-freeform-uid"];
 		[self addArgumentsForOptions];
 		gpgTask.batchMode = YES;
-		[gpgTask addInText:cmdText];
+		[gpgTask setInText:cmdText];
 		
 		
 		[gpgTask start];
@@ -1168,7 +1217,7 @@ BOOL gpgConfigReaded = NO;
 		self.gpgTask = [GPGTask gpgTask];
 		[self addArgumentsForOptions];
 		//gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"]; 
-		[gpgTask addInData:data];
+		[gpgTask setInData:data];
 		[gpgTask addArgument:@"--import"];
 		if (fullImport) {
 			[gpgTask addArgument:@"--import-options"];

@@ -52,231 +52,47 @@ typedef struct {
 
 - (void)launchAndWait {
     // This launch method is partly taken from BDSKTask.
-    const NSUInteger argCount = [arguments count];
-	NSUInteger i;
-	char *args[argCount + 2];
 	
-	args[0] = (char*)[launchPath UTF8String];
-	for (i = 0; i < argCount; i++) {
-		args[i+1] = (char*)[[arguments objectAtIndex:i] UTF8String];
-	}
-	args[argCount + 1] = NULL;
+	NSTask *task = [[NSTask new] autorelease];
 	
+	task.launchPath = launchPath;
+	task.arguments = arguments;
 	
-	
-	
-	// Add environment variables if needed.
-	
-	char **newEnviron = *_NSGetEnviron();
 	if (_environmentVariables) {
-		char **oldEnviron = newEnviron;
-		char **tempEnviron = oldEnviron;
-		
-		NSUInteger envCount = _environmentVariables.count;
-		NSUInteger environCount = 0;
-		
-		while (*tempEnviron) {
-			environCount++;
-			tempEnviron++;
-		}
-		
-		newEnviron = malloc((envCount + environCount + 1) * sizeof(char **));
-		if (!newEnviron) {
-			NSLog(@"launchAndWait malloc failed!");
-			return;
-		}
-		memcpy(newEnviron, oldEnviron, (environCount + 1) * sizeof(char **));
-		
-		i = environCount;
-		for (NSString *key in _environmentVariables) {
-			NSString *value = [_environmentVariables objectForKey:key];
-			
-			char *envVar = (char *)[[NSString stringWithFormat:@"%@=%@", key, value] UTF8String];
-			NSUInteger cmpLength = key.length + 1;
-			
-			tempEnviron = newEnviron;
-			while (*tempEnviron) { // Search an existing env var with the same name.
-				if (strncmp(*tempEnviron, envVar, cmpLength) == 0) {
-					*tempEnviron = envVar;
-					
-					tempEnviron = nil;
-					break;
-				}
-				tempEnviron++;
-			}
-
-			if (tempEnviron) { // No env var with the same name found, add a new at the end.
-				newEnviron[i] = envVar;
-				i++;
-				newEnviron[i] = 0;
-			}
-		}
+		NSMutableDictionary *environment = [[NSProcessInfo processInfo].environment.mutableCopy autorelease];
+		[environment addEntriesFromDictionary:_environmentVariables];
+		task.environment = environment;
 	}
 	
-	
-
-	
-    
-    // Add the stdin, stdout and stderr to the inherited pipes, so all of them can be
-    // processed together.
 	[self inheritPipeWithMode:O_WRONLY dup:0 name:@"stdin"];
 	[self inheritPipeWithMode:O_RDONLY dup:1 name:@"stdout"];
 	[self inheritPipeWithMode:O_RDONLY dup:2 name:@"stderr"];
 	
-    
-    // File descriptors to close in the parent process.
-    NSMutableSet *closeInParent = [NSMutableSet set];
 	
-    // File descriptors to close in the child process.
-    int pipeCount = (int)inheritedPipes.count;
-    lpxttask_fd fds[pipeCount];
-    for(i = 0; i < pipeCount; i++) {
-        fds[i].fd = -1;
-        fds[i].dupfd = -1;
-    }
-    
-    NSPipe *tmpPipe;
-    int k = 0;
-    NSMutableArray *fdArray = [NSMutableArray array];
-    for(id key in inheritedPipesMap) {
-        NSArray *pipeList = [inheritedPipesMap objectForKey:key];
-        for(NSDictionary *pipeInfo in pipeList) {
-            NSNumber *idx = [pipeInfo valueForKey:@"pipeIdx"];
-            
-            tmpPipe = [inheritedPipes objectAtIndex:[idx intValue]];
-            // The mode value of the pipe decides what should happen with the
-            // pipe fd of the parent. Opposite with the fd of the child.
-            if([[pipeInfo valueForKey:@"mode"] intValue] == O_RDONLY) {
-                [closeInParent addObject:[tmpPipe fileHandleForWriting]];
-                [fdArray addObject:
-                 [NSMutableArray arrayWithObjects:[NSNumber numberWithInt:[[tmpPipe fileHandleForWriting] fileDescriptor]],
-                  [pipeInfo valueForKey:@"dupfd"], nil]];
-            }
-            else {
-                [closeInParent addObject:[tmpPipe fileHandleForReading]];
-                [fdArray addObject:
-                 [NSMutableArray arrayWithObjects:[NSNumber numberWithInt:[[tmpPipe fileHandleForReading] fileDescriptor]],
-                  [pipeInfo valueForKey:@"dupfd"], nil]];
-            }
-            k++;
-        }
-    }
-    [fdArray sortUsingComparator:^NSComparisonResult(id a, id b){
-        if([[a objectAtIndex:0] isLessThan:[b objectAtIndex:0]])
-            return NSOrderedAscending;
-        else if([[b objectAtIndex:0] isLessThan:[a objectAtIndex:0]])
-            return NSOrderedDescending;
-        else
-            return NSOrderedSame;
-    }];
-    
-    for(i = 0; i < [fdArray count]; i++) {
-        fds[i].fd = [[[fdArray objectAtIndex:i] objectAtIndex:0] intValue];
-        fds[i].dupfd = [[[fdArray objectAtIndex:i] objectAtIndex:1] intValue];
-    }
-    
-    // Avoid the parent to proceed, before the child is running.
-    int blockpipe[2] = { -1, -1 };
-    if (pipe(blockpipe))
-        perror("failed to create blockpipe");
-    
-    // To find the fds wich are acutally open, it would be possibe to
-    // read /dev/fd entries. But not sure if that's a problem, so let's
-    // use BDSKTask's version.
-    rlim_t maxOpenFiles = OPEN_MAX;
-    struct rlimit openFileLimit;
-    if (getrlimit(RLIMIT_NOFILE, &openFileLimit) == 0)
-        maxOpenFiles = openFileLimit.rlim_cur;
-    
-    // !!! No CF or Cocoa after this point in the child process!
-    processIdentifier = fork();
-    
-    if(processIdentifier == 0) {
-        // This is the child.
-        
-        // set process group for killpg()
-        (void)setpgid(getpid(), getpid());
-        
-        for(i = 0; i < pipeCount; i++) {
-            // If dupfd is set, close invoke dup2. This closes
-            // the original fd and duplicates to the new fd.
-            if(fds[i].fd > -1 && fds[i].dupfd > -1) {
-                dup2(fds[i].fd, fds[i].dupfd);
-            }
-        }
-        
-        // Just for testing.
-        int do_close = 1;
-        for (rlim_t j = 0; j < maxOpenFiles; j++) {
-            do_close = 1;
-            for(i = 0; i < pipeCount; i++) {
-                if((unsigned)fds[i].dupfd == j || (unsigned)fds[i].fd == j) {
-                    do_close = 0;
-                }
-            }
-            
-            if(do_close && (unsigned)blockpipe[0] != j && j != 1)
-                close((int)j);
-        }
-        
-        
-        char ignored;
-        // block until the parent has setup complete
-        read(blockpipe[0], &ignored, 1);
-        close(blockpipe[0]);
-        
-        // AAAAAAND run our command.
-		//int ret = execv(args[0], args);
-        int ret = execve(args[0], args, newEnviron);
-        _exit(ret);
-    }
-    else if (processIdentifier == -1) {
-        // parent: error
-        perror("fork() failed");
-        terminationStatus = 2;
-    }
-    else {
-        // This is the parent.
-        // Close the fd's in the parent.
-        [closeInParent makeObjectsPerformSelector:@selector(closeFile)];
-        
-        // all setup is complete, so now widow the pipe and exec in the child
-        close(blockpipe[0]);   
-        close(blockpipe[1]);
-        
-        // Run the task setup to run in the parent.
-		if(parentTask != nil) {
-			parentTask();
-		}
-        
-        // Wait for the gpg process to finish.
-        int retval, stat_loc;
-        while ((retval = waitpid(processIdentifier, &stat_loc, 0)) != processIdentifier) {
-            int e = errno;
-            if (retval != -1 || e != EINTR) {
-                GPGDebugLog(@"waitpid loop: %i errno: %i, %s", retval, e, strerror(e));
-            }
-        }
-        if (WIFEXITED(stat_loc)) {
-            GPGDebugLog(@"[%d] normal termination, exit status = %d\n", processIdentifier, WEXITSTATUS(stat_loc));
-        }
-        else if (WIFSIGNALED(stat_loc)) {
-            GPGDebugLog(@"[%d] abnormal termination, signal number = %d - termination status: %d\n", processIdentifier, WTERMSIG(stat_loc), WEXITSTATUS(stat_loc));
-        }
-        terminationStatus = WEXITSTATUS(stat_loc);
-        // In case that the child process crashes or was killed by a signal,
-        // the termination status would still be 0, which is however absolutely misleading.
-        // In order to correctly handle these cases, 2 is returned as error status.
-        if(WIFSIGNALED(stat_loc))
-            terminationStatus = 2;
+	NSPipe *inputPipe = [self inheritedPipeWithName:@"stdin"];
+	NSPipe *outputPipe = [self inheritedPipeWithName:@"stdout"];
+	NSPipe *errorPipe = [self inheritedPipeWithName:@"stderr"];
+	
+	
+	task.standardInput = inputPipe.noSIGPIPE;
+	task.standardOutput = outputPipe.noSIGPIPE;
+	task.standardError = errorPipe.noSIGPIPE;
+	
+	[task launch];
+	
+	if (parentTask != nil) {
+		parentTask();
+	}
 
-        self.completed = YES;
-
-        // After running, clean up all the pipes, so no data can be written at this point.
-        // Wouldn't make sense anyway, since the child has shutdown already.
-        [self cleanupPipes];
-    }
-    
+	
+	[task waitUntilExit];
+	terminationStatus = task.terminationStatus;
+	
+	self.completed = YES;
+	
+	// After running, clean up all the pipes, so no data can be written at this point.
+	// Wouldn't make sense anyway, since the child has shutdown already.
+	[self cleanupPipes];
 }
 
 

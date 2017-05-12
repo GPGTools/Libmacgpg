@@ -27,7 +27,7 @@
 	reply(YES);
 }
 
-- (void)launchGPGWithArguments:(NSArray *)arguments data:(NSArray *)data readAttributes:(BOOL)readAttributes reply:(void (^)(NSDictionary *))reply {
+- (void)launchGPGWithArguments:(NSArray *)arguments data:(NSData *)data readAttributes:(BOOL)readAttributes closeInput:(BOOL)closeInput reply:(void (^)(NSDictionary *))reply {
     
 	GPGTaskHelper *task = [[GPGTaskHelper alloc] initWithArguments:arguments];
     
@@ -37,12 +37,11 @@
 	GPGMemoryStream *outputStream = [[GPGMemoryStream alloc] init];
     task.output = outputStream;
 	
-    NSMutableArray *inData = [[NSMutableArray alloc] init];
-    [data enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        GPGMemoryStream *stream = [[GPGMemoryStream alloc] initForReading:obj];
-        [inData addObject:stream];
-    }];
-    task.inData = inData;
+	
+	GPGMemoryStream *inputStream = [GPGMemoryStream memoryStreamForReading:data];
+
+    task.inData = inputStream;
+	task.closeInput = closeInput;
 	id <Jail> remoteProxy = [_xpcConnection remoteObjectProxy];
     typeof(task) __weak weakTask = task;
     

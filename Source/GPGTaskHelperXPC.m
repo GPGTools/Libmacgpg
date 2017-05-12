@@ -187,13 +187,13 @@
 }
 #pragma mark XPC service methods
 
-- (NSDictionary *)launchGPGWithArguments:(NSArray *)arguments data:(NSArray *)data readAttributes:(BOOL)readAttributes {
+- (NSDictionary *)launchGPGWithArguments:(NSArray *)arguments data:(NSData *)data readAttributes:(BOOL)readAttributes closeInput:(BOOL)closeInput {
 	[self prepareTask];
 	
 	NSException * __block taskError = nil;
 	NSMutableDictionary *result = [[NSMutableDictionary alloc] initWithCapacity:0];
 	
-	[_jailfree launchGPGWithArguments:arguments data:data readAttributes:readAttributes reply:^(NSDictionary *info) {
+	[_jailfree launchGPGWithArguments:arguments data:data readAttributes:readAttributes closeInput:closeInput reply:^(NSDictionary *info) {
 		// Received an error? Convert it to an NSException and out of here.
 		if([info objectForKey:@"exception"]) {
 			NSDictionary *exceptionInfo = [info objectForKey:@"exception"];
