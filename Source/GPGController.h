@@ -186,10 +186,6 @@
 							 keyType:(GPGPublicKeyAlgorithm)keyType keyLength:(int)keyLength
 						  subkeyType:(GPGPublicKeyAlgorithm)subkeyType subkeyLength:(int)subkeyLength
 						daysToExpire:(int)daysToExpire preferences:(NSString *)preferences;
-- (NSString *)generateNewKeyWithName:(NSString *)name email:(NSString *)email comment:(NSString *)comment
-							 keyType:(GPGPublicKeyAlgorithm)keyType keyLength:(int)keyLength
-						  subkeyType:(GPGPublicKeyAlgorithm)subkeyType subkeyLength:(int)subkeyLength
-						daysToExpire:(int)daysToExpire preferences:(NSString *)preferences revCert:(BOOL)revCert;
 - (void)deleteKeys:(NSObject <EnumerationList> *)keys withMode:(GPGDeleteKeyMode)mode;
 - (void)setAlgorithmPreferences:(NSString *)preferences forUserID:(NSString *)hashID ofKey:(NSObject <KeyFingerprint> *)key;
 - (void)revokeSignature:(GPGUserIDSignature *)signature fromUserID:(GPGUserID *)userID ofKey:(NSObject <KeyFingerprint> *)key reason:(int)reason description:(NSString *)description;
