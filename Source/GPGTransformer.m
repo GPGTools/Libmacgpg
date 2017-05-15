@@ -103,16 +103,16 @@
 - (id)transformedValue:(id)value {
 	NSMutableArray *strings = [NSMutableArray array];
 	NSInteger intValue;
-	GPGUserIDSignature *revSig = nil;
+//	GPGUserIDSignature *revSig = nil;
 	
 	if ([value isKindOfClass:[NSNumber class]]) {
 		intValue = [value integerValue];
 	} else {
 		GPGKey *key = value;
 		intValue = key.validity;
-		if ([key respondsToSelector:@selector(revocationSignature)]) {
-			revSig = key.revocationSignature;
-		}
+//		if ([key respondsToSelector:@selector(revocationSignature)]) {
+//			revSig = key.revocationSignature;
+//		}
 	}
 	
 	
@@ -141,16 +141,16 @@
 	}
 	if (intValue & GPGValidityRevoked) {
 		NSString *revString = maybeLocalize(@"Revoked");
-		if (revSig) {
-			NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-			dateFormatter.timeStyle = NSDateFormatterNoStyle;
-			dateFormatter.dateStyle = NSDateFormatterLongStyle;
-			
-			NSString *dateString = [dateFormatter stringFromDate:revSig.creationDate];
-			[dateFormatter release];
-			
-			revString = [NSString stringWithFormat:@"%@ (%@)", revString, dateString];
-		}
+//		if (revSig) {
+//			NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+//			dateFormatter.timeStyle = NSDateFormatterNoStyle;
+//			dateFormatter.dateStyle = NSDateFormatterLongStyle;
+//			
+//			NSString *dateString = [dateFormatter stringFromDate:revSig.creationDate];
+//			[dateFormatter release];
+//			
+//			revString = [NSString stringWithFormat:@"%@ (%@)", revString, dateString];
+//		}
 		
 		[strings addObject:revString];
 	}
