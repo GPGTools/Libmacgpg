@@ -1887,7 +1887,7 @@ BOOL gpgConfigReaded = NO;
 			[gpgTask addArgument:[key description]];
 		}
 		
-		if ([gpgTask start] != 0 && ![gpgTask.statusDict objectForKey:@"IMPORT_RES"]) {
+		if ([gpgTask start] != 0 && ![gpgTask.statusDict objectForKey:@"IMPORT_RES"] && gpgTask.errorCode != GPGErrorNoData) {
 			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Receive keys failed!") gpgTask:gpgTask];
 		}
 		
