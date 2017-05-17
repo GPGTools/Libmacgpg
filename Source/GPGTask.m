@@ -49,7 +49,7 @@
 char partCountForStatusCode[GPG_STATUS_COUNT];
 static NSLock *gpgTaskLock;
 
-@synthesize isRunning, batchMode, getAttributeData, delegate, userInfo, exitcode, errorCode, errData, statusData, attributeData, cancelled,
+@synthesize isRunning, batchMode, getAttributeData, delegate, userInfo, exitcode, errData, statusData, attributeData, cancelled,
             progressInfo, statusDict, taskHelper = taskHelper, timeout, environmentVariables=_environmentVariables, passphrase, nonBlocking;
 @synthesize outStream;
 
@@ -426,6 +426,12 @@ static NSLock *gpgTaskLock;
     return [response isKindOfClass:[NSData class]] ? response : [[response description] dataUsingEncoding:NSUTF8StringEncoding];
 }
 
+- (int)fullErrorCode {
+	return errorCode;
+}
+- (int)errorCode {
+	return errorCode & 0xFFFF;
+}
 - (void)setErrorCode:(int)value {
 	NSNumber *code = [NSNumber numberWithInt:value];
 	if (![errorCodes containsObject:code]) {

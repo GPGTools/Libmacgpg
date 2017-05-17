@@ -1994,7 +1994,7 @@ BOOL gpgConfigReaded = NO;
 		[gpgTask addArgument:@"--"];
 		[gpgTask addArgument:pattern];
 		
-		if ([gpgTask start] != 0 && (gpgTask.errorCode & 0xFFF) != GPGErrorNoData) {
+		if ([gpgTask start] != 0 && gpgTask.errorCode != GPGErrorNoData) {
 			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Search keys failed!") gpgTask:gpgTask];
 		}
 		
@@ -2183,7 +2183,7 @@ BOOL gpgConfigReaded = NO;
 				
 				
 				dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-					if ([searchTask start] != 0 && (gpgTask.errorCode & 0xFFF) != GPGErrorNoData) {
+					if ([searchTask start] != 0 && gpgTask.errorCode != GPGErrorNoData) {
 //						runCallback(NO);
 					} else {
 						NSData *receivedData = searchTask.outData;

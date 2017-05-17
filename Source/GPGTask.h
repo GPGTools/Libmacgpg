@@ -82,6 +82,7 @@
 @property (nonatomic, strong) NSString *passphrase;
 @property (nonatomic, readonly) NSInteger exitcode;
 @property (nonatomic, readonly) int errorCode;
+@property (nonatomic, readonly) int fullErrorCode;
 // if not set before starting, GPGTask will use a GPGMemoryStream
 @property (nonatomic, retain) GPGStream *outStream;
 @property (nonatomic, readonly, retain) NSData *errData;

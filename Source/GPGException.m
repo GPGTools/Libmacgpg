@@ -28,7 +28,8 @@ NSString * const GPGErrorDomain = @"GPGErrorDomain";
 		}
 	}
 
-	self.errorCode = aErrorCode;
+	// Ignore the high-bit flags of the errorCode.
+	self.errorCode = aErrorCode & 0xFFFF;
 
 	return self;
 }
