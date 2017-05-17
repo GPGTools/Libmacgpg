@@ -2020,17 +2020,17 @@ BOOL gpgConfigReaded = NO;
 	@try {
 		[self operationDidStart];
 		self.gpgTask = [GPGTask gpgTask];
-		
-		GPGTaskOrder *order = [GPGTaskOrder order];
-		[order addCmd:@"q\n" prompt:@"keysearch.prompt" optional:YES];
-		gpgTask.userInfo = @{@"order": order};
-		
+				
 		[self addArgumentsForOptions];
 		[self addArgumentsForKeyserver];
+		gpgTask.batchMode = NO;
 		[gpgTask addArgument:@"--search-keys"];
-		[gpgTask addArgument:@" "];
+		[gpgTask addArgument:@"0x00000000"];
 		
-		result = ([gpgTask start] == 0);
+		[gpgTask start];
+		if (gpgTask.errorCode == GPGErrorNoError || gpgTask.errorCode == GPGErrorCancelled) {
+			result = YES;
+		}
 	} @catch (NSException *e) {
 	} @finally {
 		[self cleanAfterOperation];
