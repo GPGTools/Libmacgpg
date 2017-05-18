@@ -32,6 +32,8 @@
 #define cancelCheck if (canceled) {@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Operation cancelled") errorCode:GPGErrorCancelled];}
 
 
+static NSString * const keysOnServerCacheKey = @"KeysOnServerCache";
+
 @interface GPGController () <GPGTaskDelegate>
 @property (nonatomic, retain) GPGSignature *lastSignature;
 @property (nonatomic, retain) NSString *filename;
@@ -1916,13 +1918,30 @@ BOOL gpgConfigReaded = NO;
 		if ([keys count] == 0) {
 			[NSException raise:NSInvalidArgumentException format:@"Empty key list!"];
 		}
+		
+		
+		NSDictionary *cache = [[GPGOptions sharedOptions] valueInCommonDefaultsForKey:keysOnServerCacheKey];
+		NSMutableDictionary *mutableCache = nil;
+		if ([cache isKindOfClass:[NSDictionary class]]) {
+			mutableCache = [[cache mutableCopy] autorelease];
+		}
+		
 		self.gpgTask = [GPGTask gpgTask];
 		[self addArgumentsForOptions];
 		[self addArgumentsForKeyserver];
 		[gpgTask addArgument:@"--send-keys"];
 		for (id key in keys) {
-			[gpgTask addArgument:[key description]];
+			NSString *fingerprint = [key description];
+			[gpgTask addArgument:fingerprint];
+			if ([mutableCache[fingerprint][@"exists"] boolValue] == NO) {
+				[mutableCache removeObjectForKey:fingerprint];
+			}
 		}
+		
+		if (mutableCache && ![mutableCache isEqualToDictionary:cache]) {
+			[[GPGOptions sharedOptions] setValueInCommonDefaults:mutableCache forKey:keysOnServerCacheKey];
+		}
+		
 		
 		if ([gpgTask start] != 0) {
 			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Send keys failed!") gpgTask:gpgTask];
@@ -2046,17 +2065,17 @@ BOOL gpgConfigReaded = NO;
 	// Check if GPGKeyserver should be used.
 	// GPGKeyserver is faster than gpg, but only supports http(s) requests.
 	BOOL useGPGKeyserver = NO;
-	NSURL *url = [NSURL URLWithString:[[GPGOptions sharedOptions] keyserver]];
-	if (url) {
-		NSString *scheme = url.scheme;
-		if (!scheme || [scheme isEqualToString:@"hkp"] || [scheme isEqualToString:@"hkps"] || [scheme isEqualToString:@"http"] || [scheme isEqualToString:@"https"]) {
-			useGPGKeyserver = YES;
-		}
-	}
+//	NSURL *url = [NSURL URLWithString:[[GPGOptions sharedOptions] keyserver]];
+//	if (url) {
+//		NSString *scheme = url.scheme;
+//		if (!scheme || [scheme isEqualToString:@"hkp"] || [scheme isEqualToString:@"hkps"] || [scheme isEqualToString:@"http"] || [scheme isEqualToString:@"https"]) {
+//			useGPGKeyserver = YES;
+//		}
+//	}
 	
 	
 	// Prepare cache.
-	NSDictionary *cache = [[GPGOptions sharedOptions] valueInCommonDefaultsForKey:@"KeysOnServerCache"];
+	NSDictionary *cache = [[GPGOptions sharedOptions] valueInCommonDefaultsForKey:keysOnServerCacheKey];
 	if (![cache isKindOfClass:[NSDictionary class]]) {
 		cache = [[NSDictionary new] autorelease];
 	}
@@ -2105,7 +2124,7 @@ BOOL gpgConfigReaded = NO;
 			} else {
 				GPGKey *key = keys[j];
 				NSString *fingerprint = key.description;
-				mutableCache[fingerprint] = @{@"exists": @(value == 1), @"date": now};
+				mutableCache[fingerprint] = @{@"exists": value == 1 ? @YES : @NO, @"date": now};
 				
 				if (value == 1) {
 					[existingKeys addObject:key];
@@ -2115,7 +2134,7 @@ BOOL gpgConfigReaded = NO;
 			}
 		}
 		
-		[[GPGOptions sharedOptions] setValueInCommonDefaults:mutableCache forKey:@"KeysOnServerCache"];
+		[[GPGOptions sharedOptions] setValueInCommonDefaults:mutableCache forKey:keysOnServerCacheKey];
 		callback([[existingKeys copy] autorelease], [[nonExistingKeys copy] autorelease]);
 //		runCallback(allExist);
 		[resultsData release];
