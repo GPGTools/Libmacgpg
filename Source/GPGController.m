@@ -2023,7 +2023,7 @@ BOOL gpgConfigReaded = NO;
 				
 		[self addArgumentsForOptions];
 		[self addArgumentsForKeyserver];
-		gpgTask.batchMode = NO;
+		gpgTask.batchMode = YES;
 		[gpgTask addArgument:@"--search-keys"];
 		[gpgTask addArgument:@"0x00000000"];
 		
