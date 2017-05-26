@@ -43,7 +43,8 @@ typedef enum {
     GPG_EllipticCurveAlgorithm      = 18,
     GPG_ECDSAAlgorithm              = 19,
     GPG_ElgamalAlgorithm            = 20,
-    GPG_DiffieHellmanAlgorithm      = 21
+    GPG_DiffieHellmanAlgorithm      = 21,
+	GPG_EdDSAAlgorithm				= 22
 } GPGPublicKeyAlgorithm;
 typedef enum {
     GPGPublicKeyEncrypt = 1,

@@ -52,6 +52,8 @@
 			return maybeLocalize(@"GPG_ElgamalAlgorithm");
 		case GPG_DiffieHellmanAlgorithm:
 			return maybeLocalize(@"GPG_DiffieHellmanAlgorithm");
+		case GPG_EdDSAAlgorithm:
+			return maybeLocalize(@"GPG_EdDSAAlgorithm");
 		case 0:
 			return @"";
 		default:
