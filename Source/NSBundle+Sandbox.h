@@ -1,7 +1,7 @@
 /* NSBundle+Sandbox.h created by Lukas Pitschl (@lukele) on Sut 29-Sep-2012 */
 
 /*
- * Copyright (c) 2000-2014, GPGTools Project Team <gpgtools-org@lists.gpgtools.org>
+ * Copyright (c) 2000-2017, GPGTools Team <team@gpgtools.org>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:

@@ -1,6 +1,6 @@
 /* GPGSignaturePacket.m
  Based on pgpdump (https://github.com/kazu-yamamoto/pgpdump) from Kazuhiko Yamamoto.
- Copyright © Roman Zechmeister, 2015
+ Copyright © Roman Zechmeister, 2017
  
  This file is part of Libmacgpg.
  

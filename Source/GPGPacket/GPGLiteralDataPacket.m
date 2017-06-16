@@ -1,5 +1,5 @@
 /* GPGLiteralDataPacket.m
- Copyright © Roman Zechmeister, 2015
+ Copyright © Roman Zechmeister, 2017
  
  This file is part of Libmacgpg.
  
