@@ -538,6 +538,10 @@ static NSString * const kGpgAgentConfKVKey = @"gpgAgentConf";
 }
 - (void)setKeyserver:(NSString *)keyserver {
 	[self setValueInGPGConf:keyserver forKey:@"keyserver"];
+
+	// Force dirmngr to reload the config.
+	system("killall -HUP dirmngr");
+
 	[self addKeyserver:keyserver];
 }
 - (void)addKeyserver:(NSString *)keyserver {
