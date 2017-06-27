@@ -395,45 +395,78 @@ static NSString * const kGpgAgentConfKVKey = @"gpgAgentConf";
 }
 
 
-
+/*
+ * Checks the gpg config, disables invalid options and removes invalid keyserver-options.
+ */
 - (void)repairGPGConf {
-	NSString *config = [self.gpgConf getContents];
-	
-	GPGTask *gpgTask = [GPGTask gpgTaskWithArguments:@[@"--gpgconf-test", @"--options"]];
+	GPGTask *gpgTask = [GPGTask gpgTaskWithArguments:@[@"--gpgconf-test"]];
 	gpgTask.timeout = GPGTASKHELPER_DISPATCH_TIMEOUT_QUICKLY;
 	[gpgTask setEnvironmentVariables:@{@"LANG": @"C"}];
-	[gpgTask setInText:config];
-	if ([gpgTask start] == 0) {
+	[gpgTask start];
+	
+	NSString *errText = gpgTask.errText;
+	if (errText.length == 0) {
 		return;
 	}
 	
-	NSString *errText = gpgTask.errText;
-	NSMutableIndexSet *indexes = [NSMutableIndexSet indexSet];
-	NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@".*:(\\d+): .*" options:0 error:nil];
+	BOOL modified = NO;
+	NSString *config = [self.gpgConf getContents];
 	
+	
+	// Parse errText and store the indexes of invalid options in indexesToDisable.
+	NSMutableIndexSet *indexesToDisable = [NSMutableIndexSet indexSet];
+	NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"^.*:(\\d+): .*$" options:NSRegularExpressionAnchorsMatchLines error:nil];
 	[regex enumerateMatchesInString:errText options:0 range:NSMakeRange(0, errText.length) usingBlock:^(NSTextCheckingResult *result, NSMatchingFlags flags, BOOL *stop) {
 		NSRange range = [result rangeAtIndex:1];
-		if (range.length == 0) {
-			return;
-		}
-		
 		NSInteger line = [[errText substringWithRange:range] integerValue];
 		if (line > 0) {
-			[indexes addIndex:line - 1];
+			[indexesToDisable addIndex:line - 1];
 		}
 	}];
-
-	NSMutableArray *lines = [NSMutableArray arrayWithArray:[config componentsSeparatedByString:@"\n"]];
+	if (indexesToDisable.count > 0) {
+		modified = YES;
+		
+		// Prepand all invalid lines with "# Disabled: ".
+		NSMutableArray *lines = [NSMutableArray arrayWithArray:[config componentsSeparatedByString:@"\n"]];
+		[indexesToDisable enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
+			NSString *line = [lines objectAtIndex:idx];
+			line = [NSString stringWithFormat:@"# Disabled: %@", line];
+			[lines replaceObjectAtIndex:idx withObject:line];
+		}];
+		
+		// Save the config.
+		config = [lines componentsJoinedByString:@"\n"];
+		if (config) {
+			[self.gpgConf loadContents:config];
+		}
+	}
 	
-	[indexes enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
-		NSString *line = [lines objectAtIndex:idx];
-		line = [NSString stringWithFormat:@"# Disabled: %@", line];
-		[lines replaceObjectAtIndex:idx withObject:line];
+	
+	// Remove invalid or obsolete keyserver options.
+	NSMutableArray *optionsToRemove = [[NSMutableArray new] autorelease];
+	regex = [NSRegularExpression regularExpressionWithPattern:@"^.*keyserver option '(.+)' is.*$" options:NSRegularExpressionAnchorsMatchLines error:nil];
+	[regex enumerateMatchesInString:errText options:0 range:NSMakeRange(0, errText.length) usingBlock:^(NSTextCheckingResult *result, NSMatchingFlags flags, BOOL *stop) {
+		NSRange range = [result rangeAtIndex:1];
+		[optionsToRemove addObject:[errText substringWithRange:range]];
 	}];
+	if (optionsToRemove.count > 0) {
+		modified = YES;
+		
+		NSArray *keyserverOptions = [self.gpgConf valueForKey:@"keyserver-options"];
+		if ([keyserverOptions isKindOfClass:[NSArray class]]) {
+			NSMutableArray *temp = [[keyserverOptions mutableCopy] autorelease];
+			[temp removeObjectsInArray:optionsToRemove];
+			keyserverOptions = temp;
+		} else {
+			keyserverOptions = nil;
+		}
+		
+		[self.gpgConf setValue:keyserverOptions forKey:@"keyserver-options"];
+	}
+
 	
-	config = [lines componentsJoinedByString:@"\n"];
-	if (config) {
-		[self.gpgConf loadContents:config];
+	
+	if (modified) {
 		[self.gpgConf saveConfig];
 	}
 }

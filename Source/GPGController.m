@@ -479,7 +479,8 @@ BOOL gpgConfigReaded = NO;
 							dataToWrite = originalInput.readAllData;
 							[fileHandle writeData:dataToWrite];
 						} else {
-							// A GPGFileStream doesn't contain to whole data in the RAM. Do a chunked read/write.
+							// A GPGFileStream doesn't already hold the whole data in the RAM.
+							// Do a chunked read/write to save RAM.
 							BOOL hasData = YES;
 							const NSUInteger chunkSize = 1024 * 1024 * 20;
 							do {
@@ -3115,12 +3116,14 @@ BOOL gpgConfigReaded = NO;
 	}
 	
 	@try {
+		GPGOptions *options = [GPGOptions sharedOptions];
+		[options repairGPGConf];
+
+		
 		GPGTask *gpgTask = [GPGTask gpgTask];
 		// Should return as quick as possible if the xpc helper is not available.
 		gpgTask.timeout = GPGTASKHELPER_DISPATCH_TIMEOUT_QUICKLY;
 		[gpgTask addArgument:@"--list-config"];
-		
-		
 		
 		
 		if ([gpgTask start] != 0) {
@@ -3129,18 +3132,13 @@ BOOL gpgConfigReaded = NO;
 			
 			// GPG could also return an error code if there is only an insignificant error. Like a missing keyring or so.
 			// So we need to test explicit for a config error.
-			if ([gpgTask2 start] != 0) { // Config Error.
-				GPGOptions *options = [GPGOptions sharedOptions];
-				[options repairGPGConf];
-				
-				if ([gpgTask start] != 0 && [gpgTask2 start] != 0) {
-					GPGDebugLog(@"GPGController -readGPGConfig: GPGErrorConfigurationError");
-					GPGDebugLog(@"Error text: %@\nStatus text: %@", gpgTask.errText, gpgTask.statusText);
-					if (error) {
-						*error = [GPGException exceptionWithReason:@"GPGErrorConfigurationError" errorCode:GPGErrorConfigurationError gpgTask:gpgTask];
-					}
-					return GPGErrorConfigurationError;
+			if ([gpgTask2 start] == 0) { // Config Error.
+				GPGDebugLog(@"GPGController -readGPGConfig: GPGErrorConfigurationError");
+				GPGDebugLog(@"Error text: %@\nStatus text: %@", gpgTask.errText, gpgTask.statusText);
+				if (error) {
+					*error = [GPGException exceptionWithReason:@"GPGErrorConfigurationError" errorCode:GPGErrorConfigurationError gpgTask:gpgTask];
 				}
+				return GPGErrorConfigurationError;
 			}
 		}
 		
