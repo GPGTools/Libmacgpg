@@ -38,6 +38,8 @@ typedef enum {
 	NSString *httpProxy;
 	BOOL autoSave;
 	NSString *standardDomain;
+	BOOL _configChecked;
+	NSString *_pinentryPath;
 	
 	
 	GPGConf *gpgConf;
@@ -56,6 +58,8 @@ typedef enum {
 @property (nonatomic) BOOL autoSave;
 @property (nonatomic, retain) NSString *standardDomain;
 @property (nonatomic, readonly) BOOL debugLog;
+@property (nonatomic, readonly) NSString *pinentryPath;
+
 
 + (BOOL)debugLog;
 
@@ -111,8 +115,7 @@ typedef enum {
 
 + (NSString *)standardizedKey:(NSString *)key;
 - (GPGOptionsDomain)domainForKey:(NSString *)key;
-- (BOOL) isKnownKey:(NSString *)key domainForKey:(GPGOptionsDomain)domain;
++ (BOOL)isKnownKey:(NSString *)key inDomain:(GPGOptionsDomain)domain;
 - (void)repairGPGConf;
-
 
 @end

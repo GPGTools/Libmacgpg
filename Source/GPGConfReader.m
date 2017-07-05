@@ -99,7 +99,7 @@ static NSMutableCharacterSet *commentChars_;
     // for a comment, try to recognize commented options "#<option name>" or else return nil
     if ([elem1 hasPrefix:@"#"]) {
         elem1 = [elem1 substringFromIndex:1];
-        if (![[GPGOptions sharedOptions] isKnownKey:elem1 domainForKey:domain_]) {
+		if (![GPGOptions isKnownKey:elem1 inDomain:domain_]) {
             *key = nil;
             return nil;
         }

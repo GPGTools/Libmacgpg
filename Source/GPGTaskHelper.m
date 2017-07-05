@@ -167,42 +167,6 @@ closeInput = _closeInput;
     return GPGPath;
 }
 
-+ (NSString *)pinentryPath {
-    static NSString *pinentryPath = nil;
-    static dispatch_once_t pinentryToken;
-    dispatch_once(&pinentryToken, ^{
-		
-		NSFileManager *fileManager = [NSFileManager defaultManager];
-		static NSString * const kPinentry_program = @"pinentry-program";
-        GPGOptions *options = [GPGOptions sharedOptions];
-		
-		// MacGPG2 has the default path to pinentry-mac hardcoded
-		// so we don't need to force set a path in gpg-agent.conf.
-		
-		
-		// Read pinentry path from gpg-agent.conf.
-        pinentryPath = [options valueForKey:kPinentry_program inDomain:GPGDomain_gpgAgentConf];
-        pinentryPath = [pinentryPath stringByStandardizingPath];
-		
-		if (pinentryPath) {
-			// Remove an invalid path from gpg-agent.conf.
-			// A pinentry in Libmacgpg is an old version, don't use it anymore.
-			if ([pinentryPath rangeOfString:@"/Libmacgpg.framework/"].length > 0 || ![fileManager isExecutableFileAtPath:pinentryPath]) {
-				pinentryPath = nil;
-				[options setValue:nil forKey:kPinentry_program inDomain:GPGDomain_gpgAgentConf];
-				[options gpgAgentFlush];
-			}
-		}
-
-		if (!pinentryPath) {
-			pinentryPath = @"/usr/local/MacGPG2/libexec/pinentry-mac.app/Contents/MacOS/pinentry-mac";
-		}
-		
-		[pinentryPath retain];
-    });
-	return pinentryPath;
-}
-
 - (id)initWithArguments:(NSArray *)arguments {
     self = [super init];
     if(self) {
@@ -698,7 +662,7 @@ closeInput = _closeInput;
 - (NSString *)passphraseForKeyID:(NSString *)keyID mainKeyID:(NSString *)mainKeyID userID:(NSString *)userID {
     
     NSTask *task = [[NSTask alloc] init];
-    task.launchPath = [GPGTaskHelper pinentryPath];
+    task.launchPath = [[GPGOptions sharedOptions] pinentryPath];
     
 	if(!task.launchPath)
 		@throw [GPGException exceptionWithReason:@"Pinentry not found!" errorCode:GPGErrorNoPINEntry];

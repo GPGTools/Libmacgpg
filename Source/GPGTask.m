@@ -21,7 +21,6 @@
 #import "GPGTask.h"
 #import "GPGTaskHelper.h"
 #import "GPGGlobals.h"
-#import "GPGOptions.h"
 #import "GPGMemoryStream.h"
 #import "GPGException.h"
 #import "GPGGlobals.h"
@@ -201,9 +200,6 @@ static NSLock *gpgTaskLock;
 	if (nonBlocking == NO) {
 		[gpgTaskLock lock];
 	}
-	
-	// Force a valid pinentry to be set in gpg-agent.conf
-	[GPGTaskHelper pinentryPath];
 	
     // Default arguments which every call to GPG needs.
     NSMutableArray *defaultArguments = [NSMutableArray arrayWithObjects:

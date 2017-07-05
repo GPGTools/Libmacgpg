@@ -142,8 +142,6 @@ typedef void (^lp_progress_handler_t)(NSUInteger processedBytes, NSUInteger tota
 
 + (NSString *)gpgAgentSocket;
 + (BOOL)isPassphraseInGPGAgentCache:(id)key;
-
-+ (NSString *)pinentryPath;
 	
 + (NSDictionary *)statusCodes;
 	

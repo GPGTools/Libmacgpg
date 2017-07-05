@@ -399,6 +399,10 @@ static NSString * const kGpgAgentConfKVKey = @"gpgAgentConf";
  * Checks the gpg config, disables invalid options and removes invalid keyserver-options.
  */
 - (void)repairGPGConf {
+	_configChecked = YES;
+	
+	[self pinentryPath];
+	
 	GPGTask *gpgTask = [GPGTask gpgTaskWithArguments:@[@"--gpgconf-test"]];
 	gpgTask.timeout = GPGTASKHELPER_DISPATCH_TIMEOUT_QUICKLY;
 	[gpgTask setEnvironmentVariables:@{@"LANG": @"C"}];
@@ -633,6 +637,43 @@ static NSString * const kGpgAgentConfKVKey = @"gpgAgentConf";
 	return debugLog & 127;
 }
 
+- (NSString *)pinentryPath {
+	if (!_pinentryPath) {
+		static NSString * const kPinentry_program = @"pinentry-program";
+		
+		// MacGPG2 has the default path to pinentry-mac hardcoded
+		// so we don't need to force set a path in gpg-agent.conf.
+		
+		
+		// Read pinentry path from gpg-agent.conf.
+		
+		NSString *pinentryPath = [self valueInGPGAgentConfForKey:kPinentry_program];
+		pinentryPath = [pinentryPath stringByStandardizingPath];
+		
+		if (pinentryPath) {
+			NSFileManager *fileManager = [NSFileManager defaultManager];
+
+			// Remove an invalid path from gpg-agent.conf.
+			// A pinentry in Libmacgpg is an old version, don't use it anymore.
+			if ([pinentryPath rangeOfString:@"/Libmacgpg.framework/"].length > 0 || ![fileManager isExecutableFileAtPath:pinentryPath]) {
+				pinentryPath = nil;
+				[self setValueInGPGAgentConf:nil forKey:kPinentry_program];
+				[self gpgAgentFlush];
+			}
+		}
+		
+		if (!pinentryPath) {
+			pinentryPath = @"/usr/local/MacGPG2/libexec/pinentry-mac.app/Contents/MacOS/pinentry-mac";
+		}
+
+		NSString *temp = _pinentryPath;
+		_pinentryPath = [pinentryPath retain];
+		[temp release];
+	}
+	return [[_pinentryPath retain] autorelease];
+}
+
+
 // Helper methods.
 - (GPGOptionsDomain)domainForKey:(NSString *)key {
     return [GPGOptions domainForKey:key];
@@ -647,9 +688,9 @@ static NSString * const kGpgAgentConfKVKey = @"gpgAgentConf";
 	return GPGDomain_standard;
 }
 
-- (BOOL)isKnownKey:(NSString *)key domainForKey:(GPGOptionsDomain)domain {
-    NSSet *keys = [domainKeys objectForKey:[NSNumber numberWithInt:domain]];
-    return ([keys containsObject:key]);
++ (BOOL)isKnownKey:(NSString *)key inDomain:(GPGOptionsDomain)domain {
+    NSSet *keys = [domainKeys objectForKey:@(domain)];
+    return [keys containsObject:key];
 }
 
 + (NSString *)standardizedKey:(NSString *)key {
@@ -907,6 +948,9 @@ void SystemConfigurationDidChange(SCPreferencesRef prefs, SCPreferencesNotificat
     
     dispatch_once(&onceToken, ^{
         _sharedInstance = [[GPGOptions alloc] init];
+		if (!_sharedInstance->_configChecked) {
+			[_sharedInstance repairGPGConf];
+		}
     });
     
     return _sharedInstance;
@@ -921,7 +965,8 @@ void SystemConfigurationDidChange(SCPreferencesRef prefs, SCPreferencesNotificat
         [notifsCenter addObserver:self selector:@selector(valueChangedNotification:) name:GPGOptionsChangedNotification object:nil];
         [notifsCenter addObserver:self selector:@selector(dotConfChangedNotification:) name:GPGConfigurationModifiedNotification object:nil];
         [self initSystemConfigurationWatch];
-    }
+		debugLog = [self boolForKey:@"DebugLog"] | 128;
+	}
 	return self;
 }
 
@@ -940,6 +985,7 @@ void SystemConfigurationDidChange(SCPreferencesRef prefs, SCPreferencesNotificat
 	[gpgConf release];
 	[gpgAgentConf release];
     [syncRoot release];
+	[_pinentryPath release];
     [super dealloc];
 }
 
