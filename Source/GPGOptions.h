@@ -38,7 +38,6 @@ typedef enum {
 	NSString *httpProxy;
 	BOOL autoSave;
 	NSString *standardDomain;
-	BOOL _configChecked;
 	NSString *_pinentryPath;
 	
 	

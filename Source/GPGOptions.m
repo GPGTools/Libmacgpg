@@ -399,8 +399,6 @@ static NSString * const kGpgAgentConfKVKey = @"gpgAgentConf";
  * Checks the gpg config, disables invalid options and removes invalid keyserver-options.
  */
 - (void)repairGPGConf {
-	_configChecked = YES;
-	
 	[self pinentryPath];
 	
 	GPGTask *gpgTask = [GPGTask gpgTaskWithArguments:@[@"--gpgconf-test"]];
@@ -948,7 +946,7 @@ void SystemConfigurationDidChange(SCPreferencesRef prefs, SCPreferencesNotificat
     
     dispatch_once(&onceToken, ^{
         _sharedInstance = [[GPGOptions alloc] init];
-		if (!_sharedInstance->_configChecked) {
+		if (![GPGTask sandboxed]) {
 			[_sharedInstance repairGPGConf];
 		}
     });
