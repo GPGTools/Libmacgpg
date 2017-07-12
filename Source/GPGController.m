@@ -2082,7 +2082,6 @@ BOOL gpgConfigReaded = NO;
 		cache = [[NSDictionary new] autorelease];
 	}
 	NSDate *now = [NSDate date];
-	NSTimeInterval maxCacheTime = [now timeIntervalSinceReferenceDate] - 3600;
 	
 	
 	
@@ -2093,26 +2092,12 @@ BOOL gpgConfigReaded = NO;
 	__block char *results = resultsData.mutableBytes;
 	
 	
-//	// runCallback is can be called multiple times.
-//	// Only the first time it calls the callback.
-//	__block uint32_t onceToken = 0;
-//	void (^runCallback)(BOOL) = ^(BOOL result) {
-//		if (OSAtomicTestAndSet(0, &onceToken) == NO) {
-//			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-//				callback(result);
-//			});
-//		}
-//	};
 	
+	dispatch_group_t dispatchGroup = dispatch_group_create();
+	dispatch_group_enter(dispatchGroup);
 	
-	// This block fills the cache and runs the callback.
-	// It's called once for every key in keys and does it's work on the last call.
-	__block int64_t runningTasks = count;
-	void (^taskFinished)() = ^{
-		if (OSAtomicDecrement64Barrier(&runningTasks) != 0) {
-			return;
-		}
-		
+	dispatch_group_notify(dispatchGroup, dispatch_get_main_queue(),^{
+		// This block fills the cache and runs the callback.
 		NSMutableArray *existingKeys = [[NSMutableArray new] autorelease];
 		NSMutableArray *nonExistingKeys = [[NSMutableArray new] autorelease];
 		NSMutableDictionary *mutableCache = [[cache mutableCopy] autorelease];
@@ -2120,52 +2105,42 @@ BOOL gpgConfigReaded = NO;
 		for (NSUInteger j = 0; j < count; j++) {
 			NSInteger value = results[j];
 			
-			if (value == 0) {
-				// Errors are not cached.
-				[nonExistingKeys addObject:keys[j]];
-			} else {
-				GPGKey *key = keys[j];
+			GPGKey *key = keys[j];
+			if (value == 1) {
 				NSString *fingerprint = key.description;
-				mutableCache[fingerprint] = @{@"exists": value == 1 ? @YES : @NO, @"date": now};
-				
-				if (value == 1) {
-					[existingKeys addObject:key];
-				} else {
-					[nonExistingKeys addObject:key];
-				}
+				mutableCache[fingerprint] = @{@"exists": @YES, @"date": now};
+				[existingKeys addObject:key];
+			} else {
+				[nonExistingKeys addObject:key];
 			}
 		}
 		
 		[[GPGOptions sharedOptions] setValueInCommonDefaults:mutableCache forKey:keysOnServerCacheKey];
+		
 		callback([[existingKeys copy] autorelease], [[nonExistingKeys copy] autorelease]);
-//		runCallback(allExist);
+		
 		[resultsData release];
-	};
+	});
+
 	
 	
 	// Search async for every key in the array.
 	for (GPGKey *key in keys) {
+		dispatch_group_enter(dispatchGroup);
 		NSString *fingerprint = key.description;
 		
 		
 		// Is there a cached result?
 		NSDictionary *cacheEntry = cache[fingerprint];
 		BOOL cacheUsed = NO;
-		if (cacheEntry) {
-			if ([cacheEntry[@"exists"] boolValue]) {
-				cacheUsed = YES;
-				results[i] = 1;
-			} else if ([cacheEntry[@"date"] timeIntervalSinceReferenceDate] > maxCacheTime) {
-				// Non-exist cache entry are only respected if they are not older than maxCacheTime.
-				cacheUsed = YES;
-				results[i] = -1;
-//				 runCallback(NO);
-			}
+		if ([cacheEntry[@"exists"] boolValue]) {
+			cacheUsed = YES;
+			results[i] = 1;
 		}
 		
 		
 		if (cacheUsed) {
-			taskFinished();
+			dispatch_group_leave(dispatchGroup);
 		} else {
 			
 			if (useGPGKeyserver) {
@@ -2174,7 +2149,6 @@ BOOL gpgConfigReaded = NO;
 				
 				gpgKeyserver.finishedHandler = ^(GPGKeyserver *server) {
 					if (server.error) {
-//						runCallback(NO);
 					} else {
 						NSData *receivedData = server.receivedData;
 						NSData *searchData = [[NSString stringWithFormat:@"pub:%@:", fingerprint] dataUsingEncoding:NSUTF8StringEncoding];
@@ -2183,10 +2157,9 @@ BOOL gpgConfigReaded = NO;
 							results[i] = 1;
 						} else {
 							results[i] = -1;
-//							runCallback(NO);
 						}
 					}
-					taskFinished();
+					dispatch_group_leave(dispatchGroup);
 				};
 				[gpgKeyserver searchKey:[@"0x" stringByAppendingString:fingerprint]];
 				
@@ -2205,7 +2178,6 @@ BOOL gpgConfigReaded = NO;
 				
 				dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
 					if ([searchTask start] != 0 && gpgTask.errorCode != GPGErrorNoData) {
-//						runCallback(NO);
 					} else {
 						NSData *receivedData = searchTask.outData;
 						NSData *searchData = [[NSString stringWithFormat:@"pub:%@:", fingerprint] dataUsingEncoding:NSUTF8StringEncoding];
@@ -2214,16 +2186,18 @@ BOOL gpgConfigReaded = NO;
 							results[i] = 1;
 						} else {
 							results[i] = -1;
-//							runCallback(NO);
 						}
 					}
-					taskFinished();
+					dispatch_group_leave(dispatchGroup);
 				});
 				
 			}
 		}
 		i++;
 	}
+
+	
+	dispatch_group_leave(dispatchGroup);
 
 }
 
