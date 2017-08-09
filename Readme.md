@@ -38,7 +38,7 @@ cp -R ./build/Release/Libmacgpg.framework ~/Library/Frameworks/Libmacgpg.framewo
 If you're using GPGMail, follow these steps to install the xpc service helper.
 
 ```bash
-cp ~/build/org.gpgtools.Libmacgpg.xpc.plist ~/Library/LaunchAgents/
+cp ./build/org.gpgtools.Libmacgpg.xpc.plist ~/Library/LaunchAgents/
 
 mkdir -p ~/Library/Application\ Support/GPGTools
 cp ~/build/Release/org.gpgtools.Libmacgpg.xpc ~/Library/Application\ Support/GPGTools
