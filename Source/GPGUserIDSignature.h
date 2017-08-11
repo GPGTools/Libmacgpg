@@ -35,6 +35,8 @@
 	BOOL _local;
 
 	GPGKey *_primaryKey;
+	
+	NSUInteger _hash;
 }
 
 - (instancetype)init;
