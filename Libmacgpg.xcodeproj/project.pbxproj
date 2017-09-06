@@ -304,6 +304,8 @@
 		3077AE881A6547D2001EC508 /* SecurityFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SecurityFoundation.framework; path = System/Library/Frameworks/SecurityFoundation.framework; sourceTree = SDKROOT; };
 		307FDE401B4E636A00462E4E /* GPGCompressedDataPacket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGCompressedDataPacket.h; path = GPGPacket/GPGCompressedDataPacket.h; sourceTree = "<group>"; };
 		307FDE411B4E636A00462E4E /* GPGCompressedDataPacket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = GPGCompressedDataPacket.m; path = GPGPacket/GPGCompressedDataPacket.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		3080B0C61F603EA9009FF08F /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/Localizable.strings; sourceTree = "<group>"; };
+		3080B0C71F603EB3009FF08F /* nb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nb; path = nb.lproj/Localizable.strings; sourceTree = "<group>"; };
 		309A18CE13E3812E0069DC0F /* GPGTransformer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGTransformer.h; sourceTree = "<group>"; };
 		309A18CF13E3812E0069DC0F /* GPGTransformer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGTransformer.m; sourceTree = "<group>"; };
 		309D8A101B87469B00D945BA /* GPGKeyFetcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGKeyFetcher.h; sourceTree = "<group>"; };
@@ -1024,6 +1026,8 @@
 				pt,
 				ru,
 				sv,
+				it,
+				nb,
 			);
 			mainGroup = 0867D691FE84028FC02AAC07 /* Libmacgpg */;
 			productRefGroup = 034768DFFF38A50411DB9C8B /* Products */;
@@ -1360,6 +1364,8 @@
 				304BF38E1E449CB000CF4C4F /* pt */,
 				304BF38F1E449CB400CF4C4F /* ru */,
 				304BF3901E449CB800CF4C4F /* sv */,
+				3080B0C61F603EA9009FF08F /* it */,
+				3080B0C71F603EB3009FF08F /* nb */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";

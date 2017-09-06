@@ -76,6 +76,7 @@ GPG_EllipticCurveAlgorithm = "Courbe elliptique";
 GPG_ECDSAAlgorithm = "ECDSA";
 GPG_ElgamalAlgorithm = "ELG";
 GPG_DiffieHellmanAlgorithm = "Diffie-Hellman";
+GPG_EdDSAAlgorithm = "EdDSA";
 "Algorithm_%i" = "Algorithme_%i";
 
 /* GPGSignature humanReadableDescription */
