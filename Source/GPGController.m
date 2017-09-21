@@ -2982,9 +2982,13 @@ BOOL gpgConfigReaded = NO;
 	}
 	if (passphrase) {
 		gpgTask.passphrase = passphrase;
-		if ([[[self.class gpgVersion] substringToIndex:3] isEqualToString:@"2.1"]) {
-			[gpgTask addArgument:@"--pinentry-mode"];
-			[gpgTask addArgument:@"loopback"];
+		
+		NSArray *parts = [[self.class gpgVersion] componentsSeparatedByString:@"."];
+		if (parts.count >= 2) {
+			if (([parts[0] integerValue] == 2 && [parts[1] integerValue] >= 1) || [parts[0] integerValue] > 2) {
+				[gpgTask addArgument:@"--pinentry-mode"];
+				[gpgTask addArgument:@"loopback"];
+			}
 		}
 	}
 	
