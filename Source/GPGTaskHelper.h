@@ -44,7 +44,7 @@
 #import "GPGGlobals.h"
 #import "JailfreeProtocol.h"
 
-@class LPXTTask, GPGStream, GPGTaskHelperXPC;
+@class GPGStream, GPGTaskHelperXPC;
 
 typedef NSData *  (^lp_process_status_t)(NSString *keyword, NSString *value);
 typedef void (^lp_progress_handler_t)(NSUInteger processedBytes, NSUInteger totalBytes);
@@ -75,7 +75,7 @@ typedef void (^lp_progress_handler_t)(NSUInteger processedBytes, NSUInteger tota
     NSData *_errors;
     NSData *_attributes;
     NSUInteger _exitStatus;
-    LPXTTask *_task;
+    NSTask *_task;
     lp_process_status_t _processStatus;
     BOOL _readAttributes;
     NSDictionary *_userIDHint;

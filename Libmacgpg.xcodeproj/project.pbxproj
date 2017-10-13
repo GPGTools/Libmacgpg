@@ -27,8 +27,6 @@
 		1B9FF21117257A69004FB017 /* GPGTaskHelperXPC.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B9FF20F17257A69004FB017 /* GPGTaskHelperXPC.m */; };
 		1B9FF21517261470004FB017 /* JailfreeProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 1B9FF21417261470004FB017 /* JailfreeProtocol.h */; };
 		1BA5FE5B1619BE6700FC6A2C /* JailfreeTask.h in Headers */ = {isa = PBXBuildFile; fileRef = 1BA5FE5A1619BE6700FC6A2C /* JailfreeTask.h */; };
-		1BC7A50013D300A600AE57BA /* LPXTTask.h in Headers */ = {isa = PBXBuildFile; fileRef = 1BC7A4FE13D300A600AE57BA /* LPXTTask.h */; };
-		1BC7A50113D300A600AE57BA /* LPXTTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 1BC7A4FF13D300A600AE57BA /* LPXTTask.m */; };
 		1BCE0CD11617A3DF0026DCFF /* NSBundle+Sandbox.h in Headers */ = {isa = PBXBuildFile; fileRef = 1BCE0CCF1617A3DF0026DCFF /* NSBundle+Sandbox.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1BCE0CD21617A3DF0026DCFF /* NSBundle+Sandbox.m in Sources */ = {isa = PBXBuildFile; fileRef = 1BCE0CD01617A3DF0026DCFF /* NSBundle+Sandbox.m */; };
 		1BD78BA01726B2830005F251 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
@@ -236,8 +234,6 @@
 		1B9FF20F17257A69004FB017 /* GPGTaskHelperXPC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGTaskHelperXPC.m; sourceTree = "<group>"; };
 		1B9FF21417261470004FB017 /* JailfreeProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JailfreeProtocol.h; path = Source/JailfreeProtocol.h; sourceTree = "<group>"; };
 		1BA5FE5A1619BE6700FC6A2C /* JailfreeTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JailfreeTask.h; sourceTree = "<group>"; };
-		1BC7A4FE13D300A600AE57BA /* LPXTTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LPXTTask.h; sourceTree = "<group>"; };
-		1BC7A4FF13D300A600AE57BA /* LPXTTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LPXTTask.m; sourceTree = "<group>"; };
 		1BCE0CCF1617A3DF0026DCFF /* NSBundle+Sandbox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSBundle+Sandbox.h"; sourceTree = "<group>"; };
 		1BCE0CD01617A3DF0026DCFF /* NSBundle+Sandbox.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSBundle+Sandbox.m"; sourceTree = "<group>"; };
 		1BD78B9F1726B2820005F251 /* LeakFinder.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LeakFinder.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -800,8 +796,6 @@
 				1B9DB26915784DB700488353 /* GPGTaskHelper.m */,
 				30FF413312FAC6CD00F39832 /* GPGTaskOrder.h */,
 				30FF413412FAC6CD00F39832 /* GPGTaskOrder.m */,
-				1BC7A4FE13D300A600AE57BA /* LPXTTask.h */,
-				1BC7A4FF13D300A600AE57BA /* LPXTTask.m */,
 				1B9FF20E17257A69004FB017 /* GPGTaskHelperXPC.h */,
 				1B9FF20F17257A69004FB017 /* GPGTaskHelperXPC.m */,
 			);
@@ -887,7 +881,6 @@
 				301A44CD1B436405002A38E4 /* GPGUnArmor.h in Headers */,
 				1B16DD21179C83F000BC1366 /* GPGTypesRW.h in Headers */,
 				30FF414D12FAC6CD00F39832 /* GPGTaskOrder.h in Headers */,
-				1BC7A50013D300A600AE57BA /* LPXTTask.h in Headers */,
 				30D5E2A41483A0F700F31454 /* GPGConf.h in Headers */,
 				3048830B1462B11700F2E5F4 /* DirectoryWatcher.h in Headers */,
 				451932F514F8061100D1F727 /* GPGStdSetting.h in Headers */,
@@ -1276,7 +1269,6 @@
 				30BB7C6D1B4D2E38006A1E47 /* GPGOnePassSignaturePacket.m in Sources */,
 				30FF415012FAC6CD00F39832 /* GPGUserID.m in Sources */,
 				30691AA5136AECC4004AA469 /* GPGOptions.m in Sources */,
-				1BC7A50113D300A600AE57BA /* LPXTTask.m in Sources */,
 				309A18D113E3812E0069DC0F /* GPGTransformer.m in Sources */,
 				301A44CE1B436405002A38E4 /* GPGUnArmor.m in Sources */,
 				309D8A131B87469B00D945BA /* GPGKeyFetcher.m in Sources */,

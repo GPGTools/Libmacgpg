@@ -31,7 +31,6 @@
 #import "GPGGlobals.h"
 #import "GPGTaskHelper.h"
 #import "GPGMemoryStream.h"
-#import "LPXTTask.h"
 #import "NSPipe+NoSigPipe.h"
 #import "NSBundle+Sandbox.h"
 #import "GPGException.h"
@@ -105,7 +104,7 @@ void withAutoreleasePool(basic_block_t block)
 @property (nonatomic, retain, readwrite) NSData *status;
 @property (nonatomic, retain, readwrite) NSData *errors;
 @property (nonatomic, retain, readwrite) NSData *attributes;
-@property (nonatomic, retain, readonly) LPXTTask *task;
+@property (nonatomic, retain, readonly) NSTask *task;
 @property (nonatomic, retain) NSDictionary *userIDHint;
 @property (nonatomic, retain) NSDictionary *needPassphraseInfo;
 
@@ -156,9 +155,10 @@ closeInput = _closeInput;
     static NSString *GPGPath = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        GPGPath = [GPGTaskHelper findExecutableWithName:@"gpg2"];
-        if(!GPGPath)
-            GPGPath = [GPGTaskHelper findExecutableWithName:@"gpg"];
+        GPGPath = [GPGTaskHelper findExecutableWithName:@"gpg"];
+		if (!GPGPath) {
+            GPGPath = [GPGTaskHelper findExecutableWithName:@"gpg2"];
+		}
         [GPGPath retain];
     });
 	if (!GPGPath) {
@@ -177,98 +177,99 @@ closeInput = _closeInput;
 }
 
 - (NSUInteger)_run {
-    _task = [[LPXTTask alloc] init];
+    _task = [[NSTask alloc] init];
     _task.launchPath = [GPGTaskHelper GPGPath];
     _task.arguments = self.arguments;
-	_task.environmentVariables = self.environmentVariables;
-    
-    if(!_task.launchPath || ![[NSFileManager defaultManager] isExecutableFileAtPath:_task.launchPath])
+	
+	NSMutableDictionary *environment = [[NSProcessInfo processInfo].environment.mutableCopy autorelease];
+	[environment addEntriesFromDictionary:self.environmentVariables];
+	_task.environment = environment;
+	
+	if (!_task.launchPath || ![[NSFileManager defaultManager] isExecutableFileAtPath:_task.launchPath]) {
         @throw [GPGException exceptionWithReason:@"GPG not found!" errorCode:GPGErrorNotFound];
-    
+	}
+	
+	_task.standardInput = [NSPipe pipe].noSIGPIPE;
+	_task.standardOutput = [NSPipe pipe].noSIGPIPE;
+	_task.standardError = [NSPipe pipe].noSIGPIPE;
+
+	
     GPGDebugLog(@"$> %@ %@", _task.launchPath, [_task.arguments componentsJoinedByString:@" "]);
+	[_task launch];
+
 	
 	_totalInData = self.inData.length;
 	
     __block NSException *blockException = nil;
-    __block GPGTaskHelper *object = self;
     __block NSData *stderrData = nil;
     __block NSData *statusData = nil;
     __block NSData *attributeData = nil;
-    __block LPXTTask *task = _task;
-	
     __block NSObject *lock = [[[NSObject alloc] init] autorelease];
-    
-    _task.parentTask = ^{
-		// On 10.6 it's not possible to create a concurrent private dispatch queue,
-		// so we'll use the global queue with default priority. Seems to work without problems.
-		dispatch_queue_t queue;
-		if(NSAppKitVersionNumber >= NSAppKitVersionNumber10_7)
-			queue = dispatch_queue_create("org.gpgtools.libmacgpg.gpgTaskHelper", DISPATCH_QUEUE_CONCURRENT);
-        else {
-			queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-			dispatch_retain(queue);
-		}
-			
-		dispatch_group_t collectorGroup = dispatch_group_create();
-        
-        // The data is written to the pipe as soon as gpg issues the status
-        // BEGIN_ENCRYPTION or BEGIN_SIGNING. See processStatus.
-        // When we want to encrypt or sign, the data can't be written before the 
-		// BEGIN_ENCRYPTION or BEGIN_SIGNING status was issued, BUT
-        // in every other case, gpg stalls till it received the data to decrypt.
-        // So in that case, the data actually has to be written as the very first thing.
-        
-        NSArray *options = [NSArray arrayWithObjects:@"--encrypt", @"--sign", @"--clearsign", @"--detach-sign", @"--symmetric", @"-e", @"-s", @"-b", @"-c", nil];
-		
-        if([object.arguments firstObjectCommonWithArray:options] == nil) {
-            dispatch_group_async(collectorGroup, queue, ^{
-                runBlockAndRecordExceptionSyncronized(^{
-                    [object writeInputData];
-                }, &lock, &blockException);
-            });
-        }
-        
-        dispatch_group_async(collectorGroup, queue, ^{
-            runBlockAndRecordExceptionSyncronized(^{
-                NSData *data;
-                NSFileHandle *stdoutFH = [[task inheritedPipeWithName:@"stdout"] fileHandleForReading];
-                while((data = [stdoutFH readDataOfLength:kDataBufferSize]) &&  [data length] > 0) {
-                    withAutoreleasePool(^{
-                        [object->_output writeData:data];
-                    });
-                }
-            }, &lock, &blockException);
-        });
-        
-        dispatch_group_async(collectorGroup, queue, ^{
-            runBlockAndRecordExceptionSyncronized(^{
-				[object parseOutput:&stderrData status:&statusData attribute:&attributeData];
-				[stderrData retain];
-				[statusData retain];
-				[attributeData retain];
-            }, &lock, &blockException);
-        });
-		
-        // Wait for all jobs to complete.
-        dispatch_group_wait(collectorGroup, DISPATCH_TIME_FOREVER);
-        
-        dispatch_release(collectorGroup);
-		dispatch_release(queue);
-    };
-    
-    [_task launchAndWait];
-    
+	
+	
+	dispatch_queue_t queue = dispatch_queue_create("org.gpgtools.libmacgpg.gpgTaskHelper", DISPATCH_QUEUE_CONCURRENT);
+	dispatch_group_t collectorGroup = dispatch_group_create();
+	
+	// The data is written to the pipe as soon as gpg issues the status
+	// BEGIN_ENCRYPTION or BEGIN_SIGNING. See processStatus.
+	// When we want to encrypt or sign, the data can't be written before the
+	// BEGIN_ENCRYPTION or BEGIN_SIGNING status was issued, BUT
+	// in every other case, gpg stalls till it received the data to decrypt.
+	// So in that case, the data actually has to be written as the very first thing.
+	NSArray *options = @[@"--encrypt", @"--sign", @"--clearsign", @"--detach-sign", @"--symmetric", @"-e", @"-s", @"-b", @"-c"];
+	
+	if ([self.arguments firstObjectCommonWithArray:options] == nil) {
+		dispatch_group_async(collectorGroup, queue, ^{
+			runBlockAndRecordExceptionSyncronized(^{
+				[self writeInputData];
+			}, &lock, &blockException);
+		});
+	}
+	
+	
+	dispatch_group_async(collectorGroup, queue, ^{
+		runBlockAndRecordExceptionSyncronized(^{
+			NSData *data;
+			NSFileHandle *stdoutFH = [_task.standardOutput fileHandleForReading];
+			while((data = [stdoutFH readDataOfLength:kDataBufferSize]) && data.length > 0) {
+				withAutoreleasePool(^{
+					[self->_output writeData:data];
+				});
+			}
+		}, &lock, &blockException);
+	});
+	
+	dispatch_group_async(collectorGroup, queue, ^{
+		runBlockAndRecordExceptionSyncronized(^{
+			[self parseOutput:&stderrData status:&statusData attribute:&attributeData];
+			[stderrData retain];
+			[statusData retain];
+			[attributeData retain];
+		}, &lock, &blockException);
+	});
+	
+	
+	// Wait for all jobs to complete.
+	dispatch_group_wait(collectorGroup, DISPATCH_TIME_FOREVER);
+	
+	dispatch_release(collectorGroup);
+	dispatch_release(queue);
+
+	
+	[_task waitUntilExit];
+	
+	
     if (blockException && !_cancelled && !_pinentryCancelled) {
         @throw blockException;
 	}
-    
+	
 	self.status = statusData;
     [statusData release];
 	self.errors = stderrData;
 	[stderrData release];
     self.attributes = attributeData;
 	[attributeData release];
-    
+	
     _exitStatus = _task.terminationStatus;
     
     if(_cancelled || (_pinentryCancelled && _exitStatus != 0))
@@ -278,7 +279,7 @@ closeInput = _closeInput;
 }
 
 - (BOOL)completed {
-	return _task.completed;
+	return !_task.isRunning;
 }
 
 - (void)progress:(NSUInteger)processedBytes total:(NSUInteger)total {
@@ -356,7 +357,7 @@ closeInput = _closeInput;
         return;
     }
 	
-	NSPipe *stdinPipe = [self.task inheritedPipeWithName:@"stdin"];
+	NSPipe *stdinPipe = self.task.standardInput;
 
 	[self writeData:self.inData pipe:stdinPipe close:_closeInput];
 	
@@ -399,7 +400,7 @@ closeInput = _closeInput;
 
 - (void)parseOutput:(__autoreleasing NSData **)errorData status:(__autoreleasing NSData **)status attribute:(__autoreleasing NSData **)attribute {
 	
-	NSPipe *pipe = [self.task inheritedPipeWithName:@"stderr"];
+	NSPipe *pipe = self.task.standardError;
 	NSFileHandle *fileHandle = pipe.fileHandleForReading;
 	
 	NSMutableData *errData = [NSMutableData data];
@@ -565,10 +566,9 @@ closeInput = _closeInput;
                 if(response)
                     [self respond:response];
                 else {
-                    NSPipe *cmdPipe = [self.task inheritedPipeWithName:@"stdin"];
-                    if(cmdPipe) {
+                    NSPipe *cmdPipe = self.task.standardInput;
+                    if (cmdPipe) {
                         [[cmdPipe fileHandleForWriting] closeFile];
-                        [self.task removeInheritedPipeWithName:@"stdin"];
                     }
                 }
             }
@@ -639,7 +639,7 @@ closeInput = _closeInput;
     GPGStream *responseStream = [GPGMemoryStream memoryStream];
 
     @try {
-        cmdPipe = [self.task inheritedPipeWithName:@"stdin"];
+        cmdPipe = self.task.standardInput;
     }
     @catch (NSException *exception) {
     }
@@ -745,9 +745,19 @@ closeInput = _closeInput;
 }
 
 - (void)cancel {
-    if(_cancelled)
+	if (_cancelled) {
         return;
-    [self.task cancel];
+	}
+
+	// Close all pipes, otherwise SIGTERM is ignored it seems.
+	[[_task.standardInput fileHandleForReading] closeFile];
+	[[_task.standardInput fileHandleForWriting] closeFile];
+	[[_task.standardOutput fileHandleForReading] closeFile];
+	[[_task.standardOutput fileHandleForWriting] closeFile];
+	[[_task.standardError fileHandleForReading] closeFile];
+	[[_task.standardError fileHandleForWriting] closeFile];
+	[_task terminate];
+
     _cancelled = YES;
 }
 
