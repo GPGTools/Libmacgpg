@@ -2031,34 +2031,50 @@ BOOL gpgConfigReaded = NO;
 	return keys;
 }
 
-- (BOOL)testKeyserver {
-	if (async && !asyncStarted) {
-		asyncStarted = YES;
-		[asyncProxy testKeyserver];
-		return NO;
-	}
-	BOOL result = NO;
-	@try {
-		[self operationDidStart];
-		self.gpgTask = [GPGTask gpgTask];
+- (void)testKeyserver {
+	// This method is always async!
+	
+	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+		@autoreleasepool {
+			BOOL result = NO;
+			@try {
+				[self operationDidStart];
+				self.gpgTask = [GPGTask gpgTask];
 				
-		[self addArgumentsForOptions];
-		[self addArgumentsForKeyserver];
-		gpgTask.batchMode = YES;
-		[gpgTask addArgument:@"--search-keys"];
-		[gpgTask addArgument:@"0x00000000"];
-		
-		[gpgTask start];
-		if (gpgTask.errorCode == GPGErrorNoError || gpgTask.errorCode == GPGErrorCancelled) {
-			result = YES;
+				[self addArgumentsForOptions];
+				NSUInteger oldTimeout = keyserverTimeout;
+				keyserverTimeout = 3;
+				[self addArgumentsForKeyserver];
+				keyserverTimeout = oldTimeout;
+				
+				gpgTask.batchMode = YES;
+				gpgTask.nonBlocking = YES;
+				[gpgTask addArgument:@"--search-keys"];
+				[gpgTask addArgument:@"0x00000000"];
+				
+				
+				dispatch_group_t dispatchGroup = dispatch_group_create();
+				dispatch_group_async(dispatchGroup, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+					[gpgTask start];
+				});
+				if (dispatch_group_wait(dispatchGroup, dispatch_time(DISPATCH_TIME_NOW, 3 * NSEC_PER_SEC)) == 0) {
+					if (gpgTask.errorCode == GPGErrorNoError || gpgTask.errorCode == GPGErrorCancelled || gpgTask.errorCode == GPGErrorNoData) {
+						result = YES;
+					}
+				} else {
+					[gpgTask cancel];
+				}
+				dispatch_release(dispatchGroup);
+				
+			} @catch (NSException *e) {
+			} @finally {
+				[self cleanAfterOperation];
+			}
+			
+			[self operationDidFinishWithReturnValue:@(result)];
 		}
-	} @catch (NSException *e) {
-	} @finally {
-		[self cleanAfterOperation];
-	}
-
-	[self operationDidFinishWithReturnValue:@(result)];
-	return result;
+	});
+	return;
 }
 
 

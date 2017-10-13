@@ -117,7 +117,7 @@
 @property (nonatomic, readonly) NSDictionary *statusDict;
 @property (nonatomic, readonly) GPGHashAlgorithm hashAlgorithm;
 @property (nonatomic, readonly, retain) GPGTask *gpgTask;
-@property (nonatomic, assign) NSUInteger timeout;
+@property (nonatomic, assign) NSUInteger timeout DEPRECATED_ATTRIBUTE;
 /*
  Dictionary with following keys:
  DESCRIPTION: The description displayed in pinentry. Usable playceholders: %FINGERPRINT, %KEYID, %USERID, %EMAIL, %COMMENT, %NAME.
@@ -176,7 +176,7 @@
 - (NSArray *)searchKeysOnServer:(NSString *)pattern;
 - (void)sendKeysToServer:(NSObject <EnumerationList> *)keys;
 - (NSString *)refreshKeysFromServer:(NSObject <EnumerationList> *)keys DEPRECATED_ATTRIBUTE;
-- (BOOL)testKeyserver;
+- (void)testKeyserver;
 - (void)keysExistOnServer:(NSArray *)keys callback:(void (^)(NSArray *existingKeys, NSArray *nonExistingKeys))callback;
 - (void)removeSignature:(GPGUserIDSignature *)signature fromUserID:(GPGUserID *)userID ofKey:(NSObject <KeyFingerprint> *)key;
 - (void)removeSubkey:(NSObject <KeyFingerprint> *)subkey fromKey:(NSObject <KeyFingerprint> *)key;
