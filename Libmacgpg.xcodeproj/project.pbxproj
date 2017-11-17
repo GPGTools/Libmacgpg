@@ -142,6 +142,8 @@
 		30D68BC51B4FF5D500F7865C /* COPYING.pgpdump in Resources */ = {isa = PBXBuildFile; fileRef = 30D68BC41B4FF5D500F7865C /* COPYING.pgpdump */; };
 		30E38DCB1E448655001AC933 /* NSBundle+GPGLocalization.h in Headers */ = {isa = PBXBuildFile; fileRef = 30E38DC91E448655001AC933 /* NSBundle+GPGLocalization.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		30E38DCC1E448655001AC933 /* NSBundle+GPGLocalization.m in Sources */ = {isa = PBXBuildFile; fileRef = 30E38DCA1E448655001AC933 /* NSBundle+GPGLocalization.m */; };
+		30ECA9591FBF4AE100C00279 /* Unarmor_UnicodeDashes.res in Resources */ = {isa = PBXBuildFile; fileRef = 30ECA9571FBF4AE100C00279 /* Unarmor_UnicodeDashes.res */; };
+		30ECA95A1FBF4AE100C00279 /* Unarmor_UnicodeDashes.txt in Resources */ = {isa = PBXBuildFile; fileRef = 30ECA9581FBF4AE100C00279 /* Unarmor_UnicodeDashes.txt */; };
 		30F45A8C1CE0B5F600D2B42D /* GPGUpdateController.h in Headers */ = {isa = PBXBuildFile; fileRef = 30F45A8A1CE0B5F600D2B42D /* GPGUpdateController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		30F45A8D1CE0B5F600D2B42D /* GPGUpdateController.m in Sources */ = {isa = PBXBuildFile; fileRef = 30F45A8B1CE0B5F600D2B42D /* GPGUpdateController.m */; };
 		30FF413712FAC6CD00F39832 /* GPGController.h in Headers */ = {isa = PBXBuildFile; fileRef = 30FF411D12FAC6CD00F39832 /* GPGController.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -359,6 +361,8 @@
 		30D68BC41B4FF5D500F7865C /* COPYING.pgpdump */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = COPYING.pgpdump; path = Source/GPGPacket/COPYING.pgpdump; sourceTree = SOURCE_ROOT; };
 		30E38DC91E448655001AC933 /* NSBundle+GPGLocalization.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSBundle+GPGLocalization.h"; sourceTree = "<group>"; };
 		30E38DCA1E448655001AC933 /* NSBundle+GPGLocalization.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSBundle+GPGLocalization.m"; sourceTree = "<group>"; };
+		30ECA9571FBF4AE100C00279 /* Unarmor_UnicodeDashes.res */ = {isa = PBXFileReference; lastKnownFileType = file; name = Unarmor_UnicodeDashes.res; path = Unarmor/Unarmor_UnicodeDashes.res; sourceTree = "<group>"; };
+		30ECA9581FBF4AE100C00279 /* Unarmor_UnicodeDashes.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Unarmor_UnicodeDashes.txt; path = Unarmor/Unarmor_UnicodeDashes.txt; sourceTree = "<group>"; };
 		30F45A8A1CE0B5F600D2B42D /* GPGUpdateController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGUpdateController.h; sourceTree = "<group>"; };
 		30F45A8B1CE0B5F600D2B42D /* GPGUpdateController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGUpdateController.m; sourceTree = "<group>"; };
 		30FF411D12FAC6CD00F39832 /* GPGController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGController.h; sourceTree = "<group>"; };
@@ -749,6 +753,8 @@
 				30A218641B5579A200D01E37 /* Unarmor_NoNewline.txt */,
 				30A218651B5579A200D01E37 /* Unarmor_Normal.res */,
 				30A218661B5579A200D01E37 /* Unarmor_Normal.txt */,
+				30ECA9571FBF4AE100C00279 /* Unarmor_UnicodeDashes.res */,
+				30ECA9581FBF4AE100C00279 /* Unarmor_UnicodeDashes.txt */,
 				30A218671B5579A200D01E37 /* Unarmor_Version.res */,
 				30A218681B5579A200D01E37 /* Unarmor_Version.txt */,
 				30A218691B5579A200D01E37 /* Unarmor_VersionOnline.res */,
@@ -1063,12 +1069,14 @@
 				30A2187A1B5579A200D01E37 /* Unarmor_VersionOnline.txt in Resources */,
 				302481E01B5CF46800C86A07 /* Unarmor_ClearsignTwoLF.res in Resources */,
 				302481DD1B5CF46800C86A07 /* Unarmor_ClearsignOneLF.res in Resources */,
+				30ECA95A1FBF4AE100C00279 /* Unarmor_UnicodeDashes.txt in Resources */,
 				302481D81B5CF46800C86A07 /* Unarmor_ClearsignComplicated.txt in Resources */,
 				302481D91B5CF46800C86A07 /* Unarmor_ClearsignNoLF.clear in Resources */,
 				30BE73DD1B541039001A2137 /* OpenPGP.asc in Resources */,
 				302481DC1B5CF46800C86A07 /* Unarmor_ClearsignOneLF.clear in Resources */,
 				30A218731B5579A200D01E37 /* Unarmor_NoNewline.res in Resources */,
 				302481D61B5CF46800C86A07 /* Unarmor_ClearsignComplicated.clear in Resources */,
+				30ECA9591FBF4AE100C00279 /* Unarmor_UnicodeDashes.res in Resources */,
 				30A218711B5579A200D01E37 /* Unarmor_MissingNewline.res in Resources */,
 				30BE73DE1B541039001A2137 /* SignedInputStringCR.txt in Resources */,
 				30A218791B5579A200D01E37 /* Unarmor_VersionOnline.res in Resources */,

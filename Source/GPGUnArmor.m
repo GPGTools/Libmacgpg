@@ -3,7 +3,7 @@
 #import "GPGMemoryStream.h"
 
 static const NSUInteger cacheSize = 1000;
-static const NSUInteger cacheReserve = 2; // Allow to read more bytes after the real buffer. See -getByte:
+static const NSUInteger cacheReserve = 5; // Allow to read more bytes after the real buffer. See -getByte:
 
 typedef enum {
 	stateSearchBegin = 0,
@@ -171,8 +171,8 @@ typedef enum {
 	NSInteger dashes = 0;
 	NSInteger beginMarkIndex = 0;
 	
-	while ((byte = [self nextByte]) >= 0) {
-		if (dashes < 4) {
+	while ((byte = [self nextDecodedByte]) >= 0) {
+		if (dashes < 3) {
 			if (byte == '-') {
 				dashes++;
 			} else {
@@ -228,10 +228,10 @@ typedef enum {
 	
 	while ((byte = [self nextByte]) >= 0) {
 		
-		switch (byte) {
+		switch ([self decodedByte:byte getOnly:NO]) {
 			case '-':
 				dashes++;
-				if (dashes >= 4 && [self getByte:0] != '-') {
+				if (dashes >= 3 && [self getDecodedByte:0] != '-') {
 					// Detect CR line-ending.
 					if ([self getByte:0] == '\r' && [self getByte:1] != '\n') {
 						crLineEnding = YES;
@@ -383,7 +383,7 @@ typedef enum {
 	
 	NSInteger byte;
 	
-	while ((byte = [self nextByte]) >= 0) {
+	while ((byte = [self nextDecodedByte]) >= 0) {
 		NSInteger type = [self characterType:byte];
 		if (type >= 1) {
 			continue;
@@ -424,7 +424,7 @@ typedef enum {
 	BOOL isLineInvalid = invalidCharInLine;
 	
 	
-	while ((byte = [self nextByte]) >= 0) {
+	while ((byte = [self nextDecodedByte]) >= 0) {
 		NSInteger type = [self characterType:byte];
 		switch (type) {
 			case charTypeWhitespace:
@@ -473,7 +473,7 @@ typedef enum {
 	equalsAdded = 0;
 	
 	
-	while ((byte = [self nextByte]) >= 0) {
+	while ((byte = [self nextDecodedByte]) >= 0) {
 		if (crcLength == -1) {
 			if ([self characterType:byte] == charTypeNormal) {
 				switch (byte) {
@@ -559,10 +559,10 @@ typedef enum {
 
 	
 	
-	while ((byte = [self nextByte]) >= 0) {
+	while ((byte = [self nextDecodedByte]) >= 0) {
 		if (byte == '-' && endMarkIndex == 0) {
 			dashes++;
-		} else if (dashes >= 3 && byte == endMark[endMarkIndex]) {
+		} else if (dashes >= 2 && byte == endMark[endMarkIndex]) {
 			endMarkIndex++;
 			if (endMark[endMarkIndex] == 0) {
 				found = YES;
@@ -693,7 +693,7 @@ typedef enum {
 	NSInteger endMarkIndex = 0;
 	NSInteger dashes = 0;
 	
-	while ((byte = [self nextByte]) >= 0) {
+	while ((byte = [self nextDecodedByte]) >= 0) {
 		endMarkIndex++;
 		if (byte == '-') {
 			dashes++;
@@ -951,6 +951,113 @@ static UInt32 crc32_tab[] = {
 
 }
 
+
+
+
+
+- (NSInteger)decodedByte:(NSInteger)byte getOnly:(BOOL)getOnly {
+	// This method is based on code from Bjoern Hoehrmann.
+	// Original copyright notice:
+	//
+	// Copyright (c) 2008-2009 Bjoern Hoehrmann <bjoern@hoehrmann.de>
+	//
+	// Permission is hereby granted, free of charge, to any person obtaining a copy
+	// of this software and associated documentation files (the "Software"), to deal
+	// in the Software without restriction, including without limitation the rights
+	// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	// copies of the Software, and to permit persons to whom the Software is
+	// furnished to do so, subject to the following conditions:
+	//
+	// The above copyright notice and this permission notice shall be included in all
+	// copies or substantial portions of the Software.
+
+	
+	if (byte < 0xC0 | byte > 0xFF) {
+		return byte;
+	}
+	
+	static const uint8_t utf8d[] = {
+		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9, // 80..9f
+		7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7, // a0..bf
+		8,8,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2, // c0..df
+		0xa,0x3,0x3,0x3,0x3,0x3,0x3,0x3,0x3,0x3,0x3,0x3,0x3,0x4,0x3,0x3, // e0..ef
+		0xb,0x6,0x6,0x6,0x5,0x8,0x8,0x8,0x8,0x8,0x8,0x8,0x8,0x8,0x8,0x8  // f0..ff
+	};
+	static const uint8_t utf8s[] = {
+		0x0,0x1,0x2,0x3,0x5,0x8,0x7,0x1,0x1,0x1,0x4,0x6,0x1,0x1,0x1,0x1, // s0..s0
+		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,0,1,0,1,1,1,1,1,1, // s1..s2
+		1,2,1,1,1,1,1,2,1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1, // s3..s4
+		1,2,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,3,1,3,1,1,1,1,1,1, // s5..s6
+		1,3,1,1,1,1,1,3,1,3,1,1,1,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1  // s7..s8
+	};
+	
+	uint8_t type = utf8d[byte-0x80];
+	NSUInteger state = utf8s[type];
+	NSUInteger codepoint = (0xFF >> type) & byte;
+	NSInteger i = 0;
+	
+	while (state != 0) {
+		// Get the next byte.
+		NSInteger nextByte = [self getByte:i];
+		if (nextByte < 0x80 || nextByte > 0xFF) {
+			// End of data.
+			return byte;
+		}
+
+		type = utf8d[nextByte - 0x80];
+		state = utf8s[state * 16 + type];
+		codepoint = (nextByte & 0x3F) | (codepoint << 6);
+		
+		if (state == 1) {
+			// Invalid character.
+			return byte;
+		}
+		i++;
+	}
+	
+	
+	switch (codepoint) {
+		case 173:
+		case 727:
+		case 8208:
+		case 8209:
+		case 8210:
+		case 8211:
+		case 8212:
+		case 8213:
+		case 8722:
+		case 65073:
+		case 65074:
+		case 65112:
+		case 65123:
+		case 65293:
+			// Convert unicode dashes to a normal dash.
+			byte = '-';
+			break;
+		default:
+			return byte;
+			break;
+	}
+	
+
+	if (getOnly == NO) {
+		// Remove all read bytes.
+		for (; i > 0; i--) {
+			[self nextByte];
+		}
+	}
+	
+	return byte;
+}
+
+
+- (NSInteger)nextDecodedByte {
+	return [self decodedByte:[self nextByte] getOnly:NO];
+}
+
+- (NSInteger)getDecodedByte:(NSUInteger)offset {
+	return [self decodedByte:[self getByte:offset] getOnly:YES];
+}
 
 - (NSInteger)nextByte {
 	if (cacheIndex >= cacheSize) {
