@@ -231,7 +231,6 @@ static NSLock *gpgTaskLock;
 	}
  
 	
-	BOOL closeInput = inData.length > 0;
 	GPGStream *input = inData;
 	if (passphrase) {
 		[defaultArguments addObject:@"--passphrase-fd"];
@@ -294,7 +293,7 @@ static NSLock *gpgTaskLock;
     
     taskHelper.output = outStream;
     taskHelper.inData = input;
-	taskHelper.closeInput = closeInput;
+	taskHelper.closeInput = !!inData;
     taskHelper.processStatus = (lp_process_status_t)^(NSString *keyword, NSString *value){
         return [cself processStatusWithKeyword:keyword value:value];
     };
