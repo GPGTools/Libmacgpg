@@ -122,7 +122,7 @@ closeInput = _closeInput;
 
 + (NSString *)findExecutableWithName:(NSString *)executable {
 	NSString *foundPath;
-	NSArray *searchPaths = [NSMutableArray arrayWithObjects:@"/usr/local/bin", @"/usr/local/MacGPG2/bin", @"/usr/local/MacGPG1/bin", @"/usr/bin", @"/bin", @"/opt/local/bin", @"/sw/bin", nil];
+	NSArray *searchPaths = [NSMutableArray arrayWithObjects:@"/usr/local/MacGPG2/bin", @"/usr/local/bin", @"/usr/local/MacGPG1/bin", @"/usr/bin", @"/bin", @"/opt/local/bin", @"/sw/bin", nil];
 	
 	foundPath = [self findExecutableWithName:executable atPaths:searchPaths];
 	if (foundPath) {
@@ -155,9 +155,9 @@ closeInput = _closeInput;
     static NSString *GPGPath = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        GPGPath = [GPGTaskHelper findExecutableWithName:@"gpg"];
+        GPGPath = [GPGTaskHelper findExecutableWithName:@"gpg2"];
 		if (!GPGPath) {
-            GPGPath = [GPGTaskHelper findExecutableWithName:@"gpg2"];
+            GPGPath = [GPGTaskHelper findExecutableWithName:@"gpg"];
 		}
         [GPGPath retain];
     });
