@@ -40,20 +40,20 @@
 	if (self = [super init]) {
 		NSArray *splitedLine = [listing componentsSeparatedByString:@":"];
 		
-		if ([splitedLine count] < 4) {
+		if (splitedLine.count < 2) {
 			[self release];
 			return nil;
 		}
 		
 		
-		NSString *decodedString = [[splitedLine objectAtIndex:1] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+		NSString *decodedString = [splitedLine[1] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
 		
 		if (!decodedString) {
 			int encodings[] = {NSISOLatin1StringEncoding, NSISOLatin2StringEncoding, NSASCIIStringEncoding, 0};
 			int i = 0;
 			
 			while (encodings[i]) {
-				decodedString = [[splitedLine objectAtIndex:1] stringByReplacingPercentEscapesUsingEncoding:encodings[i]];
+				decodedString = [splitedLine[1] stringByReplacingPercentEscapesUsingEncoding:encodings[i]];
 				if (decodedString) {
 					break;
 				}
@@ -63,8 +63,12 @@
 		
 		self.userIDDescription = decodedString;
 		
-		self.creationDate = [NSDate dateWithGPGString:[splitedLine objectAtIndex:2]];
-		self.expirationDate = [NSDate dateWithGPGString:[splitedLine objectAtIndex:3]];
+		if (splitedLine.count >= 3) {
+			self.creationDate = [NSDate dateWithGPGString:splitedLine[2]];
+		}
+		if (splitedLine.count >= 4) {
+			self.expirationDate = [NSDate dateWithGPGString:splitedLine[3]];
+		}
 	}
 	return self;	
 }
@@ -75,9 +79,9 @@
 		userIDDescription = [value retain];
 		
 		NSDictionary *dict = [value splittedUserIDDescription];
-		self.name = [dict objectForKey:@"name"];
-		self.email = [dict objectForKey:@"email"];
-		self.comment = [dict objectForKey:@"comment"];
+		self.name = dict[@"name"];
+		self.email = dict[@"email"];
+		self.comment = dict[@"comment"];
 	}
 }
 
