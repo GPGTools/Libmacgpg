@@ -23,7 +23,7 @@ Undo_CleanKey = "Rensa";
 Undo_MinimizeKey = "Minimera";
 Undo_RevokeKey = "Återkalla nyckel";
 Undo_ChangeExpirationDate = "Ändra utgångsdatum";
-Undo_ChangePassphrase = "Byt lösenord";
+Undo_ChangePassphrase = "Ändra lösenord";
 Undo_AlgorithmPreferences = "Ändra algoritminställningar";
 Undo_Import = "Importera";
 Undo_AddSignature = "Lägg till signatur";
@@ -91,6 +91,6 @@ GPG_EdDSAAlgorithm = "EdDSA";
 
 
 
-UpdaterNotWorking_Title = "GPGSuite-uppdateraren fungerar inte som förväntat!";
+UpdaterNotWorking_Title = "GPG Suite-uppdateraren fungerar inte som förväntat!";
 UpdaterNotWorking_Msg = "Hämta och installera om GPG Suite från https://gpgtools.org";
 

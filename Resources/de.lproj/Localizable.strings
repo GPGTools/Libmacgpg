@@ -43,7 +43,7 @@ Undo_ReceiveFromServer = "Von Server abfragen";
 
 
 //Algorithm names
-CIPHER_ALGO_NONE = "None";
+CIPHER_ALGO_NONE = "Keine";
 CIPHER_ALGO_IDEA = "IDEA";
 CIPHER_ALGO_3DES = "3DES";
 CIPHER_ALGO_CAST5 = "CAST5";
@@ -62,7 +62,7 @@ DIGEST_ALGO_SHA256 = "SHA256";
 DIGEST_ALGO_SHA384 = "SHA384";
 DIGEST_ALGO_SHA512 = "SHA512";
 DIGEST_ALGO_SHA224 = "SHA224";
-COMPRESS_ALGO_NONE = "None";
+COMPRESS_ALGO_NONE = "Keine";
 COMPRESS_ALGO_ZIP = "ZIP";
 COMPRESS_ALGO_ZLIB = "ZLIB";
 COMPRESS_ALGO_BZIP2 = "BZIP2";
@@ -91,6 +91,6 @@ GPG_EdDSAAlgorithm = "EdDSA";
 
 
 
-UpdaterNotWorking_Title = "Der GPG Suite Updater funktioniert nicht wie erwartet!";
+UpdaterNotWorking_Title = " Der GPG Suite Updater funktioniert nicht wie erwartet!";
 UpdaterNotWorking_Msg = "Bitte lade GPG Suite von https://gpgtools.org herunter und führe eine erneute Installation durch.";
 

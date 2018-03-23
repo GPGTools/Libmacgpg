@@ -277,6 +277,7 @@
 		302481D41B5CF46800C86A07 /* Unarmor_ClearsignTwoLF.res */ = {isa = PBXFileReference; lastKnownFileType = file; name = Unarmor_ClearsignTwoLF.res; path = Unarmor/Unarmor_ClearsignTwoLF.res; sourceTree = "<group>"; };
 		302481D51B5CF46800C86A07 /* Unarmor_ClearsignTwoLF.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Unarmor_ClearsignTwoLF.txt; path = Unarmor/Unarmor_ClearsignTwoLF.txt; sourceTree = "<group>"; };
 		3026F4AE13A203A000F3CA02 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		3034E5CA2065433E00E40A8E /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
 		30444C331A65E0590052CB94 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		304883091462B11700F2E5F4 /* DirectoryWatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DirectoryWatcher.h; sourceTree = "<group>"; };
 		3048830A1462B11700F2E5F4 /* DirectoryWatcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DirectoryWatcher.m; sourceTree = "<group>"; };
@@ -1366,6 +1367,7 @@
 				304BF3901E449CB800CF4C4F /* sv */,
 				3080B0C61F603EA9009FF08F /* it */,
 				3080B0C71F603EB3009FF08F /* nb */,
+				3034E5CA2065433E00E40A8E /* ja */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";

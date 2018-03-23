@@ -91,6 +91,6 @@ GPG_EdDSAAlgorithm = "EdDSA";
 
 
 
-UpdaterNotWorking_Title = "Pemutakhir GPGSuite tidak bekerja seperti yang diharapkan!";
-UpdaterNotWorking_Msg = "Harap unduh dan pasang ulang GPG Suite dari https://gpgtools.org";
+UpdaterNotWorking_Title = "Pemutakhir Keluarga GPG tak bekerja seperti yang diharapkan!";
+UpdaterNotWorking_Msg = "Harap unduh dan pasang ulang Keluarga GPG dari https://gpgtools.org";
 

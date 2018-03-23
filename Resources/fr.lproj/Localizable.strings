@@ -91,6 +91,6 @@ GPG_EdDSAAlgorithm = "EdDSA";
 
 
 
-UpdaterNotWorking_Title = "L'outil de mise à jour de GPG Suite ne marche pas comme prévu !";
-UpdaterNotWorking_Msg = "Merci de télécharger et ré-installer GPG Suite depuis https://gpgtools.org";
+UpdaterNotWorking_Title = "The GPG Suite Updater doesn't work as expected!";
+UpdaterNotWorking_Msg = "Please download and reinstall GPG Suite from https://gpgtools.org";
 

@@ -1,35 +1,34 @@
 
 GetPassphraseDescription = "You need a password to unlock the secret key for user: \"%@\", ID %@";
 GetPassphraseDescription_Subkey = "You need a password to unlock the secret key for user: \"%@\", ID %@, (main key ID %@)";
-PassphraseLabel = "Password:";
+PassphraseLabel = "パスワード:";
 
 
 
 //For Key-Status
-"Invalid" = "Invalid";
-"Revoked" = "Revoked";
-"Expired" = "Expired";
-"Disabled" = "Disabled";
-"Unknown" = "Unknown";
-"Never" = "Never";
+"Invalid" = "無効";
+"Revoked" = "失効済";
+"Expired" = "期限切れ";
+"Disabled" = "無効";
+"Unknown" = "不明";
 "Marginal" = "Marginal";
 "Full" = "Full";
 "Ultimate" = "Ultimate";
 
 
 //For Undo and Redo
-Undo_NewKey = "New Key";
-Undo_Delete = "Delete";
-Undo_CleanKey = "Clean";
+Undo_NewKey = "新しい鍵";
+Undo_Delete = "削除";
+Undo_CleanKey = "クリーン";
 Undo_MinimizeKey = "Minimize";
-Undo_RevokeKey = "Revoke Key";
-Undo_ChangeExpirationDate = "Change Expiration Date";
-Undo_ChangePassphrase = "Change Password";
-Undo_AlgorithmPreferences = "Change Algorithm Preferences";
-Undo_Import = "Import";
-Undo_AddSignature = "Add Signature";
-Undo_RemoveSignature = "Remove Signature";
-Undo_RevokeSignature = "Revoke Signature";
+Undo_RevokeKey = "鍵を無効化";
+Undo_ChangeExpirationDate = "有効期限を変更";
+Undo_ChangePassphrase = "パスワードを変更";
+Undo_AlgorithmPreferences = "アルゴリズム設定を変更";
+Undo_Import = "インポート";
+Undo_AddSignature = "署名を追加";
+Undo_RemoveSignature = "署名を削除";
+Undo_RevokeSignature = "署名を失効";
 Undo_AddSubkey = "Add Subkey";
 Undo_RemoveSubkey = "Remove Subkey";
 Undo_RevokeSubkey = "Revoke Subkey";
@@ -38,8 +37,8 @@ Undo_RemoveUserID = "Remove UserID";
 Undo_RevokeUserID = "Revoke UserID";
 Undo_PrimaryUserID = "Primary UserID";
 Undo_AddPhoto = "Add Photo";
-Undo_RefreshFromServer = "Refresh from server";
-Undo_ReceiveFromServer = "Receive from server";
+Undo_RefreshFromServer = "サーバーから更新";
+Undo_ReceiveFromServer = "サーバーから受信";
 
 
 
@@ -78,20 +77,20 @@ GPG_ECDSAAlgorithm = "ECDSA";
 GPG_ElgamalAlgorithm = "ELG";
 GPG_DiffieHellmanAlgorithm = "DiffieHellman";
 GPG_EdDSAAlgorithm = "EdDSA";
-"Algorithm_%i" = "Algorithm_%i";
+"Algorithm_%i" = "アルゴリズム_%i";
 
 /* GPGSignature humanReadableDescription */
-"Signed" = "Signed";
-"Signature expired" = "Signature expired";
-"Key expired" = "Key expired";
+"Signed" = "署名しました";
+"Signature expired" = "署名が有効期限切れです";
+"Key expired" = "鍵が有効期限切れです";
 "Bad signature" = "Signature and data do not match. This could mean the data has been tampered with.";
 "Signature revoked" = "Signature revoked";
-"Signature error" = "Signature error";
+"Signature error" = "署名エラー";
 "Unverifiable signature" = "Signature can not be verified.";
 "Signed by stranger" = "Signature can not be verified, because the corresponding public key is missing.";
 
 
 
 UpdaterNotWorking_Title = "The GPG Suite Updater doesn't work as expected!";
-UpdaterNotWorking_Msg = "Please download and reinstall GPG Suite from https://gpgtools.org";
+UpdaterNotWorking_Msg = "https://gpgtools.org から GPG Suiteをダウンロードして再インストールしてください。";
 

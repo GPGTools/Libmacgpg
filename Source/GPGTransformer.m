@@ -120,7 +120,7 @@
 	
 	switch (intValue & 7) {
 		case 2:
-			[strings addObject:maybeLocalize(@"?")]; //Was bedeutet 2?
+			[strings addObject:maybeLocalize(@"Never")];
 			break;
 		case 3:
 			[strings addObject:maybeLocalize(@"Marginal")];

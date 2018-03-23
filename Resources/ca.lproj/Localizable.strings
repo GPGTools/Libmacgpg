@@ -1,44 +1,44 @@
 
-GetPassphraseDescription = "You need a password to unlock the secret key for user: \"%@\", ID %@";
-GetPassphraseDescription_Subkey = "You need a password to unlock the secret key for user: \"%@\", ID %@, (main key ID %@)";
+GetPassphraseDescription = "Cal una contrasenya per a desblocar la clau secreta de l'usuari: «%@», ID %@";
+GetPassphraseDescription_Subkey = "Cal una contrasenya per a desblocar la clau secreta de l'usuari: «%@», ID %@ (ID de la clau principal %@)";
 PassphraseLabel = "Contrasenya:";
 
 
 
 //For Key-Status
-"Invalid" = "Invalid";
-"Revoked" = "Revoked";
-"Expired" = "Expired";
-"Disabled" = "Disabled";
-"Unknown" = "Unknown";
+"Invalid" = "No és vàlida";
+"Revoked" = "Ha sigut revocada";
+"Expired" = "Ha vençut";
+"Disabled" = "S'ha inhabilitat";
+"Unknown" = "Desconegut";
 "Marginal" = "Marginal";
 "Full" = "Complet";
-"Ultimate" = "Ultimate";
+"Ultimate" = "Màxim";
 
 
 //For Undo and Redo
-Undo_NewKey = "Nova clau";
-Undo_Delete = "Delete";
-Undo_CleanKey = "Clean";
-Undo_MinimizeKey = "Minimize";
-Undo_RevokeKey = "Revoke Key";
-Undo_ChangeExpirationDate = "Change Expiration Date";
-Undo_ChangePassphrase = "Canvieu la constrasenya";
-Undo_AlgorithmPreferences = "Canvieu les preferències de l'algoritme";
+Undo_NewKey = "Clau nova";
+Undo_Delete = "Suprimeix";
+Undo_CleanKey = "Neteja";
+Undo_MinimizeKey = "Minimitza";
+Undo_RevokeKey = "Revoca la clau";
+Undo_ChangeExpirationDate = "Canvia la data de venciment";
+Undo_ChangePassphrase = "Canvia la contrasenya";
+Undo_AlgorithmPreferences = "Canvia les preferències de l'algoritme";
 Undo_Import = "Importa";
-Undo_AddSignature = "Afegeix signatura";
-Undo_RemoveSignature = "Remove Signature";
-Undo_RevokeSignature = "Revoke Signature";
-Undo_AddSubkey = "Afegeix subclau";
-Undo_RemoveSubkey = "Remove Subkey";
-Undo_RevokeSubkey = "Revoke Subkey";
-Undo_AddUserID = "Afegeix identitat d'usuari";
-Undo_RemoveUserID = "Remove UserID";
-Undo_RevokeUserID = "Revoke UserID";
+Undo_AddSignature = "Afegeix una signatura";
+Undo_RemoveSignature = "Suprimeix la signatura";
+Undo_RevokeSignature = "Revoca la signatura";
+Undo_AddSubkey = "Afegeix una subclau";
+Undo_RemoveSubkey = "Suprimeix la subclau";
+Undo_RevokeSubkey = "Revoca la subclau";
+Undo_AddUserID = "Afegeix una identitat d'usuari";
+Undo_RemoveUserID = "Suprimeix la identitat d'usuari";
+Undo_RevokeUserID = "Revoca la identitat d'usuari";
 Undo_PrimaryUserID = "Identitat d'usuari primària";
 Undo_AddPhoto = "Afegeix foto";
-Undo_RefreshFromServer = "Refresh from server";
-Undo_ReceiveFromServer = "Receive from server";
+Undo_RefreshFromServer = "Actualitza del servidor";
+Undo_ReceiveFromServer = "Rep del servidor";
 
 
 
@@ -77,20 +77,20 @@ GPG_ECDSAAlgorithm = "ECDSA";
 GPG_ElgamalAlgorithm = "ELG";
 GPG_DiffieHellmanAlgorithm = "DiffieHellman";
 GPG_EdDSAAlgorithm = "EdDSA";
-"Algorithm_%i" = "Algorithm_%i";
+"Algorithm_%i" = "Algoritme_%i";
 
 /* GPGSignature humanReadableDescription */
-"Signed" = "Signed";
-"Signature expired" = "Signature expired";
-"Key expired" = "Key expired";
-"Bad signature" = "Signature and data do not match. This could mean the data has been tampered with.";
-"Signature revoked" = "Signature revoked";
-"Signature error" = "Signature error";
-"Unverifiable signature" = "Signature can not be verified.";
-"Signed by stranger" = "Signature can not be verified, because the corresponding public key is missing.";
+"Signed" = "Signat";
+"Signature expired" = "La signatura ha vençut";
+"Key expired" = "La clau ha vençut";
+"Bad signature" = "La signatura i les dades no concorden. Podria ser que les dades s'hagin vist alterades.";
+"Signature revoked" = "S'ha revocat la signatura";
+"Signature error" = "S'ha produït un error amb la signatura";
+"Unverifiable signature" = "No es pot verificar la signatura.";
+"Signed by stranger" = "No es pot verificar la signatura, perquè falta la clau pública corresponent.";
 
 
 
-UpdaterNotWorking_Title = "The GPGSuite Updater doesn't work as expected!";
-UpdaterNotWorking_Msg = "Baixeu i torneu a instal·lar GPG Suite des de https://gpgtools.org";
+UpdaterNotWorking_Title = "El GPG Suite Updater no funciona com hauria de fer-ho!";
+UpdaterNotWorking_Msg = "Baixeu i torneu a instal·lar el GPG Suite de https://gpgtools.org";
 
