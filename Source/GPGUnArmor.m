@@ -179,6 +179,7 @@ typedef enum {
 - (parsingState)searchBegin {
 	// Called at the beginning or after parseEnd if it has no data to decode.
 	// Locate "-----BEGIN PGP " in the stream.
+	// Succeess: parseBegin.
 	
 	const char beginMark[] = "BEGIN PGP ";
 	NSInteger byte;
@@ -755,7 +756,7 @@ typedef enum {
 		}
 		if (endMarkIndex == 22 || dashes == 5) {
 			[stream seekToOffset:streamOffset];
-			cacheIndex = cacheSize;
+			cacheIndex = NSUIntegerMax;
 			return stateFinish;
 		}
 	}
@@ -1153,7 +1154,7 @@ static UInt32 crc32_tab[] = {
 		}
 	}
 	if (cacheIndex == cacheEnd) {
-		// All bytes were read from the cache.
+		// All bytes were read from the cache and stream.
 		return EOF;
 	}
 	
