@@ -217,8 +217,17 @@ closeInput = _closeInput;
 	// in every other case, gpg stalls till it received the data to decrypt.
 	// So in that case, the data actually has to be written as the very first thing.
 	NSArray *options = @[@"--encrypt", @"--sign", @"--clearsign", @"--detach-sign", @"--symmetric", @"-e", @"-s", @"-b", @"-c"];
+	BOOL shouldWriteInput = ([self.arguments firstObjectCommonWithArray:options] == nil);
 	
-	if ([self.arguments firstObjectCommonWithArray:options] == nil) {
+	if (!shouldWriteInput) {
+		// If --passphrase-fd 0 is used, the data has to be written before any status
+		// was issued, because gpg will wait until it gets the passphrase from stdin.
+		NSUInteger index = [self.arguments indexOfObject:@"--passphrase-fd"];
+		if (self.arguments.count >= index + 1) {
+			shouldWriteInput = [self.arguments[index+1] isEqualToString:@"0"];
+		}
+	}
+	if (shouldWriteInput) {
 		dispatch_group_async(collectorGroup, queue, ^{
 			runBlockAndRecordExceptionSyncronized(^{
 				[self writeInputData];
