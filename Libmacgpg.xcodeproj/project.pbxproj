@@ -67,6 +67,8 @@
 		3048830C1462B11700F2E5F4 /* DirectoryWatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 3048830A1462B11700F2E5F4 /* DirectoryWatcher.m */; };
 		3048830F1462B22000F2E5F4 /* GPGWatcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 3048830D1462B22000F2E5F4 /* GPGWatcher.h */; };
 		304883101462B22000F2E5F4 /* GPGWatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 3048830E1462B22000F2E5F4 /* GPGWatcher.m */; };
+		304C69FE2069125000D89F65 /* Unarmor_2Messages.res in Resources */ = {isa = PBXBuildFile; fileRef = 304C69FC2069124F00D89F65 /* Unarmor_2Messages.res */; };
+		304C69FF2069125000D89F65 /* Unarmor_2Messages.txt in Resources */ = {isa = PBXBuildFile; fileRef = 304C69FD2069125000D89F65 /* Unarmor_2Messages.txt */; };
 		30516558142281270038AAF0 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 30516556142281270038AAF0 /* Localizable.strings */; };
 		30691AA4136AECC4004AA469 /* GPGOptions.h in Headers */ = {isa = PBXBuildFile; fileRef = 30691AA2136AECC4004AA469 /* GPGOptions.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		30691AA5136AECC4004AA469 /* GPGOptions.m in Sources */ = {isa = PBXBuildFile; fileRef = 30691AA3136AECC4004AA469 /* GPGOptions.m */; };
@@ -293,6 +295,8 @@
 		304BF38E1E449CB000CF4C4F /* pt */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pt; path = pt.lproj/Localizable.strings; sourceTree = "<group>"; };
 		304BF38F1E449CB400CF4C4F /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
 		304BF3901E449CB800CF4C4F /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/Localizable.strings; sourceTree = "<group>"; };
+		304C69FC2069124F00D89F65 /* Unarmor_2Messages.res */ = {isa = PBXFileReference; lastKnownFileType = file; name = Unarmor_2Messages.res; path = Unarmor/Unarmor_2Messages.res; sourceTree = "<group>"; };
+		304C69FD2069125000D89F65 /* Unarmor_2Messages.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Unarmor_2Messages.txt; path = Unarmor/Unarmor_2Messages.txt; sourceTree = "<group>"; };
 		305165591422812B0038AAF0 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
 		3059AF1014239FAB00AD5B30 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		30691AA2136AECC4004AA469 /* GPGOptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGOptions.h; sourceTree = "<group>"; };
@@ -730,6 +734,8 @@
 		30A2183A1B55753100D01E37 /* Unarmor */ = {
 			isa = PBXGroup;
 			children = (
+				304C69FC2069124F00D89F65 /* Unarmor_2Messages.res */,
+				304C69FD2069125000D89F65 /* Unarmor_2Messages.txt */,
 				302481CA1B5CF46800C86A07 /* Unarmor_ClearsignComplicated.clear */,
 				302481CB1B5CF46800C86A07 /* Unarmor_ClearsignComplicated.res */,
 				302481CC1B5CF46800C86A07 /* Unarmor_ClearsignComplicated.txt */,
@@ -1079,12 +1085,14 @@
 				302481D61B5CF46800C86A07 /* Unarmor_ClearsignComplicated.clear in Resources */,
 				30ECA9591FBF4AE100C00279 /* Unarmor_UnicodeDashes.res in Resources */,
 				30A218711B5579A200D01E37 /* Unarmor_MissingNewline.res in Resources */,
+				304C69FF2069125000D89F65 /* Unarmor_2Messages.txt in Resources */,
 				30BE73DE1B541039001A2137 /* SignedInputStringCR.txt in Resources */,
 				30A218791B5579A200D01E37 /* Unarmor_VersionOnline.res in Resources */,
 				30A218751B5579A200D01E37 /* Unarmor_Normal.res in Resources */,
 				30BE73DF1B541039001A2137 /* SignedInputStringCRLF.txt in Resources */,
 				30A2186F1B5579A200D01E37 /* Unarmor_InvalidVersion.res in Resources */,
 				302481D71B5CF46800C86A07 /* Unarmor_ClearsignComplicated.res in Resources */,
+				304C69FE2069125000D89F65 /* Unarmor_2Messages.res in Resources */,
 				302481DF1B5CF46800C86A07 /* Unarmor_ClearsignTwoLF.clear in Resources */,
 				30A2186E1B5579A200D01E37 /* Unarmor_InvalidComment.txt in Resources */,
 				30A218761B5579A200D01E37 /* Unarmor_Normal.txt in Resources */,

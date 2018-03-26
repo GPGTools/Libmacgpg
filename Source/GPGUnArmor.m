@@ -756,6 +756,9 @@ typedef enum {
 		}
 		if (endMarkIndex == 22 || dashes == 5) {
 			[stream seekToOffset:streamOffset];
+			// cacheIndex = NSUIntegerMax discards the cache.
+			// The cache will be filled again, if another packet gets decoded.
+			// If the cache was not discarded, then the stream and chache would be out of sync.
 			cacheIndex = NSUIntegerMax;
 			return stateFinish;
 		}
