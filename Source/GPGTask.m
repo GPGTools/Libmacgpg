@@ -278,6 +278,8 @@ static NSLock *gpgTaskLock;
 		if (nonBlocking == NO) {
 			[gpgTaskLock unlock];
 		}
+		// It's not good to return an error, but don't set it.
+		self.errorCode = GPGErrorCancelled;
 		return GPGErrorCancelled;
 	}
 	

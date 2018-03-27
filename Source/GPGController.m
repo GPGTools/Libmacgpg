@@ -377,13 +377,9 @@ BOOL gpgConfigReaded = NO;
 		[gpgTask start];
 		
 		// The status FAILURE is issued, whenever a sign or encrypt operation failed.
-		// gpgTask.errorCode is always set when FAILURE was issued.
 		// It is better to only use FAILURE and ignore exitcode and other status codes.
-		if (gpgTask.errorCode) {
-			NSArray *failures = gpgTask.statusDict[@"FAILURE"];
-			if ([failures isKindOfClass:[NSArray class]] && failures.count > 0) {
-				@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Encrypt/sign failed!") gpgTask:gpgTask];
-			}
+		if (gpgTask.statusDict[@"FAILURE"]) {
+			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Encrypt/sign failed!") gpgTask:gpgTask];
 		}
 	} @catch (NSException *e) {
 		[self handleException:e];
@@ -421,7 +417,10 @@ BOOL gpgConfigReaded = NO;
 		[gpgTask addArgument:@"--decrypt"];
 		
 		if ([gpgTask start] != 0) {
-			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Decrypt failed!") gpgTask:gpgTask];
+			// It is better to also test for some status codes, because the exitcode also indicates unimportant errors.
+			if (gpgTask.errorCode == GPGErrorCancelled || gpgTask.statusDict[@"DECRYPTION_FAILED"] || gpgTask.statusDict[@"NODATA"] || gpgTask.statusDict[@"FAILURE"]) {
+				@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Decrypt failed!") gpgTask:gpgTask];
+			}
 		}
 	} @catch (NSException *e) {
 		[self handleException:e];
