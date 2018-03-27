@@ -431,7 +431,8 @@ static NSLock *gpgTaskLock;
 	NSNumber *code = [NSNumber numberWithInt:value];
 	if (![errorCodes containsObject:code]) {
 		[errorCodes addObject:code];
-		if (!errorCode) {
+		// GPGErrorCancelled is the most important error code.
+		if (!errorCode || (value & 0xFFFF) == GPGErrorCancelled) {
 			errorCode = value;
 		}
 	}

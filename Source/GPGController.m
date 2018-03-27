@@ -374,9 +374,16 @@ BOOL gpgConfigReaded = NO;
 		gpgTask.outStream = output;
 		[gpgTask setInput:input];
 
-		// Check outData because gpg sometime returns an exitcode != 0, but the data is correct encrypted/signed.
-		if (([gpgTask start] != 0 && gpgTask.outData.length == 0) || gpgTask.errorCode) {
-			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Encrypt/sign failed!") gpgTask:gpgTask];
+		[gpgTask start];
+		
+		// The status FAILURE is issued, whenever a sign or encrypt operation failed.
+		// gpgTask.errorCode is always set when FAILURE was issued.
+		// It is better to only use FAILURE and ignore exitcode and other status codes.
+		if (gpgTask.errorCode) {
+			NSArray *failures = gpgTask.statusDict[@"FAILURE"];
+			if ([failures isKindOfClass:[NSArray class]] && failures.count > 0) {
+				@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Encrypt/sign failed!") gpgTask:gpgTask];
+			}
 		}
 	} @catch (NSException *e) {
 		[self handleException:e];
