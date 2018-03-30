@@ -22,17 +22,15 @@
 @class GPGConf;
 
 typedef enum {
-	GPGDomain_standard,
-	GPGDomain_common,
-	GPGDomain_environment,
-	GPGDomain_gpgConf,
-	GPGDomain_gpgAgentConf,
-	GPGDomain_special //special is not a real domain.
+	GPGDomain_standard = 0,
+	GPGDomain_common = 1,
+	GPGDomain_gpgConf = 3,
+	GPGDomain_gpgAgentConf = 4,
+	GPGDomain_special = 5 //special is not a real domain.
 } GPGOptionsDomain;
 
 @interface GPGOptions : NSObject {
 	BOOL initialized;
-	NSMutableDictionary *environment;
 	NSMutableDictionary *standardDefaults;
 	NSMutableDictionary *commonDefaults;
 	NSString *httpProxy;
@@ -90,10 +88,6 @@ typedef enum {
 - (id)valueInCommonDefaultsForKey:(NSString *)key;
 - (void)setValueInCommonDefaults:(id)value forKey:(NSString *)key;
 - (void)saveCommonDefaults;
-
-- (id)valueInEnvironmentForKey:(NSString *)key;
-- (void)setValueInEnvironment:(id)value forKey:(NSString *)key;
-- (void)saveEnvironment;
 
 - (id)specialValueForKey:(NSString *)key;
 - (void)setSpecialValue:(id)value forKey:(NSString *)key;

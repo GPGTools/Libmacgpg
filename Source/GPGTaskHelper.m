@@ -893,15 +893,7 @@ closeInput = _closeInput;
 }
 
 + (NSString *)gpgAgentSocket {
-	NSString *socketPath = [[GPGOptions sharedOptions] valueForKey:@"GPG_AGENT_INFO" inDomain:GPGDomain_environment];
-	NSRange range;
-	if (socketPath && (range = [socketPath rangeOfString:@":"]).length > 0) {
-		socketPath = [socketPath substringToIndex:range.location - 1];
-		if ([self isGPGAgentSocket:socketPath]) {
-			return socketPath;
-		}
-	}
-	socketPath = [[[GPGOptions sharedOptions] gpgHome] stringByAppendingPathComponent:@"S.gpg-agent"];
+	NSString *socketPath = [[[GPGOptions sharedOptions] gpgHome] stringByAppendingPathComponent:@"S.gpg-agent"];
 	if ([self isGPGAgentSocket:socketPath]) {
 		return socketPath;
 	}

@@ -36,7 +36,6 @@ NSString * const GPGOptionsChangedNotification = @"GPGOptionsChangedNotification
 NSString * const GPGConfigurationModifiedNotification = @"GPGConfigurationModifiedNotification";
 
 @interface GPGOptions ()
-@property (nonatomic, readonly) NSMutableDictionary *environment;
 @property (nonatomic, readonly) NSMutableDictionary *commonDefaults;
 @property (nonatomic, readonly) NSMutableDictionary *standardDefaults;
 - (GPGConf *)gpgConf;
@@ -52,8 +51,6 @@ NSString * const GPGConfigurationModifiedNotification = @"GPGConfigurationModifi
 
 @implementation GPGOptions
 
-NSString *environmentPlistPath;
-NSString *environmentPlistDir;
 NSString *commonDefaultsDomain = @"org.gpgtools.common";
 NSDictionary *domainKeys;
 NSMutableDictionary *defaults = nil;
@@ -162,9 +159,6 @@ static NSString * const kGpgAgentConfKVKey = @"gpgAgentConf";
 		case GPGDomain_gpgAgentConf:
 			value = [self valueInGPGAgentConfForKey:key];
 			break;
-		case GPGDomain_environment:
-			value = [self valueInEnvironmentForKey:key];
-			break;
 		case GPGDomain_standard:
 			value = [self valueInStandardDefaultsForKey:key];
 			break;
@@ -186,9 +180,6 @@ static NSString * const kGpgAgentConfKVKey = @"gpgAgentConf";
 			break;
 		case GPGDomain_gpgAgentConf:
 			[self setValueInGPGAgentConf:value forKey:key];
-			break;
-		case GPGDomain_environment:
-			[self setValueInEnvironment:value forKey:key];
 			break;
 		case GPGDomain_standard:
 			[self setValueInStandardDefaults:value forKey:key];
@@ -309,67 +300,6 @@ static NSString * const kGpgAgentConfKVKey = @"gpgAgentConf";
 	}
 	return [[commonDefaults retain] autorelease];
 }
-
-
-- (id)valueInEnvironmentForKey:(NSString *)key {
-	NSObject *value = [[[NSProcessInfo processInfo] environment] objectForKey:key];
-	if (!value) {
-		value = [self.environment objectForKey:key];
-	}
-	return value;
-}
-- (void)setValueInEnvironment:(id)value forKey:(NSString *)key {
-	if (!value) {
-		unsetenv([key UTF8String]);
-	} else {
-		setenv([key UTF8String], [[value description] UTF8String], YES);
-	}
-	
-    NSObject *oldValue = [self.environment objectForKey:key];
-	if(value != oldValue && ![value isEqual:oldValue]) {
-		if (!value) {
-			[self.environment removeObjectForKey:key];
-		} else {
-			[self.environment setObject:value forKey:key];
-		}
-		if (self.autoSave) [self saveEnvironment];
-		[self valueChanged:value forKey:key inDomain:GPGDomain_environment];
-	}
-}
-- (void)saveEnvironment {
-	NSFileManager *fileManager = [NSFileManager defaultManager];
-	BOOL isDirectory;
-	
-	if ([fileManager fileExistsAtPath:environmentPlistDir isDirectory:&isDirectory]) {
-		if (!isDirectory) {
-			GPGDebugLog(@"'%@' is not a directory.", environmentPlistDir)
-			return;
-		}
-	} else {
-		NSError *error;
-		if (![fileManager createDirectoryAtPath:environmentPlistDir withIntermediateDirectories:YES attributes:nil error:&error]) {
-			GPGDebugLog(@"Unable to create directory '%@'. Error: %@", environmentPlistDir, error);
-		}
-	}
-	if (![self.environment writeToFile:environmentPlistPath atomically:YES]) {
-		GPGDebugLog(@"Unable to write file '%@'", environmentPlistPath);
-	}
-}
-- (NSMutableDictionary *)environment {
-	if (!environment) {
-		// Environment.plist is no longer supported in 10.7+, so let's
-		// drop support for it, if we're sandboxed.
-		environment = nil;
-		if(![GPGTask sandboxed]) {
-			environment = [[NSMutableDictionary alloc] initWithContentsOfFile:environmentPlistPath];
-		}
-		if (!environment) {
-			environment = [[NSMutableDictionary alloc] init];
-		}
-	}
-	return [[environment retain] autorelease];
-}
-
 
 - (id)valueInGPGConfForKey:(NSString *)key {
 	return [self.gpgConf valueForKey:key];
@@ -512,16 +442,13 @@ static NSString * const kGpgAgentConfKVKey = @"gpgAgentConf";
 }
 
 - (NSString *)gpgHome {
-	NSString *path = [self valueInEnvironmentForKey:@"GNUPGHOME"];
-	if (!path) {
-		path = [NSHomeDirectory() stringByAppendingPathComponent:@".gnupg"];
-		// Find the real path, in case we're sandboxed.
-		struct passwd *pw = getpwuid(getuid());
-		if(pw != NULL) {
-			NSString *realPath = [[NSString stringWithUTF8String:pw->pw_dir] stringByAppendingPathComponent:@".gnupg"];
-			if(![path isEqualToString:realPath])
-				path = realPath;
-		}
+	NSString *path = [NSHomeDirectory() stringByAppendingPathComponent:@".gnupg"];
+	// Find the real path, in case we're sandboxed.
+	struct passwd *pw = getpwuid(getuid());
+	if(pw != NULL) {
+		NSString *realPath = [[NSString stringWithUTF8String:pw->pw_dir] stringByAppendingPathComponent:@".gnupg"];
+		if(![path isEqualToString:realPath])
+			path = realPath;
 	}
 	return path;
 }
@@ -825,8 +752,6 @@ void SystemConfigurationDidChange(SCPreferencesRef prefs, SCPreferencesNotificat
 		return;
 	}
 	initialized = YES;
-	environmentPlistDir = [[NSHomeDirectory() stringByAppendingPathComponent:@".MacOSX"] retain];
-	environmentPlistPath = [[environmentPlistDir stringByAppendingPathComponent:@"environment.plist"] retain];
 
     NSSet *gpgConfKeys = [NSSet setWithObjects:@"agent-program", @"allow-freeform-uid",
                           @"allow-multiple-messages", @"allow-multisig-verification",
@@ -919,9 +844,7 @@ void SystemConfigurationDidChange(SCPreferencesRef prefs, SCPreferencesNotificat
                                @"no-grab", @"no-use-standard-socket", @"pinentry-program",
                                @"pinentry-touch-file", @"scdaemon-program", @"server", @"sh",
                                @"use-standard-socket", @"write-env-file", nil];
-    
-    NSSet *environmentKeys = [NSSet setWithObjects:@"GNUPGHOME", @"GPG_AGENT_INFO", nil];
-    
+	
     NSSet *commonKeys = [NSSet setWithObjects:@"PathToGPG", @"ShowPassphrase",
                          @"UseKeychain", @"DebugLog", nil];
     
@@ -931,7 +854,6 @@ void SystemConfigurationDidChange(SCPreferencesRef prefs, SCPreferencesNotificat
 	domainKeys = [[NSDictionary alloc] initWithObjectsAndKeys:
 				  gpgConfKeys, [NSNumber numberWithInt:GPGDomain_gpgConf], 
 				  gpgAgentConfKeys, [NSNumber numberWithInt:GPGDomain_gpgAgentConf],
-				  environmentKeys, [NSNumber numberWithInt:GPGDomain_environment],
 				  commonKeys, [NSNumber numberWithInt:GPGDomain_common],
 				  specialKeys, [NSNumber numberWithInt:GPGDomain_special],				  
 				  nil];
@@ -975,7 +897,6 @@ void SystemConfigurationDidChange(SCPreferencesRef prefs, SCPreferencesNotificat
     [self stopSystemConfigurationWatch];
 
     [identifier release];
-	[environment release];
 	[standardDefaults release];
 	[commonDefaults release];
 	[httpProxy release];
