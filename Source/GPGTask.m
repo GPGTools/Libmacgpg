@@ -379,6 +379,7 @@ static NSLock *gpgTaskLock;
 			self.errorCode = GPGErrorNoPublicKey;
 			break;
 		case GPG_STATUS_DECRYPTION_OKAY:
+		case GPG_STATUS_KEY_CONSIDERED:
 			[self unsetErrorCode:GPGErrorNoSecretKey];
 			break;
 		case GPG_STATUS_BAD_PASSPHRASE:
