@@ -394,6 +394,9 @@ static NSLock *gpgTaskLock;
 				self.errorCode = GPGErrorDecryptionFailed;
 			}
 			break;
+		case GPG_STATUS_BADMDC:
+			self.errorCode = GPGErrorBadMDC;
+			break;
     }
 	
 	//Fill statusDict.

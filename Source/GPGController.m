@@ -418,7 +418,11 @@ BOOL gpgConfigReaded = NO;
 		
 		if ([gpgTask start] != 0) {
 			// It is better to also test for some status codes, because the exitcode also indicates unimportant errors.
-			if (gpgTask.errorCode == GPGErrorCancelled || gpgTask.statusDict[@"DECRYPTION_FAILED"] || gpgTask.statusDict[@"NODATA"] || gpgTask.statusDict[@"FAILURE"]) {
+			if (gpgTask.errorCode == GPGErrorCancelled ||
+				gpgTask.statusDict[@"DECRYPTION_FAILED"] ||
+				gpgTask.statusDict[@"NODATA"] ||
+				gpgTask.statusDict[@"BADMDC"] ||
+				gpgTask.statusDict[@"FAILURE"]) {
 				@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Decrypt failed!") gpgTask:gpgTask];
 			}
 		}
