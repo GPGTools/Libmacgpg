@@ -422,7 +422,9 @@ BOOL gpgConfigReaded = NO;
 				gpgTask.statusDict[@"DECRYPTION_FAILED"] ||
 				gpgTask.statusDict[@"NODATA"] ||
 				gpgTask.statusDict[@"BADMDC"] ||
-				gpgTask.statusDict[@"FAILURE"]) {
+				gpgTask.statusDict[@"FAILURE"])
+			{
+				[output seekToBeginning];
 				@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Decrypt failed!") gpgTask:gpgTask];
 			}
 		}
