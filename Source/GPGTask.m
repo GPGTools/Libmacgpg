@@ -389,6 +389,11 @@ static NSLock *gpgTaskLock;
 		case GPG_STATUS_GOOD_PASSPHRASE:
 			[self unsetErrorCode:GPGErrorBadPassphrase];
 			break;
+		case GPG_STATUS_DECRYPTION_FAILED:
+			if (self.errorCode == GPGErrorNoError) {
+				self.errorCode = GPGErrorDecryptionFailed;
+			}
+			break;
     }
 	
 	//Fill statusDict.
