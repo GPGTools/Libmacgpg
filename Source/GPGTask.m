@@ -397,6 +397,12 @@ static NSLock *gpgTaskLock;
 		case GPG_STATUS_BADMDC:
 			self.errorCode = GPGErrorBadMDC;
 			break;
+		case GPG_STATUS_DECRYPTION_INFO:
+			if (parts.count >= 1 && [parts[0] isEqualToString:@"0"]) {
+				// No MDC was used.
+				self.errorCode = GPGErrorNoMDC;
+			}
+			break;
     }
 	
 	//Fill statusDict.

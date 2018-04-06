@@ -72,6 +72,9 @@ NSString * const GPGErrorDomain = @"GPGErrorDomain";
 		case GPGErrorBadMDC:
 			details = @"Modification detected";
 			break;
+		case GPGErrorNoMDC:
+			details = @"No modification detection code";
+			break;
 		case GPGErrorSubkeyNotFound:
 			details = @"Subkey not found";
 			break;

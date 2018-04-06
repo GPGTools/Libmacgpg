@@ -537,7 +537,6 @@ closeInput = _closeInput;
     // Most keywords are handled by the processStatus callback,
     // but some like pinentry passphrase requests are handled
     // directly.
-	
 	NSData *response = self.processStatus(keyword, value);
     
     switch(code) {
@@ -804,6 +803,7 @@ closeInput = _closeInput;
 		  @"BEGIN_STREAM": @(GPG_STATUS_BEGIN_STREAM),
 		  @"CARDCTRL": @(GPG_STATUS_CARDCTRL),
 		  @"DECRYPTION_FAILED": @(GPG_STATUS_DECRYPTION_FAILED),
+		  @"DECRYPTION_INFO": @(GPG_STATUS_DECRYPTION_INFO),
 		  @"DECRYPTION_OKAY": @(GPG_STATUS_DECRYPTION_OKAY),
 		  @"DELETE_PROBLEM": @(GPG_STATUS_DELETE_PROBLEM),
 		  @"ENC_TO": @(GPG_STATUS_ENC_TO),
