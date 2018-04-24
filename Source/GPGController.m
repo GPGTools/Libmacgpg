@@ -204,7 +204,7 @@ BOOL gpgConfigReaded = NO;
 	if ((self = [super init]) == nil) {
 		return nil;
 	}
-	
+	[self.class readGPGConfigError:nil];
 	
 	identifier = [[NSString alloc] initWithFormat:@"%i%p", [[NSProcessInfo processInfo] processIdentifier], self];
 	comments = [[NSMutableArray alloc] init];
@@ -3218,31 +3218,12 @@ BOOL gpgConfigReaded = NO;
 	}
 	
 	@try {
-		GPGOptions *options = [GPGOptions sharedOptions];
-		[options repairGPGConf];
-
-		
 		GPGTask *gpgTask = [GPGTask gpgTask];
 		// Should return as quick as possible if the xpc helper is not available.
 		gpgTask.timeout = GPGTASKHELPER_DISPATCH_TIMEOUT_QUICKLY;
+		[gpgTask addArgument:@"--no-options"];
 		[gpgTask addArgument:@"--list-config"];
-		
-		
-		if ([gpgTask start] != 0) {
-			GPGTask *gpgTask2 = [GPGTask gpgTaskWithArguments:@[@"--options", @"/dev/null", @"--gpgconf-test"]];
-			gpgTask2.timeout = GPGTASKHELPER_DISPATCH_TIMEOUT_QUICKLY;
-			
-			// GPG could also return an error code if there is only an insignificant error. Like a missing keyring or so.
-			// So we need to test explicit for a config error.
-			if ([gpgTask2 start] == 0) { // Config Error.
-				GPGDebugLog(@"GPGController -readGPGConfig: GPGErrorConfigurationError");
-				GPGDebugLog(@"Error text: %@\nStatus text: %@", gpgTask.errText, gpgTask.statusText);
-				if (error) {
-					*error = [GPGException exceptionWithReason:@"GPGErrorConfigurationError" errorCode:GPGErrorConfigurationError gpgTask:gpgTask];
-				}
-				return GPGErrorConfigurationError;
-			}
-		}
+		[gpgTask start];
 		
 		NSString *outText = [gpgTask outText];
 		NSArray *lines = [outText componentsSeparatedByString:@"\n"];
@@ -3250,9 +3231,9 @@ BOOL gpgConfigReaded = NO;
 		for (NSString *line in lines) {
 			if ([line hasPrefix:@"cfg:"]) {
 				NSArray *parts = [line componentsSeparatedByString:@":"];
-				if ([parts count] > 2) {
-					NSString *name = [parts objectAtIndex:1];
-					NSString *value = [parts objectAtIndex:2];
+				if (parts.count > 2) {
+					NSString *name = parts[1];
+					NSString *value = parts[2];
 					
 					if ([name isEqualToString:@"version"]) {
 						gpgVersion = [value retain];
@@ -3277,6 +3258,30 @@ BOOL gpgConfigReaded = NO;
 			}
 			return GPGErrorGeneralError;
 		}
+		gpgConfigReaded = YES;
+
+		
+		// Repair the config if needed.
+		[[GPGOptions sharedOptions] repairGPGConf];
+
+		
+		gpgTask = [GPGTask gpgTask];
+		// Should return as quick as possible if the xpc helper is not available.
+		gpgTask.timeout = GPGTASKHELPER_DISPATCH_TIMEOUT_QUICKLY;
+		[gpgTask addArgument:@"--gpgconf-test"];
+		[gpgTask start];
+		
+		NSArray *failure = gpgTask.statusDict[@"FAILURE"];
+		if ([failure isKindOfClass:[NSArray class]] && [failure[0][0] isEqualToString:@"option-parser"]) {
+			GPGDebugLog(@"GPGController -readGPGConfig: GPGErrorConfigurationError");
+			GPGDebugLog(@"Error text: %@\nStatus text: %@", gpgTask.errText, gpgTask.statusText);
+			if (error) {
+				*error = [GPGException exceptionWithReason:@"GPGErrorConfigurationError" errorCode:GPGErrorConfigurationError gpgTask:gpgTask];
+			}
+			return GPGErrorConfigurationError;
+		}
+		
+		
 	} @catch (GPGException *exception) {
 		GPGDebugLog(@"GPGController -readGPGConfig: %@", exception.description);
 		GPGDebugLog(@"Error text: %@\nStatus text: %@", [exception gpgTask].errText, [exception gpgTask].statusText);
@@ -3290,7 +3295,6 @@ BOOL gpgConfigReaded = NO;
 		return GPGErrorGeneralError;
 	}
 	
-	gpgConfigReaded = YES;
 	return GPGErrorNoError;
 }
 

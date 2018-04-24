@@ -28,4 +28,11 @@
     XCTAssertEqual(domain, GPGDomain_common, @"unexpected domain");
 }
 
+- (void)testDomainForKey4 {
+
+	GPGOptions *options = [GPGOptions sharedOptions];
+	GPGOptionsDomain domain = [options domainForKey:@"nameserver"];
+	XCTAssertEqual(domain, GPGDomain_dirmngrConf, @"unexpected domain");
+}
+
 @end
