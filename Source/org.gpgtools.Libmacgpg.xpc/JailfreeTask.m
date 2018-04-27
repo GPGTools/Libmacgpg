@@ -123,7 +123,7 @@
 }
 
 - (void)loadConfigFileAtPath:(NSString *)path reply:(void (^)(NSString *))reply {
-	NSArray *allowedConfigs = @[@"gpg.conf", @"gpg-agent.conf"];
+	NSArray *allowedConfigs = @[@"gpg.conf", @"gpg-agent.conf", @"dirmngr.conf"];
 	
 	if(![allowedConfigs containsObject:[path lastPathComponent]])
 		reply(nil);
