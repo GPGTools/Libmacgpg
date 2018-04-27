@@ -152,7 +152,7 @@ static NSString * const kWatchedFileName = @"watchedFileName";
 
 - (void)postNotificationName:(NSString *)name object:(NSString *)object {
 #if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
-	if (self.checkForSandbox && [GPGTask sandboxed]) {
+	if (jailfree && !self.checkForSandbox) {
         [[jailfree remoteObjectProxy] postNotificationName:name object:object];
 	} else
 #endif
