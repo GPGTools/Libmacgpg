@@ -3221,6 +3221,7 @@ BOOL gpgConfigReaded = NO;
 		GPGTask *gpgTask = [GPGTask gpgTask];
 		// Should return as quick as possible if the xpc helper is not available.
 		gpgTask.timeout = GPGTASKHELPER_DISPATCH_TIMEOUT_QUICKLY;
+		gpgTask.nonBlocking = YES;
 		[gpgTask addArgument:@"--no-options"];
 		[gpgTask addArgument:@"--list-config"];
 		[gpgTask start];
@@ -3268,6 +3269,7 @@ BOOL gpgConfigReaded = NO;
 		gpgTask = [GPGTask gpgTask];
 		// Should return as quick as possible if the xpc helper is not available.
 		gpgTask.timeout = GPGTASKHELPER_DISPATCH_TIMEOUT_QUICKLY;
+		gpgTask.nonBlocking = YES;
 		[gpgTask addArgument:@"--gpgconf-test"];
 		[gpgTask start];
 		
