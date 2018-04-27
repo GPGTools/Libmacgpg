@@ -943,8 +943,9 @@ void SystemConfigurationDidChange(SCPreferencesRef prefs, SCPreferencesNotificat
 				  specialKeys, [NSNumber numberWithInt:GPGDomain_special],				  
 				  nil];
 	
-	[GPGWatcher activate];
-
+	
+	// Do not activate the GPGWatcher from within this method to prevent a possible deadlock.
+	[[GPGWatcher class] performSelectorOnMainThread:@selector(activate) withObject:nil waitUntilDone:NO];
 }
 
 + (instancetype)sharedOptions {
