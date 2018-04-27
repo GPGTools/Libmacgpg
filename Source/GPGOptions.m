@@ -350,7 +350,15 @@ static NSString * const kDirmngrConfKVKey = @"dirmngrConf";
 /*
  * Checks the gpg config, disables invalid options and removes invalid keyserver-options.
  */
-- (void)repairGPGConf {
+- (void)repairGPGConfForce:(BOOL)force {
+	static BOOL repaired = NO;
+	
+	// Do not use dispatch_once here to prevent possible deadlocks.
+	if (OSAtomicTestAndSet(0, &repaired) && !force) {
+		return;
+	}
+	
+	
 	if ([GPGTask sandboxed]) {
 		// Can not repair the config from within the sandbox.
 		return;
@@ -359,6 +367,7 @@ static NSString * const kDirmngrConfKVKey = @"dirmngrConf";
 	[self pinentryPath];
 	
 	GPGTask *gpgTask = [GPGTask gpgTaskWithArguments:@[@"--gpgconf-test"]];
+	gpgTask.nonBlocking = YES;
 	gpgTask.timeout = GPGTASKHELPER_DISPATCH_TIMEOUT_QUICKLY;
 	[gpgTask setEnvironmentVariables:@{@"LANG": @"C"}];
 	[gpgTask start];
@@ -437,7 +446,7 @@ static NSString * const kDirmngrConfKVKey = @"dirmngrConf";
 		if (!keyserver || ![keyserver isKindOfClass:[NSString class]]) {
 			keyserver = gpgConfKeyserver;
 			if (!keyserver || ![keyserver isKindOfClass:[NSString class]]) {
-				keyserver = @"hkps://hkps.pool.sks-keyservers.net";
+				keyserver = GPG_DEFAULT_KEYSERVER;
 			}
 			[self.dirmngrConf setValue:keyserver forKey:@"keyserver"];
 			[self.dirmngrConf saveConfig];
@@ -449,7 +458,10 @@ static NSString * const kDirmngrConfKVKey = @"dirmngrConf";
 		}
 	}
 
+}
 
+- (void)repairGPGConf {
+	[self repairGPGConfForce:NO];
 }
 
 
@@ -938,11 +950,12 @@ void SystemConfigurationDidChange(SCPreferencesRef prefs, SCPreferencesNotificat
 + (instancetype)sharedOptions {
     static dispatch_once_t onceToken;
     static GPGOptions *_sharedInstance = nil;
-    
+
     dispatch_once(&onceToken, ^{
         _sharedInstance = [[GPGOptions alloc] init];
     });
-    
+	[_sharedInstance repairGPGConfForce:NO];
+
     return _sharedInstance;
 }
 - (id)init {

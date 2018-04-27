@@ -896,6 +896,9 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 		return nil;
 	}
 	
+	// Repair the config if needed.
+	[[GPGOptions sharedOptions] repairGPGConf];
+
 	_mutableAllKeys = [[NSMutableSet alloc] init];
 	_keyLoadingQueue = dispatch_queue_create("org.gpgtools.libmacgpg.GPGKeyManager.key-loader", NULL);
 	_keyChangeNotificationQueue = dispatch_queue_create("org.gpgtools.libmacgpg.GPGKeyManager.key-change", NULL);

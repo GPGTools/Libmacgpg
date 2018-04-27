@@ -230,6 +230,8 @@ enum gpgStatusCodes {
 #define GPG_SERVICE_NAME "GnuPG"
 #define JAILFREE_XPC_MACH_NAME JAILFREE_XPC_NAME
 
+#define GPG_DEFAULT_KEYSERVER @"hkps://hkps.pool.sks-keyservers.net"
+
 extern NSString * const GPGOptionsChangedNotification;
 extern NSString * const GPGConfigurationModifiedNotification;
 
