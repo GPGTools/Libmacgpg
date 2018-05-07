@@ -2113,7 +2113,7 @@ BOOL gpgConfigReaded = NO;
 				gpgTask.batchMode = YES;
 				gpgTask.nonBlocking = YES;
 				[gpgTask addArgument:@"--search-keys"];
-				[gpgTask addArgument:@"0x00000000"];
+				[gpgTask addArgument:@"0x0000000000000000"];
 				
 				
 				dispatch_group_t dispatchGroup = dispatch_group_create();
