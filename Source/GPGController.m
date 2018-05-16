@@ -416,17 +416,19 @@ BOOL gpgConfigReaded = NO;
 		
 		[gpgTask addArgument:@"--decrypt"];
 		
-		if ([gpgTask start] != 0) {
-			// It is better to also test for some status codes, because the exitcode also indicates unimportant errors.
-			if (gpgTask.errorCode == GPGErrorCancelled ||
-				gpgTask.statusDict[@"DECRYPTION_FAILED"] ||
-				gpgTask.statusDict[@"NODATA"] ||
-				gpgTask.statusDict[@"BADMDC"] ||
-				gpgTask.statusDict[@"FAILURE"])
-			{
-				[output seekToBeginning];
-				@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Decrypt failed!") gpgTask:gpgTask];
-			}
+		[gpgTask start]; // Ignore exit code from gpg. It's useless.
+		
+		NSArray *errorCodes = gpgTask.errorCodes;
+		// Check the error codes and some specific status codes to detect errors or possible attacks.
+		if (gpgTask.errorCode == GPGErrorCancelled ||
+			[errorCodes containsObject:@(GPGErrorDecryptionFailed)] ||
+			[errorCodes containsObject:@(GPGErrorNoMDC)] ||
+			[errorCodes containsObject:@(GPGErrorBadMDC)] ||
+			gpgTask.statusDict[@"NODATA"] ||
+			gpgTask.statusDict[@"FAILURE"])
+		{
+			[output seekToBeginning];
+			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Decrypt failed!") gpgTask:gpgTask];
 		}
 	} @catch (NSException *e) {
 		[self handleException:e];

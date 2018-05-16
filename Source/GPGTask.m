@@ -392,6 +392,11 @@ static NSLock *gpgTaskLock;
 		case GPG_STATUS_DECRYPTION_FAILED:
 			if (self.errorCode == GPGErrorNoError) {
 				self.errorCode = GPGErrorDecryptionFailed;
+			} else {
+				// Add GPGErrorDecryptionFailed to the list of error codes.
+				int oldValue = self.errorCode;
+				self.errorCode = GPGErrorDecryptionFailed;
+				self.errorCode = oldValue;
 			}
 			break;
 		case GPG_STATUS_BADMDC:
@@ -466,6 +471,13 @@ static NSLock *gpgTaskLock;
         else
             errorCode = GPGErrorNoError;
     }
+}
+- (NSArray *)errorCodes {
+	NSMutableArray *filteredCodes = [NSMutableArray arrayWithCapacity:errorCodes.count];
+	for (NSNumber *code in errorCodes) {
+		[filteredCodes addObject:@(code.intValue & 0xFFFF)];
+	}
+	return filteredCodes;
 }
 
 - (void)cancel {
