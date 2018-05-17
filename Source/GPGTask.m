@@ -357,7 +357,7 @@ static NSLock *gpgTaskLock;
 
 - (NSData *)processStatusWithKeyword:(NSString *)keyword value:(NSString *)value {
     
-    NSArray *parts = value.length == 0 ? @[] : [value componentsSeparatedByString:@" "];
+    NSArray <NSString *> *parts = value.length == 0 ? @[] : [value componentsSeparatedByString:@" "];
     NSInteger statusCode = [GPGTaskHelper.statusCodes[keyword] integerValue];
     // No status code available, we're out of here.
     if(!statusCode)
@@ -403,9 +403,14 @@ static NSLock *gpgTaskLock;
 			self.errorCode = GPGErrorBadMDC;
 			break;
 		case GPG_STATUS_DECRYPTION_INFO:
-			if (parts.count >= 1 && [parts[0] isEqualToString:@"0"]) {
-				// No MDC was used.
-				self.errorCode = GPGErrorNoMDC;
+			// First field: MDC. Always 0 when AEAD is used.
+			// Second field: Symmetric algorithm.
+			// Third field: AEAD algorithm.
+			if (parts.count >= 1 && parts[0].integerValue == 0) {
+				if (parts.count < 3 || parts[2].integerValue == 0) {
+					// No MDC was used.
+					self.errorCode = GPGErrorNoMDC;
+				}
 			}
 			break;
     }
