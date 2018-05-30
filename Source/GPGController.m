@@ -418,17 +418,54 @@ BOOL gpgConfigReaded = NO;
 		
 		[gpgTask start]; // Ignore exit code from gpg. It's useless.
 		
+		
+		
+		__block NSString *errorDecription = nil;
 		NSArray *errorCodes = gpgTask.errorCodes;
+
 		// Check the error codes and some specific status codes to detect errors or possible attacks.
-		if (gpgTask.errorCode == GPGErrorCancelled ||
-			[errorCodes containsObject:@(GPGErrorDecryptionFailed)] ||
-			[errorCodes containsObject:@(GPGErrorNoMDC)] ||
-			[errorCodes containsObject:@(GPGErrorBadMDC)] ||
-			gpgTask.statusDict[@"NODATA"] ||
-			gpgTask.statusDict[@"FAILURE"])
-		{
+		if (gpgTask.errorCode == GPGErrorCancelled) {
+			errorDecription = @"Decryption cancelled!";
+		} else if ([errorCodes containsObject:@(GPGErrorDecryptionFailed)]) {
+			errorDecription = @"Decryption failed!";
+		} else if ([errorCodes containsObject:@(GPGErrorNoMDC)]) {
+			errorDecription = @"Decryption failed: No MDC!";
+		} else if ([errorCodes containsObject:@(GPGErrorBadMDC)]) {
+			errorDecription = @"Decryption failed: Bad MDC!";
+		} else if (gpgTask.statusDict[@"NODATA"]) {
+			errorDecription = @"Decryption failed: No Data!";
+		} else if (gpgTask.statusDict[@"FAILURE"]) {
+			errorDecription = @"Decryption failed: Other Failure!";
+		} else {
+			__block BOOL inDecryptedPacket = NO;
+			__block BOOL hasUnencryptedPlaintext = NO;
+			__block BOOL hasDecryptedPacket = NO;
+
+			[gpgTask.statusArray enumerateObjectsUsingBlock:^(GPGStatusLine * _Nonnull status, __unused NSUInteger idx, BOOL * _Nonnull stop) {
+				switch (status.code) {
+					case GPG_STATUS_BEGIN_DECRYPTION:
+						inDecryptedPacket = YES;
+						hasDecryptedPacket = YES;
+						break;
+					case GPG_STATUS_END_DECRYPTION:
+						inDecryptedPacket = NO;
+						break;
+					case GPG_STATUS_PLAINTEXT:
+						if (!inDecryptedPacket) {
+							hasUnencryptedPlaintext = YES;
+						}
+						break;
+				}
+			}];
+			
+			if (hasUnencryptedPlaintext && hasDecryptedPacket) {
+				errorDecription = @"Decryption failed: Unencrypted Plaintext!";
+			}
+		}
+		
+		if (errorDecription) {
 			[output seekToBeginning];
-			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Decrypt failed!") gpgTask:gpgTask];
+			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(errorDecription) gpgTask:gpgTask];
 		}
 	} @catch (NSException *e) {
 		[self handleException:e];

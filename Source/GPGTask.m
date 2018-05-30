@@ -27,6 +27,7 @@
 //#import <sys/shm.h>
 #import <fcntl.h>
 #import "NSBundle+Sandbox.h"
+#import "GPGStatusLine.h"
 
 
 @class GPGController;
@@ -50,7 +51,7 @@ static NSLock *gpgTaskLock;
 
 @synthesize isRunning, batchMode, getAttributeData, delegate, userInfo, exitcode, errData, statusData, attributeData, cancelled,
             progressInfo, statusDict, taskHelper = taskHelper, timeout, environmentVariables=_environmentVariables, passphrase, nonBlocking;
-@synthesize outStream;
+@synthesize outStream, statusArray;
 
 
 
@@ -148,6 +149,7 @@ static NSLock *gpgTaskLock;
 		batchMode = batch;
 		errorCodes = [[NSMutableArray alloc] init];
 		statusDict = [[NSMutableDictionary alloc] init];
+		statusArray = [[NSMutableArray alloc] init];
 	}
 	return self;	
 }
@@ -177,6 +179,7 @@ static NSLock *gpgTaskLock;
 	[inData release];
     [errorCodes release];
 	[statusDict release];
+	[statusArray release];
 	[_environmentVariables release];
 	
     if(taskHelper)
@@ -437,6 +440,11 @@ static NSLock *gpgTaskLock;
 	} else {
 		[statusDict setObject:[NSNumber numberWithBool:YES] forKey:keyword];
 	}
+	
+	// Fill statusArray
+	[statusArray addObject:[GPGStatusLine statusLineWithKeyword:keyword code:statusCode parts:parts]];
+	
+	
 	
 	// If the status is either GET_HIDDEN, GET_LINE or GET_BOOL
     // the GPG Controller is asked for a value to be passed

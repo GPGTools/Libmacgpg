@@ -40,6 +40,14 @@
 		1BDA56BC1618A94300185C72 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4591C4D314F86D38007F6D47 /* AppKit.framework */; };
 		300F3DB51B4AC2CE00E36AAA /* libbz2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 300F3DB31B4AC2CE00E36AAA /* libbz2.dylib */; };
 		300F3DB61B4AC2CE00E36AAA /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 300F3DB41B4AC2CE00E36AAA /* libz.dylib */; };
+		301A265720BE96680059010D /* LiteralAfterCustomEncrypted.gpg in Copy Decrypt Test-Cases */ = {isa = PBXBuildFile; fileRef = 301A264C20BE94110059010D /* LiteralAfterCustomEncrypted.gpg */; };
+		301A265820BE96680059010D /* LiteralAfterCustomEncrypted.res in Copy Decrypt Test-Cases */ = {isa = PBXBuildFile; fileRef = 301A264F20BE94110059010D /* LiteralAfterCustomEncrypted.res */; };
+		301A265920BE96680059010D /* LiteralAfterEmptyEncrypted.gpg in Copy Decrypt Test-Cases */ = {isa = PBXBuildFile; fileRef = 301A264B20BE94110059010D /* LiteralAfterEmptyEncrypted.gpg */; };
+		301A265A20BE96680059010D /* LiteralAfterEmptyEncrypted.res in Copy Decrypt Test-Cases */ = {isa = PBXBuildFile; fileRef = 301A264D20BE94110059010D /* LiteralAfterEmptyEncrypted.res */; };
+		301A265B20BE96680059010D /* Normal.gpg in Copy Decrypt Test-Cases */ = {isa = PBXBuildFile; fileRef = 301A264E20BE94110059010D /* Normal.gpg */; };
+		301A265C20BE96680059010D /* Normal.res in Copy Decrypt Test-Cases */ = {isa = PBXBuildFile; fileRef = 301A264A20BE94110059010D /* Normal.res */; };
+		301A265F20BE9ED10059010D /* GPGStatusLine.h in Headers */ = {isa = PBXBuildFile; fileRef = 301A265D20BE9ED10059010D /* GPGStatusLine.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		301A266020BE9ED10059010D /* GPGStatusLine.m in Sources */ = {isa = PBXBuildFile; fileRef = 301A265E20BE9ED10059010D /* GPGStatusLine.m */; };
 		301A44CD1B436405002A38E4 /* GPGUnArmor.h in Headers */ = {isa = PBXBuildFile; fileRef = 301A44CB1B436405002A38E4 /* GPGUnArmor.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		301A44CE1B436405002A38E4 /* GPGUnArmor.m in Sources */ = {isa = PBXBuildFile; fileRef = 301A44CC1B436405002A38E4 /* GPGUnArmor.m */; };
 		301D291D1B4BE4F500599BE8 /* GPGPacketParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 301D291B1B4BE4F500599BE8 /* GPGPacketParser.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -215,6 +223,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		301A265620BE964C0059010D /* Copy Decrypt Test-Cases */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Decrypt;
+			dstSubfolderSpec = 7;
+			files = (
+				301A265720BE96680059010D /* LiteralAfterCustomEncrypted.gpg in Copy Decrypt Test-Cases */,
+				301A265820BE96680059010D /* LiteralAfterCustomEncrypted.res in Copy Decrypt Test-Cases */,
+				301A265920BE96680059010D /* LiteralAfterEmptyEncrypted.gpg in Copy Decrypt Test-Cases */,
+				301A265A20BE96680059010D /* LiteralAfterEmptyEncrypted.res in Copy Decrypt Test-Cases */,
+				301A265B20BE96680059010D /* Normal.gpg in Copy Decrypt Test-Cases */,
+				301A265C20BE96680059010D /* Normal.res in Copy Decrypt Test-Cases */,
+			);
+			name = "Copy Decrypt Test-Cases";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -254,6 +278,14 @@
 		3002C04516EE389100D57C1E /* libxar.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxar.dylib; path = usr/lib/libxar.dylib; sourceTree = SDKROOT; };
 		300F3DB31B4AC2CE00E36AAA /* libbz2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libbz2.dylib; path = usr/lib/libbz2.dylib; sourceTree = SDKROOT; };
 		300F3DB41B4AC2CE00E36AAA /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
+		301A264A20BE94110059010D /* Normal.res */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Normal.res; sourceTree = "<group>"; };
+		301A264B20BE94110059010D /* LiteralAfterEmptyEncrypted.gpg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LiteralAfterEmptyEncrypted.gpg; sourceTree = "<group>"; };
+		301A264C20BE94110059010D /* LiteralAfterCustomEncrypted.gpg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LiteralAfterCustomEncrypted.gpg; sourceTree = "<group>"; };
+		301A264D20BE94110059010D /* LiteralAfterEmptyEncrypted.res */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LiteralAfterEmptyEncrypted.res; sourceTree = "<group>"; };
+		301A264E20BE94110059010D /* Normal.gpg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Normal.gpg; sourceTree = "<group>"; };
+		301A264F20BE94110059010D /* LiteralAfterCustomEncrypted.res */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LiteralAfterCustomEncrypted.res; sourceTree = "<group>"; };
+		301A265D20BE9ED10059010D /* GPGStatusLine.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GPGStatusLine.h; sourceTree = "<group>"; };
+		301A265E20BE9ED10059010D /* GPGStatusLine.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GPGStatusLine.m; sourceTree = "<group>"; };
 		301A44CB1B436405002A38E4 /* GPGUnArmor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGUnArmor.h; sourceTree = "<group>"; };
 		301A44CC1B436405002A38E4 /* GPGUnArmor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGUnArmor.m; sourceTree = "<group>"; };
 		301D291B1B4BE4F500599BE8 /* GPGPacketParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGPacketParser.h; path = GPGPacket/GPGPacketParser.h; sourceTree = "<group>"; };
@@ -266,18 +298,18 @@
 		301D29281B4C049C00599BE8 /* GPGPacketParser_Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GPGPacketParser_Private.h; path = GPGPacket/GPGPacketParser_Private.h; sourceTree = "<group>"; };
 		301D5D9D178C9871003026E7 /* GPGKeyserver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGKeyserver.h; sourceTree = "<group>"; };
 		301D5D9E178C9871003026E7 /* GPGKeyserver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGKeyserver.m; sourceTree = "<group>"; };
-		302481CA1B5CF46800C86A07 /* Unarmor_ClearsignComplicated.clear */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Unarmor_ClearsignComplicated.clear; path = Unarmor/Unarmor_ClearsignComplicated.clear; sourceTree = "<group>"; };
-		302481CB1B5CF46800C86A07 /* Unarmor_ClearsignComplicated.res */ = {isa = PBXFileReference; lastKnownFileType = file; name = Unarmor_ClearsignComplicated.res; path = Unarmor/Unarmor_ClearsignComplicated.res; sourceTree = "<group>"; };
-		302481CC1B5CF46800C86A07 /* Unarmor_ClearsignComplicated.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Unarmor_ClearsignComplicated.txt; path = Unarmor/Unarmor_ClearsignComplicated.txt; sourceTree = "<group>"; };
-		302481CD1B5CF46800C86A07 /* Unarmor_ClearsignNoLF.clear */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Unarmor_ClearsignNoLF.clear; path = Unarmor/Unarmor_ClearsignNoLF.clear; sourceTree = "<group>"; };
-		302481CE1B5CF46800C86A07 /* Unarmor_ClearsignNoLF.res */ = {isa = PBXFileReference; lastKnownFileType = file; name = Unarmor_ClearsignNoLF.res; path = Unarmor/Unarmor_ClearsignNoLF.res; sourceTree = "<group>"; };
-		302481CF1B5CF46800C86A07 /* Unarmor_ClearsignNoLF.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Unarmor_ClearsignNoLF.txt; path = Unarmor/Unarmor_ClearsignNoLF.txt; sourceTree = "<group>"; };
-		302481D01B5CF46800C86A07 /* Unarmor_ClearsignOneLF.clear */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Unarmor_ClearsignOneLF.clear; path = Unarmor/Unarmor_ClearsignOneLF.clear; sourceTree = "<group>"; };
-		302481D11B5CF46800C86A07 /* Unarmor_ClearsignOneLF.res */ = {isa = PBXFileReference; lastKnownFileType = file; name = Unarmor_ClearsignOneLF.res; path = Unarmor/Unarmor_ClearsignOneLF.res; sourceTree = "<group>"; };
-		302481D21B5CF46800C86A07 /* Unarmor_ClearsignOneLF.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Unarmor_ClearsignOneLF.txt; path = Unarmor/Unarmor_ClearsignOneLF.txt; sourceTree = "<group>"; };
-		302481D31B5CF46800C86A07 /* Unarmor_ClearsignTwoLF.clear */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Unarmor_ClearsignTwoLF.clear; path = Unarmor/Unarmor_ClearsignTwoLF.clear; sourceTree = "<group>"; };
-		302481D41B5CF46800C86A07 /* Unarmor_ClearsignTwoLF.res */ = {isa = PBXFileReference; lastKnownFileType = file; name = Unarmor_ClearsignTwoLF.res; path = Unarmor/Unarmor_ClearsignTwoLF.res; sourceTree = "<group>"; };
-		302481D51B5CF46800C86A07 /* Unarmor_ClearsignTwoLF.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Unarmor_ClearsignTwoLF.txt; path = Unarmor/Unarmor_ClearsignTwoLF.txt; sourceTree = "<group>"; };
+		302481CA1B5CF46800C86A07 /* Unarmor_ClearsignComplicated.clear */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Unarmor_ClearsignComplicated.clear; sourceTree = "<group>"; };
+		302481CB1B5CF46800C86A07 /* Unarmor_ClearsignComplicated.res */ = {isa = PBXFileReference; lastKnownFileType = file; path = Unarmor_ClearsignComplicated.res; sourceTree = "<group>"; };
+		302481CC1B5CF46800C86A07 /* Unarmor_ClearsignComplicated.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Unarmor_ClearsignComplicated.txt; sourceTree = "<group>"; };
+		302481CD1B5CF46800C86A07 /* Unarmor_ClearsignNoLF.clear */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Unarmor_ClearsignNoLF.clear; sourceTree = "<group>"; };
+		302481CE1B5CF46800C86A07 /* Unarmor_ClearsignNoLF.res */ = {isa = PBXFileReference; lastKnownFileType = file; path = Unarmor_ClearsignNoLF.res; sourceTree = "<group>"; };
+		302481CF1B5CF46800C86A07 /* Unarmor_ClearsignNoLF.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Unarmor_ClearsignNoLF.txt; sourceTree = "<group>"; };
+		302481D01B5CF46800C86A07 /* Unarmor_ClearsignOneLF.clear */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Unarmor_ClearsignOneLF.clear; sourceTree = "<group>"; };
+		302481D11B5CF46800C86A07 /* Unarmor_ClearsignOneLF.res */ = {isa = PBXFileReference; lastKnownFileType = file; path = Unarmor_ClearsignOneLF.res; sourceTree = "<group>"; };
+		302481D21B5CF46800C86A07 /* Unarmor_ClearsignOneLF.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Unarmor_ClearsignOneLF.txt; sourceTree = "<group>"; };
+		302481D31B5CF46800C86A07 /* Unarmor_ClearsignTwoLF.clear */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Unarmor_ClearsignTwoLF.clear; sourceTree = "<group>"; };
+		302481D41B5CF46800C86A07 /* Unarmor_ClearsignTwoLF.res */ = {isa = PBXFileReference; lastKnownFileType = file; path = Unarmor_ClearsignTwoLF.res; sourceTree = "<group>"; };
+		302481D51B5CF46800C86A07 /* Unarmor_ClearsignTwoLF.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Unarmor_ClearsignTwoLF.txt; sourceTree = "<group>"; };
 		3026F4AE13A203A000F3CA02 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		3034E5CA2065433E00E40A8E /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
 		30444C331A65E0590052CB94 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
@@ -295,8 +327,8 @@
 		304BF38E1E449CB000CF4C4F /* pt */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pt; path = pt.lproj/Localizable.strings; sourceTree = "<group>"; };
 		304BF38F1E449CB400CF4C4F /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
 		304BF3901E449CB800CF4C4F /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/Localizable.strings; sourceTree = "<group>"; };
-		304C69FC2069124F00D89F65 /* Unarmor_2Messages.res */ = {isa = PBXFileReference; lastKnownFileType = file; name = Unarmor_2Messages.res; path = Unarmor/Unarmor_2Messages.res; sourceTree = "<group>"; };
-		304C69FD2069125000D89F65 /* Unarmor_2Messages.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Unarmor_2Messages.txt; path = Unarmor/Unarmor_2Messages.txt; sourceTree = "<group>"; };
+		304C69FC2069124F00D89F65 /* Unarmor_2Messages.res */ = {isa = PBXFileReference; lastKnownFileType = file; path = Unarmor_2Messages.res; sourceTree = "<group>"; };
+		304C69FD2069125000D89F65 /* Unarmor_2Messages.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Unarmor_2Messages.txt; sourceTree = "<group>"; };
 		305165591422812B0038AAF0 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
 		3059AF1014239FAB00AD5B30 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		30691AA2136AECC4004AA469 /* GPGOptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGOptions.h; sourceTree = "<group>"; };
@@ -316,22 +348,22 @@
 		30A058371799E2DC00E1AD20 /* GPGKeyManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGKeyManager.h; sourceTree = "<group>"; };
 		30A058381799E2DC00E1AD20 /* GPGKeyManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGKeyManager.m; sourceTree = "<group>"; };
 		30A218221B5543A500D01E37 /* GPGUnarmorTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGUnarmorTest.m; sourceTree = "<group>"; };
-		30A2185B1B5579A200D01E37 /* Unarmor_DoubleNewline.res */ = {isa = PBXFileReference; lastKnownFileType = file; name = Unarmor_DoubleNewline.res; path = Unarmor/Unarmor_DoubleNewline.res; sourceTree = "<group>"; };
-		30A2185C1B5579A200D01E37 /* Unarmor_DoubleNewline.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Unarmor_DoubleNewline.txt; path = Unarmor/Unarmor_DoubleNewline.txt; sourceTree = "<group>"; };
-		30A2185D1B5579A200D01E37 /* Unarmor_InvalidComment.res */ = {isa = PBXFileReference; lastKnownFileType = file; name = Unarmor_InvalidComment.res; path = Unarmor/Unarmor_InvalidComment.res; sourceTree = "<group>"; };
-		30A2185E1B5579A200D01E37 /* Unarmor_InvalidComment.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Unarmor_InvalidComment.txt; path = Unarmor/Unarmor_InvalidComment.txt; sourceTree = "<group>"; };
-		30A2185F1B5579A200D01E37 /* Unarmor_InvalidVersion.res */ = {isa = PBXFileReference; lastKnownFileType = file; name = Unarmor_InvalidVersion.res; path = Unarmor/Unarmor_InvalidVersion.res; sourceTree = "<group>"; };
-		30A218601B5579A200D01E37 /* Unarmor_InvalidVersion.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Unarmor_InvalidVersion.txt; path = Unarmor/Unarmor_InvalidVersion.txt; sourceTree = "<group>"; };
-		30A218611B5579A200D01E37 /* Unarmor_MissingNewline.res */ = {isa = PBXFileReference; lastKnownFileType = file; name = Unarmor_MissingNewline.res; path = Unarmor/Unarmor_MissingNewline.res; sourceTree = "<group>"; };
-		30A218621B5579A200D01E37 /* Unarmor_MissingNewline.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Unarmor_MissingNewline.txt; path = Unarmor/Unarmor_MissingNewline.txt; sourceTree = "<group>"; };
-		30A218631B5579A200D01E37 /* Unarmor_NoNewline.res */ = {isa = PBXFileReference; lastKnownFileType = file; name = Unarmor_NoNewline.res; path = Unarmor/Unarmor_NoNewline.res; sourceTree = "<group>"; };
-		30A218641B5579A200D01E37 /* Unarmor_NoNewline.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Unarmor_NoNewline.txt; path = Unarmor/Unarmor_NoNewline.txt; sourceTree = "<group>"; };
-		30A218651B5579A200D01E37 /* Unarmor_Normal.res */ = {isa = PBXFileReference; lastKnownFileType = file; name = Unarmor_Normal.res; path = Unarmor/Unarmor_Normal.res; sourceTree = "<group>"; };
-		30A218661B5579A200D01E37 /* Unarmor_Normal.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Unarmor_Normal.txt; path = Unarmor/Unarmor_Normal.txt; sourceTree = "<group>"; };
-		30A218671B5579A200D01E37 /* Unarmor_Version.res */ = {isa = PBXFileReference; lastKnownFileType = file; name = Unarmor_Version.res; path = Unarmor/Unarmor_Version.res; sourceTree = "<group>"; };
-		30A218681B5579A200D01E37 /* Unarmor_Version.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Unarmor_Version.txt; path = Unarmor/Unarmor_Version.txt; sourceTree = "<group>"; };
-		30A218691B5579A200D01E37 /* Unarmor_VersionOnline.res */ = {isa = PBXFileReference; lastKnownFileType = file; name = Unarmor_VersionOnline.res; path = Unarmor/Unarmor_VersionOnline.res; sourceTree = "<group>"; };
-		30A2186A1B5579A200D01E37 /* Unarmor_VersionOnline.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Unarmor_VersionOnline.txt; path = Unarmor/Unarmor_VersionOnline.txt; sourceTree = "<group>"; };
+		30A2185B1B5579A200D01E37 /* Unarmor_DoubleNewline.res */ = {isa = PBXFileReference; lastKnownFileType = file; path = Unarmor_DoubleNewline.res; sourceTree = "<group>"; };
+		30A2185C1B5579A200D01E37 /* Unarmor_DoubleNewline.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Unarmor_DoubleNewline.txt; sourceTree = "<group>"; };
+		30A2185D1B5579A200D01E37 /* Unarmor_InvalidComment.res */ = {isa = PBXFileReference; lastKnownFileType = file; path = Unarmor_InvalidComment.res; sourceTree = "<group>"; };
+		30A2185E1B5579A200D01E37 /* Unarmor_InvalidComment.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Unarmor_InvalidComment.txt; sourceTree = "<group>"; };
+		30A2185F1B5579A200D01E37 /* Unarmor_InvalidVersion.res */ = {isa = PBXFileReference; lastKnownFileType = file; path = Unarmor_InvalidVersion.res; sourceTree = "<group>"; };
+		30A218601B5579A200D01E37 /* Unarmor_InvalidVersion.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Unarmor_InvalidVersion.txt; sourceTree = "<group>"; };
+		30A218611B5579A200D01E37 /* Unarmor_MissingNewline.res */ = {isa = PBXFileReference; lastKnownFileType = file; path = Unarmor_MissingNewline.res; sourceTree = "<group>"; };
+		30A218621B5579A200D01E37 /* Unarmor_MissingNewline.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Unarmor_MissingNewline.txt; sourceTree = "<group>"; };
+		30A218631B5579A200D01E37 /* Unarmor_NoNewline.res */ = {isa = PBXFileReference; lastKnownFileType = file; path = Unarmor_NoNewline.res; sourceTree = "<group>"; };
+		30A218641B5579A200D01E37 /* Unarmor_NoNewline.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Unarmor_NoNewline.txt; sourceTree = "<group>"; };
+		30A218651B5579A200D01E37 /* Unarmor_Normal.res */ = {isa = PBXFileReference; lastKnownFileType = file; path = Unarmor_Normal.res; sourceTree = "<group>"; };
+		30A218661B5579A200D01E37 /* Unarmor_Normal.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Unarmor_Normal.txt; sourceTree = "<group>"; };
+		30A218671B5579A200D01E37 /* Unarmor_Version.res */ = {isa = PBXFileReference; lastKnownFileType = file; path = Unarmor_Version.res; sourceTree = "<group>"; };
+		30A218681B5579A200D01E37 /* Unarmor_Version.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Unarmor_Version.txt; sourceTree = "<group>"; };
+		30A218691B5579A200D01E37 /* Unarmor_VersionOnline.res */ = {isa = PBXFileReference; lastKnownFileType = file; path = Unarmor_VersionOnline.res; sourceTree = "<group>"; };
+		30A2186A1B5579A200D01E37 /* Unarmor_VersionOnline.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Unarmor_VersionOnline.txt; sourceTree = "<group>"; };
 		30A48E8C1B4C1344006AD363 /* GPGSignaturePacket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPGSignaturePacket.h; path = GPGPacket/GPGSignaturePacket.h; sourceTree = "<group>"; };
 		30A48E8D1B4C1344006AD363 /* GPGSignaturePacket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = GPGSignaturePacket.m; path = GPGPacket/GPGSignaturePacket.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		30A70EE313EF328000EE9CD9 /* GPGException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGException.h; sourceTree = "<group>"; };
@@ -366,8 +398,8 @@
 		30D68BC41B4FF5D500F7865C /* COPYING.pgpdump */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = COPYING.pgpdump; path = Source/GPGPacket/COPYING.pgpdump; sourceTree = SOURCE_ROOT; };
 		30E38DC91E448655001AC933 /* NSBundle+GPGLocalization.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSBundle+GPGLocalization.h"; sourceTree = "<group>"; };
 		30E38DCA1E448655001AC933 /* NSBundle+GPGLocalization.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSBundle+GPGLocalization.m"; sourceTree = "<group>"; };
-		30ECA9571FBF4AE100C00279 /* Unarmor_UnicodeDashes.res */ = {isa = PBXFileReference; lastKnownFileType = file; name = Unarmor_UnicodeDashes.res; path = Unarmor/Unarmor_UnicodeDashes.res; sourceTree = "<group>"; };
-		30ECA9581FBF4AE100C00279 /* Unarmor_UnicodeDashes.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Unarmor_UnicodeDashes.txt; path = Unarmor/Unarmor_UnicodeDashes.txt; sourceTree = "<group>"; };
+		30ECA9571FBF4AE100C00279 /* Unarmor_UnicodeDashes.res */ = {isa = PBXFileReference; lastKnownFileType = file; path = Unarmor_UnicodeDashes.res; sourceTree = "<group>"; };
+		30ECA9581FBF4AE100C00279 /* Unarmor_UnicodeDashes.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Unarmor_UnicodeDashes.txt; sourceTree = "<group>"; };
 		30F45A8A1CE0B5F600D2B42D /* GPGUpdateController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGUpdateController.h; sourceTree = "<group>"; };
 		30F45A8B1CE0B5F600D2B42D /* GPGUpdateController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGUpdateController.m; sourceTree = "<group>"; };
 		30FF411D12FAC6CD00F39832 /* GPGController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGController.h; sourceTree = "<group>"; };
@@ -562,6 +594,8 @@
 				30F45A8B1CE0B5F600D2B42D /* GPGUpdateController.m */,
 				30E38DC91E448655001AC933 /* NSBundle+GPGLocalization.h */,
 				30E38DCA1E448655001AC933 /* NSBundle+GPGLocalization.m */,
+				301A265D20BE9ED10059010D /* GPGStatusLine.h */,
+				301A265E20BE9ED10059010D /* GPGStatusLine.m */,
 			);
 			name = Classes;
 			path = Source;
@@ -630,6 +664,19 @@
 				1BD78BAA1726B2830005F251 /* Credits.rtf */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		301A264920BE925C0059010D /* Decrypt */ = {
+			isa = PBXGroup;
+			children = (
+				301A264C20BE94110059010D /* LiteralAfterCustomEncrypted.gpg */,
+				301A264F20BE94110059010D /* LiteralAfterCustomEncrypted.res */,
+				301A264B20BE94110059010D /* LiteralAfterEmptyEncrypted.gpg */,
+				301A264D20BE94110059010D /* LiteralAfterEmptyEncrypted.res */,
+				301A264E20BE94110059010D /* Normal.gpg */,
+				301A264A20BE94110059010D /* Normal.res */,
+			);
+			path = Decrypt;
 			sourceTree = "<group>";
 		};
 		301D291A1B4BE47100599BE8 /* GPGPacket */ = {
@@ -767,7 +814,7 @@
 				30A218691B5579A200D01E37 /* Unarmor_VersionOnline.res */,
 				30A2186A1B5579A200D01E37 /* Unarmor_VersionOnline.txt */,
 			);
-			name = Unarmor;
+			path = Unarmor;
 			sourceTree = "<group>";
 		};
 		30BE73BF1B54015C001A2137 /* UnitTests */ = {
@@ -844,6 +891,7 @@
 				45891A3D151BA1C9002D7410 /* SignedInputStringLF.txt */,
 				30A2183A1B55753100D01E37 /* Unarmor */,
 				3075ADD71B566E9A00A5F89A /* GPGPacket */,
+				301A264920BE925C0059010D /* Decrypt */,
 			);
 			name = Resources;
 			path = ../UnitTests/Resources;
@@ -891,6 +939,7 @@
 				301D5D9F178C9871003026E7 /* GPGKeyserver.h in Headers */,
 				30E38DCB1E448655001AC933 /* NSBundle+GPGLocalization.h in Headers */,
 				1BCE0CD11617A3DF0026DCFF /* NSBundle+Sandbox.h in Headers */,
+				301A265F20BE9ED10059010D /* GPGStatusLine.h in Headers */,
 				301A44CD1B436405002A38E4 /* GPGUnArmor.h in Headers */,
 				1B16DD21179C83F000BC1366 /* GPGTypesRW.h in Headers */,
 				30FF414D12FAC6CD00F39832 /* GPGTaskOrder.h in Headers */,
@@ -960,6 +1009,7 @@
 				30BE73BA1B54015C001A2137 /* Sources */,
 				30BE73BB1B54015C001A2137 /* Frameworks */,
 				30BE73BC1B54015C001A2137 /* Resources */,
+				301A265620BE964C0059010D /* Copy Decrypt Test-Cases */,
 			);
 			buildRules = (
 			);
@@ -1288,6 +1338,7 @@
 				30691AA5136AECC4004AA469 /* GPGOptions.m in Sources */,
 				309A18D113E3812E0069DC0F /* GPGTransformer.m in Sources */,
 				301A44CE1B436405002A38E4 /* GPGUnArmor.m in Sources */,
+				301A266020BE9ED10059010D /* GPGStatusLine.m in Sources */,
 				309D8A131B87469B00D945BA /* GPGKeyFetcher.m in Sources */,
 				307FDE431B4E636A00462E4E /* GPGCompressedDataPacket.m in Sources */,
 				30A70EE613EF328000EE9CD9 /* GPGException.m in Sources */,

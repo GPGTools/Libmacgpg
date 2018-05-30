@@ -49,3 +49,5 @@
 #import <Libmacgpg/GPGUserIDPacket.h>
 #import <Libmacgpg/GPGUpdateController.h>
 #import <Libmacgpg/NSBundle+GPGLocalization.h>
+#import <Libmacgpg/GPGStatusLine.h>
+

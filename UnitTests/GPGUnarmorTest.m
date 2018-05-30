@@ -10,7 +10,7 @@
 
 
 - (void)testGPGUnArmor {
-	// UnArmor every "Unarmor*.txt" file and compre it with "Unarmor*.res".
+	// UnArmor every "Unarmor*.txt" file and compares it with "Unarmor*.res".
 	
 	NSString *resourcePath = [[NSBundle bundleForClass:[self class]] resourcePath];
 	NSFileManager *fileManager = [NSFileManager defaultManager];

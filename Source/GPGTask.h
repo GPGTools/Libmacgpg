@@ -22,6 +22,8 @@
 @class GPGTask;
 @class GPGTaskHelper;
 @class GPGStream;
+@class GPGStatusLine;
+
 
 @protocol GPGTaskDelegate
 @optional
@@ -68,12 +70,14 @@
 	BOOL progressInfo;
 	
 	NSMutableDictionary *statusDict;
+	NSMutableArray <GPGStatusLine *> *statusArray;
 	NSUInteger timeout;
 }
 
 @property (nonatomic, readonly) BOOL cancelled;
 @property (nonatomic, readonly) BOOL isRunning;
 @property (nonatomic, readonly) NSDictionary *statusDict;
+@property (nonatomic, readonly) NSArray <GPGStatusLine *> *statusArray;
 @property (nonatomic) BOOL progressInfo;
 @property (nonatomic) BOOL batchMode;
 @property (nonatomic) BOOL getAttributeData;
