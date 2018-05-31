@@ -419,24 +419,33 @@ BOOL gpgConfigReaded = NO;
 		[gpgTask start]; // Ignore exit code from gpg. It's useless.
 		
 		
-		
+		__block BOOL failed = NO;
 		__block NSString *errorDecription = nil;
 		NSArray *errorCodes = gpgTask.errorCodes;
 
 		// Check the error codes and some specific status codes to detect errors or possible attacks.
 		if (gpgTask.errorCode == GPGErrorCancelled) {
+			failed = YES;
 			errorDecription = @"Decryption cancelled!";
 		} else if ([errorCodes containsObject:@(GPGErrorDecryptionFailed)]) {
+			failed = YES;
 			errorDecription = @"Decryption failed!";
 		} else if ([errorCodes containsObject:@(GPGErrorNoMDC)]) {
+			failed = YES;
 			errorDecription = @"Decryption failed: No MDC!";
 		} else if ([errorCodes containsObject:@(GPGErrorBadMDC)]) {
+			failed = YES;
 			errorDecription = @"Decryption failed: Bad MDC!";
 		} else if (gpgTask.statusDict[@"NODATA"]) {
+			failed = YES;
 			errorDecription = @"Decryption failed: No Data!";
 		} else if (gpgTask.statusDict[@"FAILURE"]) {
+			failed = YES;
 			errorDecription = @"Decryption failed: Other Failure!";
 		} else {
+			// Check if there is an unencrypted plaintext in an encrypted message.
+			// Normally the plaintext should be in an encrypted packet, inside of the encrypted message.
+			
 			__block BOOL inDecryptedPacket = NO;
 			__block BOOL hasUnencryptedPlaintext = NO;
 			__block BOOL hasDecryptedPacket = NO;
@@ -459,11 +468,15 @@ BOOL gpgConfigReaded = NO;
 			}];
 			
 			if (hasUnencryptedPlaintext && hasDecryptedPacket) {
+				failed = YES;
 				errorDecription = @"Decryption failed: Unencrypted Plaintext!";
 			}
 		}
 		
-		if (errorDecription) {
+		if (failed) {
+			if (!errorDecription) {
+				errorDecription = @"Decryption failed: Unknown Error!";
+			}
 			[output seekToBeginning];
 			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(errorDecription) gpgTask:gpgTask];
 		}
