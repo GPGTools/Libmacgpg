@@ -11,7 +11,8 @@
 #import "GPGController.h"
 
 
-@interface GPGControllerTest : XCTestCase
+@interface GPGControllerTest : XCTestCase <GPGControllerDelegate>
+@property (nonatomic, assign) BOOL allowNoMDC;
 @end
 
 @implementation GPGControllerTest
@@ -57,6 +58,34 @@
 		}
 	}
 }
+
+- (BOOL)gpgControllerShouldDecryptWithoutMDC:(GPGController *)gpgc {
+	return self.allowNoMDC;
+}
+
+- (void)testDecryptNoMDC {
+	NSString *expectedString = @"Message without MDC\n";
+	NSData *encrypted = [GPGUnitTest dataForResource:@"NoMDC.gpg"];
+
+	id oldDelegate = gpgc.delegate;
+	gpgc.delegate = self;
 	
+	
+	self.allowNoMDC = NO;
+	NSData *decrypted = [gpgc decryptData:encrypted];
+	XCTAssertTrue(decrypted.length == 0, @"Decrypted NoMDC did return some data!");
+	XCTAssertTrue([(GPGException *)gpgc.error errorCode] == GPGErrorNoMDC, @"Did not return a NoMDC error!");
+	
+	
+	self.allowNoMDC = YES;
+	decrypted = [gpgc decryptData:encrypted];
+	XCTAssertEqualObjects(decrypted, expectedString.UTF8Data, @"Did not decrypt as expected!");
+	XCTAssertNil(gpgc.error, @"Did return an error!");
+
+	
+	gpgc.delegate = oldDelegate;
+}
+
+
 
 @end

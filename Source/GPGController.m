@@ -430,9 +430,11 @@ BOOL gpgConfigReaded = NO;
 			errorCode = GPGErrorCancelled;
 			errorDecription = @"Decryption cancelled!";
 		} else if ([errorCodes containsObject:@(GPGErrorNoMDC)]) {
-			failed = YES;
-			errorCode = GPGErrorNoMDC;
-			errorDecription = @"Decryption failed: No MDC!";
+			if (![delegate respondsToSelector:@selector(gpgControllerShouldDecryptWithoutMDC:)] || ![delegate gpgControllerShouldDecryptWithoutMDC:self]) {
+				failed = YES;
+				errorCode = GPGErrorNoMDC;
+				errorDecription = @"Decryption failed: No MDC!";
+			}
 		} else if ([errorCodes containsObject:@(GPGErrorBadMDC)]) {
 			failed = YES;
 			errorCode = GPGErrorBadMDC;

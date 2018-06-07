@@ -120,6 +120,7 @@
 		30A48E8F1B4C1344006AD363 /* GPGSignaturePacket.m in Sources */ = {isa = PBXBuildFile; fileRef = 30A48E8D1B4C1344006AD363 /* GPGSignaturePacket.m */; };
 		30A70EE513EF328000EE9CD9 /* GPGException.h in Headers */ = {isa = PBXBuildFile; fileRef = 30A70EE313EF328000EE9CD9 /* GPGException.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		30A70EE613EF328000EE9CD9 /* GPGException.m in Sources */ = {isa = PBXBuildFile; fileRef = 30A70EE413EF328000EE9CD9 /* GPGException.m */; };
+		30B11EE120C91643006D333D /* NoMDC.gpg in Resources */ = {isa = PBXBuildFile; fileRef = 30B11EDF20C91642006D333D /* NoMDC.gpg */; };
 		30B570931C6E250700F68EEB /* sks-keyservers.netCA.der in Resources */ = {isa = PBXBuildFile; fileRef = 30B570921C6E250700F68EEB /* sks-keyservers.netCA.der */; };
 		30B586F5141E255C000373F1 /* Keyservers.plist in Resources */ = {isa = PBXBuildFile; fileRef = 30B586F4141E255C000373F1 /* Keyservers.plist */; };
 		30B7CE161EAE0F640050B9C5 /* GPGControllerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 30B7CE151EAE0F640050B9C5 /* GPGControllerTest.m */; };
@@ -368,6 +369,7 @@
 		30A48E8D1B4C1344006AD363 /* GPGSignaturePacket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = GPGSignaturePacket.m; path = GPGPacket/GPGSignaturePacket.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		30A70EE313EF328000EE9CD9 /* GPGException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGException.h; sourceTree = "<group>"; };
 		30A70EE413EF328000EE9CD9 /* GPGException.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGException.m; sourceTree = "<group>"; };
+		30B11EDF20C91642006D333D /* NoMDC.gpg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = NoMDC.gpg; sourceTree = "<group>"; };
 		30B570921C6E250700F68EEB /* sks-keyservers.netCA.der */ = {isa = PBXFileReference; lastKnownFileType = file; path = "sks-keyservers.netCA.der"; sourceTree = "<group>"; };
 		30B586F4141E255C000373F1 /* Keyservers.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Keyservers.plist; sourceTree = "<group>"; };
 		30B7CE151EAE0F640050B9C5 /* GPGControllerTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGControllerTest.m; sourceTree = "<group>"; };
@@ -884,6 +886,7 @@
 		45C0BC13151B664D00AA8BF6 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				30B11EDF20C91642006D333D /* NoMDC.gpg */,
 				30B7CE171EAE193F0050B9C5 /* Encrypted.gpg */,
 				45B9A7F5151C9A6D00DAD67A /* OpenPGP.asc */,
 				45891A40151BA1EC002D7410 /* SignedInputStringCR.txt */,
@@ -1135,6 +1138,7 @@
 				302481D61B5CF46800C86A07 /* Unarmor_ClearsignComplicated.clear in Resources */,
 				30ECA9591FBF4AE100C00279 /* Unarmor_UnicodeDashes.res in Resources */,
 				30A218711B5579A200D01E37 /* Unarmor_MissingNewline.res in Resources */,
+				30B11EE120C91643006D333D /* NoMDC.gpg in Resources */,
 				304C69FF2069125000D89F65 /* Unarmor_2Messages.txt in Resources */,
 				30BE73DE1B541039001A2137 /* SignedInputStringCR.txt in Resources */,
 				30A218791B5579A200D01E37 /* Unarmor_VersionOnline.res in Resources */,
