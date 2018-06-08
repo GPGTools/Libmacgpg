@@ -533,9 +533,16 @@ BOOL gpgConfigReaded = NO;
 		NSString *fifoPath = nil;
 		if (originalInput) {
 			
+			
+			NSString *tempDir = [NSTemporaryDirectory() stringByAppendingPathComponent:@"org.gpgtools.libmacgpg"];
+			NSError *theError = nil;
+			if (![[NSFileManager defaultManager] createDirectoryAtPath:tempDir withIntermediateDirectories:YES attributes:nil error:&theError]) {
+				[NSException raise:NSGenericException format:@"createDirectory failed: %@", theError.localizedDescription];
+			}
+
 			NSString *guid = [NSProcessInfo processInfo].globallyUniqueString ;
 			NSString *fifoName = [NSString stringWithFormat:@"gpgtmp_%@.fifo", guid];
-			fifoPath = [NSTemporaryDirectory() stringByAppendingPathComponent:fifoName];
+			fifoPath = [tempDir stringByAppendingPathComponent:fifoName];
 			
 			if (mkfifo(fifoPath.UTF8String, 0600) != 0) {
 				[NSException raise:NSGenericException format:@"mkfifo failed: %s", strerror(errno)];

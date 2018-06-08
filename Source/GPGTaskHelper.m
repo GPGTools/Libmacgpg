@@ -47,6 +47,8 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/un.h>
+#import <sys/stat.h>
+
 
 static const NSUInteger kDataBufferSize = 65536; 
 
@@ -177,9 +179,13 @@ closeInput = _closeInput;
 }
 
 - (NSUInteger)_run {
+	NSString *statusFifoPath = nil;
+	NSString *attributeFifoPath = nil;
+	
     _task = [[NSTask alloc] init];
     _task.launchPath = [GPGTaskHelper GPGPath];
-    _task.arguments = self.arguments;
+	
+	
 	
 	NSMutableDictionary *environment = [[NSProcessInfo processInfo].environment.mutableCopy autorelease];
 	[environment addEntriesFromDictionary:self.environmentVariables];
@@ -189,6 +195,49 @@ closeInput = _closeInput;
         @throw [GPGException exceptionWithReason:@"GPG not found!" errorCode:GPGErrorNotFound];
 	}
 	
+	
+	
+	// Create fifos for status-file and attribute-file.
+	NSMutableArray *mutableArguments = self.arguments.mutableCopy;
+	
+	NSString *tempDir = [NSTemporaryDirectory() stringByAppendingPathComponent:@"org.gpgtools.libmacgpg"];
+	NSError *error = nil;
+	if (![[NSFileManager defaultManager] createDirectoryAtPath:tempDir withIntermediateDirectories:YES attributes:nil error:&error]) {
+		[NSException raise:NSGenericException format:@"createDirectory failed: %@", error.localizedDescription];
+	}
+	
+	NSUInteger index = [mutableArguments indexOfObject:GPGStatusFilePlaceholder];
+	if (index != NSNotFound) {
+		NSString *guid = [NSProcessInfo processInfo].globallyUniqueString ;
+		NSString *fifoName = [NSString stringWithFormat:@"gpgtmp_%@.fifo", guid];
+		statusFifoPath = [tempDir stringByAppendingPathComponent:fifoName];
+		if (mkfifo(statusFifoPath.UTF8String, 0600) != 0) {
+			[NSException raise:NSGenericException format:@"mkfifo failed: %s", strerror(errno)];
+		}
+		
+		// Replace the placeholder with the real path.
+		[mutableArguments replaceObjectAtIndex:index withObject:statusFifoPath];
+	}
+	
+	index = [mutableArguments indexOfObject:GPGAttributeFilePlaceholder];
+	if (index != NSNotFound) {
+		NSString *guid = [NSProcessInfo processInfo].globallyUniqueString ;
+		NSString *fifoName = [NSString stringWithFormat:@"gpgtmp_%@.fifo", guid];
+		attributeFifoPath = [tempDir stringByAppendingPathComponent:fifoName];
+		
+		if (mkfifo(attributeFifoPath.UTF8String, 0600) != 0) {
+			[NSException raise:NSGenericException format:@"mkfifo failed: %s", strerror(errno)];
+		}
+		
+		// Replace the placeholder with the real path.
+		[mutableArguments replaceObjectAtIndex:index withObject:attributeFifoPath];
+	}
+	
+	_task.arguments = mutableArguments;
+	[mutableArguments release];
+
+	
+
 	_task.standardInput = [NSPipe pipe].noSIGPIPE;
 	_task.standardOutput = [NSPipe pipe].noSIGPIPE;
 	_task.standardError = [NSPipe pipe].noSIGPIPE;
@@ -222,7 +271,7 @@ closeInput = _closeInput;
 	if (!shouldWriteInput) {
 		// If --passphrase-fd 0 is used, the data has to be written before any status
 		// was issued, because gpg will wait until it gets the passphrase from stdin.
-		NSUInteger index = [self.arguments indexOfObject:@"--passphrase-fd"];
+		index = [self.arguments indexOfObject:@"--passphrase-fd"];
 		if (self.arguments.count >= index + 1) {
 			shouldWriteInput = [self.arguments[index+1] isEqualToString:@"0"];
 		}
@@ -240,7 +289,7 @@ closeInput = _closeInput;
 		runBlockAndRecordExceptionSyncronized(^{
 			NSData *data;
 			NSFileHandle *stdoutFH = [_task.standardOutput fileHandleForReading];
-			while((data = [stdoutFH readDataOfLength:kDataBufferSize]) && data.length > 0) {
+			while ((data = [stdoutFH readDataOfLength:kDataBufferSize]) && data.length > 0) {
 				withAutoreleasePool(^{
 					[self->_output writeData:data];
 				});
@@ -250,12 +299,43 @@ closeInput = _closeInput;
 	
 	dispatch_group_async(collectorGroup, queue, ^{
 		runBlockAndRecordExceptionSyncronized(^{
-			[self parseOutput:&stderrData status:&statusData attribute:&attributeData];
-			[stderrData retain];
-			[statusData retain];
-			[attributeData retain];
+			NSMutableData *mutableData = [NSMutableData data];
+			NSData *data;
+			NSFileHandle *stderrFH = [_task.standardError fileHandleForReading];
+			while ((data = [stderrFH readDataOfLength:kDataBufferSize]) && data.length > 0) {
+				[mutableData appendData:data];
+			}
+			// Needs to be retained to survive the block.
+			stderrData = [mutableData copy];
 		}, &lock, &blockException);
 	});
+	
+	if (attributeFifoPath) {
+		dispatch_group_async(collectorGroup, queue, ^{
+			runBlockAndRecordExceptionSyncronized(^{
+				NSMutableData *mutableData = [NSMutableData data];
+				NSData *data;
+				NSFileHandle *stderrFH = [NSFileHandle fileHandleForReadingAtPath:attributeFifoPath];
+				while ((data = [stderrFH readDataOfLength:kDataBufferSize]) && data.length > 0) {
+					[mutableData appendData:data];
+				}
+				// Needs to be retained to survive the block.
+				attributeData = [mutableData copy];
+			}, &lock, &blockException);
+		});
+	}
+
+	if (statusFifoPath) {
+		dispatch_group_async(collectorGroup, queue, ^{
+			runBlockAndRecordExceptionSyncronized(^{
+				statusData = [self readStatusFile:statusFifoPath];
+				// Needs to be retained to survive the block.
+				[statusData retain];
+			}, &lock, &blockException);
+		});
+	}
+
+	
 	
 	
 	// Wait for all jobs to complete.
@@ -268,7 +348,17 @@ closeInput = _closeInput;
 	[_task waitUntilExit];
 	
 	
+	if (statusFifoPath) {
+		[[NSFileManager defaultManager] removeItemAtPath:statusFifoPath error:nil];
+	}
+	if (attributeFifoPath) {
+		[[NSFileManager defaultManager] removeItemAtPath:attributeFifoPath error:nil];
+	}
+	
     if (blockException && !_cancelled && !_pinentryCancelled) {
+		[statusData release];
+		[stderrData release];
+		[attributeData release];
         @throw blockException;
 	}
 	
@@ -407,22 +497,16 @@ closeInput = _closeInput;
 }
 
 
-- (void)parseOutput:(__autoreleasing NSData **)errorData status:(__autoreleasing NSData **)status attribute:(__autoreleasing NSData **)attribute {
-	
-	NSPipe *pipe = self.task.standardError;
-	NSFileHandle *fileHandle = pipe.fileHandleForReading;
-	
-	NSMutableData *errData = [NSMutableData data];
-	NSMutableData *statusData = [NSMutableData data];
-	NSMutableData *attributeData = [NSMutableData data];
-
+- (NSData *)readStatusFile:(NSString *)statusFile {
 	NSData *nl = @"\n".UTF8Data;
 	NSData *space = @" ".UTF8Data;
 	NSData *statusPrefix = GPG_STATUS_PREFIX.UTF8Data;
 	NSUInteger statusPrefixLength = statusPrefix.length;
 	
+	NSMutableData *statusData = [NSMutableData data];
 	NSMutableData *currentData = [NSMutableData data];
-	NSInteger attributeLength = 0;
+	
+	NSFileHandle *fileHandle = [NSFileHandle fileHandleForReadingAtPath:statusFile];
 
 	
 	NSData *readData = nil;
@@ -430,18 +514,6 @@ closeInput = _closeInput;
 		[currentData appendData:readData];
 		
 		NSUInteger currentDataLength = currentData.length;
-		
-		if (attributeLength > 0) {
-			NSUInteger length = MIN(attributeLength, currentDataLength);
-			attributeLength -= length;
-			
-			NSRange subRange = NSMakeRange(0, length);
-			NSData *subData = [currentData subdataWithRange:subRange];
-			[attributeData appendData:subData];
-			
-			[currentData replaceBytesInRange:subRange withBytes:"" length:0];
-			currentDataLength = currentData.length;
-		}
 		
 		NSRange searchRange;
 		searchRange.location = 0;
@@ -451,13 +523,17 @@ closeInput = _closeInput;
 		NSRange lineRange;
 		NSRange nlRange;
 		
-		while (attributeLength == 0 && (nlRange = [currentData rangeOfData:nl options:0 range:searchRange]).length > 0) {
+		// Process the status output line by line.
+		while ((nlRange = [currentData rangeOfData:nl options:0 range:searchRange]).length > 0) {
 
+			// Find th erange of the current line.
 			lineRange.location = nextLineStart;
 			lineRange.length = nlRange.location - lineRange.location + 1;
 			nextLineStart = nlRange.location + 1;
 			
+			// Get the data of the current line.
 			NSData *lineData = [currentData subdataWithRange:lineRange];
+			
 			
 			if ([lineData rangeOfData:statusPrefix options:NSDataSearchAnchored range:NSMakeRange(0, lineData.length)].length > 0) {
 				// Line is a status line. Line starts with "[GNUPG:] ".
@@ -476,17 +552,9 @@ closeInput = _closeInput;
 					value = [lineData subdataWithRange:NSMakeRange(spaceRange.location + 1, statusRange.location + statusRange.length - spaceRange.location - 1)].gpgString;
 				}
 				
-				if ([keyword isEqualToString:@"ATTRIBUTE"]) {
-					NSArray *parts = [value componentsSeparatedByString:@" "];
-					if (parts.count >= 2) {
-						attributeLength = [parts[1] integerValue];
-					}
-				}
-				
 				[self processStatusWithKeyword:keyword value:value];
 			} else {
-				[errData appendData:lineData];
-				//[outStream writeData:lineData];
+				// This should not happen. But it is not a real problem.
 			}
 			
 			searchRange.location = nextLineStart;
@@ -497,32 +565,7 @@ closeInput = _closeInput;
 		[currentData replaceBytesInRange:rangeToRemove withBytes:"" length:0];
 	}
 	
-	NSUInteger currentDataLength = currentData.length;
-	if (currentDataLength > 0) {
-		if (attributeLength > 0) {
-			NSUInteger length = MIN(attributeLength, currentDataLength);
-			attributeLength -= length;
-			
-			NSRange subRange = NSMakeRange(0, length);
-			NSData *subData = [currentData subdataWithRange:subRange];
-			[attributeData appendData:subData];
-			
-			[currentData replaceBytesInRange:subRange withBytes:"" length:0];
-			currentDataLength = currentData.length;
-		}
-
-		[errData appendData:currentData];
-	}
-	
-	if (errorData) {
-		*errorData = [[errData copy] autorelease];
-	}
-	if (status) {
-		*status = [[statusData copy] autorelease];
-	}
-	if (attribute) {
-		*attribute = [[attributeData copy] autorelease];
-	}
+	return [[statusData copy] autorelease];
 }
 
 

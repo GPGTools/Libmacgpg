@@ -25,6 +25,10 @@
 @class GPGStatusLine;
 
 
+extern NSString * const GPGStatusFilePlaceholder;
+extern NSString * const GPGAttributeFilePlaceholder;
+
+
 @protocol GPGTaskDelegate
 @optional
 //Should return NSData or NSString, it is passed to GPG.
