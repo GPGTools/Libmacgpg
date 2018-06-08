@@ -87,5 +87,14 @@
 }
 
 
+- (void)testNoSecretKey {
+	NSData *encrypted = [GPGUnitTest dataForResource:@"NoSecKey.gpg"];
+
+	NSData *decrypted = [gpgc decryptData:encrypted];
+	
+	XCTAssertTrue(decrypted.length == 0, @"No secret key decryption did return some data!");
+	XCTAssertTrue([(GPGException *)gpgc.error errorCode] == GPGErrorNoSecretKey, @"Did not return a NoSecretKey error!");
+}
+
 
 @end

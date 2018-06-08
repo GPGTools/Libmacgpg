@@ -441,7 +441,7 @@ BOOL gpgConfigReaded = NO;
 			errorDecription = @"Decryption failed: Bad MDC!";
 		} else if ([errorCodes containsObject:@(GPGErrorDecryptionFailed)]) {
 			failed = YES;
-			errorCode = GPGErrorDecryptionFailed;
+			errorCode = [errorCodes[0] intValue];
 			errorDecription = @"Decryption failed!";
 		} else if (gpgTask.statusDict[@"NODATA"]) {
 			failed = YES;
