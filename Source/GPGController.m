@@ -177,7 +177,10 @@ BOOL gpgConfigReaded = NO;
 	[self didChangeValueForKey:@"signerKeys"];
 }
 - (BOOL)decryptionOkay {
-	return [[gpgTask.statusDict objectForKey:@"DECRYPTION_OKAY"] boolValue];
+	return error == nil && decrypted;
+}
+- (BOOL)wasSigned {
+	return self.signatures.count > 0;
 }
 - (NSDictionary *)statusDict {
 	return gpgTask.statusDict;
@@ -489,6 +492,10 @@ BOOL gpgConfigReaded = NO;
 			}
 			[output seekToBeginning];
 			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(errorDecription) errorCode:errorCode gpgTask:gpgTask];
+		} else {
+			if (gpgTask.statusDict[@"END_DECRYPTION"]) {
+				decrypted = YES;
+			}
 		}
 	} @catch (NSException *e) {
 		[self handleException:e];
@@ -2742,6 +2749,7 @@ BOOL gpgConfigReaded = NO;
 		self.gpgTask = nil;
 		[error release];
 		error = nil;
+		decrypted = NO;
 		if ([delegate respondsToSelector:@selector(gpgControllerOperationDidStart:)]) {
 			[delegate gpgControllerOperationDidStart:self];
 		}		

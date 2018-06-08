@@ -85,6 +85,7 @@
 	NSInteger runningOperations;
 	NSUInteger groupedKeyChange;
 	NSUInteger timeout;
+	BOOL decrypted;
 	
 	NSMutableSet *gpgKeyservers;
 }
@@ -105,6 +106,7 @@
 @property (nonatomic, retain) NSDictionary *userInfo;
 @property (nonatomic, retain) NSUndoManager *undoManager;
 @property (nonatomic, readonly) BOOL decryptionOkay;
+@property (nonatomic, readonly) BOOL wasSigned;
 @property (nonatomic) BOOL async;
 @property (nonatomic) BOOL useArmor;
 @property (nonatomic) BOOL useTextMode;
