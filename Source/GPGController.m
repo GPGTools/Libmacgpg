@@ -62,7 +62,7 @@ static NSString * const keysOnServerCacheKey = @"KeysOnServerCache";
 
 @implementation GPGController
 @synthesize delegate, keyserver, keyserverTimeout, proxyServer, async, userInfo, useArmor, useTextMode, printVersion, useDefaultComments,
-trustAllKeys, signatures, lastSignature, gpgHome, passphrase, verbose, autoKeyRetrieve, lastReturnValue, error, undoManager, hashAlgorithm,
+trustAllKeys, signatures, lastSignature, gpgHome, passphrase, autoKeyRetrieve, lastReturnValue, error, undoManager, hashAlgorithm,
 timeout, filename, forceFilename, pinentryInfo=_pinentryInfo, allowNonSelfsignedUid, allowWeakDigestAlgos;
 
 NSString *gpgVersion = nil;

@@ -62,7 +62,6 @@
 	BOOL useDefaultComments;
 	BOOL trustAllKeys;
 	BOOL async;
-    BOOL verbose;
 	BOOL autoKeyRetrieve;
 	BOOL allowNonSelfsignedUid;
 	BOOL allowWeakDigestAlgos;
@@ -112,7 +111,6 @@
 @property (nonatomic) BOOL printVersion;
 @property (nonatomic) BOOL useDefaultComments;
 @property (nonatomic) BOOL trustAllKeys;
-@property (nonatomic) BOOL verbose DEPRECATED_ATTRIBUTE;
 @property (nonatomic) BOOL autoKeyRetrieve;
 @property (nonatomic) BOOL allowNonSelfsignedUid;
 @property (nonatomic) BOOL allowWeakDigestAlgos;

@@ -208,7 +208,7 @@ static NSLock *gpgTaskLock;
     NSMutableArray *defaultArguments = [NSMutableArray arrayWithObjects:
                                         @"--no-greeting", @"--no-tty", @"--with-colons", @"--fixed-list-mode",
 										@"--utf8-strings", @"--display-charset", @"utf-8", @"--enable-special-filenames",
-                                        @"--yes", @"--status-fd", @"2", nil];
+                                        @"--yes", @"--status-fd", @"2", @"--no-verbose", nil];
 
 	
 	if (progressInfo && [delegate respondsToSelector:@selector(gpgTask:progressed:total:)]) {
