@@ -134,10 +134,10 @@ BOOL gpgConfigReaded = NO;
 
 
 
-- (NSArray *)comments {
+- (NSArray <NSString *> *)comments {
 	return [[comments copy] autorelease];
 }
-- (NSArray *)signerKeys {
+- (NSArray <NSObject <KeyFingerprint> *> *)signerKeys {
 	return [[signerKeys copy] autorelease];
 }
 - (void)setComment:(NSString *)comment {
@@ -425,7 +425,7 @@ BOOL gpgConfigReaded = NO;
 		__block BOOL failed = NO;
 		__block NSString *errorDecription = nil;
 		__block GPGErrorCode errorCode = 0;
-		NSArray *errorCodes = gpgTask.errorCodes;
+		NSArray <NSNumber *> *errorCodes = gpgTask.errorCodes;
 
 		// Check the error codes and some specific status codes to detect errors or possible attacks.
 		if (gpgTask.errorCode == GPGErrorCancelled) {
@@ -502,7 +502,7 @@ BOOL gpgConfigReaded = NO;
 	}
 }
 
-- (NSArray *)verifySignature:(NSData *)signatureData originalData:(NSData *)originalData {
+- (NSArray <GPGSignature *> *)verifySignature:(NSData *)signatureData originalData:(NSData *)originalData {
 	if (async && !asyncStarted) {
 		asyncStarted = YES;
 		[asyncProxy verifySignature:signatureData originalData:originalData];
@@ -516,10 +516,10 @@ BOOL gpgConfigReaded = NO;
     return [self verifySignatureOf:signatureInput originalData:originalInput];
 }
 
-- (NSArray *)verifySignatureOf:(GPGStream *)signatureInput originalData:(GPGStream *)originalInput {
+- (NSArray <GPGSignature *> *)verifySignatureOf:(GPGStream *)signatureInput originalData:(GPGStream *)originalInput {
 #warning There's a good chance verifySignature will modify the keys if auto-retrieve-keys is set. In that case it might make sense, that we send the notification ourselves with the potential key which might get imported. We do have the fingerprint, and there's no need to rebuild the whole keyring only to update one key.
 	
-	NSArray *retVal;
+	NSArray <GPGSignature *> *retVal;
 	@try {
 		[self operationDidStart];
 
@@ -610,7 +610,7 @@ BOOL gpgConfigReaded = NO;
 	return retVal;
 }
 
-- (NSArray *)verifySignedData:(NSData *)signedData {
+- (NSArray <GPGSignature *> *)verifySignedData:(NSData *)signedData {
 	return [self verifySignature:signedData originalData:nil];
 }
 
@@ -1037,7 +1037,7 @@ BOOL gpgConfigReaded = NO;
 }
 
 
-- (NSArray *)algorithmPreferencesForKey:(GPGKey *)key {
+- (NSArray <NSDictionary *> *)algorithmPreferencesForKey:(GPGKey *)key {
 	self.gpgTask = [GPGTask gpgTask];
 	[self addArgumentsForOptions];
 	[gpgTask addArgument:@"--edit-key"];
@@ -1473,7 +1473,7 @@ BOOL gpgConfigReaded = NO;
 	[self operationDidFinishWithReturnValue:nil];	
 }
 
-- (void)signUserIDs:(NSArray *)userIDs signerKey:(NSObject <KeyFingerprint> *)signerKey local:(BOOL)local daysToExpire:(int)daysToExpire {
+- (void)signUserIDs:(NSArray <GPGUserID *> *)userIDs signerKey:(NSObject <KeyFingerprint> *)signerKey local:(BOOL)local daysToExpire:(int)daysToExpire {
 	if (async && !asyncStarted) {
 		asyncStarted = YES;
 		[asyncProxy signUserIDs:userIDs signerKey:signerKey local:local daysToExpire:daysToExpire];
@@ -2095,8 +2095,8 @@ BOOL gpgConfigReaded = NO;
 	[self operationDidFinishWithReturnValue:nil];
 }
 
-- (NSArray *)searchKeysOnServer:(NSString *)pattern {
-	NSArray *keys = nil;
+- (NSArray <GPGRemoteKey *> *)searchKeysOnServer:(NSString *)pattern {
+	NSArray <GPGRemoteKey *> *keys = nil;
 	if (async && !asyncStarted) {
 		asyncStarted = YES;
 		[asyncProxy searchKeysOnServer:pattern];
@@ -2217,7 +2217,7 @@ BOOL gpgConfigReaded = NO;
 }
 
 
-- (void)keysExistOnServer:(NSArray *)keys callback:(void (^)(NSArray *existingKeys, NSArray *nonExistingKeys))callback {
+- (void)keysExistOnServer:(NSArray <GPGKey *> *)keys callback:(void (^)(NSArray <GPGKey *> *existingKeys, NSArray <GPGKey *> *nonExistingKeys))callback {
 	
 	// Check if GPGKeyserver should be used.
 	// GPGKeyserver is faster than gpg, but only supports http(s) requests.
