@@ -29,7 +29,7 @@
 #import "NSBundle+Sandbox.h"
 #import "GPGStatusLine.h"
 #import <sys/stat.h>
-
+#import "GPGTask_Private.h"
 
 
 NSString * const GPGStatusFilePlaceholder = @"~%$STATUS_FILE_PATH$%~";
@@ -37,18 +37,6 @@ NSString * const GPGAttributeFilePlaceholder = @"~%$ATTRIBUTE_FILE_PATH$%~";
 
 
 @class GPGController;
-
-@interface GPGTask ()
-
-@property (nonatomic, retain) NSData *errData;
-@property (nonatomic, retain) NSData *statusData;
-@property (nonatomic, retain) NSData *attributeData;
-@property (nonatomic) int errorCode;
-
-- (void)unsetErrorCode:(int)value;
-
-@end
-
 
 @implementation GPGTask
 

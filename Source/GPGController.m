@@ -23,6 +23,7 @@
 #import "GPGKeyserver.h"
 #import "GPGTaskHelper.h"
 #import "GPGWatcher.h"
+#import "GPGTask_Private.h"
 #import <sys/stat.h>
 #if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
 #import "GPGTaskHelperXPC.h"
@@ -432,37 +433,46 @@ BOOL gpgConfigReaded = NO;
 			failed = YES;
 			errorCode = GPGErrorCancelled;
 			errorDecription = @"Decryption cancelled!";
-		} else if ([errorCodes containsObject:@(GPGErrorNoMDC)]) {
-			if (![delegate respondsToSelector:@selector(gpgControllerShouldDecryptWithoutMDC:)] || ![delegate gpgControllerShouldDecryptWithoutMDC:self]) {
-				failed = YES;
-				errorCode = GPGErrorNoMDC;
-				errorDecription = @"Decryption failed: No MDC!";
-			}
-		} else if ([errorCodes containsObject:@(GPGErrorBadMDC)]) {
+		}
+			
+		if (!failed && [errorCodes containsObject:@(GPGErrorBadMDC)]) {
 			failed = YES;
 			errorCode = GPGErrorBadMDC;
 			errorDecription = @"Decryption failed: Bad MDC!";
-		} else if ([errorCodes containsObject:@(GPGErrorDecryptionFailed)]) {
+		}
+		if (!failed && [errorCodes containsObject:@(GPGErrorBadData)]) {
 			failed = YES;
-			errorCode = [errorCodes[0] intValue];
+			errorCode = GPGErrorBadData;
+			errorDecription = @"Decryption failed: Bad Data!";
+		}
+		if (!failed && [errorCodes containsObject:@(GPGErrorDecryptionFailed)]) {
+			failed = YES;
+			if (errorCodes[0].intValue == GPGErrorNoMDC) {
+				errorCode = errorCodes[1].intValue;
+			} else {
+				errorCode = errorCodes[0].intValue;
+			}
 			errorDecription = @"Decryption failed!";
-		} else if (gpgTask.statusDict[@"NODATA"]) {
+		}
+		if (!failed && gpgTask.statusDict[@"NODATA"]) {
 			failed = YES;
 			errorCode = GPGErrorNoData;
 			errorDecription = @"Decryption failed: No Data!";
-		} else if (gpgTask.statusDict[@"FAILURE"]) {
+		}
+		if (!failed && gpgTask.statusDict[@"FAILURE"]) {
 			failed = YES;
 			// Unknown error.
 			errorDecription = @"Decryption failed: Other Failure!";
-		} else {
+		}
+		if (!failed) {
 			// Check if there is an unencrypted plaintext in an encrypted message.
 			// Normally the plaintext should be in an encrypted packet, inside of the encrypted message.
 			
-			__block BOOL inDecryptedPacket = NO;
-			__block BOOL hasUnencryptedPlaintext = NO;
-			__block BOOL hasDecryptedPacket = NO;
+			BOOL inDecryptedPacket = NO;
+			BOOL hasUnencryptedPlaintext = NO;
+			BOOL hasDecryptedPacket = NO;
 
-			[gpgTask.statusArray enumerateObjectsUsingBlock:^(GPGStatusLine * _Nonnull status, __unused NSUInteger idx, BOOL * _Nonnull stop) {
+			for (GPGStatusLine *status in gpgTask.statusArray) {
 				switch (status.code) {
 					case GPG_STATUS_BEGIN_DECRYPTION:
 						inDecryptedPacket = YES;
@@ -477,7 +487,7 @@ BOOL gpgConfigReaded = NO;
 						}
 						break;
 				}
-			}];
+			}
 			
 			if (hasUnencryptedPlaintext && hasDecryptedPacket) {
 				failed = YES;
@@ -485,6 +495,19 @@ BOOL gpgConfigReaded = NO;
 				errorDecription = @"Decryption failed: Unencrypted Plaintext!";
 			}
 		}
+		if (!failed && [errorCodes containsObject:@(GPGErrorNoMDC)]) {
+			if (![delegate respondsToSelector:@selector(gpgControllerShouldDecryptWithoutMDC:)] || ![delegate gpgControllerShouldDecryptWithoutMDC:self]) {
+				failed = YES;
+				errorCode = GPGErrorNoMDC;
+				errorDecription = @"Decryption failed: No MDC!";
+			} else {
+				[gpgTask unsetErrorCode:GPGErrorNoMDC];
+			}
+		}
+
+		
+		
+		
 		
 		if (failed) {
 			if (!errorDecription) {
