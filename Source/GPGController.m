@@ -446,13 +446,25 @@ BOOL gpgConfigReaded = NO;
 			errorDecription = @"Decryption failed: Bad Data!";
 		}
 		if (!failed && [errorCodes containsObject:@(GPGErrorDecryptionFailed)]) {
-			failed = YES;
-			if (errorCodes[0].intValue == GPGErrorNoMDC) {
-				errorCode = errorCodes[1].intValue;
-			} else {
-				errorCode = errorCodes[0].intValue;
+			// Ignore a failed decryption because of NoMDC.
+			BOOL hasNoMDC = NO;
+			for (NSNumber *errorNumber in errorCodes) {
+				if (errorNumber.intValue == GPGErrorNoMDC) {
+					hasNoMDC = YES;
+				} else if (errorNumber.intValue != GPGErrorDecryptionFailed) {
+					// The decryption failed because of any other reason than NoMDC.
+					failed = YES;
+					errorCode = errorNumber.intValue;
+					errorDecription = @"Decryption failed!";
+				}
 			}
-			errorDecription = @"Decryption failed!";
+			
+			if (!hasNoMDC && !failed) {
+				// The decryption failed because of an unknwown reason.
+				failed = YES;
+				errorCode = GPGErrorDecryptionFailed;
+				errorDecription = @"Decryption failed!";
+			}
 		}
 		if (!failed && gpgTask.statusDict[@"NODATA"]) {
 			failed = YES;
