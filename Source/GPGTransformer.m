@@ -186,6 +186,12 @@
 		case 32:
 			format = "XXXX XXXX XXXX XXXX  XXXX XXXX XXXX XXXX";
 			break;
+		case 16:
+			format = "XXXX XXXX  XXXX XXXX";
+			break;
+		case 8:
+			format = "XXXX XXXX";
+			break;
 		case 0:
 			return @"";
 		default:
