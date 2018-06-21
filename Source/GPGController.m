@@ -1431,8 +1431,8 @@ BOOL gpgConfigReaded = NO;
 			if ([gpgTask start] != 0) {
 				@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Export failed!") gpgTask:gpgTask];
 			}
-			NSMutableData *concatExportedData = [NSMutableData dataWithData:exportedData];
-			[concatExportedData appendData:[gpgTask outData]];
+			NSMutableData *concatExportedData = [NSMutableData dataWithData:[gpgTask outData]];
+			[concatExportedData appendData:exportedData];
             exportedData = concatExportedData;
 		}
 	} @catch (NSException *e) {
