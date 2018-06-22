@@ -457,6 +457,27 @@ static NSString * const kDirmngrConfKVKey = @"dirmngrConf";
 			[self.gpgConf saveConfig];
 		}
 	}
+	
+	
+	BOOL gpgConfChanged = NO;
+	BOOL autoKeyRetrieve = NO;
+	NSMutableArray *keyserverOptions = [[[self.gpgConf valueForKey:@"keyserver-options"] mutableCopy] autorelease];
+	if ([keyserverOptions containsObject:@"auto-key-retrieve"]) {
+		[keyserverOptions removeObject:@"auto-key-retrieve"];
+		autoKeyRetrieve = YES;
+		gpgConfChanged = YES;
+	}
+	if ([keyserverOptions containsObject:@"no-auto-key-retrieve"]) {
+		[keyserverOptions removeObject:@"no-auto-key-retrieve"];
+		gpgConfChanged = YES;
+	}
+	if (autoKeyRetrieve) {
+		[self.gpgConf setValue:@YES forKey:@"auto-key-retrieve"];
+	}
+	if (gpgConfChanged) {
+		[self.gpgConf setValue:keyserverOptions forKey:@"keyserver-options"];
+		[self.gpgConf saveConfig];
+	}
 
 }
 

@@ -234,15 +234,9 @@ BOOL gpgConfigReaded = NO;
 		GPGDebugLog(@"textmode: %@", value);
 		useTextMode = [value boolValue];
 	}
-	if ((value = [options valueInGPGConfForKey:@"keyserver-options"])) {
-		GPGDebugLog(@"keyserver-options: %@", value);
-		if ([value respondsToSelector:@selector(containsObject:)]) {
-			if ([value containsObject:@"no-auto-key-retrieve"]) {
-				autoKeyRetrieve = NO;
-			} else if ([value containsObject:@"auto-key-retrieve"]) {
-				autoKeyRetrieve = YES;
-			}
-		}
+	if ((value = [options valueInGPGConfForKey:@"auto-key-retrieve"])) {
+		GPGDebugLog(@"auto-key-retrieve: %@", value);
+		autoKeyRetrieve = [value boolValue];
 	}
 	
 	return self;
@@ -2932,8 +2926,6 @@ BOOL gpgConfigReaded = NO;
 	
 	[keyserverOptions appendFormat:@"timeout=%lu", (unsigned long)keyserverTimeout];
 	
-	[keyserverOptions appendString:autoKeyRetrieve ? @",auto-key-retrieve" : @",no-auto-key-retrieve"];
-	
 	NSString *proxy = proxyServer ? proxyServer : [[GPGOptions sharedOptions] httpProxy];
 	if ([proxy length] > 0) {
 		if ([proxy rangeOfString:@"://"].length == 0) {
@@ -2960,6 +2952,7 @@ BOOL gpgConfigReaded = NO;
 	[gpgTask addArgument:useArmor ? @"--armor" : @"--no-armor"];
 	[gpgTask addArgument:useTextMode ? @"--textmode" : @"--no-textmode"];
 	[gpgTask addArgument:printVersion ? @"--emit-version" : @"--no-emit-version"];
+	[gpgTask addArgument:autoKeyRetrieve ? @"--auto-key-retrieve" : @"--no-auto-key-retrieve"];
 	if (trustAllKeys) {
 		[gpgTask addArgument:@"--trust-model"];
 		[gpgTask addArgument:@"always"];
