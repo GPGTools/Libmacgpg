@@ -440,18 +440,61 @@ BOOL gpgConfigReaded = NO;
 			errorDecription = @"Decryption failed: Bad Data!";
 		}
 		if (!failed && [errorCodes containsObject:@(GPGErrorDecryptionFailed)]) {
-			// Ignore a failed decryption because of NoMDC.
 			BOOL hasNoMDC = NO;
+			BOOL otherError = NO;
 			for (NSNumber *errorNumber in errorCodes) {
-				if (errorNumber.intValue == GPGErrorNoMDC) {
-					hasNoMDC = YES;
-				} else if (errorNumber.intValue != GPGErrorDecryptionFailed) {
-					// The decryption failed because of any other reason than NoMDC.
-					failed = YES;
-					errorCode = errorNumber.intValue;
-					errorDecription = @"Decryption failed!";
+				switch (errorNumber.intValue) {
+					case GPGErrorNoMDC:
+						// Ignore a failed decryption because of NoMDC at this point.
+						hasNoMDC = YES;
+						break;
+					case GPGErrorDecryptionFailed:
+						break;
+					case GPGErrorNoSecretKey:
+						failed = YES;
+						errorCode = GPGErrorNoSecretKey;
+						errorDecription = @"Decryption failed: No secret key!";
+					default: {
+						otherError = YES;
+						break;
+					}
 				}
 			}
+			
+			if (!failed && otherError) {
+				// Handle decrypt specific errors.
+				NSArray *errors = gpgTask.statusDict[@"ERROR"];
+				for (NSArray<NSString *> *parts in errors) {
+					if (parts.count < 2) {
+						continue;
+					}
+					GPGErrorCode theErrorCode = (GPGErrorCode)parts[1].integerValue & 0xFFFF;
+					NSString *errorLocation = parts[0];
+					
+					if ([errorLocation isEqualToString:@"decrypt.algorithm"]) {
+						failed = YES;
+						errorCode = theErrorCode;
+						errorDecription = @"Decryption failed: Algorithm!";
+						break;
+					} else if ([errorLocation isEqualToString:@"decrypt.keyusage"]) {
+						if (theErrorCode == GPGErrorWrongKeyUsage) {
+							failed = YES;
+							errorCode = GPGErrorWrongKeyUsage;
+							errorDecription = @"Decryption failed: Wrong key usage!";
+							break;
+						}
+					} else if ([errorLocation isEqualToString:@"pkdecrypt_failed"]) {
+						if (theErrorCode == GPGErrorBadPassphrase) {
+							failed = YES;
+							errorCode = GPGErrorBadPassphrase;
+							errorDecription = @"Decryption failed: Bad passphrase!";
+							break;
+						}
+					}
+				}
+			}
+			
+			
 			
 			if (!hasNoMDC && !failed) {
 				// The decryption failed because of an unknwown reason.
