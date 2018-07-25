@@ -39,6 +39,7 @@
 #import "GPGTaskHelperXPC.h"
 #endif
 #import "GPGTask.h"
+#import "GPGUTF8Argument.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -198,7 +199,7 @@ closeInput = _closeInput;
 	
 	
 	// Create fifos for status-file and attribute-file.
-	NSMutableArray *mutableArguments = self.arguments.mutableCopy;
+	NSMutableArray<NSString *> *mutableArguments = self.arguments.mutableCopy;
 	
 	NSString *tempDir = [NSTemporaryDirectory() stringByAppendingPathComponent:@"org.gpgtools.libmacgpg"];
 	NSError *error = nil;
@@ -232,6 +233,14 @@ closeInput = _closeInput;
 		// Replace the placeholder with the real path.
 		[mutableArguments replaceObjectAtIndex:index withObject:attributeFifoPath];
 	}
+	
+	// Convert all arguments to GPGUTF8Argument, so umlauts are correctly utf-8 encoded.
+	NSUInteger count = mutableArguments.count;
+	for (NSUInteger i = 0; i < count; i++) {
+		GPGUTF8Argument *argument = [GPGUTF8Argument stringWithString:mutableArguments[i]];
+		mutableArguments[i] = argument;
+	}
+	
 	
 	_task.arguments = mutableArguments;
 	[mutableArguments release];

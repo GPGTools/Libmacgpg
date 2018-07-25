@@ -78,6 +78,8 @@
 		304883101462B22000F2E5F4 /* GPGWatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 3048830E1462B22000F2E5F4 /* GPGWatcher.m */; };
 		304C69FE2069125000D89F65 /* Unarmor_2Messages.res in Resources */ = {isa = PBXBuildFile; fileRef = 304C69FC2069124F00D89F65 /* Unarmor_2Messages.res */; };
 		304C69FF2069125000D89F65 /* Unarmor_2Messages.txt in Resources */ = {isa = PBXBuildFile; fileRef = 304C69FD2069125000D89F65 /* Unarmor_2Messages.txt */; };
+		304FDC8C210872D80022B0B3 /* GPGUTF8Argument.h in Headers */ = {isa = PBXBuildFile; fileRef = 304FDC8A210872D80022B0B3 /* GPGUTF8Argument.h */; };
+		304FDC8D210872D80022B0B3 /* GPGUTF8Argument.m in Sources */ = {isa = PBXBuildFile; fileRef = 304FDC8B210872D80022B0B3 /* GPGUTF8Argument.m */; };
 		30516558142281270038AAF0 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 30516556142281270038AAF0 /* Localizable.strings */; };
 		30691AA4136AECC4004AA469 /* GPGOptions.h in Headers */ = {isa = PBXBuildFile; fileRef = 30691AA2136AECC4004AA469 /* GPGOptions.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		30691AA5136AECC4004AA469 /* GPGOptions.m in Sources */ = {isa = PBXBuildFile; fileRef = 30691AA3136AECC4004AA469 /* GPGOptions.m */; };
@@ -332,6 +334,8 @@
 		304BF3901E449CB800CF4C4F /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/Localizable.strings; sourceTree = "<group>"; };
 		304C69FC2069124F00D89F65 /* Unarmor_2Messages.res */ = {isa = PBXFileReference; lastKnownFileType = file; path = Unarmor_2Messages.res; sourceTree = "<group>"; };
 		304C69FD2069125000D89F65 /* Unarmor_2Messages.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Unarmor_2Messages.txt; sourceTree = "<group>"; };
+		304FDC8A210872D80022B0B3 /* GPGUTF8Argument.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GPGUTF8Argument.h; sourceTree = "<group>"; };
+		304FDC8B210872D80022B0B3 /* GPGUTF8Argument.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GPGUTF8Argument.m; sourceTree = "<group>"; };
 		305165591422812B0038AAF0 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
 		3059AF1014239FAB00AD5B30 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		30691AA2136AECC4004AA469 /* GPGOptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGOptions.h; sourceTree = "<group>"; };
@@ -864,6 +868,8 @@
 				30FF413412FAC6CD00F39832 /* GPGTaskOrder.m */,
 				1B9FF20E17257A69004FB017 /* GPGTaskHelperXPC.h */,
 				1B9FF20F17257A69004FB017 /* GPGTaskHelperXPC.m */,
+				304FDC8A210872D80022B0B3 /* GPGUTF8Argument.h */,
+				304FDC8B210872D80022B0B3 /* GPGUTF8Argument.m */,
 			);
 			name = GPGTask;
 			sourceTree = "<group>";
@@ -935,6 +941,7 @@
 				30BB7C701B4D3244006A1E47 /* GPGKeyMaterialPacket.h in Headers */,
 				30A48E8E1B4C1344006AD363 /* GPGSignaturePacket.h in Headers */,
 				30BB7C801B4D4A59006A1E47 /* GPGUserIDPacket.h in Headers */,
+				304FDC8C210872D80022B0B3 /* GPGUTF8Argument.h in Headers */,
 				30BB7C681B4D2742006A1E47 /* GPGSymmetricEncryptedSessionKeyPacket.h in Headers */,
 				451D8829156A7AD900A0B890 /* GPGStream.h in Headers */,
 				30C045931B4FDB9800080903 /* GPGCompressedDataPacket_Private.h in Headers */,
@@ -1340,6 +1347,7 @@
 				30BB7C711B4D3244006A1E47 /* GPGKeyMaterialPacket.m in Sources */,
 				30A0583A1799E2DC00E1AD20 /* GPGKeyManager.m in Sources */,
 				301D29221B4BFD9800599BE8 /* GPGPacket.m in Sources */,
+				304FDC8D210872D80022B0B3 /* GPGUTF8Argument.m in Sources */,
 				30FF414C12FAC6CD00F39832 /* GPGTask.m in Sources */,
 				30FF414E12FAC6CD00F39832 /* GPGTaskOrder.m in Sources */,
 				30F45A8D1CE0B5F600D2B42D /* GPGUpdateController.m in Sources */,
