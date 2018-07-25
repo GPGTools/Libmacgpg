@@ -146,3 +146,7 @@ typedef void (^lp_progress_handler_t)(NSUInteger processedBytes, NSUInteger tota
 + (NSDictionary *)statusCodes;
 	
 @end
+
+@interface NSTask (GPGThreadSafeWait)
+- (void)threadSafeWaitUntilExit;
+@end
