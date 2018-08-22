@@ -3,6 +3,7 @@
 #import "GPGTypesRW.h"
 #import "GPGWatcher.h"
 #import "GPGTask.h"
+#import "GPGTransformer.h"
 
 NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDidChangeNotification";
 
@@ -253,9 +254,9 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 			[gpgTask addArgument:_homedir];
 		}
 		if (fetchSignatures) {
-			[gpgTask addArgument:@"--list-sigs"];
+			[gpgTask addArgument:@"--check-sigs"];
 			[gpgTask addArgument:@"--list-options"];
-			[gpgTask addArgument:@"show-sig-subpackets=29"];
+			[gpgTask addArgument:@"show-sig-subpackets=29,show-sig-subpackets=30"];
 		} else {
 			[gpgTask addArgument:@"--list-keys"];
 		}
@@ -532,49 +533,53 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 				userID.email = [dict objectForKey:@"email"];
 				userID.comment = [dict objectForKey:@"comment"];
 
-			} else if (_fetchUserAttributes) { // Process attribute data.
-				NSArray *infos = [_attributeInfos objectForKey:primaryKey.fingerprint];
-				if (infos) {
-					NSInteger index, count;
-					
-					do {
-						NSDictionary *info = [infos objectAtIndex:uatIndex];
-						uatIndex++;
+			} else {
+				userID.isUat = YES;
+				
+				if (_fetchUserAttributes) { // Process attribute data.
+					NSArray *infos = [_attributeInfos objectForKey:primaryKey.fingerprint];
+					if (infos) {
+						NSInteger index, count;
 						
-						index = [[info objectForKey:@"index"] integerValue];
-						count = [[info objectForKey:@"count"] integerValue];
-						NSInteger location = [[info objectForKey:@"location"] integerValue];
-						NSInteger length = [[info objectForKey:@"length"] integerValue];
-						NSInteger uatType = [[info objectForKey:@"type"] integerValue];
-						
-						
-						switch (uatType) {
-							case 1: { // Image
-								NSImage *image = [[NSImage alloc] initWithData:[_attributeData subdataWithRange:NSMakeRange(location + 16, length - 16)]];
-								
-								if (image) {
-									NSImageRep *imageRep = [[image representations] objectAtIndex:0];
-									NSSize size = imageRep.size;
-									if (size.width != imageRep.pixelsWide || size.height != imageRep.pixelsHigh) { // Fix image size if needed.
-										size.width = imageRep.pixelsWide;
-										size.height = imageRep.pixelsHigh;
-										imageRep.size = size;
-										[image setSize:size];
+						do {
+							NSDictionary *info = [infos objectAtIndex:uatIndex];
+							uatIndex++;
+							
+							index = [[info objectForKey:@"index"] integerValue];
+							count = [[info objectForKey:@"count"] integerValue];
+							NSInteger location = [[info objectForKey:@"location"] integerValue];
+							NSInteger length = [[info objectForKey:@"length"] integerValue];
+							NSInteger uatType = [[info objectForKey:@"type"] integerValue];
+							
+							
+							switch (uatType) {
+								case 1: { // Image
+									NSImage *image = [[NSImage alloc] initWithData:[_attributeData subdataWithRange:NSMakeRange(location + 16, length - 16)]];
+									
+									if (image) {
+										NSImageRep *imageRep = [[image representations] objectAtIndex:0];
+										NSSize size = imageRep.size;
+										if (size.width != imageRep.pixelsWide || size.height != imageRep.pixelsHigh) { // Fix image size if needed.
+											size.width = imageRep.pixelsWide;
+											size.height = imageRep.pixelsHigh;
+											imageRep.size = size;
+											[image setSize:size];
+										}
+										
+										userID.image = image;
+										[image release];
 									}
 									
-									userID.image = image;
-									[image release];
+									break;
 								}
-								
-								break;
 							}
-						}
-						
-					} while (index < count);
+							
+						} while (index < count);
+					}
 				}
 				
-				
 			}
+				
 			
 			[userIDs addObject:userID];
 		}
@@ -596,23 +601,41 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 		else if ([type isEqualToString:@"sig"] || ([type isEqualToString:@"rev"] && (isRev = YES))) { // Signature.
 			signature = [[[GPGUserIDSignature alloc] init] autorelease];
 			
+			NSString *validityString = parts[1];
+			if (validityString.length == 1) {
+				unichar character = [validityString characterAtIndex:0];
+				switch (character) {
+					case '!':
+						signature.validity = GPGValidityUltimate;
+						break;
+					case '?':
+						signature.validity = GPGValidityUndefined;
+						break;
+					case '-':
+						signature.validity = GPGValidityNever;
+						break;
+					case '%':
+						signature.validity = GPGValidityInvalid;
+						break;
+				}
+			}
 			
 			signature.revocation = isRev;
 			
-			signature.algorithm = [[parts objectAtIndex:3] intValue];
+			signature.algorithm = [parts[3] intValue];
 			
-			signature.keyID = [parts objectAtIndex:4];
+			signature.keyID = parts[4];
 			
-			signature.creationDate = [NSDate dateWithGPGString:[parts objectAtIndex:5]];
+			signature.creationDate = [NSDate dateWithGPGString:parts[5]];
 			
-			signature.expirationDate = [NSDate dateWithGPGString:[parts objectAtIndex:6]];
+			signature.expirationDate = [NSDate dateWithGPGString:parts[6]];
 			
-			NSString *field = [parts objectAtIndex:10];
-			signature.signatureClass = hexToByte([field UTF8String]);
+			NSString *field = parts[10];
+			signature.signatureClass = hexToByte(field.UTF8String);
 			signature.local = [field hasSuffix:@"l"];
 			
 			if (parts.count > 15) {
-				signature.hashAlgorithm = [[parts objectAtIndex:15] intValue];
+				signature.hashAlgorithm = [parts[15] intValue];
 			}
 			
 			[signatures addObject:signature];
@@ -624,6 +647,11 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 				case 29:
 					signature.reason = [[parts objectAtIndex:4] unescapedString];
 					break;
+				case 30: {
+					NSString *value = parts[4];
+					signature.mdcSupport = value.length > 2 && [[value substringToIndex:3] isEqualToString:@"%01"];
+					break;
+				}
 			}
 		}
 		
@@ -635,6 +663,21 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 	
 	primaryKey.userIDs = userIDs;
 	primaryKey.subkeys = subkeys;
+	
+	BOOL mdcSupport = YES;
+	for (GPGUserID *userID in primaryKey.userIDs) {
+		if (userID.selfSignature.mdcSupport) {
+			userID.mdcSupport = YES;
+		} else {
+			if (userID.validity < GPGValidityInvalid && !userID.isUat) {
+				mdcSupport = NO;
+			}
+		}
+	}
+	primaryKey.mdcSupport = mdcSupport;
+	
+	
+	
 	
 	[userIDs release];
 	[subkeys release];
@@ -757,6 +800,99 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 		_completionQueue = completionQueue;
 	}
 	
+}
+
+
+#pragma mark Key Descriptions
+
+- (NSString *)descriptionForKeys:(NSArray *)keys {
+	NSMutableString *descriptions = [NSMutableString string];
+	Class gpgKeyClass = [GPGKey class];
+	NSUInteger i = 0, count = keys.count;
+	NSUInteger lines = 10;
+	if (count == 0) {
+		return @"";
+	}
+	if (lines > 0 && count > lines) {
+		lines = lines - 1;
+	} else {
+		lines = NSUIntegerMax;
+	}
+	BOOL singleKey = count == 1;
+	BOOL indent = NO;
+	
+	
+	NSString *lineBreak = indent ? @"\n\t" : @"\n";
+	if (indent) {
+		[descriptions appendString:@"\t"];
+	}
+	
+	NSString *normalSeperator = [@"," stringByAppendingString:lineBreak];
+	NSString *seperator = @"";
+	
+	for (__strong GPGKey *key in keys) {
+		if (i >= lines && i > 0) {
+			[descriptions appendString:lineBreak];
+			[descriptions appendFormat:localizedLibmacgpgString(@"KeyDescriptionAndMore"), count - i];
+			break;
+		}
+		
+		if (![key isKindOfClass:gpgKeyClass]) {
+			NSString *keyID = (id)key;
+			GPGKey *realKey = nil;
+			if (keyID.length == 16) {
+				realKey = self.keysByKeyID[keyID];
+			} else {
+				realKey = [self.allKeysAndSubkeys member:key];
+			}
+			
+			if (!realKey) {
+				realKey = [[self keysByKeyID] objectForKey:key.keyID];
+			}
+			if (realKey) {
+				key = realKey;
+			}
+		}
+		
+		if (i > 0) {
+			seperator = normalSeperator;
+		}
+		
+		if ([key isKindOfClass:gpgKeyClass]) {
+			GPGKey *primaryKey = key.primaryKey;
+			
+			NSString *name = primaryKey.name;
+			NSString *email = primaryKey.email;
+			NSString *keyID = [[GPGNoBreakFingerprintTransformer sharedInstance] transformedValue:key.fingerprint];
+			
+			if (name.length == 0) {
+				name = email;
+				email = nil;
+			}
+			
+			if (email.length > 0) {
+				if (singleKey) {
+					[descriptions appendFormat:@"%@%@ <%@>%@%@", seperator, name, email, lineBreak, keyID];
+				} else {
+					[descriptions appendFormat:@"%@%@ <%@> (%@)", seperator, name, email, keyID];
+				}
+			} else {
+				if (singleKey) {
+					[descriptions appendFormat:@"%@%@%@%@", seperator, name, lineBreak, keyID];
+				} else {
+					[descriptions appendFormat:@"%@%@ (%@)", seperator, name, keyID];
+				}
+			}
+			
+		} else {
+			[descriptions appendFormat:@"%@%@", seperator, [[GPGNoBreakFingerprintTransformer sharedInstance] transformedValue:key]];
+		}
+		
+		
+		i++;
+	}
+	
+	return [descriptions.copy autorelease];
 }
 
 

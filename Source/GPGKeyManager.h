@@ -95,6 +95,12 @@
  */
 - (void)loadSignaturesAndAttributesForKeys:(NSSet *)keys completionHandler:(void(^)(NSSet *))completionHandler;
 
+/*
+ * Returns a human readable descryption of the keys.
+ * Used whenever keys are listed in a dialog.
+ */
+- (NSString *)descriptionForKeys:(NSArray *)keys;
+
 @end
 
 /* Register to this notification to received notifications when keys were modified. */

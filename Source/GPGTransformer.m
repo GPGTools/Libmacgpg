@@ -218,7 +218,23 @@
 	
 	return [[[NSString alloc] initWithData:buffer encoding:NSUTF8StringEncoding] autorelease];
 }
+@end
 
+
+@implementation GPGNoBreakFingerprintTransformer
+- (id)transformedValue:(id)value {
+	NSString *transformed = [super transformedValue:value];
+	transformed = [transformed stringByReplacingOccurrencesOfString:@" " withString:@"\xC2\xA0"];
+	return transformed;
+}
++ (id)sharedInstance {
+	static dispatch_once_t onceToken = 0;
+	__strong static id _sharedInstance = nil;
+	dispatch_once(&onceToken, ^{
+		_sharedInstance = [[self alloc] init];
+	});
+	return _sharedInstance;
+}
 @end
 
 

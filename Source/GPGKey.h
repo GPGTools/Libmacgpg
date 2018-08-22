@@ -105,6 +105,8 @@
 @property (nonatomic, readonly) BOOL canAnyCertify;
 @property (nonatomic, readonly) BOOL canAnyAuthenticate;
 
+@property (nonatomic, readonly) BOOL mdcSupport;
+
 // Calculated properties.
 @property (nonatomic, readonly) NSString *textForFilter;
 @property (nonatomic, readonly) NSSet *allFingerprints;

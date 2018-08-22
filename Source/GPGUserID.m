@@ -54,10 +54,20 @@
 		[oldValue release];
 		
 		GPGUserIDSignature *revSig = nil;
+		GPGUserIDSignature *selfSig = nil;
+		NSString *keyID = _primaryKey.keyID;
 		for (GPGUserIDSignature *sig in signatures) {
+			if (sig.validity != GPGValidityUltimate) {
+				continue;
+			}
 			if (sig.revocation) {
-				revSig = sig;
-				break;
+				if (!revSig) {
+					revSig = sig;
+				}
+			} else if ([keyID isEqualToString:sig.keyID]) {
+				if (!selfSig.creationDate || [sig.creationDate compare:selfSig.creationDate] == NSOrderedDescending) {
+					selfSig = sig;
+				}
 			}
 		}
 		if (revSig != _revocationSignature) {
@@ -65,7 +75,14 @@
 			_revocationSignature = [revSig retain];
 			[oldValue release];
 		}
-		
+		if (selfSig != _selfSignature) {
+			GPGUserIDSignature *oldSig = _selfSignature;
+			selfSig.selfSignature = YES;
+			_selfSignature = [selfSig retain];
+			oldSig.selfSignature = NO;
+			[oldSig release];
+		}
+
 	}
 }
 - (NSArray *)signatures {
@@ -134,6 +151,8 @@
 	_hashID = nil;
 	[_revocationSignature release];
 	_revocationSignature = nil;
+	[_selfSignature release];
+	_selfSignature = nil;
 	
 	_primaryKey = nil;
 	[_signatures release];

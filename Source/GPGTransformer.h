@@ -52,6 +52,10 @@
 @property (nonatomic, assign) BOOL keepUnlocalized;
 @end
 
+@interface GPGNoBreakFingerprintTransformer : GPGFingerprintTransformer
++ (id)sharedInstance;
+@end
+
 
 DEPRECATED_ATTRIBUTE @interface SplitFormatter : NSFormatter {
 	NSInteger blockSize;

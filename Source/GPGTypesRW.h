@@ -63,6 +63,8 @@
 @property (nonatomic, assign, readwrite) BOOL canAnyCertify;
 @property (nonatomic, assign, readwrite) BOOL canAnyAuthenticate;
 
+@property (nonatomic, assign, readwrite) BOOL mdcSupport;
+
 @end
 
 @interface GPGUserID ()
@@ -80,6 +82,9 @@
 @property (nonatomic, copy, readwrite) NSArray *signatures;
 @property (nonatomic, assign, readwrite) GPGKey *primaryKey;
 
+@property (nonatomic, assign, readwrite) BOOL mdcSupport;
+@property (nonatomic, assign, readwrite) BOOL isUat;
+
 @end
 
 @interface GPGUserIDSignature ()
@@ -92,7 +97,10 @@
 @property (nonatomic, assign, readwrite) int signatureClass;
 @property (nonatomic, assign, readwrite) BOOL revocation;
 @property (nonatomic, assign, readwrite) BOOL local;
+@property (nonatomic, assign, readwrite) BOOL mdcSupport;
+@property (nonatomic, assign, readwrite) BOOL selfSignature;
 @property (nonatomic, assign, readwrite) GPGHashAlgorithm hashAlgorithm;
+@property (nonatomic, assign, readwrite) GPGValidity validity;
 
 @property (nonatomic, assign, readwrite) GPGKey *primaryKey;
 
