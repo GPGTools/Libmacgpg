@@ -107,7 +107,7 @@
 	if ([self isCodeSignatureValidAtPath:path]) {
 		NSTask *task = [NSTask launchedTaskWithLaunchPath:path arguments:arguments];
 		if (wait) {
-			[task waitUntilExit];
+			[task threadSafeWaitUntilExit];
 			reply(task.terminationStatus == 0);
 		} else {
 			reply(YES);
