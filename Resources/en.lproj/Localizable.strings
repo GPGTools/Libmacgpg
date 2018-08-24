@@ -5,7 +5,8 @@ PassphraseLabel = "Password:";
 
 
 
-//For Key-Status
+
+/* For Key-Status */
 "Invalid" = "Invalid";
 "Revoked" = "Revoked";
 "Expired" = "Expired";
@@ -17,7 +18,7 @@ PassphraseLabel = "Password:";
 "Ultimate" = "Ultimate";
 
 
-//For Undo and Redo
+/* For Undo and Redo */
 Undo_NewKey = "New Key";
 Undo_Delete = "Delete";
 Undo_CleanKey = "Clean";
@@ -43,7 +44,7 @@ Undo_ReceiveFromServer = "Receive from server";
 
 
 
-//Algorithm names
+/* Algorithm names */
 CIPHER_ALGO_NONE = "None";
 CIPHER_ALGO_IDEA = "IDEA";
 CIPHER_ALGO_3DES = "3DES";
@@ -89,6 +90,32 @@ GPG_EdDSAAlgorithm = "EdDSA";
 "Signature error" = "Signature error";
 "Unverifiable signature" = "Signature can not be verified.";
 "Signed by stranger" = "Signature can not be verified, because the corresponding public key is missing.";
+
+
+/* Key Descriptions */
+KeyDescriptionAndMore = "and %lu more";
+
+
+/* Key Expiry Warning */
+KeyExpiryWarning_Title = "Warning: Your key is about to expire";
+KeyExpiryWarning_Msg = "Your key will expire on %1$@:\n\n%2$@\n\nExpired keys can not be used to encrypt or sign new messages. Decryption will continue to work. Your friends will not be able to send encrypted messages using this key.\n\nIf you choose to extend your key, it will be valid for two more years.\n\nDo you want to extend your key?";
+KeyExpiryWarning_Yes = "Extend Key";
+KeyExpiryWarning_No = "Cancel";
+KeyExpiryWarning_Suppress = "Do Not Ask Again";
+
+SubkeyExpiryWarning_Title = "Warning: Your subkey is about to expire";
+SubkeyExpiryWarning_Msg = "Your subkey will expire on %1$@:\n\n%2$@\n\nExpired subkeys can not be used to encrypt or sign new messages. Decryption will continue to work. Your friends will not be able to send encrypted messages using this subkey.\n\nIf you choose to extend your subkey, it will be valid for two more years.\n\nDo you want to extend your subkey?";
+SubkeyExpiryWarning_Yes = "Extend Subkey";
+SubkeyExpiryWarning_No = "Cancel";
+SubkeyExpiryWarning_Suppress = "Do Not Ask Again";
+
+WrongPasswordTryAgain_Title = "You entered the wrong password";
+WrongPasswordTryAgain_Msg = "Do you want to try it again?";
+WrongPasswordTryAgain_Yes = "Try Again";
+WrongPasswordTryAgain_No = "Cancel";
+
+KeyExpiryFailed_Title = "Failed to extend your key!";
+KeyExpiryFailed_Msg = "The key\n%1$@\ncould not be extened.\n\nError: %2$@";
 
 
 

@@ -3,6 +3,7 @@
 #import "GPGTypesRW.h"
 #import "GPGWatcher.h"
 #import "GPGTask.h"
+#import "GPGKeyMonitoring.h"
 #import "GPGTransformer.h"
 
 NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDidChangeNotification";
@@ -1048,6 +1049,7 @@ NSString * const GPGKeyManagerKeysDidChangeNotification = @"GPGKeyManagerKeysDid
 	_keyLoadingOperations = [[NSMutableArray alloc] init];
 	_keyLoadingOperationsLock = dispatch_queue_create("org.gpgtools.libmacgpg.GPGKeyManager.key-loader-lock", NULL);
 
+	[GPGKeyMonitoring sharedInstance];
 	
 	return self;
 }

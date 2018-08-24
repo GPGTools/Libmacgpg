@@ -50,4 +50,5 @@
 #import <Libmacgpg/GPGUpdateController.h>
 #import <Libmacgpg/NSBundle+GPGLocalization.h>
 #import <Libmacgpg/GPGStatusLine.h>
+#import <Libmacgpg/GPGKeyMonitoring.h>
 
