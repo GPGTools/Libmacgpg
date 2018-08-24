@@ -174,7 +174,8 @@
 - (void)signUserIDs:(NSArray <GPGUserID *> *)userIDs signerKey:(NSObject <KeyFingerprint> *)signerKey local:(BOOL)local daysToExpire:(int)daysToExpire;
 - (void)addSubkeyToKey:(NSObject <KeyFingerprint> *)key type:(NSInteger)type length:(NSInteger)length daysToExpire:(NSInteger)daysToExpire;
 - (void)addUserIDToKey:(NSObject <KeyFingerprint> *)key name:(NSString *)name email:(NSString *)email comment:(NSString *)comment;
-- (void)setExpirationDateForSubkey:(NSObject <KeyFingerprint> *)subkey fromKey:(NSObject <KeyFingerprint> *)key daysToExpire:(NSInteger)daysToExpire;
+- (void)setExpirationDateForSubkey:(NSObject <KeyFingerprint> *)subkey fromKey:(NSObject <KeyFingerprint> *)key daysToExpire:(NSUInteger)daysToExpire;
+- (void)setExpirationDate:(NSDate *)expirationDate forSubkeys:(NSArray *)subkeys ofKey:(NSObject <KeyFingerprint> *)key;
 - (void)changePassphraseForKey:(NSObject <KeyFingerprint> *)key;
 - (NSString *)receiveKeysFromServer:(NSObject <EnumerationList> *)keys;
 - (NSArray <GPGRemoteKey *> *)searchKeysOnServer:(NSString *)pattern;

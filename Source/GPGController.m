@@ -1032,39 +1032,53 @@ BOOL gpgConfigReaded = NO;
 	[self operationDidFinishWithReturnValue:nil];	
 }
 
-- (void)setExpirationDateForSubkey:(NSObject <KeyFingerprint> *)subkey fromKey:(NSObject <KeyFingerprint> *)key daysToExpire:(NSInteger)daysToExpire {
+- (void)setExpirationDateForSubkey:(NSObject <KeyFingerprint> *)subkey fromKey:(NSObject <KeyFingerprint> *)key daysToExpire:(NSUInteger)daysToExpire {
+	NSDate *expirationDate = nil;
+	NSArray *subkeys = nil;
+	if (daysToExpire > 0) {
+		expirationDate = [NSDate dateWithTimeIntervalSinceNow:daysToExpire * 86400];
+	}
+	if (subkey) {
+		subkeys = @[subkey];
+	}
+	[self setExpirationDate:expirationDate forSubkeys:subkeys ofKey:key];
+}
+- (void)setExpirationDate:(NSDate *)expirationDate forSubkeys:(NSArray *)subkeys ofKey:(NSObject <KeyFingerprint> *)key {
 	if (async && !asyncStarted) {
 		asyncStarted = YES;
-		[asyncProxy setExpirationDateForSubkey:subkey fromKey:key daysToExpire:daysToExpire];
+		[asyncProxy setExpirationDate:expirationDate forSubkeys:subkeys ofKey:key];
 		return;
 	}
 	@try {
 		[self operationDidStart];
 		[self registerUndoForKey:key withName:@"Undo_ChangeExpirationDate"];
 		
-		GPGTaskOrder *order = [GPGTaskOrder orderWithYesToAll];
-		
-		if (subkey) {
-			int index = (int)[self indexOfSubkey:subkey fromKey:key];
-			if (index > 0) {
-				[order addCmd:[NSString stringWithFormat:@"key %i\n", index] prompt:@"keyedit.prompt"];
-			} else {
-				@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Subkey not found!") userInfo:[NSDictionary dictionaryWithObjectsAndKeys:subkey, @"subkey", key, @"key", nil] errorCode:GPGErrorSubkeyNotFound gpgTask:nil];
-			}
-		}
-		
-		[order addCmd:@"expire\n" prompt:@"keyedit.prompt"];
-		[order addInt:daysToExpire prompt:@"keygen.valid"];
-		[order addCmd:@"save\n" prompt:@"keyedit.prompt"];
-		
 		
 		self.gpgTask = [GPGTask gpgTask];
 		[self addArgumentsForOptions];
-		gpgTask.userInfo = [NSDictionary dictionaryWithObject:order forKey:@"order"]; 
-		[gpgTask addArgument:@"--edit-key"];
+
+		[gpgTask addArgument:@"--quick-set-expire"];
 		[gpgTask addArgument:[key description]];
 		
-		if ([gpgTask start] != 0) {
+		if (expirationDate) {
+			NSDateFormatter *formatter = [[[NSDateFormatter alloc] init] autorelease];
+			[formatter setDateFormat:@"yyyyMMdd'T'HHmmss"];
+			
+			[gpgTask addArgument:[formatter stringFromDate:expirationDate]];
+		} else {
+			[gpgTask addArgument:@"never"];
+		}
+		
+		
+		if (subkeys.count > 0) {
+			for (GPGKey *subkey in subkeys) {
+				[gpgTask addArgument:[subkey description]];
+			}
+		}
+
+		[gpgTask start];
+		
+		if (gpgTask.errorCode) {
 			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Change expiration date failed!") gpgTask:gpgTask];
 		}
 		[self keyChanged:key];
