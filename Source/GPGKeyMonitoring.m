@@ -339,17 +339,39 @@ static NSString * const keyMonitoringPong = @"GPGKeyMonitoringPong";
 	
 	
 	if (response == NSAlertThirdButtonReturn) {
+		// Do not show a warning for this key again.
 		return YES;
 	}
 	if (response != NSAlertFirstButtonReturn) {
+		// Do not extend this key.
 		return NO;
 	}
 	
 	
+	
+	
+	// Asnc test if the key exists on the keyserver.
+	__block BOOL keyExistsOnServer = NO;
+	dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+	dispatch_retain(semaphore);
+	
+	GPGController *keyExistsGPGC = [GPGController gpgController];
+	keyExistsGPGC.keyserverTimeout = 2;
+	[keyExistsGPGC keysExistOnServer:@[info.primaryKey] callback:^(NSArray *existingKeys, NSArray *nonExistingKeys) {
+		keyExistsOnServer = existingKeys.count == 1;
+		
+		dispatch_semaphore_signal(semaphore);
+		dispatch_release(semaphore);
+	}];
+
+	
+	
+	
 	GPGController *gpgc = [GPGController gpgController];
+	BOOL failed = NO;
 	NSArray<GPGKey *> *keys = info.keys;
-	NSUInteger count = keys.count;
 	NSUInteger i = 0;
+	NSUInteger count = keys.count;
 	
 	for (; i < count;) {
 		BOOL tryAgain = NO;
@@ -358,8 +380,8 @@ static NSString * const keyMonitoringPong = @"GPGKeyMonitoringPong";
 		
 		[gpgc setExpirationDateForSubkey:subkey fromKey:info.primaryKey daysToExpire:365 * 2];
 		
-		
 		if (gpgc.error) {
+			failed = YES;
 			NSException *exception = gpgc.error;
 			if ([exception isKindOfClass:[GPGException class]]) {
 				GPGErrorCode errorCode = ((GPGException *)exception).errorCode;
@@ -369,6 +391,7 @@ static NSString * const keyMonitoringPong = @"GPGKeyMonitoringPong";
 				if (errorCode == GPGErrorBadPassphrase) {
 					tryAgain = [self wrongPasswordEnteredForKey:key];
 					if (tryAgain) {
+						failed = NO;
 						continue; // Do not increment i.
 					} else {
 						break;
@@ -385,6 +408,36 @@ static NSString * const keyMonitoringPong = @"GPGKeyMonitoringPong";
 		// Incerment i here, so continue can be used to jump over the increment.
 		i++;
 	}
+
+	if (!failed) {
+		// Wait for the result from -keysExistOnServer.
+		dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC);
+		dispatch_semaphore_wait(semaphore, timeout);
+
+		
+		NSArray *buttons;
+		NSModalResponse yesButton;
+		if (keyExistsOnServer) {
+			buttons = @[@"Yes", @"No"];
+			yesButton = NSAlertFirstButtonReturn;
+		} else {
+			buttons = @[@"No", @"Yes"];
+			yesButton = NSAlertSecondButtonReturn;
+		}
+		
+		NSModalResponse result = [self showAlertWithButtons:buttons prefix:@"KeyExtendedWantToUpload"];
+		if (result == yesButton) {
+			[gpgc sendKeysToServer:@[info.primaryKey]];
+			
+			if (gpgc.error) {
+				[self showAlertWithButtons:nil prefix:@"UploadFailed", gpgc.error.description];
+			}
+		}
+	}
+	
+	dispatch_release(semaphore);
+
+	
 	return NO;
 }
 
