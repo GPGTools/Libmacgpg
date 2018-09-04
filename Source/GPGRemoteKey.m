@@ -1,5 +1,5 @@
 /*
- Copyright © Roman Zechmeister, 2014
+ Copyright © Roman Zechmeister, 2017
  
  Diese Datei ist Teil von Libmacgpg.
  
@@ -39,7 +39,7 @@
 
 
 
-+ (NSArray *)keysWithListing:(NSString *)listing {
++ (NSArray <GPGRemoteKey *> *)keysWithListing:(NSString *)listing {
 	NSArray *lines = [listing componentsSeparatedByString:@"\n"];
 	NSMutableArray *keys = [NSMutableArray array];
 	NSRange range;

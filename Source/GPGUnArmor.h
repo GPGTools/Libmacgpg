@@ -13,10 +13,11 @@
 	NSUInteger cacheIndex;
 	NSUInteger cacheEnd;
 	NSUInteger streamOffset;
-	
+	NSUInteger maxBytesToRead;
 	
 	// State vars for parsing.
 	NSMutableData *base64Data;
+	NSMutableIndexSet *possibleStarts;
 	BOOL preferAlternative;
 	NSUInteger alternativeStart;
 	BOOL invalidCharInLine;
@@ -87,6 +88,15 @@
  * @return The decoded data or NULL if the input wasn't armored.
  */
 - (NSData *)decodeAll;
+
+/**
+ * Decodes and returns only the beginning of the stream.
+ * Do not call this method before or after another decode method.
+ *
+ * @return The decoded data or NULL if the input wasn't armored.
+ */
+- (NSData *)decodeHeader;
+
 
 @end
 

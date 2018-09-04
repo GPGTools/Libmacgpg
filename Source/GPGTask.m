@@ -1,5 +1,5 @@
 /*
- Copyright © Roman Zechmeister, 2014
+ Copyright © Roman Zechmeister, 2017
  
  Diese Datei ist Teil von Libmacgpg.
  
@@ -21,40 +21,31 @@
 #import "GPGTask.h"
 #import "GPGTaskHelper.h"
 #import "GPGGlobals.h"
-#import "GPGOptions.h"
-#import "LPXTTask.h"
 #import "GPGMemoryStream.h"
 #import "GPGException.h"
 #import "GPGGlobals.h"
 //#import <sys/shm.h>
 #import <fcntl.h>
 #import "NSBundle+Sandbox.h"
+#import "GPGStatusLine.h"
+#import <sys/stat.h>
+#import "GPGTask_Private.h"
+
+
+NSString * const GPGStatusFilePlaceholder = @"~%$STATUS_FILE_PATH$%~";
+NSString * const GPGAttributeFilePlaceholder = @"~%$ATTRIBUTE_FILE_PATH$%~";
 
 
 @class GPGController;
 
-@interface GPGTask ()
-
-@property (nonatomic, retain) NSData *errData;
-@property (nonatomic, retain) NSData *statusData;
-@property (nonatomic, retain) NSData *attributeData;
-@property (nonatomic) int errorCode;
-
-+ (void)initializeStatusCodes;
-- (void)unsetErrorCode:(int)value;
-
-@end
-
-
 @implementation GPGTask
 
-NSDictionary *statusCodes;
 char partCountForStatusCode[GPG_STATUS_COUNT];
 static NSLock *gpgTaskLock;
 
-@synthesize isRunning, batchMode, getAttributeData, delegate, userInfo, exitcode, errorCode, errData, statusData, attributeData, cancelled,
+@synthesize isRunning, batchMode, getAttributeData, delegate, userInfo, exitcode, errData, statusData, attributeData, cancelled,
             progressInfo, statusDict, taskHelper = taskHelper, timeout, environmentVariables=_environmentVariables, passphrase, nonBlocking;
-@synthesize outStream;
+@synthesize outStream, statusArray;
 
 
 
@@ -66,17 +57,18 @@ static NSLock *gpgTaskLock;
     return [outStream readAllData];
 }
 
-- (void)addInput:(GPGStream *)stream
-{
-	if (!inDatas) 
-		inDatas = [[NSMutableArray alloc] init];
-	[inDatas addObject:stream];
+- (void)setInput:(GPGStream *)stream {
+	[stream retain];
+	if (inData) {
+		[inData release];
+	}
+	inData = stream;
 }
-- (void)addInData:(NSData *)data {
-    [self addInput:[GPGMemoryStream memoryStreamForReading:data]];
+- (void)setInData:(NSData *)data {
+    [self setInput:[GPGMemoryStream memoryStreamForReading:data]];
 }
-- (void)addInText:(NSString *)string {
-	[self addInData:[string UTF8Data]];
+- (void)setInText:(NSString *)string {
+	[self setInData:[string UTF8Data]];
 }
 
 - (NSString *)outText {
@@ -101,98 +93,7 @@ static NSLock *gpgTaskLock;
 
 + (void)initialize {
 	gpgTaskLock = [NSLock new];
-	[self initializeStatusCodes];
-}
 
-+ (void)initializeStatusCodes {
-	statusCodes = [[NSDictionary alloc] initWithObjectsAndKeys:
-				   [NSNumber numberWithInteger:GPG_STATUS_ALREADY_SIGNED], @"ALREADY_SIGNED",
-				   [NSNumber numberWithInteger:GPG_STATUS_ATTRIBUTE], @"ATTRIBUTE",
-				   [NSNumber numberWithInteger:GPG_STATUS_BACKUP_KEY_CREATED], @"BACKUP_KEY_CREATED",
-				   [NSNumber numberWithInteger:GPG_STATUS_BADARMOR], @"BADARMOR",
-				   [NSNumber numberWithInteger:GPG_STATUS_BADMDC], @"BADMDC",
-				   [NSNumber numberWithInteger:GPG_STATUS_BADSIG], @"BADSIG",
-				   [NSNumber numberWithInteger:GPG_STATUS_BAD_PASSPHRASE], @"BAD_PASSPHRASE",
-				   [NSNumber numberWithInteger:GPG_STATUS_BEGIN_DECRYPTION], @"BEGIN_DECRYPTION",
-				   [NSNumber numberWithInteger:GPG_STATUS_BEGIN_ENCRYPTION], @"BEGIN_ENCRYPTION",
-				   [NSNumber numberWithInteger:GPG_STATUS_BEGIN_SIGNING], @"BEGIN_SIGNING",
-				   [NSNumber numberWithInteger:GPG_STATUS_BEGIN_STREAM], @"BEGIN_STREAM",
-				   [NSNumber numberWithInteger:GPG_STATUS_CARDCTRL], @"CARDCTRL",
-				   [NSNumber numberWithInteger:GPG_STATUS_DECRYPTION_FAILED], @"DECRYPTION_FAILED",
-				   [NSNumber numberWithInteger:GPG_STATUS_DECRYPTION_OKAY], @"DECRYPTION_OKAY",
-				   [NSNumber numberWithInteger:GPG_STATUS_DELETE_PROBLEM], @"DELETE_PROBLEM",
-				   [NSNumber numberWithInteger:GPG_STATUS_ENC_TO], @"ENC_TO",
-				   [NSNumber numberWithInteger:GPG_STATUS_END_DECRYPTION], @"END_DECRYPTION",
-				   [NSNumber numberWithInteger:GPG_STATUS_END_ENCRYPTION], @"END_ENCRYPTION",
-				   [NSNumber numberWithInteger:GPG_STATUS_END_STREAM], @"END_STREAM",
-				   [NSNumber numberWithInteger:GPG_STATUS_ERRMDC], @"ERRMDC",
-				   [NSNumber numberWithInteger:GPG_STATUS_ERROR], @"ERROR",
-				   [NSNumber numberWithInteger:GPG_STATUS_ERRSIG], @"ERRSIG",
-				   [NSNumber numberWithInteger:GPG_STATUS_EXPKEYSIG], @"EXPKEYSIG",
-				   [NSNumber numberWithInteger:GPG_STATUS_EXPSIG], @"EXPSIG",
-				   [NSNumber numberWithInteger:GPG_STATUS_FILE_DONE], @"FILE_DONE",
-				   [NSNumber numberWithInteger:GPG_STATUS_GET_BOOL], @"GET_BOOL",
-				   [NSNumber numberWithInteger:GPG_STATUS_GET_HIDDEN], @"GET_HIDDEN",
-				   [NSNumber numberWithInteger:GPG_STATUS_GET_LINE], @"GET_LINE",
-				   [NSNumber numberWithInteger:GPG_STATUS_GOODMDC], @"GOODMDC",
-				   [NSNumber numberWithInteger:GPG_STATUS_GOODSIG], @"GOODSIG",
-				   [NSNumber numberWithInteger:GPG_STATUS_GOOD_PASSPHRASE], @"GOOD_PASSPHRASE",
-				   [NSNumber numberWithInteger:GPG_STATUS_GOT_IT], @"GOT_IT",
-				   [NSNumber numberWithInteger:GPG_STATUS_IMPORTED], @"IMPORTED",
-				   [NSNumber numberWithInteger:GPG_STATUS_IMPORT_CHECK], @"IMPORT_CHECK",
-				   [NSNumber numberWithInteger:GPG_STATUS_IMPORT_OK], @"IMPORT_OK",
-				   [NSNumber numberWithInteger:GPG_STATUS_IMPORT_PROBLEM], @"IMPORT_PROBLEM",
-				   [NSNumber numberWithInteger:GPG_STATUS_IMPORT_RES], @"IMPORT_RES",
-				   [NSNumber numberWithInteger:GPG_STATUS_INV_RECP], @"INV_RECP",
-				   [NSNumber numberWithInteger:GPG_STATUS_INV_SGNR], @"INV_SGNR",
-				   [NSNumber numberWithInteger:GPG_STATUS_KEYEXPIRED], @"KEYEXPIRED",
-				   [NSNumber numberWithInteger:GPG_STATUS_KEYREVOKED], @"KEYREVOKED",
-				   [NSNumber numberWithInteger:GPG_STATUS_KEY_CREATED], @"KEY_CREATED",
-				   [NSNumber numberWithInteger:GPG_STATUS_KEY_NOT_CREATED], @"KEY_NOT_CREATED",
-				   [NSNumber numberWithInteger:GPG_STATUS_MISSING_PASSPHRASE], @"MISSING_PASSPHRASE",
-				   [NSNumber numberWithInteger:GPG_STATUS_NEED_PASSPHRASE], @"NEED_PASSPHRASE",
-				   [NSNumber numberWithInteger:GPG_STATUS_NEED_PASSPHRASE_PIN], @"NEED_PASSPHRASE_PIN",
-				   [NSNumber numberWithInteger:GPG_STATUS_NEED_PASSPHRASE_SYM], @"NEED_PASSPHRASE_SYM",
-				   [NSNumber numberWithInteger:GPG_STATUS_NEWSIG], @"NEWSIG",
-				   [NSNumber numberWithInteger:GPG_STATUS_NODATA], @"NODATA",
-				   [NSNumber numberWithInteger:GPG_STATUS_NOTATION_DATA], @"NOTATION_DATA",
-				   [NSNumber numberWithInteger:GPG_STATUS_NOTATION_NAME], @"NOTATION_NAME",
-				   [NSNumber numberWithInteger:GPG_STATUS_NO_PUBKEY], @"NO_PUBKEY",
-				   [NSNumber numberWithInteger:GPG_STATUS_NO_RECP], @"NO_RECP",
-				   [NSNumber numberWithInteger:GPG_STATUS_NO_SECKEY], @"NO_SECKEY",
-				   [NSNumber numberWithInteger:GPG_STATUS_NO_SGNR], @"NO_SGNR",
-				   [NSNumber numberWithInteger:GPG_STATUS_PKA_TRUST_BAD], @"PKA_TRUST_BAD",
-				   [NSNumber numberWithInteger:GPG_STATUS_PKA_TRUST_GOOD], @"PKA_TRUST_GOOD",
-				   [NSNumber numberWithInteger:GPG_STATUS_PLAINTEXT], @"PLAINTEXT",
-				   [NSNumber numberWithInteger:GPG_STATUS_PLAINTEXT_LENGTH], @"PLAINTEXT_LENGTH",
-				   [NSNumber numberWithInteger:GPG_STATUS_POLICY_URL], @"POLICY_URL",
-				   [NSNumber numberWithInteger:GPG_STATUS_PROGRESS], @"PROGRESS",
-				   [NSNumber numberWithInteger:GPG_STATUS_REVKEYSIG], @"REVKEYSIG",
-				   [NSNumber numberWithInteger:GPG_STATUS_RSA_OR_IDEA], @"RSA_OR_IDEA",
-				   [NSNumber numberWithInteger:GPG_STATUS_SC_OP_FAILURE], @"SC_OP_FAILURE",
-				   [NSNumber numberWithInteger:GPG_STATUS_SC_OP_SUCCESS], @"SC_OP_SUCCESS",
-				   [NSNumber numberWithInteger:GPG_STATUS_SESSION_KEY], @"SESSION_KEY",
-				   [NSNumber numberWithInteger:GPG_STATUS_SHM_GET], @"SHM_GET",
-				   [NSNumber numberWithInteger:GPG_STATUS_SHM_GET_BOOL], @"SHM_GET_BOOL",
-				   [NSNumber numberWithInteger:GPG_STATUS_SHM_GET_HIDDEN], @"SHM_GET_HIDDEN",
-				   [NSNumber numberWithInteger:GPG_STATUS_SHM_INFO], @"SHM_INFO",
-				   [NSNumber numberWithInteger:GPG_STATUS_SIGEXPIRED], @"SIGEXPIRED",
-				   [NSNumber numberWithInteger:GPG_STATUS_SIG_CREATED], @"SIG_CREATED",
-				   [NSNumber numberWithInteger:GPG_STATUS_SIG_ID], @"SIG_ID",
-				   [NSNumber numberWithInteger:GPG_STATUS_SIG_SUBPACKET], @"SIG_SUBPACKET",
-				   [NSNumber numberWithInteger:GPG_STATUS_TRUNCATED], @"TRUNCATED",
-				   [NSNumber numberWithInteger:GPG_STATUS_TRUST_FULLY], @"TRUST_FULLY",
-				   [NSNumber numberWithInteger:GPG_STATUS_TRUST_MARGINAL], @"TRUST_MARGINAL",
-				   [NSNumber numberWithInteger:GPG_STATUS_TRUST_NEVER], @"TRUST_NEVER",
-				   [NSNumber numberWithInteger:GPG_STATUS_TRUST_ULTIMATE], @"TRUST_ULTIMATE",
-				   [NSNumber numberWithInteger:GPG_STATUS_TRUST_UNDEFINED], @"TRUST_UNDEFINED",
-				   [NSNumber numberWithInteger:GPG_STATUS_UNEXPECTED], @"UNEXPECTED",
-				   [NSNumber numberWithInteger:GPG_STATUS_USERID_HINT], @"USERID_HINT",
-				   [NSNumber numberWithInteger:GPG_STATUS_VALIDSIG], @"VALIDSIG",
-				   nil];
-	
-	
-	
 	//Status codes where the last part can contain withespaces.
 	memset(partCountForStatusCode, 0, sizeof(partCountForStatusCode));
 	partCountForStatusCode[GPG_STATUS_EXPKEYSIG] = 2;
@@ -212,12 +113,10 @@ static NSLock *gpgTaskLock;
 	partCountForStatusCode[GPG_STATUS_POLICY_URL] = 1;
 	partCountForStatusCode[GPG_STATUS_REVKEYSIG] = 2;
 	partCountForStatusCode[GPG_STATUS_USERID_HINT] = 2;
-	
-
 }
 
 + (NSString *)nameOfStatusCode:(NSInteger)statusCode {
-	return [[statusCodes allKeysForObject:[NSNumber numberWithInteger:statusCode]] objectAtIndex:0];
+	return [GPGTaskHelper.statusCodes allKeysForObject:@(statusCode)][0];
 }
 
 
@@ -244,6 +143,7 @@ static NSLock *gpgTaskLock;
 		batchMode = batch;
 		errorCodes = [[NSMutableArray alloc] init];
 		statusDict = [[NSMutableDictionary alloc] init];
+		statusArray = [[NSMutableArray alloc] init];
 	}
 	return self;	
 }
@@ -270,9 +170,10 @@ static NSLock *gpgTaskLock;
 	[outText release];
 	[errText release];
 	[statusText release];
-	[inDatas release];
+	[inData release];
     [errorCodes release];
 	[statusDict release];
+	[statusArray release];
 	[_environmentVariables release];
 	
     if(taskHelper)
@@ -297,19 +198,23 @@ static NSLock *gpgTaskLock;
 		[gpgTaskLock lock];
 	}
 	
-	// Force a valid pinentry to be set in gpg-agent.conf
-	[GPGTaskHelper pinentryPath];
 	
     // Default arguments which every call to GPG needs.
     NSMutableArray *defaultArguments = [NSMutableArray arrayWithObjects:
                                         @"--no-greeting", @"--no-tty", @"--with-colons", @"--fixed-list-mode",
 										@"--utf8-strings", @"--display-charset", @"utf-8", @"--enable-special-filenames",
-                                        @"--yes", @"--output", @"-", @"--status-fd", @"3", nil];
+                                        @"--yes", @"--status-file", GPGStatusFilePlaceholder, @"--no-verbose", nil];
 
 	
 	if (progressInfo && [delegate respondsToSelector:@selector(gpgTask:progressed:total:)]) {
 		[defaultArguments addObject:@"--enable-progress-filter"];
     }
+	
+	NSSet *genKeyArgs = [NSSet setWithObjects:@"--gen-key", @"--generate-key", @"--full-gen-key", @"--full-generate-key", nil];
+	if (![[NSSet setWithArray:arguments] intersectsSet:genKeyArgs]) {
+		[defaultArguments addObject:@"--output"];
+		[defaultArguments addObject:@"-"];
+	}
 	
     // If batch mode is not set, add the command-fd using stdin.
     if (batchMode) {
@@ -319,14 +224,21 @@ static NSLock *gpgTaskLock;
 	}
 	
     // If the attribute data is required, add the attribute-fd.
-    if (getAttributeData)
-        [defaultArguments addObjectsFromArray:[NSArray arrayWithObjects:@"--attribute-fd", @"4", nil]];
- 
-	if (passphrase) {
-		NSString *passphraseFD = [NSString stringWithFormat:@"%llu", (uint64)inDatas.count+5];
-		[defaultArguments addObjectsFromArray:[NSArray arrayWithObjects:@"--passphrase-fd", passphraseFD, nil]];
-		[self addInText:[passphrase stringByAppendingString:@"\n"]];
+	if (getAttributeData) {
+        [defaultArguments addObjectsFromArray:[NSArray arrayWithObjects:@"--attribute-file", GPGAttributeFilePlaceholder, nil]];
 	}
+ 
+	
+	GPGStream *input = inData;
+	if (passphrase) {
+		[defaultArguments addObject:@"--passphrase-fd"];
+		[defaultArguments addObject:@"0"];
+		NSMutableData *fullInput = [NSMutableData dataWithData:passphrase.UTF8Data];
+		[fullInput appendBytes:"\n" length:1];
+		[fullInput appendData:inData.readAllData];
+		input = [GPGMemoryStream memoryStreamForReading:fullInput];
+	}
+	
 	
 	// TODO: Optimize and make more generic.
     //Für Funktionen wie --decrypt oder --verify muss "--no-armor" nicht gesetzt sein.
@@ -354,20 +266,6 @@ static NSLock *gpgTaskLock;
     [defaultArguments addObjectsFromArray:arguments];
 	
 	
-    // Last but not least, add the fd's used to read the in-data from.
-	NSUInteger count = inDatas.count;
-	if (passphrase) {
-		// We had already added the fd for the passphrase.
-		count--;
-	}
-	if (count > 0 && ![arguments containsObject:@"--"]) {
-		[defaultArguments addObject:@"--"];
-	}
-	for (int i = 0; i < count; i++) {
-		[defaultArguments addObject:[NSString stringWithFormat:@"-&%d", i+5]];
-	}
-	
-	
 	
     if ([delegate respondsToSelector:@selector(gpgTaskWillStart:)]) {
         [delegate gpgTaskWillStart:self];
@@ -378,6 +276,8 @@ static NSLock *gpgTaskLock;
 		if (nonBlocking == NO) {
 			[gpgTaskLock unlock];
 		}
+		// It's not good to return an error, but don't set it.
+		self.errorCode = GPGErrorCancelled;
 		return GPGErrorCancelled;
 	}
 	
@@ -392,7 +292,8 @@ static NSLock *gpgTaskLock;
         self.outStream = [GPGMemoryStream memoryStream];
     
     taskHelper.output = outStream;
-    taskHelper.inData = inDatas;
+    taskHelper.inData = input;
+	taskHelper.closeInput = !!inData;
     taskHelper.processStatus = (lp_process_status_t)^(NSString *keyword, NSString *value){
         return [cself processStatusWithKeyword:keyword value:value];
     };
@@ -454,17 +355,19 @@ static NSLock *gpgTaskLock;
 
 - (NSData *)processStatusWithKeyword:(NSString *)keyword value:(NSString *)value {
     
-    NSArray *parts = [value isEqualToString:@""] ? [NSArray array] : [value componentsSeparatedByString:@" "];
-    NSInteger statusCode = [[statusCodes objectForKey:keyword] integerValue];
+    NSArray <NSString *> *parts = value.length == 0 ? @[] : [value componentsSeparatedByString:@" "];
+    NSInteger statusCode = [GPGTaskHelper.statusCodes[keyword] integerValue];
     // No status code available, we're out of here.
     if(!statusCode)
         return nil;
 
     switch(statusCode) {
+		case GPG_STATUS_FAILURE:
         case GPG_STATUS_ERROR: {
             NSRange range = [value rangeOfString:@" "];
-            if(range.length > 0)
+			if (range.length > 0) {
                 self.errorCode = [[value substringFromIndex:range.location + 1] intValue];
+			}
             break;
         }
 		case GPG_STATUS_NO_SECKEY:
@@ -474,6 +377,7 @@ static NSLock *gpgTaskLock;
 			self.errorCode = GPGErrorNoPublicKey;
 			break;
 		case GPG_STATUS_DECRYPTION_OKAY:
+		case GPG_STATUS_KEY_CONSIDERED:
 			[self unsetErrorCode:GPGErrorNoSecretKey];
 			break;
 		case GPG_STATUS_BAD_PASSPHRASE:
@@ -482,6 +386,30 @@ static NSLock *gpgTaskLock;
 		case GPG_STATUS_MISSING_PASSPHRASE:
 		case GPG_STATUS_GOOD_PASSPHRASE:
 			[self unsetErrorCode:GPGErrorBadPassphrase];
+			break;
+		case GPG_STATUS_DECRYPTION_FAILED:
+			if (self.errorCode == GPGErrorNoError) {
+				self.errorCode = GPGErrorDecryptionFailed;
+			} else {
+				// Add GPGErrorDecryptionFailed to the list of error codes.
+				int oldValue = self.errorCode;
+				self.errorCode = GPGErrorDecryptionFailed;
+				self.errorCode = oldValue;
+			}
+			break;
+		case GPG_STATUS_BADMDC:
+			self.errorCode = GPGErrorBadMDC;
+			break;
+		case GPG_STATUS_DECRYPTION_INFO:
+			// First field: MDC. Always 0 when AEAD is used.
+			// Second field: Symmetric algorithm.
+			// Third field: AEAD algorithm.
+			if (parts.count >= 1 && parts[0].integerValue == 0) {
+				if (parts.count < 3 || parts[2].integerValue == 0) {
+					// No MDC was used.
+					self.errorCode = GPGErrorNoMDC;
+				}
+			}
 			break;
     }
 	
@@ -508,6 +436,11 @@ static NSLock *gpgTaskLock;
 		[statusDict setObject:[NSNumber numberWithBool:YES] forKey:keyword];
 	}
 	
+	// Fill statusArray
+	[statusArray addObject:[GPGStatusLine statusLineWithKeyword:keyword code:statusCode parts:parts]];
+	
+	
+	
 	// If the status is either GET_HIDDEN, GET_LINE or GET_BOOL
     // the GPG Controller is asked for a value to be passed
     // to GPG using the command pipe.
@@ -518,11 +451,18 @@ static NSLock *gpgTaskLock;
     return [response isKindOfClass:[NSData class]] ? response : [[response description] dataUsingEncoding:NSUTF8StringEncoding];
 }
 
+- (int)fullErrorCode {
+	return errorCode;
+}
+- (int)errorCode {
+	return errorCode & 0xFFFF;
+}
 - (void)setErrorCode:(int)value {
 	NSNumber *code = [NSNumber numberWithInt:value];
 	if (![errorCodes containsObject:code]) {
 		[errorCodes addObject:code];
-		if (!errorCode) {
+		// GPGErrorCancelled is the most important error code.
+		if (!errorCode || (value & 0xFFFF) == GPGErrorCancelled) {
 			errorCode = value;
 		}
 	}
@@ -539,6 +479,13 @@ static NSLock *gpgTaskLock;
         else
             errorCode = GPGErrorNoError;
     }
+}
+- (NSArray *)errorCodes {
+	NSMutableArray *filteredCodes = [NSMutableArray arrayWithCapacity:errorCodes.count];
+	for (NSNumber *code in errorCodes) {
+		[filteredCodes addObject:@(code.intValue & 0xFFFF)];
+	}
+	return filteredCodes;
 }
 
 - (void)cancel {

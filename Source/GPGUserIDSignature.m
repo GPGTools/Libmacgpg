@@ -1,5 +1,5 @@
 /*
- Copyright © Roman Zechmeister und Lukas Pitschl (@lukele), 2014
+ Copyright © Roman Zechmeister und Lukas Pitschl (@lukele), 2017
  
  Diese Datei ist Teil von Libmacgpg.
  
@@ -60,6 +60,62 @@ hashAlgorithm=_hashAlgorithm;
 - (NSString *)shortKeyID {
 	return [self.keyID shortKeyID];
 }
+
+- (BOOL)isEqual:(id)object {
+	if (![object isKindOfClass:[GPGUserIDSignature class]]) {
+		return NO;
+	}
+	GPGUserIDSignature *other = object;
+	if (self.hash != other.hash) {
+		return NO;
+	}
+	
+	if (_creationDate && ![_creationDate isEqualToDate:other.creationDate]) {
+		return NO;
+	}
+	if (_expirationDate && ![_expirationDate isEqualToDate:other.expirationDate]) {
+		return NO;
+	}
+	if (_keyID && ![_keyID isEqualToString:other.keyID]) {
+		return NO;
+	}
+	if (_reason && ![_reason isEqualToString:other.reason]) {
+		return NO;
+	}
+	if (_algorithm != other.algorithm) {
+		return NO;
+	}
+	if (_hashAlgorithm != other.hashAlgorithm) {
+		return NO;
+	}
+	if (_local != other.local) {
+		return NO;
+	}
+	if (_revocation != other.revocation) {
+		return NO;
+	}
+	if (_signatureClass != other.signatureClass) {
+		return NO;
+	}
+	
+	return YES;
+}
+
+- (NSUInteger)hash {
+	if (_hash == 0) {
+		_hash = [NSString stringWithFormat:@"%@ %f %f %i %li %i %i %i",
+				 _keyID,
+				 _creationDate.timeIntervalSinceReferenceDate,
+				 _expirationDate.timeIntervalSinceReferenceDate,
+				 _algorithm,
+				 (long)_hashAlgorithm,
+				 _local,
+				 _revocation,
+				 _signatureClass].hash;
+	}
+	return _hash;
+}
+
 
 - (void)dealloc {
 	[_keyID release];

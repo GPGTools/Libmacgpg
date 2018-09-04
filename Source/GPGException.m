@@ -28,7 +28,8 @@ NSString * const GPGErrorDomain = @"GPGErrorDomain";
 		}
 	}
 
-	self.errorCode = aErrorCode;
+	// Ignore the high-bit flags of the errorCode.
+	self.errorCode = aErrorCode & 0xFFFF;
 
 	return self;
 }
@@ -55,56 +56,85 @@ NSString * const GPGErrorDomain = @"GPGErrorDomain";
 	if (description) {
 		return description;
 	}
-
-	void *libHandle = nil;
+	
 	GPGErrorCode code = self.errorCode;
 	if (!code && self.gpgTask) {
 		code = self.gpgTask.errorCode;
 	}
-	//TODO: Fehlercodes von Schlüsselserver Fehlern.
-	if (!code) {
-		goto noLibgpgError;
+	
+	NSString *details = nil;
+	
+	//TODO: Keyserver error codes.
+	switch (code) {
+		case 0:
+			// No further details.
+			break;
+		case GPGErrorBadMDC:
+			details = @"Modification detected";
+			break;
+		case GPGErrorNoMDC:
+			details = @"No modification detection code";
+			break;
+		case GPGErrorSubkeyNotFound:
+			details = @"Subkey not found";
+			break;
+		default: {
+			BOOL failed = NO;
+			void *libHandle = nil;
+			const char *errorString = nil;
+			unsigned int (*gpg_err_init)() = nil;
+			const char *(*gpg_strerror)(unsigned int) = nil;
+			
+			libHandle = dlopen("/usr/local/MacGPG2/lib/libgpg-error.dylib", RTLD_LOCAL | RTLD_LAZY);
+			if (!libHandle) {
+				GPGDebugLog(@"[%@] %s", [self className], dlerror());
+				failed = YES;
+			}
+
+			if (!failed) {
+				gpg_err_init = (unsigned int (*)())dlsym(libHandle, "gpg_err_init");
+				if (!gpg_err_init) {
+					GPGDebugLog(@"[%@] %s", [self className], dlerror());
+					failed = YES;
+				}
+			}
+
+			if (!failed) {
+				gpg_strerror = (const char *(*)(unsigned int))dlsym(libHandle, "gpg_strerror");
+				if (!gpg_strerror) {
+					GPGDebugLog(@"[%@] %s", [self className], dlerror());
+					failed = YES;
+				}
+			}
+
+			if (!failed) {
+				if (gpg_err_init()) {
+					GPGDebugLog(@"[%@] gpg_err_init() failed!", [self className]);
+					failed = YES;
+				}
+			}
+
+			if (!failed) {
+				errorString = gpg_strerror(2 << 24 | code);
+				if (errorString) {
+					details = [NSString stringWithUTF8String:errorString];
+				}
+			}
+			
+			if (libHandle) {
+				dlclose(libHandle);
+			}
+			break;
+		}
 	}
-
-
-	libHandle = dlopen("/usr/local/MacGPG2/lib/libgpg-error.dylib", RTLD_LOCAL | RTLD_LAZY);
-    if (!libHandle) {
-		GPGDebugLog(@"[%@] %s", [self className], dlerror());
-        goto noLibgpgError;
-    }
-
-	unsigned int (*gpg_err_init)() = (unsigned int (*)())dlsym(libHandle, "gpg_err_init");
-	if (!gpg_err_init) {
-		GPGDebugLog(@"[%@] %s", [self className], dlerror());
-        goto noLibgpgError;
-	}
-
-	const char *(*gpg_strerror)(unsigned int) = (const char *(*)(unsigned int))dlsym(libHandle, "gpg_strerror");
-	if (!gpg_strerror) {
-		GPGDebugLog(@"[%@] %s", [self className], dlerror());
-        goto noLibgpgError;
-	}
-
-	if (gpg_err_init()) {
-		GPGDebugLog(@"[%@] gpg_err_init() failed!", [self className]);
-        goto noLibgpgError;
-	}
-
-
-	const char *decription = gpg_strerror(2 << 24 | code);
-	if (!decription) {
-		goto noLibgpgError;
-	}
-
-
-	description = [[NSString alloc] initWithFormat:@"%@ (%@)\nCode = %i", self.reason, [NSString stringWithUTF8String:decription], code];
-
-noLibgpgError:
-	if (!description) {
+	
+	
+	if (details) {
+		description = [[NSString alloc] initWithFormat:@"%@ (%@)\nCode = %i", self.reason, details, code];
+	} else {
 		description = [[NSString alloc] initWithFormat:@"%@\nCode = %i", self.reason, code];
 	}
-
-	dlclose(libHandle);
+	
 	return description;
 }
 

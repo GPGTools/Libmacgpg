@@ -101,9 +101,18 @@
 
 - (NSString *) encodeValue {
     NSMutableString *result = [NSMutableString stringWithCapacity:0];
-
-    //value is NSNumber or NSString.
-    if ([value_ isKindOfClass:[NSNumber class]]) {
+	
+	//value_ is NSNumber, NSString or nil.
+	
+	BOOL isBool = NO;
+	if ([value_ isKindOfClass:[NSNumber class]]) {
+		char objCType = *[value_ objCType];
+		if (objCType == 'B' || objCType == 'c') {
+			isBool = YES;
+		}
+	}
+	
+	if (isBool) {
         if (!self.isActive)
             [result appendString:@"#"];
         

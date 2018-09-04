@@ -1,7 +1,7 @@
 /* GPGTaskHelper created by Lukas Pitschl (@lukele) on Thu 02-Jun-2012 */
 
 /*
- * Copyright (c) 2000-2014, GPGTools Project Team <gpgtools-org@lists.gpgtools.org>
+ * Copyright (c) 2000-2017, GPGTools Team <team@gpgtools.org>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -31,7 +31,6 @@
 #import "GPGGlobals.h"
 #import "GPGTaskHelper.h"
 #import "GPGMemoryStream.h"
-#import "LPXTTask.h"
 #import "NSPipe+NoSigPipe.h"
 #import "NSBundle+Sandbox.h"
 #import "GPGException.h"
@@ -40,6 +39,7 @@
 #import "GPGTaskHelperXPC.h"
 #endif
 #import "GPGTask.h"
+#import "GPGUTF8Argument.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -48,6 +48,8 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/un.h>
+#import <sys/stat.h>
+
 
 static const NSUInteger kDataBufferSize = 65536; 
 
@@ -105,7 +107,7 @@ void withAutoreleasePool(basic_block_t block)
 @property (nonatomic, retain, readwrite) NSData *status;
 @property (nonatomic, retain, readwrite) NSData *errors;
 @property (nonatomic, retain, readwrite) NSData *attributes;
-@property (nonatomic, retain, readonly) LPXTTask *task;
+@property (nonatomic, retain, readonly) NSTask *task;
 @property (nonatomic, retain) NSDictionary *userIDHint;
 @property (nonatomic, retain) NSDictionary *needPassphraseInfo;
 
@@ -118,11 +120,12 @@ void withAutoreleasePool(basic_block_t block)
 @synthesize inData = _inData, arguments = _arguments, output = _output, processStatus = _processStatus, task = _task,
 exitStatus = _exitStatus, status = _status, errors = _errors, attributes = _attributes, readAttributes = _readAttributes,
 progressHandler = _progressHandler, userIDHint = _userIDHint, needPassphraseInfo = _needPassphraseInfo,
-checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_environmentVariables;
+checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_environmentVariables,
+closeInput = _closeInput;
 
 + (NSString *)findExecutableWithName:(NSString *)executable {
 	NSString *foundPath;
-	NSArray *searchPaths = [NSMutableArray arrayWithObjects:@"/usr/local/bin", @"/usr/local/MacGPG2/bin", @"/usr/local/MacGPG1/bin", @"/usr/bin", @"/bin", @"/opt/local/bin", @"/sw/bin", nil];
+	NSArray *searchPaths = [NSMutableArray arrayWithObjects:@"/usr/local/MacGPG2/bin", @"/usr/local/bin", @"/usr/local/MacGPG1/bin", @"/usr/bin", @"/bin", @"/opt/local/bin", @"/sw/bin", nil];
 	
 	foundPath = [self findExecutableWithName:executable atPaths:searchPaths];
 	if (foundPath) {
@@ -156,50 +159,15 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         GPGPath = [GPGTaskHelper findExecutableWithName:@"gpg2"];
-        if(!GPGPath)
+		if (!GPGPath) {
             GPGPath = [GPGTaskHelper findExecutableWithName:@"gpg"];
+		}
         [GPGPath retain];
     });
 	if (!GPGPath) {
 		onceToken = 0;
 	}
     return GPGPath;
-}
-
-+ (NSString *)pinentryPath {
-    static NSString *pinentryPath = nil;
-    static dispatch_once_t pinentryToken;
-    dispatch_once(&pinentryToken, ^{
-		
-		NSFileManager *fileManager = [NSFileManager defaultManager];
-		static NSString * const kPinentry_program = @"pinentry-program";
-        GPGOptions *options = [GPGOptions sharedOptions];
-		
-		// MacGPG2 has the default path to pinentry-mac hardcoded
-		// so we don't need to force set a path in gpg-agent.conf.
-		
-		
-		// Read pinentry path from gpg-agent.conf.
-        pinentryPath = [options valueForKey:kPinentry_program inDomain:GPGDomain_gpgAgentConf];
-        pinentryPath = [pinentryPath stringByStandardizingPath];
-		
-		if (pinentryPath) {
-			// Remove an invalid path from gpg-agent.conf.
-			// A pinentry in Libmacgpg is an old version, don't use it anymore.
-			if ([pinentryPath rangeOfString:@"/Libmacgpg.framework/"].length > 0 || ![fileManager isExecutableFileAtPath:pinentryPath]) {
-				pinentryPath = nil;
-				[options setValue:nil forKey:kPinentry_program inDomain:GPGDomain_gpgAgentConf];
-				[options gpgAgentFlush];
-			}
-		}
-
-		if (!pinentryPath) {
-			pinentryPath = @"/usr/local/MacGPG2/libexec/pinentry-mac.app/Contents/MacOS/pinentry-mac";
-		}
-		
-		[pinentryPath retain];
-    });
-	return pinentryPath;
 }
 
 - (id)initWithArguments:(NSArray *)arguments {
@@ -212,128 +180,204 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
 }
 
 - (NSUInteger)_run {
-    _task = [[LPXTTask alloc] init];
-    _task.launchPath = [GPGTaskHelper GPGPath];
-    _task.arguments = self.arguments;
-	_task.environmentVariables = self.environmentVariables;
-    
-    if(!_task.launchPath || ![[NSFileManager defaultManager] isExecutableFileAtPath:_task.launchPath])
-        @throw [GPGException exceptionWithReason:@"GPG not found!" errorCode:GPGErrorNotFound];
-    
-    GPGDebugLog(@"$> %@ %@", _task.launchPath, [_task.arguments componentsJoinedByString:@" "]);
+	NSString *statusFifoPath = nil;
+	NSString *attributeFifoPath = nil;
 	
-    // Create read pipes for status and attribute information.
-    [_task inheritPipeWithMode:O_RDONLY dup:3 name:@"status"];
-    [_task inheritPipeWithMode:O_RDONLY dup:4 name:@"attribute"];
-    
-    // Create write pipes for the data to pass in.
-    __block NSMutableArray *dupList = [[NSMutableArray alloc] init];
-    __block int i = 5;
-    __block NSUInteger totalData = 0;
-    [self.inData enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        [dupList addObject:[NSNumber numberWithInt:i++]];
-        totalData += [obj length];
-    }];
-    _totalInData = totalData;
-    [_task inheritPipesWithMode:O_WRONLY dups:dupList name:@"ins"];
-    [dupList release];
-    
+    _task = [[NSTask alloc] init];
+    _task.launchPath = [GPGTaskHelper GPGPath];
+	
+	
+	
+	NSMutableDictionary *environment = [[NSProcessInfo processInfo].environment.mutableCopy autorelease];
+	[environment addEntriesFromDictionary:self.environmentVariables];
+	_task.environment = environment;
+	
+	if (!_task.launchPath || ![[NSFileManager defaultManager] isExecutableFileAtPath:_task.launchPath]) {
+        @throw [GPGException exceptionWithReason:@"GPG not found!" errorCode:GPGErrorNotFound];
+	}
+	
+	
+	
+	// Create fifos for status-file and attribute-file.
+	NSMutableArray<NSString *> *mutableArguments = self.arguments.mutableCopy;
+	
+	NSString *tempDir = [NSTemporaryDirectory() stringByAppendingPathComponent:@"org.gpgtools.libmacgpg"];
+	NSError *error = nil;
+	if (![[NSFileManager defaultManager] createDirectoryAtPath:tempDir withIntermediateDirectories:YES attributes:nil error:&error]) {
+		[NSException raise:NSGenericException format:@"createDirectory failed: %@", error.localizedDescription];
+	}
+	
+	NSUInteger index = [mutableArguments indexOfObject:GPGStatusFilePlaceholder];
+	if (index != NSNotFound) {
+		NSString *guid = [NSProcessInfo processInfo].globallyUniqueString ;
+		NSString *fifoName = [NSString stringWithFormat:@"gpgtmp_%@.fifo", guid];
+		statusFifoPath = [tempDir stringByAppendingPathComponent:fifoName];
+		if (mkfifo(statusFifoPath.UTF8String, 0600) != 0) {
+			[NSException raise:NSGenericException format:@"mkfifo failed: %s", strerror(errno)];
+		}
+		
+		// Replace the placeholder with the real path.
+		[mutableArguments replaceObjectAtIndex:index withObject:statusFifoPath];
+	}
+	
+	index = [mutableArguments indexOfObject:GPGAttributeFilePlaceholder];
+	if (index != NSNotFound) {
+		NSString *guid = [NSProcessInfo processInfo].globallyUniqueString ;
+		NSString *fifoName = [NSString stringWithFormat:@"gpgtmp_%@.fifo", guid];
+		attributeFifoPath = [tempDir stringByAppendingPathComponent:fifoName];
+		
+		if (mkfifo(attributeFifoPath.UTF8String, 0600) != 0) {
+			[NSException raise:NSGenericException format:@"mkfifo failed: %s", strerror(errno)];
+		}
+		
+		// Replace the placeholder with the real path.
+		[mutableArguments replaceObjectAtIndex:index withObject:attributeFifoPath];
+	}
+	
+	// Convert all arguments to GPGUTF8Argument, so umlauts are correctly utf-8 encoded.
+	NSUInteger count = mutableArguments.count;
+	for (NSUInteger i = 0; i < count; i++) {
+		GPGUTF8Argument *argument = [GPGUTF8Argument stringWithString:mutableArguments[i]];
+		mutableArguments[i] = argument;
+	}
+	
+	
+	_task.arguments = mutableArguments;
+	[mutableArguments release];
+
+	
+
+	_task.standardInput = [NSPipe pipe].noSIGPIPE;
+	_task.standardOutput = [NSPipe pipe].noSIGPIPE;
+	_task.standardError = [NSPipe pipe].noSIGPIPE;
+
+	
+    GPGDebugLog(@"$> %@ %@", _task.launchPath, [_task.arguments componentsJoinedByString:@" "]);
+	[_task launch];
+
+	
+	_totalInData = self.inData.length;
+	
     __block NSException *blockException = nil;
-    __block GPGTaskHelper *object = self;
     __block NSData *stderrData = nil;
     __block NSData *statusData = nil;
     __block NSData *attributeData = nil;
-    __block LPXTTask *task = _task;
-	
     __block NSObject *lock = [[[NSObject alloc] init] autorelease];
-    
-    _task.parentTask = ^{
-		// On 10.6 it's not possible to create a concurrent private dispatch queue,
-		// so we'll use the global queue with default priority. Seems to work without problems.
-		dispatch_queue_t queue;
-		if(NSAppKitVersionNumber >= NSAppKitVersionNumber10_7)
-			queue = dispatch_queue_create("org.gpgtools.libmacgpg.gpgTaskHelper", DISPATCH_QUEUE_CONCURRENT);
-        else {
-			queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-			dispatch_retain(queue);
+	
+	
+	dispatch_queue_t queue = dispatch_queue_create("org.gpgtools.libmacgpg.gpgTaskHelper", DISPATCH_QUEUE_CONCURRENT);
+	dispatch_group_t collectorGroup = dispatch_group_create();
+	
+	// The data is written to the pipe as soon as gpg issues the status
+	// BEGIN_ENCRYPTION or BEGIN_SIGNING. See processStatus.
+	// When we want to encrypt or sign, the data can't be written before the
+	// BEGIN_ENCRYPTION or BEGIN_SIGNING status was issued, BUT
+	// in every other case, gpg stalls till it received the data to decrypt.
+	// So in that case, the data actually has to be written as the very first thing.
+	NSArray *options = @[@"--encrypt", @"--sign", @"--clearsign", @"--detach-sign", @"--symmetric", @"-e", @"-s", @"-b", @"-c"];
+	BOOL shouldWriteInput = ([self.arguments firstObjectCommonWithArray:options] == nil);
+	
+	if (!shouldWriteInput) {
+		// If --passphrase-fd 0 is used, the data has to be written before any status
+		// was issued, because gpg will wait until it gets the passphrase from stdin.
+		index = [self.arguments indexOfObject:@"--passphrase-fd"];
+		if (self.arguments.count >= index + 1) {
+			shouldWriteInput = [self.arguments[index+1] isEqualToString:@"0"];
 		}
-			
-		dispatch_group_t collectorGroup = dispatch_group_create();
-        
-        // The data is written to the pipe as soon as gpg issues the status
-        // BEGIN_ENCRYPTION or BEGIN_SIGNING. See processStatus.
-        // When we want to encrypt or sign, the data can't be written before the 
-		// BEGIN_ENCRYPTION or BEGIN_SIGNING status was issued, BUT
-        // in every other case, gpg stalls till it received the data to decrypt.
-        // So in that case, the data actually has to be written as the very first thing.
-        
-        NSArray *options = [NSArray arrayWithObjects:@"--encrypt", @"--sign", @"--clearsign", @"--detach-sign", @"--symmetric", @"-e", @"-s", @"-b", @"-c", nil];
-        
-        if([object.arguments firstObjectCommonWithArray:options] == nil) {
-            dispatch_group_async(collectorGroup, queue, ^{
-                runBlockAndRecordExceptionSyncronized(^{
-                    [object writeInputData];
-                }, &lock, &blockException);
-            });
-        }
-        
-        dispatch_group_async(collectorGroup, queue, ^{
-            runBlockAndRecordExceptionSyncronized(^{
-                NSData *data;
-                NSFileHandle *stdoutFH = [[task inheritedPipeWithName:@"stdout"] fileHandleForReading];
-                while((data = [stdoutFH readDataOfLength:kDataBufferSize]) &&  [data length] > 0) {
-                    withAutoreleasePool(^{
-                        [object->_output writeData:data];
-                    });
-                }
-            }, &lock, &blockException);
-        });
-        
-        dispatch_group_async(collectorGroup, queue, ^{
-            runBlockAndRecordExceptionSyncronized(^{
-                NSFileHandle *stderrFH = [[task inheritedPipeWithName:@"stderr"] fileHandleForReading];
-                stderrData = [[stderrFH readDataToEndOfFile] retain];
-            }, &lock, &blockException);
-        });
-        
-        if(object.readAttributes) {
-            // Optionally get attribute data.
-            dispatch_group_async(collectorGroup, queue, ^{
-                runBlockAndRecordExceptionSyncronized(^{
-                    NSFileHandle *attributeFH = [[task inheritedPipeWithName:@"attribute"] fileHandleForReading];
-                    attributeData = [[attributeFH readDataToEndOfFile] retain];
-                }, &lock, &blockException);
-            });
-        }
-        
-        dispatch_group_async(collectorGroup, queue, ^{
-            runBlockAndRecordExceptionSynchronizedWithHandlers(^{
-                statusData = [[object parseStatusLines] retain];
-            }, ^{
-                [object cancel];
-            }, NULL, &lock, &blockException);
-        });
-        
-        // Wait for all jobs to complete.
-        dispatch_group_wait(collectorGroup, DISPATCH_TIME_FOREVER);
-        
-        dispatch_release(collectorGroup);
-		dispatch_release(queue);
-    };
-    
-    [_task launchAndWait];
-    
+	}
+	if (shouldWriteInput) {
+		dispatch_group_async(collectorGroup, queue, ^{
+			runBlockAndRecordExceptionSyncronized(^{
+				[self writeInputData];
+			}, &lock, &blockException);
+		});
+	}
+	
+	
+	dispatch_group_async(collectorGroup, queue, ^{
+		runBlockAndRecordExceptionSyncronized(^{
+			NSData *data;
+			NSFileHandle *stdoutFH = [_task.standardOutput fileHandleForReading];
+			while ((data = [stdoutFH readDataOfLength:kDataBufferSize]) && data.length > 0) {
+				withAutoreleasePool(^{
+					[self->_output writeData:data];
+				});
+			}
+		}, &lock, &blockException);
+	});
+	
+	dispatch_group_async(collectorGroup, queue, ^{
+		runBlockAndRecordExceptionSyncronized(^{
+			NSMutableData *mutableData = [NSMutableData data];
+			NSData *data;
+			NSFileHandle *stderrFH = [_task.standardError fileHandleForReading];
+			while ((data = [stderrFH readDataOfLength:kDataBufferSize]) && data.length > 0) {
+				[mutableData appendData:data];
+			}
+			// Needs to be retained to survive the block.
+			stderrData = [mutableData copy];
+		}, &lock, &blockException);
+	});
+	
+	if (attributeFifoPath) {
+		dispatch_group_async(collectorGroup, queue, ^{
+			runBlockAndRecordExceptionSyncronized(^{
+				NSMutableData *mutableData = [NSMutableData data];
+				NSData *data;
+				NSFileHandle *stderrFH = [NSFileHandle fileHandleForReadingAtPath:attributeFifoPath];
+				while ((data = [stderrFH readDataOfLength:kDataBufferSize]) && data.length > 0) {
+					[mutableData appendData:data];
+				}
+				// Needs to be retained to survive the block.
+				attributeData = [mutableData copy];
+			}, &lock, &blockException);
+		});
+	}
+
+	if (statusFifoPath) {
+		dispatch_group_async(collectorGroup, queue, ^{
+			runBlockAndRecordExceptionSyncronized(^{
+				statusData = [self readStatusFile:statusFifoPath];
+				// Needs to be retained to survive the block.
+				[statusData retain];
+			}, &lock, &blockException);
+		});
+	}
+
+	
+	
+	// Wait for all jobs to complete.
+	dispatch_group_wait(collectorGroup, DISPATCH_TIME_FOREVER);
+	
+	dispatch_release(collectorGroup);
+	dispatch_release(queue);
+
+	[_task threadSafeWaitUntilExit];
+
+	
+	
+	
+	if (statusFifoPath) {
+		[[NSFileManager defaultManager] removeItemAtPath:statusFifoPath error:nil];
+	}
+	if (attributeFifoPath) {
+		[[NSFileManager defaultManager] removeItemAtPath:attributeFifoPath error:nil];
+	}
+	
     if (blockException && !_cancelled && !_pinentryCancelled) {
+		[statusData release];
+		[stderrData release];
+		[attributeData release];
         @throw blockException;
 	}
-    
+	
 	self.status = statusData;
     [statusData release];
 	self.errors = stderrData;
 	[stderrData release];
     self.attributes = attributeData;
 	[attributeData release];
-    
+	
     _exitStatus = _task.terminationStatus;
     
     if(_cancelled || (_pinentryCancelled && _exitStatus != 0))
@@ -343,7 +387,7 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
 }
 
 - (BOOL)completed {
-	return _task.completed;
+	return !_task.isRunning;
 }
 
 - (void)progress:(NSUInteger)processedBytes total:(NSUInteger)total {
@@ -353,11 +397,6 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
 
 - (int)processIdentifier {
     return _task.processIdentifier;
-}
-
-- (void)processStatusWithKey:(NSString *)keyword value:(NSString *)value reply:(void (^)(NSData *))reply {
-    NSData *response = self.processStatus(keyword, value);
-    reply(response);
 }
 
 - (NSUInteger)_runInSandbox {
@@ -380,27 +419,18 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
 		NSData *response = weakSelf.processStatus(keyword, value);
 		return response;
 	};
-
-	NSMutableArray *inputData = [[NSMutableArray alloc] init];
-	[_inData enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-		[inputData addObject:[((GPGMemoryStream *)obj) readAllData]];
-	}];
-	[_inData release];
-	_inData = nil;
 	
 	NSDictionary *result = nil;
 	@try {
-		result = [xpcTask launchGPGWithArguments:self.arguments data:inputData readAttributes:self.readAttributes];
+		result = [xpcTask launchGPGWithArguments:self.arguments data:_inData.readAllData readAttributes:self.readAttributes closeInput:_closeInput];
 	}
 	@catch (NSException *exception) {
 		[xpcTask release];
-		[inputData release];
 		@throw exception;
 		
 		return -1;
 	}
 	
-	[inputData release];
 	
 	if([result objectForKey:@"output"])
 		[_output writeData:[result objectForKey:@"output"]];
@@ -434,12 +464,11 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
     if(!_task || !self.inData) {
         return;
     }
-    NSArray *pipeList = [self.task inheritedPipesWithName:@"ins"];
-    __block GPGTaskHelper *bself = self;
-	[pipeList enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        [bself writeData:[bself.inData objectAtIndex:idx] pipe:obj close:YES];
-    }];
-    
+	
+	NSPipe *stdinPipe = self.task.standardInput;
+
+	[self writeData:self.inData pipe:stdinPipe close:_closeInput];
+	
     self.inData = nil;
 }
 
@@ -476,56 +505,79 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
     }
 }
 
-- (NSData *)parseStatusLines {
-    NSMutableString *line = [NSMutableString string];
-    NSPipe *statusPipe = [self.task inheritedPipeWithName:@"status"];
-    NSFileHandle *statusFH = [statusPipe fileHandleForReading];
-    
-    NSData *currentData = nil;
-    NSMutableData *statusData = [NSMutableData data]; 
-    NSData *NL = [@"\n" dataUsingEncoding:NSASCIIStringEncoding];
-    __block GPGTaskHelper *this = self;
-	while((currentData = [statusFH availableData])&& [currentData length]) {
-        [statusData appendData:currentData];
-        [line appendString:[currentData gpgString]];
-        // Skip data without line ending. Not a full line!
-        if([currentData rangeOfData:NL options:NSDataSearchBackwards range:NSMakeRange(0, [currentData length])].location == NSNotFound)
-            continue;
-        
-        // If a line ending is found, it's possible that the data contains
-        // multiple lines.
-        NSArray *lines = [line componentsSeparatedByString:@"\n"];
-        [lines enumerateObjectsUsingBlock:^(id currentLine, NSUInteger idx, BOOL *stop) {
-            // The last line might not be complete. If that's the case,
-            // further incoming data is appended to that line until
-            // the line is complete (has a new line).
-            if(idx == [lines count] - 1) {
-                // Check for a new line.
-                NSString *newLine = @"";
-                if([currentLine length] != 0)
-                    newLine = [currentLine substringWithRange:NSMakeRange([currentLine length] - 1, [currentLine length])];
-                if(![newLine isEqualToString:@"\n"]) {
-                    [line setString:currentLine];
-                    return;
-                }
-                [line setString:@""];
-            }
-            
-            // Split line in keyword and value.
-            NSString *keyword, *value = @"";
-            
-            NSMutableArray *parts = [[[[currentLine stringByReplacingOccurrencesOfString:@"\n" withString:@""]stringByReplacingOccurrencesOfString:GPG_STATUS_PREFIX withString:@""] componentsSeparatedByString:@" "] mutableCopy];
-            
-            keyword = [parts objectAtIndex:0];
-            [parts removeObjectAtIndex:0];
-            value = [parts componentsJoinedByString:@" "];
-            
-            [parts release];
-            [this processStatusWithKeyword:keyword value:value];
-        }];
-    }
-    return statusData;
+
+- (NSData *)readStatusFile:(NSString *)statusFile {
+	NSData *nl = @"\n".UTF8Data;
+	NSData *space = @" ".UTF8Data;
+	NSData *statusPrefix = GPG_STATUS_PREFIX.UTF8Data;
+	NSUInteger statusPrefixLength = statusPrefix.length;
+	
+	NSMutableData *statusData = [NSMutableData data];
+	NSMutableData *currentData = [NSMutableData data];
+	
+	NSFileHandle *fileHandle = [NSFileHandle fileHandleForReadingAtPath:statusFile];
+
+	
+	NSData *readData = nil;
+	while ((readData = fileHandle.availableData) && readData.length) {
+		[currentData appendData:readData];
+		
+		NSUInteger currentDataLength = currentData.length;
+		
+		NSRange searchRange;
+		searchRange.location = 0;
+		searchRange.length = currentDataLength;
+		
+		NSUInteger nextLineStart = 0;
+		NSRange lineRange;
+		NSRange nlRange;
+		
+		// Process the status output line by line.
+		while ((nlRange = [currentData rangeOfData:nl options:0 range:searchRange]).length > 0) {
+
+			// Find th erange of the current line.
+			lineRange.location = nextLineStart;
+			lineRange.length = nlRange.location - lineRange.location + 1;
+			nextLineStart = nlRange.location + 1;
+			
+			// Get the data of the current line.
+			NSData *lineData = [currentData subdataWithRange:lineRange];
+			
+			
+			if ([lineData rangeOfData:statusPrefix options:NSDataSearchAnchored range:NSMakeRange(0, lineData.length)].length > 0) {
+				// Line is a status line. Line starts with "[GNUPG:] ".
+
+				[statusData appendData:lineData];
+				
+				NSRange statusRange = NSMakeRange(statusPrefixLength, lineData.length - statusPrefixLength - 1);
+				NSRange spaceRange = [lineData rangeOfData:space options:0 range:statusRange];
+				
+				// Split line in keyword and value.
+				NSString *keyword, *value = @"";
+				if (spaceRange.length == 0) {
+					keyword = [lineData subdataWithRange:statusRange].gpgString;
+				} else {
+					keyword = [lineData subdataWithRange:NSMakeRange(statusRange.location, spaceRange.location - statusRange.location)].gpgString;
+					value = [lineData subdataWithRange:NSMakeRange(spaceRange.location + 1, statusRange.location + statusRange.length - spaceRange.location - 1)].gpgString;
+				}
+				
+				[self processStatusWithKeyword:keyword value:value];
+			} else {
+				// This should not happen. But it is not a real problem.
+			}
+			
+			searchRange.location = nextLineStart;
+			searchRange.length = currentDataLength - searchRange.location;
+		}
+		
+		NSRange rangeToRemove = NSMakeRange(0, searchRange.location);
+		[currentData replaceBytesInRange:rangeToRemove withBytes:"" length:0];
+	}
+	
+	return [[statusData copy] autorelease];
 }
+
+
 
 - (void)processStatusWithKeyword:(NSString *)keyword value:(NSString *)value {
     NSInteger code = [[[[self class] statusCodes] objectForKey:keyword] integerValue];
@@ -537,7 +589,6 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
     // Most keywords are handled by the processStatus callback,
     // but some like pinentry passphrase requests are handled
     // directly.
-	
 	NSData *response = self.processStatus(keyword, value);
     
     switch(code) {
@@ -575,10 +626,9 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
                 if(response)
                     [self respond:response];
                 else {
-                    NSPipe *cmdPipe = [self.task inheritedPipeWithName:@"stdin"];
-                    if(cmdPipe) {
+                    NSPipe *cmdPipe = self.task.standardInput;
+                    if (cmdPipe) {
                         [[cmdPipe fileHandleForWriting] closeFile];
-                        [self.task removeInheritedPipeWithName:@"stdin"];
                     }
                 }
             }
@@ -649,7 +699,7 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
     GPGStream *responseStream = [GPGMemoryStream memoryStream];
 
     @try {
-        cmdPipe = [self.task inheritedPipeWithName:@"stdin"];
+        cmdPipe = self.task.standardInput;
     }
     @catch (NSException *exception) {
     }
@@ -672,7 +722,7 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
 - (NSString *)passphraseForKeyID:(NSString *)keyID mainKeyID:(NSString *)mainKeyID userID:(NSString *)userID {
     
     NSTask *task = [[NSTask alloc] init];
-    task.launchPath = [GPGTaskHelper pinentryPath];
+    task.launchPath = [[GPGOptions sharedOptions] pinentryPath];
     
 	if(!task.launchPath)
 		@throw [GPGException exceptionWithReason:@"Pinentry not found!" errorCode:GPGErrorNoPINEntry];
@@ -704,7 +754,7 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
     
     NSData *output = [[task.standardOutput fileHandleForReading] readDataToEndOfFile];
     
-    [task waitUntilExit];
+    [task threadSafeWaitUntilExit];
     
     [task release];
     
@@ -755,9 +805,19 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
 }
 
 - (void)cancel {
-    if(_cancelled)
+	if (_cancelled) {
         return;
-    [self.task cancel];
+	}
+
+	// Close all pipes, otherwise SIGTERM is ignored it seems.
+	[[_task.standardInput fileHandleForReading] closeFile];
+	[[_task.standardInput fileHandleForWriting] closeFile];
+	[[_task.standardOutput fileHandleForReading] closeFile];
+	[[_task.standardOutput fileHandleForWriting] closeFile];
+	[[_task.standardError fileHandleForReading] closeFile];
+	[[_task.standardError fileHandleForWriting] closeFile];
+	[_task terminate];
+
     _cancelled = YES;
 }
 
@@ -779,94 +839,101 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
 + (NSDictionary *)statusCodes {
     static NSDictionary *GPG_STATUS_CODES = nil;
     static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        GPG_STATUS_CODES = [[NSDictionary alloc] initWithObjectsAndKeys:
-                            [NSNumber numberWithInteger:GPG_STATUS_ALREADY_SIGNED], @"ALREADY_SIGNED",
-                            [NSNumber numberWithInteger:GPG_STATUS_ATTRIBUTE], @"ATTRIBUTE",
-                            [NSNumber numberWithInteger:GPG_STATUS_BACKUP_KEY_CREATED], @"BACKUP_KEY_CREATED",
-                            [NSNumber numberWithInteger:GPG_STATUS_BADARMOR], @"BADARMOR",
-                            [NSNumber numberWithInteger:GPG_STATUS_BADMDC], @"BADMDC",
-                            [NSNumber numberWithInteger:GPG_STATUS_BADSIG], @"BADSIG",
-                            [NSNumber numberWithInteger:GPG_STATUS_BAD_PASSPHRASE], @"BAD_PASSPHRASE",
-                            [NSNumber numberWithInteger:GPG_STATUS_BEGIN_DECRYPTION], @"BEGIN_DECRYPTION",
-                            [NSNumber numberWithInteger:GPG_STATUS_BEGIN_ENCRYPTION], @"BEGIN_ENCRYPTION",
-                            [NSNumber numberWithInteger:GPG_STATUS_BEGIN_SIGNING], @"BEGIN_SIGNING",
-                            [NSNumber numberWithInteger:GPG_STATUS_BEGIN_STREAM], @"BEGIN_STREAM",
-                            [NSNumber numberWithInteger:GPG_STATUS_CARDCTRL], @"CARDCTRL",
-                            [NSNumber numberWithInteger:GPG_STATUS_DECRYPTION_FAILED], @"DECRYPTION_FAILED",
-                            [NSNumber numberWithInteger:GPG_STATUS_DECRYPTION_OKAY], @"DECRYPTION_OKAY",
-                            [NSNumber numberWithInteger:GPG_STATUS_DELETE_PROBLEM], @"DELETE_PROBLEM",
-                            [NSNumber numberWithInteger:GPG_STATUS_ENC_TO], @"ENC_TO",
-                            [NSNumber numberWithInteger:GPG_STATUS_END_DECRYPTION], @"END_DECRYPTION",
-                            [NSNumber numberWithInteger:GPG_STATUS_END_ENCRYPTION], @"END_ENCRYPTION",
-                            [NSNumber numberWithInteger:GPG_STATUS_END_STREAM], @"END_STREAM",
-                            [NSNumber numberWithInteger:GPG_STATUS_ERRMDC], @"ERRMDC",
-                            [NSNumber numberWithInteger:GPG_STATUS_ERROR], @"ERROR",
-                            [NSNumber numberWithInteger:GPG_STATUS_ERRSIG], @"ERRSIG",
-                            [NSNumber numberWithInteger:GPG_STATUS_EXPKEYSIG], @"EXPKEYSIG",
-                            [NSNumber numberWithInteger:GPG_STATUS_EXPSIG], @"EXPSIG",
-                            [NSNumber numberWithInteger:GPG_STATUS_FILE_DONE], @"FILE_DONE",
-                            [NSNumber numberWithInteger:GPG_STATUS_GET_BOOL], @"GET_BOOL",
-                            [NSNumber numberWithInteger:GPG_STATUS_GET_HIDDEN], @"GET_HIDDEN",
-                            [NSNumber numberWithInteger:GPG_STATUS_GET_LINE], @"GET_LINE",
-                            [NSNumber numberWithInteger:GPG_STATUS_GOODMDC], @"GOODMDC",
-                            [NSNumber numberWithInteger:GPG_STATUS_GOODSIG], @"GOODSIG",
-                            [NSNumber numberWithInteger:GPG_STATUS_GOOD_PASSPHRASE], @"GOOD_PASSPHRASE",
-                            [NSNumber numberWithInteger:GPG_STATUS_GOT_IT], @"GOT_IT",
-                            [NSNumber numberWithInteger:GPG_STATUS_IMPORTED], @"IMPORTED",
-                            [NSNumber numberWithInteger:GPG_STATUS_IMPORT_CHECK], @"IMPORT_CHECK",
-                            [NSNumber numberWithInteger:GPG_STATUS_IMPORT_OK], @"IMPORT_OK",
-                            [NSNumber numberWithInteger:GPG_STATUS_IMPORT_PROBLEM], @"IMPORT_PROBLEM",
-                            [NSNumber numberWithInteger:GPG_STATUS_IMPORT_RES], @"IMPORT_RES",
-                            [NSNumber numberWithInteger:GPG_STATUS_INV_RECP], @"INV_RECP",
-                            [NSNumber numberWithInteger:GPG_STATUS_INV_SGNR], @"INV_SGNR",
-                            [NSNumber numberWithInteger:GPG_STATUS_KEYEXPIRED], @"KEYEXPIRED",
-                            [NSNumber numberWithInteger:GPG_STATUS_KEYREVOKED], @"KEYREVOKED",
-                            [NSNumber numberWithInteger:GPG_STATUS_KEY_CREATED], @"KEY_CREATED",
-                            [NSNumber numberWithInteger:GPG_STATUS_KEY_NOT_CREATED], @"KEY_NOT_CREATED",
-                            [NSNumber numberWithInteger:GPG_STATUS_MISSING_PASSPHRASE], @"MISSING_PASSPHRASE",
-                            [NSNumber numberWithInteger:GPG_STATUS_NEED_PASSPHRASE], @"NEED_PASSPHRASE",
-                            [NSNumber numberWithInteger:GPG_STATUS_NEED_PASSPHRASE_PIN], @"NEED_PASSPHRASE_PIN",
-                            [NSNumber numberWithInteger:GPG_STATUS_NEED_PASSPHRASE_SYM], @"NEED_PASSPHRASE_SYM",
-                            [NSNumber numberWithInteger:GPG_STATUS_NEWSIG], @"NEWSIG",
-                            [NSNumber numberWithInteger:GPG_STATUS_NODATA], @"NODATA",
-                            [NSNumber numberWithInteger:GPG_STATUS_NOTATION_DATA], @"NOTATION_DATA",
-                            [NSNumber numberWithInteger:GPG_STATUS_NOTATION_NAME], @"NOTATION_NAME",
-                            [NSNumber numberWithInteger:GPG_STATUS_NO_PUBKEY], @"NO_PUBKEY",
-                            [NSNumber numberWithInteger:GPG_STATUS_NO_RECP], @"NO_RECP",
-                            [NSNumber numberWithInteger:GPG_STATUS_NO_SECKEY], @"NO_SECKEY",
-                            [NSNumber numberWithInteger:GPG_STATUS_NO_SGNR], @"NO_SGNR",
-                            [NSNumber numberWithInteger:GPG_STATUS_PKA_TRUST_BAD], @"PKA_TRUST_BAD",
-                            [NSNumber numberWithInteger:GPG_STATUS_PKA_TRUST_GOOD], @"PKA_TRUST_GOOD",
-                            [NSNumber numberWithInteger:GPG_STATUS_PLAINTEXT], @"PLAINTEXT",
-                            [NSNumber numberWithInteger:GPG_STATUS_PLAINTEXT_LENGTH], @"PLAINTEXT_LENGTH",
-                            [NSNumber numberWithInteger:GPG_STATUS_POLICY_URL], @"POLICY_URL",
-                            [NSNumber numberWithInteger:GPG_STATUS_PROGRESS], @"PROGRESS",
-                            [NSNumber numberWithInteger:GPG_STATUS_REVKEYSIG], @"REVKEYSIG",
-                            [NSNumber numberWithInteger:GPG_STATUS_RSA_OR_IDEA], @"RSA_OR_IDEA",
-                            [NSNumber numberWithInteger:GPG_STATUS_SC_OP_FAILURE], @"SC_OP_FAILURE",
-                            [NSNumber numberWithInteger:GPG_STATUS_SC_OP_SUCCESS], @"SC_OP_SUCCESS",
-                            [NSNumber numberWithInteger:GPG_STATUS_SESSION_KEY], @"SESSION_KEY",
-                            [NSNumber numberWithInteger:GPG_STATUS_SHM_GET], @"SHM_GET",
-                            [NSNumber numberWithInteger:GPG_STATUS_SHM_GET_BOOL], @"SHM_GET_BOOL",
-                            [NSNumber numberWithInteger:GPG_STATUS_SHM_GET_HIDDEN], @"SHM_GET_HIDDEN",
-                            [NSNumber numberWithInteger:GPG_STATUS_SHM_INFO], @"SHM_INFO",
-                            [NSNumber numberWithInteger:GPG_STATUS_SIGEXPIRED], @"SIGEXPIRED",
-                            [NSNumber numberWithInteger:GPG_STATUS_SIG_CREATED], @"SIG_CREATED",
-                            [NSNumber numberWithInteger:GPG_STATUS_SIG_ID], @"SIG_ID",
-                            [NSNumber numberWithInteger:GPG_STATUS_SIG_SUBPACKET], @"SIG_SUBPACKET",
-                            [NSNumber numberWithInteger:GPG_STATUS_TRUNCATED], @"TRUNCATED",
-                            [NSNumber numberWithInteger:GPG_STATUS_TRUST_FULLY], @"TRUST_FULLY",
-                            [NSNumber numberWithInteger:GPG_STATUS_TRUST_MARGINAL], @"TRUST_MARGINAL",
-                            [NSNumber numberWithInteger:GPG_STATUS_TRUST_NEVER], @"TRUST_NEVER",
-                            [NSNumber numberWithInteger:GPG_STATUS_TRUST_ULTIMATE], @"TRUST_ULTIMATE",
-                            [NSNumber numberWithInteger:GPG_STATUS_TRUST_UNDEFINED], @"TRUST_UNDEFINED",
-                            [NSNumber numberWithInteger:GPG_STATUS_UNEXPECTED], @"UNEXPECTED",
-                            [NSNumber numberWithInteger:GPG_STATUS_USERID_HINT], @"USERID_HINT",
-                            [NSNumber numberWithInteger:GPG_STATUS_VALIDSIG], @"VALIDSIG",
-                            nil];
-    });
-    return GPG_STATUS_CODES;
+	dispatch_once(&onceToken, ^{
+		GPG_STATUS_CODES =
+		@{
+		  @"ALREADY_SIGNED": @(GPG_STATUS_ALREADY_SIGNED),
+		  @"ATTRIBUTE": @(GPG_STATUS_ATTRIBUTE),
+		  @"BACKUP_KEY_CREATED": @(GPG_STATUS_BACKUP_KEY_CREATED),
+		  @"BADARMOR": @(GPG_STATUS_BADARMOR),
+		  @"BADMDC": @(GPG_STATUS_BADMDC),
+		  @"BADSIG": @(GPG_STATUS_BADSIG),
+		  @"BAD_PASSPHRASE": @(GPG_STATUS_BAD_PASSPHRASE),
+		  @"BEGIN_DECRYPTION": @(GPG_STATUS_BEGIN_DECRYPTION),
+		  @"BEGIN_ENCRYPTION": @(GPG_STATUS_BEGIN_ENCRYPTION),
+		  @"BEGIN_SIGNING": @(GPG_STATUS_BEGIN_SIGNING),
+		  @"BEGIN_STREAM": @(GPG_STATUS_BEGIN_STREAM),
+		  @"CARDCTRL": @(GPG_STATUS_CARDCTRL),
+		  @"DECRYPTION_FAILED": @(GPG_STATUS_DECRYPTION_FAILED),
+		  @"DECRYPTION_INFO": @(GPG_STATUS_DECRYPTION_INFO),
+		  @"DECRYPTION_OKAY": @(GPG_STATUS_DECRYPTION_OKAY),
+		  @"DELETE_PROBLEM": @(GPG_STATUS_DELETE_PROBLEM),
+		  @"ENC_TO": @(GPG_STATUS_ENC_TO),
+		  @"END_DECRYPTION": @(GPG_STATUS_END_DECRYPTION),
+		  @"END_ENCRYPTION": @(GPG_STATUS_END_ENCRYPTION),
+		  @"END_STREAM": @(GPG_STATUS_END_STREAM),
+		  @"ERRMDC": @(GPG_STATUS_ERRMDC),
+		  @"ERROR": @(GPG_STATUS_ERROR),
+		  @"ERRSIG": @(GPG_STATUS_ERRSIG),
+		  @"EXPKEYSIG": @(GPG_STATUS_EXPKEYSIG),
+		  @"EXPSIG": @(GPG_STATUS_EXPSIG),
+		  @"FILE_DONE": @(GPG_STATUS_FILE_DONE),
+		  @"GET_BOOL": @(GPG_STATUS_GET_BOOL),
+		  @"GET_HIDDEN": @(GPG_STATUS_GET_HIDDEN),
+		  @"GET_LINE": @(GPG_STATUS_GET_LINE),
+		  @"GOODMDC": @(GPG_STATUS_GOODMDC),
+		  @"GOODSIG": @(GPG_STATUS_GOODSIG),
+		  @"GOOD_PASSPHRASE": @(GPG_STATUS_GOOD_PASSPHRASE),
+		  @"GOT_IT": @(GPG_STATUS_GOT_IT),
+		  @"IMPORTED": @(GPG_STATUS_IMPORTED),
+		  @"IMPORT_CHECK": @(GPG_STATUS_IMPORT_CHECK),
+		  @"IMPORT_OK": @(GPG_STATUS_IMPORT_OK),
+		  @"IMPORT_PROBLEM": @(GPG_STATUS_IMPORT_PROBLEM),
+		  @"IMPORT_RES": @(GPG_STATUS_IMPORT_RES),
+		  @"INV_RECP": @(GPG_STATUS_INV_RECP),
+		  @"INV_SGNR": @(GPG_STATUS_INV_SGNR),
+		  @"KEYEXPIRED": @(GPG_STATUS_KEYEXPIRED),
+		  @"KEYREVOKED": @(GPG_STATUS_KEYREVOKED),
+		  @"KEY_CONSIDERED": @(GPG_STATUS_KEY_CONSIDERED),
+		  @"KEY_CREATED": @(GPG_STATUS_KEY_CREATED),
+		  @"KEY_NOT_CREATED": @(GPG_STATUS_KEY_NOT_CREATED),
+		  @"MISSING_PASSPHRASE": @(GPG_STATUS_MISSING_PASSPHRASE),
+		  @"NEED_PASSPHRASE": @(GPG_STATUS_NEED_PASSPHRASE),
+		  @"NEED_PASSPHRASE_PIN": @(GPG_STATUS_NEED_PASSPHRASE_PIN),
+		  @"NEED_PASSPHRASE_SYM": @(GPG_STATUS_NEED_PASSPHRASE_SYM),
+		  @"NEWSIG": @(GPG_STATUS_NEWSIG),
+		  @"NODATA": @(GPG_STATUS_NODATA),
+		  @"NOTATION_DATA": @(GPG_STATUS_NOTATION_DATA),
+		  @"NOTATION_NAME": @(GPG_STATUS_NOTATION_NAME),
+		  @"NO_PUBKEY": @(GPG_STATUS_NO_PUBKEY),
+		  @"NO_RECP": @(GPG_STATUS_NO_RECP),
+		  @"NO_SECKEY": @(GPG_STATUS_NO_SECKEY),
+		  @"NO_SGNR": @(GPG_STATUS_NO_SGNR),
+		  @"PKA_TRUST_BAD": @(GPG_STATUS_PKA_TRUST_BAD),
+		  @"PKA_TRUST_GOOD": @(GPG_STATUS_PKA_TRUST_GOOD),
+		  @"PLAINTEXT": @(GPG_STATUS_PLAINTEXT),
+		  @"PLAINTEXT_LENGTH": @(GPG_STATUS_PLAINTEXT_LENGTH),
+		  @"POLICY_URL": @(GPG_STATUS_POLICY_URL),
+		  @"PROGRESS": @(GPG_STATUS_PROGRESS),
+		  @"REVKEYSIG": @(GPG_STATUS_REVKEYSIG),
+		  @"RSA_OR_IDEA": @(GPG_STATUS_RSA_OR_IDEA),
+		  @"SC_OP_FAILURE": @(GPG_STATUS_SC_OP_FAILURE),
+		  @"SC_OP_SUCCESS": @(GPG_STATUS_SC_OP_SUCCESS),
+		  @"SESSION_KEY": @(GPG_STATUS_SESSION_KEY),
+		  @"SHM_GET": @(GPG_STATUS_SHM_GET),
+		  @"SHM_GET_BOOL": @(GPG_STATUS_SHM_GET_BOOL),
+		  @"SHM_GET_HIDDEN": @(GPG_STATUS_SHM_GET_HIDDEN),
+		  @"SHM_INFO": @(GPG_STATUS_SHM_INFO),
+		  @"SIGEXPIRED": @(GPG_STATUS_SIGEXPIRED),
+		  @"SIG_CREATED": @(GPG_STATUS_SIG_CREATED),
+		  @"SIG_ID": @(GPG_STATUS_SIG_ID),
+		  @"SIG_SUBPACKET": @(GPG_STATUS_SIG_SUBPACKET),
+		  @"TRUNCATED": @(GPG_STATUS_TRUNCATED),
+		  @"TRUST_FULLY": @(GPG_STATUS_TRUST_FULLY),
+		  @"TRUST_MARGINAL": @(GPG_STATUS_TRUST_MARGINAL),
+		  @"TRUST_NEVER": @(GPG_STATUS_TRUST_NEVER),
+		  @"TRUST_ULTIMATE": @(GPG_STATUS_TRUST_ULTIMATE),
+		  @"TRUST_UNDEFINED": @(GPG_STATUS_TRUST_UNDEFINED),
+		  @"UNEXPECTED": @(GPG_STATUS_UNEXPECTED),
+		  @"USERID_HINT": @(GPG_STATUS_USERID_HINT),
+		  @"VALIDSIG": @(GPG_STATUS_VALIDSIG),
+		  @"WARNING": @(GPG_STATUS_WARNING),
+		  @"VALIDSIG": @(GPG_STATUS_SUCCESS),
+		  @"FAILURE": @(GPG_STATUS_FAILURE)
+		  };
+		[GPG_STATUS_CODES retain];
+	});
+	return GPG_STATUS_CODES;
 }
 
 + (BOOL)isGPGAgentSocket:(NSString *)socketPath {
@@ -879,15 +946,7 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
 }
 
 + (NSString *)gpgAgentSocket {
-	NSString *socketPath = [[GPGOptions sharedOptions] valueForKey:@"GPG_AGENT_INFO" inDomain:GPGDomain_environment];
-	NSRange range;
-	if (socketPath && (range = [socketPath rangeOfString:@":"]).length > 0) {
-		socketPath = [socketPath substringToIndex:range.location - 1];
-		if ([self isGPGAgentSocket:socketPath]) {
-			return socketPath;
-		}
-	}
-	socketPath = [[[GPGOptions sharedOptions] gpgHome] stringByAppendingPathComponent:@"S.gpg-agent"];
+	NSString *socketPath = [[[GPGOptions sharedOptions] gpgHome] stringByAppendingPathComponent:@"S.gpg-agent"];
 	if ([self isGPGAgentSocket:socketPath]) {
 		return socketPath;
 	}
@@ -958,8 +1017,8 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
 	// Request the passphrase connected to the key.
 	send(sock, [command UTF8String], [command lengthOfBytesUsingEncoding:NSUTF8StringEncoding], 0);
 
-	int pos = 0;
-	int length = 0;
+	size_t pos = 0;
+	ssize_t length = 0;
 	bzero(&buffer, sizeof(buffer));
 	BOOL inCache = NO;
 
@@ -1023,7 +1082,7 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
 	} else {
 		NSTask *task = [NSTask launchedTaskWithLaunchPath:path arguments:arguments];
 		if (wait) {
-			[task waitUntilExit];
+			[task threadSafeWaitUntilExit];
 			return task.terminationStatus == 0;
 		}
 	}
@@ -1032,3 +1091,15 @@ checkForSandbox = _checkForSandbox, timeout = _timeout, environmentVariables=_en
 
 
 @end
+
+@implementation NSTask (GPGThreadSafeWait)
+- (void)threadSafeWaitUntilExit {
+	dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+	self.terminationHandler = ^(NSTask *task) {
+		dispatch_semaphore_signal(semaphore);
+	};
+	dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+}
+@end
+
+

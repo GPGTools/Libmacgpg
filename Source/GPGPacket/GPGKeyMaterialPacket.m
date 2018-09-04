@@ -1,6 +1,6 @@
 /* GPGKeyMaterialPacket.m
  Based on pgpdump (https://github.com/kazu-yamamoto/pgpdump) from Kazuhiko Yamamoto.
- Copyright © Roman Zechmeister, 2015
+ Copyright © Roman Zechmeister, 2017
  
  This file is part of Libmacgpg.
  
@@ -70,8 +70,8 @@
 			// The fingerprint is the MD5 of modulus and exponent.
 			CC_MD5_CTX md5;
 			CC_MD5_Init(&md5);
-			CC_MD5_Update(&md5, modulus.bytes, modulus.length); // Hash modulus,
-			CC_MD5_Update(&md5, exponent.bytes, exponent.length); // and exponent.
+			CC_MD5_Update(&md5, modulus.bytes, (CC_LONG)modulus.length); // Hash modulus,
+			CC_MD5_Update(&md5, exponent.bytes, (CC_LONG)exponent.length); // and exponent.
 			UInt8 fingerprintBytes[16];
 			CC_MD5_Final(fingerprintBytes, &md5);
 			self.fingerprint = bytesToHexString(fingerprintBytes, 16);
@@ -142,7 +142,7 @@
 			
 			// Get the fingerprint by hashing bytesToHash using SHA1.
 			uint8_t fingerprintBytes[20];
-			CC_SHA1(bytesToHash, dataLength, fingerprintBytes);
+			CC_SHA1(bytesToHash, (CC_LONG)dataLength, fingerprintBytes);
 			
 			
 			self.fingerprint = bytesToHexString(fingerprintBytes, 20);

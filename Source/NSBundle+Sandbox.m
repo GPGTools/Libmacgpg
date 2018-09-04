@@ -1,7 +1,7 @@
 /* NSBundle+Sandbox.h created by Lukas Pitschl (@lukele) on Sut 29-Sep-2012 */
 
 /*
- * Copyright (c) 2000-2014, GPGTools Project Team <gpgtools-org@lists.gpgtools.org>
+ * Copyright (c) 2000-2017, GPGTools Team <team@gpgtools.org>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -116,7 +116,7 @@
     SecStaticCodeRef staticCode = nil;
 	
     SecStaticCodeCreateWithPath((__bridge CFURLRef)[self bundleURL], 0, &staticCode);
-	SecRequirementCreateWithString(CFSTR("anchor apple generic and cert leaf = H\"233B4E43187B51BF7D6711053DD652DDF54B43BE\""), 0, &requirement);
+	SecRequirementCreateWithString(CFSTR("anchor apple generic and ( cert leaf = H\"C21964B138DE0094F42CEDE7078C6F800BA5838B\" or cert leaf = H\"233B4E43187B51BF7D6711053DD652DDF54B43BE\" ) "), 0, &requirement);
 	
 	OSStatus result = SecStaticCodeCheckValidity(staticCode, 0, requirement);
     

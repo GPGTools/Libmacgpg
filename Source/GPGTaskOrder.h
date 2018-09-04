@@ -1,5 +1,5 @@
 /*
- Copyright © Roman Zechmeister, 2014
+ Copyright © Roman Zechmeister, 2017
  
  Diese Datei ist Teil von Libmacgpg.
  
@@ -38,11 +38,11 @@ typedef uint8_t BoolAnswer;
 
 // prompt is an NSString or NSArray!
 - (void)addCmd:(NSString *)cmd prompt:(id)prompt;
-- (void)addInt:(int)cmd prompt:(id)prompt;
+- (void)addInt:(NSInteger)cmd prompt:(id)prompt;
 - (void)addOptionalCmd:(NSString *)cmd prompt:(id)prompt;
-- (void)addOptionalInt:(int)cmd prompt:(id)prompt;
+- (void)addOptionalInt:(NSInteger)cmd prompt:(id)prompt;
 - (void)addCmd:(NSString *)cmd prompt:(id)prompt optional:(BOOL)optional;
-- (void)addInt:(int)cmd prompt:(id)prompt optional:(BOOL)optional;
+- (void)addInt:(NSInteger)cmd prompt:(id)prompt optional:(BOOL)optional;
 
 - (NSString *)cmdForPrompt:(id)prompt statusCode:(NSInteger)statusCode;
 

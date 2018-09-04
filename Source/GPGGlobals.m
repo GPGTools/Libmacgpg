@@ -1,5 +1,5 @@
 /*
- Copyright © Roman Zechmeister, 2014
+ Copyright © Roman Zechmeister, 2017
  
  Diese Datei ist Teil von Libmacgpg.
  
@@ -20,15 +20,19 @@
 #import "GPGGlobals.h"
 #import "GPGTask.h"
 #import "GPGKey.h"
+#import "NSBundle+GPGLocalization.h"
 
 
 NSString *localizedLibmacgpgString(NSString *key) {
+	
+	static dispatch_once_t onceToken;
 	static NSBundle *bundle = nil, *englishBundle = nil;
-	if (!bundle) {
+	dispatch_once(&onceToken, ^{
 		bundle = [[NSBundle bundleWithIdentifier:@"org.gpgtools.Libmacgpg"] retain];
+		[bundle useGPGLocalizations];
 		englishBundle = [[NSBundle bundleWithPath:[bundle pathForResource:@"en" ofType:@"lproj"]] retain];
-	}
-
+	});
+	
 	NSString *notFoundValue = @"~#*?*#~";
 	NSString *localized = [bundle localizedStringForKey:key value:notFoundValue table:nil];
 	if (localized == notFoundValue) {
@@ -360,6 +364,10 @@ break;
 	NSString *workText = self;
 	NSUInteger textLength = [workText length];
 	NSRange range;
+	
+	NSString *email = nil;
+	NSString *comment = nil;
+	
 
 	[dict setObject:workText forKey:@"userIDDescription"];
 
@@ -369,8 +377,7 @@ break;
 			range.location += 1;
 			range.length = textLength - range.location - 1;
 			
-			NSString *value = [workText substringWithRange:range];
-			[dict setObject:value forKey:@"email"];
+			email = [workText substringWithRange:range];
 			
 			if (range.location > 2) {
 				workText = [workText substringToIndex:range.location - 2];
@@ -387,8 +394,7 @@ break;
 			range.location += 1;
 			range.length = textLength - range.location - 1;
 			
-			NSString *value = [workText substringWithRange:range];
-			[dict setObject:value forKey:@"comment"];
+			comment = [workText substringWithRange:range];
 			
 			if (range.location > 2) {
 				workText = [workText substringToIndex:range.location - 2];
@@ -400,7 +406,19 @@ break;
 		}
 	}
 	
-	[dict setObject:workText forKey:@"name"];
+	
+	if (!email && !comment && [workText rangeOfString:@"@"].length > 0) {
+		email = workText;
+	} else {
+		dict[@"name"] = workText;
+	}
+	if (email) {
+		dict[@"email"] = email;
+	}
+	if (comment) {
+		dict[@"comment"] = comment;
+	}
+	
 	return dict;
 }
 

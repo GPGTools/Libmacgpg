@@ -16,7 +16,7 @@
 - (void)testConnection:(void (^)(BOOL))reply;
 
 #pragma mark - GPGTaskHelper RPC methods
-- (void)launchGPGWithArguments:(NSArray *)arguments data:(NSArray *)data readAttributes:(BOOL)readAttributes reply:(void (^)(NSDictionary *))reply;
+- (void)launchGPGWithArguments:(NSArray *)arguments data:(NSData *)data readAttributes:(BOOL)readAttributes closeInput:(BOOL)closeInput reply:(void (^)(NSDictionary *))reply;
 - (void)launchGeneralTask:(NSString *)path withArguments:(NSArray *)arguments wait:(BOOL)wait reply:(void (^)(BOOL))reply;
 
 #pragma mark - GPGWatcher RPC methods

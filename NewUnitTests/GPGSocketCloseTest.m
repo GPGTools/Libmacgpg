@@ -177,6 +177,8 @@
 	return nrOfSockets;
 }
 
+
+// This test doens't work with gpg >= 2.1 anymore, because the passphrase does not get into the cache, when passed via passphrase-fd!
 - (void)testPassphraseInAgentSocketCloseBug {
 	// Calling isPassphraseForKeyInGPGAgentCache: seems to trigger a bug where the socket connection
 	// which is established to the gpg-agent is not always closed.

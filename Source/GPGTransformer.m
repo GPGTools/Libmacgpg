@@ -1,5 +1,5 @@
 /*
- Copyright © Roman Zechmeister, 2014
+ Copyright © Roman Zechmeister, 2017
  
  Diese Datei ist Teil von Libmacgpg.
  
@@ -52,8 +52,8 @@
 			return maybeLocalize(@"GPG_ElgamalAlgorithm");
 		case GPG_DiffieHellmanAlgorithm:
 			return maybeLocalize(@"GPG_DiffieHellmanAlgorithm");
-		case GPG_EDDSAAlgorithm:
-			return maybeLocalize(@"GPG_EDDSAAlgorithm");
+		case GPG_EdDSAAlgorithm:
+			return maybeLocalize(@"GPG_EdDSAAlgorithm");
 		case 0:
 			return @"";
 		default:
@@ -105,22 +105,22 @@
 - (id)transformedValue:(id)value {
 	NSMutableArray *strings = [NSMutableArray array];
 	NSInteger intValue;
-	GPGUserIDSignature *revSig = nil;
+//	GPGUserIDSignature *revSig = nil;
 	
 	if ([value isKindOfClass:[NSNumber class]]) {
 		intValue = [value integerValue];
 	} else {
 		GPGKey *key = value;
 		intValue = key.validity;
-		if ([key respondsToSelector:@selector(revocationSignature)]) {
-			revSig = key.revocationSignature;
-		}
+//		if ([key respondsToSelector:@selector(revocationSignature)]) {
+//			revSig = key.revocationSignature;
+//		}
 	}
 	
 	
 	switch (intValue & 7) {
 		case 2:
-			[strings addObject:maybeLocalize(@"?")]; //Was bedeutet 2?
+			[strings addObject:maybeLocalize(@"Never")];
 			break;
 		case 3:
 			[strings addObject:maybeLocalize(@"Marginal")];
@@ -143,15 +143,16 @@
 	}
 	if (intValue & GPGValidityRevoked) {
 		NSString *revString = maybeLocalize(@"Revoked");
-		if (revSig) {
-			NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-			dateFormatter.timeStyle = NSDateFormatterNoStyle;
-			dateFormatter.dateStyle = NSDateFormatterLongStyle;
-			
-			NSString *dateString = [dateFormatter stringFromDate:revSig.creationDate];
-			
-			revString = [NSString stringWithFormat:@"%@ (%@)", revString, dateString];
-		}
+//		if (revSig) {
+//			NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+//			dateFormatter.timeStyle = NSDateFormatterNoStyle;
+//			dateFormatter.dateStyle = NSDateFormatterLongStyle;
+//			
+//			NSString *dateString = [dateFormatter stringFromDate:revSig.creationDate];
+//			[dateFormatter release];
+//			
+//			revString = [NSString stringWithFormat:@"%@ (%@)", revString, dateString];
+//		}
 		
 		[strings addObject:revString];
 	}
@@ -185,6 +186,12 @@
 		case 32:
 			format = "XXXX XXXX XXXX XXXX  XXXX XXXX XXXX XXXX";
 			break;
+		case 16:
+			format = "XXXX XXXX  XXXX XXXX";
+			break;
+		case 8:
+			format = "XXXX XXXX";
+			break;
 		case 0:
 			return @"";
 		default:
@@ -211,7 +218,23 @@
 	
 	return [[[NSString alloc] initWithData:buffer encoding:NSUTF8StringEncoding] autorelease];
 }
+@end
 
+
+@implementation GPGNoBreakFingerprintTransformer
+- (id)transformedValue:(id)value {
+	NSString *transformed = [super transformedValue:value];
+	transformed = [transformed stringByReplacingOccurrencesOfString:@" " withString:@"\xC2\xA0"];
+	return transformed;
+}
++ (id)sharedInstance {
+	static dispatch_once_t onceToken = 0;
+	__strong static id _sharedInstance = nil;
+	dispatch_once(&onceToken, ^{
+		_sharedInstance = [[self alloc] init];
+	});
+	return _sharedInstance;
+}
 @end
 
 

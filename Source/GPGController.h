@@ -1,5 +1,5 @@
 /*
- Copyright © Roman Zechmeister, 2014
+ Copyright © Roman Zechmeister, 2017
  
  Diese Datei ist Teil von Libmacgpg.
  
@@ -26,6 +26,7 @@
 @class GPGUserIDSignature;
 @class GPGController;
 @class GPGStream;
+@class GPGRemoteKey;
 
 
 @protocol GPGControllerDelegate
@@ -36,15 +37,17 @@
 - (void)gpgController:(GPGController *)gpgc keysDidChanged:(NSObject <EnumerationList> *)keys external:(BOOL)external;
 - (void)gpgControllerOperationDidStart:(GPGController *)gpgc;
 - (void)gpgController:(GPGController *)gpgc progressed:(NSInteger)progressed total:(NSInteger)total;
+- (BOOL)gpgControllerShouldDecryptWithoutMDC:(GPGController *)gpgc;
+
 
 @end
 
 
 
 @interface GPGController : NSObject {
-	NSMutableArray *signerKeys;
-	NSMutableArray *comments;
-	NSMutableArray *signatures;
+	NSMutableArray <NSObject <KeyFingerprint> *> *signerKeys;
+	NSMutableArray <NSString *> *comments;
+	NSMutableArray <GPGSignature *> *signatures;
 	NSString *filename; //May contain the filename after decryption.
 	NSString *forceFilename; //May contain the filename after decryption.
 	NSString *keyserver;
@@ -60,7 +63,6 @@
 	BOOL useDefaultComments;
 	BOOL trustAllKeys;
 	BOOL async;
-    BOOL verbose;
 	BOOL autoKeyRetrieve;
 	BOOL allowNonSelfsignedUid;
 	BOOL allowWeakDigestAlgos;
@@ -84,14 +86,15 @@
 	NSInteger runningOperations;
 	NSUInteger groupedKeyChange;
 	NSUInteger timeout;
+	BOOL decrypted;
 	
 	NSMutableSet *gpgKeyservers;
 }
 
 @property (nonatomic, assign) NSObject <GPGControllerDelegate> *delegate;
-@property (nonatomic, readonly) NSArray *signerKeys;
-@property (nonatomic, readonly) NSArray *comments;
-@property (nonatomic, readonly) NSArray *signatures;
+@property (nonatomic, readonly) NSArray <NSObject <KeyFingerprint> *> *signerKeys;
+@property (nonatomic, readonly) NSArray <NSString *> *comments;
+@property (nonatomic, readonly) NSArray <GPGSignature *> *signatures;
 @property (nonatomic, readonly) id lastReturnValue;
 @property (nonatomic, readonly) NSException *error;
 @property (nonatomic, readonly, retain) NSString *filename;
@@ -104,20 +107,20 @@
 @property (nonatomic, retain) NSDictionary *userInfo;
 @property (nonatomic, retain) NSUndoManager *undoManager;
 @property (nonatomic, readonly) BOOL decryptionOkay;
+@property (nonatomic, readonly) BOOL wasSigned;
 @property (nonatomic) BOOL async;
 @property (nonatomic) BOOL useArmor;
 @property (nonatomic) BOOL useTextMode;
 @property (nonatomic) BOOL printVersion;
 @property (nonatomic) BOOL useDefaultComments;
 @property (nonatomic) BOOL trustAllKeys;
-@property (nonatomic) BOOL verbose DEPRECATED_ATTRIBUTE;
 @property (nonatomic) BOOL autoKeyRetrieve;
 @property (nonatomic) BOOL allowNonSelfsignedUid;
 @property (nonatomic) BOOL allowWeakDigestAlgos;
 @property (nonatomic, readonly) NSDictionary *statusDict;
 @property (nonatomic, readonly) GPGHashAlgorithm hashAlgorithm;
 @property (nonatomic, readonly, retain) GPGTask *gpgTask;
-@property (nonatomic, assign) NSUInteger timeout;
+@property (nonatomic, assign) NSUInteger timeout DEPRECATED_ATTRIBUTE;
 /*
  Dictionary with following keys:
  DESCRIPTION: The description displayed in pinentry. Usable playceholders: %FINGERPRINT, %KEYID, %USERID, %EMAIL, %COMMENT, %NAME.
@@ -168,15 +171,18 @@
 - (NSData *)generateRevokeCertificateForKey:(NSObject <KeyFingerprint> *)key reason:(int)reason description:(NSString *)description;
 - (void)revokeKey:(NSObject <KeyFingerprint> *)key reason:(int)reason description:(NSString *)description;
 - (void)signUserID:(NSString *)hashID ofKey:(NSObject <KeyFingerprint> *)key signKey:(NSObject <KeyFingerprint> *)signKey type:(int)type local:(BOOL)local daysToExpire:(int)daysToExpire;
+- (void)signUserIDs:(NSArray <GPGUserID *> *)userIDs signerKey:(NSObject <KeyFingerprint> *)signerKey local:(BOOL)local daysToExpire:(int)daysToExpire;
 - (void)addSubkeyToKey:(NSObject <KeyFingerprint> *)key type:(NSInteger)type length:(NSInteger)length daysToExpire:(NSInteger)daysToExpire;
 - (void)addUserIDToKey:(NSObject <KeyFingerprint> *)key name:(NSString *)name email:(NSString *)email comment:(NSString *)comment;
-- (void)setExpirationDateForSubkey:(NSObject <KeyFingerprint> *)subkey fromKey:(NSObject <KeyFingerprint> *)key daysToExpire:(NSInteger)daysToExpire;
+- (void)setExpirationDateForSubkey:(NSObject <KeyFingerprint> *)subkey fromKey:(NSObject <KeyFingerprint> *)key daysToExpire:(NSUInteger)daysToExpire;
+- (void)setExpirationDate:(NSDate *)expirationDate forSubkeys:(NSArray *)subkeys ofKey:(NSObject <KeyFingerprint> *)key;
 - (void)changePassphraseForKey:(NSObject <KeyFingerprint> *)key;
 - (NSString *)receiveKeysFromServer:(NSObject <EnumerationList> *)keys;
-- (NSArray *)searchKeysOnServer:(NSString *)pattern;
+- (NSArray <GPGRemoteKey *> *)searchKeysOnServer:(NSString *)pattern;
 - (void)sendKeysToServer:(NSObject <EnumerationList> *)keys;
 - (NSString *)refreshKeysFromServer:(NSObject <EnumerationList> *)keys DEPRECATED_ATTRIBUTE;
-- (BOOL)testKeyserver;
+- (void)testKeyserver;
+- (void)keysExistOnServer:(NSArray <GPGKey *> *)keys callback:(void (^)(NSArray <GPGKey *> *existingKeys, NSArray <GPGKey *> *nonExistingKeys))callback;
 - (void)removeSignature:(GPGUserIDSignature *)signature fromUserID:(GPGUserID *)userID ofKey:(NSObject <KeyFingerprint> *)key;
 - (void)removeSubkey:(NSObject <KeyFingerprint> *)subkey fromKey:(NSObject <KeyFingerprint> *)key;
 - (void)revokeSubkey:(NSObject <KeyFingerprint> *)subkey fromKey:(NSObject <KeyFingerprint> *)key reason:(int)reason description:(NSString *)description;
@@ -185,10 +191,6 @@
 							 keyType:(GPGPublicKeyAlgorithm)keyType keyLength:(int)keyLength
 						  subkeyType:(GPGPublicKeyAlgorithm)subkeyType subkeyLength:(int)subkeyLength
 						daysToExpire:(int)daysToExpire preferences:(NSString *)preferences;
-- (NSString *)generateNewKeyWithName:(NSString *)name email:(NSString *)email comment:(NSString *)comment
-							 keyType:(GPGPublicKeyAlgorithm)keyType keyLength:(int)keyLength
-						  subkeyType:(GPGPublicKeyAlgorithm)subkeyType subkeyLength:(int)subkeyLength
-						daysToExpire:(int)daysToExpire preferences:(NSString *)preferences revCert:(BOOL)revCert;
 - (void)deleteKeys:(NSObject <EnumerationList> *)keys withMode:(GPGDeleteKeyMode)mode;
 - (void)setAlgorithmPreferences:(NSString *)preferences forUserID:(NSString *)hashID ofKey:(NSObject <KeyFingerprint> *)key;
 - (void)revokeSignature:(GPGUserIDSignature *)signature fromUserID:(GPGUserID *)userID ofKey:(NSObject <KeyFingerprint> *)key reason:(int)reason description:(NSString *)description;
@@ -204,11 +206,11 @@
 - (void)decryptTo:(GPGStream *)output data:(GPGStream *)input;
 - (NSData *)decryptData:(NSData *)data;
 
-- (NSArray *)verifySignatureOf:(GPGStream *)signatureInput originalData:(GPGStream *)originalInput;
-- (NSArray *)verifySignature:(NSData *)signatureData originalData:(NSData *)originalData;
+- (NSArray <GPGSignature *> *)verifySignatureOf:(GPGStream *)signatureInput originalData:(GPGStream *)originalInput;
+- (NSArray <GPGSignature *> *)verifySignature:(NSData *)signatureData originalData:(NSData *)originalData;
 
-- (NSArray *)verifySignedData:(NSData *)signedData;
-- (NSArray *)algorithmPreferencesForKey:(GPGKey *)key;
+- (NSArray <GPGSignature *> *)verifySignedData:(NSData *)signedData;
+- (NSArray <NSDictionary *> *)algorithmPreferencesForKey:(GPGKey *)key;
 
 
 @end

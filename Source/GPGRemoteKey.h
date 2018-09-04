@@ -1,5 +1,5 @@
 /*
- Copyright © Roman Zechmeister, 2014
+ Copyright © Roman Zechmeister, 2017
  
  Diese Datei ist Teil von Libmacgpg.
  
@@ -42,7 +42,7 @@
 @property (nonatomic, readonly, retain) NSArray *userIDs;
 
 
-+ (NSArray *)keysWithListing:(NSString *)listing;
++ (NSArray <GPGRemoteKey *> *)keysWithListing:(NSString *)listing;
 + (id)keyWithListing:(NSArray *)listing;
 - (id)initWithListing:(NSArray *)listing;
 

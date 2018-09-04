@@ -1,5 +1,5 @@
 /* GPGSignaturePacket.h
- Copyright © Roman Zechmeister, 2015
+ Copyright © Roman Zechmeister, 2017
  
  This file is part of Libmacgpg.
  
@@ -23,7 +23,7 @@
 
 
 // Subpacket tags.
-typedef enum {
+typedef NS_ENUM (NSInteger, GPGSubpacketTag) {
 	GPGSignatureCreationTimeTag = 2,
 	GPGSignatureExpirationTimeTag = 3,
 	GPGExportableCertificationTag = 4,
@@ -47,7 +47,7 @@ typedef enum {
 	GPGFeaturesTag = 30,
 	GPGSignatureTargetTag = 31,
 	GPGEmbeddedSignatureTag = 32
-} GPGSubpacketTag;
+};
 
 
 

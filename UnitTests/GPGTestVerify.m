@@ -38,6 +38,8 @@
 	GPGSignature *signature = sigs[0];
 	XCTAssertEqual(signature.status, GPGErrorNoError, @"Did not verify as expected!");
 	XCTAssertEqualObjects(signature.fingerprint, testSubkey, @"Did not verify as expected!");
+	XCTAssertTrue(gpgc.wasSigned, @"wasSigned was not set!");
+
 }
 
 

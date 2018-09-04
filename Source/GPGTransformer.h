@@ -1,5 +1,5 @@
 /*
- Copyright © Roman Zechmeister, 2014
+ Copyright © Roman Zechmeister, 2017
  
  Diese Datei ist Teil von Libmacgpg.
  
@@ -50,6 +50,10 @@
 }
 // default NO
 @property (nonatomic, assign) BOOL keepUnlocalized;
+@end
+
+@interface GPGNoBreakFingerprintTransformer : GPGFingerprintTransformer
++ (id)sharedInstance;
 @end
 
 

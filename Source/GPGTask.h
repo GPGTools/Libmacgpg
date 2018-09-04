@@ -1,5 +1,5 @@
 /*
- Copyright © Roman Zechmeister, 2014
+ Copyright © Roman Zechmeister, 2017
  
  Diese Datei ist Teil von Libmacgpg.
  
@@ -22,6 +22,12 @@
 @class GPGTask;
 @class GPGTaskHelper;
 @class GPGStream;
+@class GPGStatusLine;
+
+
+extern NSString * const GPGStatusFilePlaceholder;
+extern NSString * const GPGAttributeFilePlaceholder;
+
 
 @protocol GPGTaskDelegate
 @optional
@@ -47,7 +53,7 @@
 	BOOL getAttributeData;
 	NSDictionary *_environmentVariables;
 	
-	NSMutableArray *inDatas;
+	GPGStream *inData;
 	NSString *passphrase;
 	
     GPGTaskHelper *taskHelper;
@@ -68,12 +74,14 @@
 	BOOL progressInfo;
 	
 	NSMutableDictionary *statusDict;
+	NSMutableArray <GPGStatusLine *> *statusArray;
 	NSUInteger timeout;
 }
 
 @property (nonatomic, readonly) BOOL cancelled;
 @property (nonatomic, readonly) BOOL isRunning;
 @property (nonatomic, readonly) NSDictionary *statusDict;
+@property (nonatomic, readonly) NSArray <GPGStatusLine *> *statusArray;
 @property (nonatomic) BOOL progressInfo;
 @property (nonatomic) BOOL batchMode;
 @property (nonatomic) BOOL getAttributeData;
@@ -82,6 +90,8 @@
 @property (nonatomic, strong) NSString *passphrase;
 @property (nonatomic, readonly) NSInteger exitcode;
 @property (nonatomic, readonly) int errorCode;
+@property (nonatomic, readonly) NSArray *errorCodes;
+@property (nonatomic, readonly) int fullErrorCode;
 // if not set before starting, GPGTask will use a GPGMemoryStream
 @property (nonatomic, retain) GPGStream *outStream;
 @property (nonatomic, readonly, retain) NSData *errData;
@@ -105,9 +115,9 @@
 - (NSInteger)start;
 
 - (NSData *)outData;
-- (void)addInput:(GPGStream *)stream;
-- (void)addInData:(NSData *)data;
-- (void)addInText:(NSString *)string;
+- (void)setInput:(GPGStream *)stream;
+- (void)setInData:(NSData *)data;
+- (void)setInText:(NSString *)string;
 
 - (void)cancel;
 

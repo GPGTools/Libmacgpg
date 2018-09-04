@@ -1,5 +1,5 @@
 /*
- Copyright © Roman Zechmeister, 2014
+ Copyright © Roman Zechmeister, 2017
  
  Diese Datei ist Teil von Libmacgpg.
  
@@ -61,20 +61,20 @@
 - (void)addCmd:(NSString *)cmd prompt:(id)prompt {
 	[self addCmd:cmd prompt:prompt optional:NO];
 }
-- (void)addInt:(int)cmd prompt:(id)prompt {
+- (void)addInt:(NSInteger)cmd prompt:(id)prompt {
 	[self addInt:cmd prompt:prompt optional:NO];
 }
 - (void)addOptionalCmd:(NSString *)cmd prompt:(id)prompt {
 	[self addCmd:cmd prompt:prompt optional:YES];
 }
-- (void)addOptionalInt:(int)cmd prompt:(id)prompt {
+- (void)addOptionalInt:(NSInteger)cmd prompt:(id)prompt {
 	[self addInt:cmd prompt:prompt optional:YES];
 }
 - (void)addCmd:(NSString *)cmd prompt:(id)prompt optional:(BOOL)optional {
 	[items addObject:[NSDictionary dictionaryWithObjectsAndKeys:cmd ? cmd : @"", @"cmd", prompt, @"prompt", [NSNumber numberWithBool:optional], @"optional", nil]];
 }
-- (void)addInt:(int)cmd prompt:(id)prompt optional:(BOOL)optional {
-	[items addObject:[NSDictionary dictionaryWithObjectsAndKeys:[NSString stringWithFormat:@"%i\n", cmd], @"cmd", prompt, @"prompt", [NSNumber numberWithBool:optional], @"optional", nil]];
+- (void)addInt:(NSInteger)cmd prompt:(id)prompt optional:(BOOL)optional {
+	[items addObject:[NSDictionary dictionaryWithObjectsAndKeys:[NSString stringWithFormat:@"%li\n", (long)cmd], @"cmd", prompt, @"prompt", [NSNumber numberWithBool:optional], @"optional", nil]];
 }
 
 

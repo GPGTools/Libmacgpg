@@ -1,5 +1,5 @@
 /*
- Copyright © Roman Zechmeister und Lukas Pitschl (@lukele), 2014
+ Copyright © Roman Zechmeister und Lukas Pitschl (@lukele), 2017
  
  Diese Datei ist Teil von Libmacgpg.
  
@@ -62,8 +62,12 @@
 @property (nonatomic, readonly) GPGValidity validity;
 
 @property (nonatomic, readonly) NSArray *signatures;
+@property (nonatomic, readonly) GPGUserIDSignature *selfSignature;
 @property (nonatomic, readonly) GPGUserIDSignature *revocationSignature;
 @property (nonatomic, readonly) GPGKey *primaryKey;
+
+@property (nonatomic, readonly) BOOL mdcSupport;
+@property (nonatomic, readonly) BOOL isUat;
 
 @end
 

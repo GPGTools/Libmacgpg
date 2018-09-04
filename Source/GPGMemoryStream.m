@@ -35,7 +35,7 @@
 {
     if (self = [super init]) {
         // _data stays nil
-        _readableData = [data retain];
+        _readableData = [[NSData dataWithData:data] retain];
 		_readableBytes = _readableData.bytes;
 		_readableLength = _readableData.length;
     }

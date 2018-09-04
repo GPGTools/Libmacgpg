@@ -2,8 +2,8 @@
 #import "GPGException.h"
 #import "GPGMemoryStream.h"
 
-static const NSUInteger cacheSize = 1000;
-static const NSUInteger cacheReserve = 2; // Allow to read more bytes after the real buffer. See -getByte:
+static const NSUInteger cacheSize = 400;
+static const NSUInteger cacheReserve = 5; // Allow to read more bytes after the real buffer. See -getByte:
 
 typedef enum {
 	stateSearchBegin = 0,
@@ -156,6 +156,20 @@ typedef enum {
 }
 
 
+- (NSData *)decodeHeader {
+	maxBytesToRead = 5000;
+	[self decodeNext];
+	if (!self.data && eof && base64Data) {
+		if (base64Data.length % 4 != 0) {
+			// The last base64 sequence is incomplete, truncate it.
+			base64Data.length -= base64Data.length % 4;
+		}
+		self.data = base64Data.base64DecodedData;
+	}
+	return self.data;
+}
+
+
 
 
 #pragma Operation methods
@@ -165,14 +179,15 @@ typedef enum {
 - (parsingState)searchBegin {
 	// Called at the beginning or after parseEnd if it has no data to decode.
 	// Locate "-----BEGIN PGP " in the stream.
+	// Succeess: parseBegin.
 	
 	const char beginMark[] = "BEGIN PGP ";
 	NSInteger byte;
 	NSInteger dashes = 0;
 	NSInteger beginMarkIndex = 0;
 	
-	while ((byte = [self nextByte]) >= 0) {
-		if (dashes < 4) {
+	while ((byte = [self nextDecodedByte]) >= 0) {
+		if (dashes < 3) {
 			if (byte == '-') {
 				dashes++;
 			} else {
@@ -228,10 +243,10 @@ typedef enum {
 	
 	while ((byte = [self nextByte]) >= 0) {
 		
-		switch (byte) {
+		switch ([self decodedByte:byte consume:YES]) {
 			case '-':
 				dashes++;
-				if (dashes >= 4 && [self getByte:0] != '-') {
+				if (dashes >= 3 && [self getDecodedByte:0] != '-') {
 					// Detect CR line-ending.
 					if ([self getByte:0] == '\r' && [self getByte:1] != '\n') {
 						crLineEnding = YES;
@@ -383,9 +398,10 @@ typedef enum {
 	
 	NSInteger byte;
 	
-	while ((byte = [self nextByte]) >= 0) {
+	while ((byte = [self nextDecodedByte]) >= 0) {
 		NSInteger type = [self characterType:byte];
 		if (type >= 1) {
+			[possibleStarts addIndex:base64Data.length];
 			continue;
 		}
 
@@ -398,11 +414,14 @@ typedef enum {
 				// because the first bit of a packet is 1.
 				
 				[base64Data setLength:0];
+				[possibleStarts removeAllIndexes];
 				[base64Data appendBytes:&byte length:1];
 				return stateParseBase64;
 			case '-':
+				[possibleStarts addIndex:base64Data.length];
 				return stateParseEnd;
 			default:
+				[possibleStarts addIndex:base64Data.length];
 				return stateSearchSeperator;
 		}
 	}
@@ -424,10 +443,11 @@ typedef enum {
 	BOOL isLineInvalid = invalidCharInLine;
 	
 	
-	while ((byte = [self nextByte]) >= 0) {
+	while ((byte = [self nextDecodedByte]) >= 0) {
 		NSInteger type = [self characterType:byte];
 		switch (type) {
 			case charTypeWhitespace:
+				[possibleStarts addIndex:base64Data.length];
 				continue;
 			case charTypeNewline:
 				if (alternativeStart == 0) {
@@ -435,6 +455,7 @@ typedef enum {
 					preferAlternative = isLineInvalid;
 					isLineInvalid = NO;
 				}
+				[possibleStarts addIndex:base64Data.length];
 				continue;
 		}
 
@@ -447,10 +468,13 @@ typedef enum {
 				[base64Data appendBytes:&byte length:1];
 				break;
 			case '-':
+				[possibleStarts addIndex:base64Data.length];
 				return stateParseEnd;
 			case '=':
+				[possibleStarts addIndex:base64Data.length];
 				return stateParseCRC;
 			default:
+				[possibleStarts addIndex:base64Data.length];
 				return stateSearchSeperator;
 		}
 		
@@ -473,7 +497,7 @@ typedef enum {
 	equalsAdded = 0;
 	
 	
-	while ((byte = [self nextByte]) >= 0) {
+	while ((byte = [self nextDecodedByte]) >= 0) {
 		if (crcLength == -1) {
 			if ([self characterType:byte] == charTypeNormal) {
 				switch (byte) {
@@ -559,10 +583,10 @@ typedef enum {
 
 	
 	
-	while ((byte = [self nextByte]) >= 0) {
+	while ((byte = [self nextDecodedByte]) >= 0) {
 		if (byte == '-' && endMarkIndex == 0) {
 			dashes++;
-		} else if (dashes >= 3 && byte == endMark[endMarkIndex]) {
+		} else if (dashes >= 2 && byte == endMark[endMarkIndex]) {
 			endMarkIndex++;
 			if (endMark[endMarkIndex] == 0) {
 				found = YES;
@@ -582,7 +606,7 @@ typedef enum {
 	}
 
 
-	UInt32 crc;
+	UInt32 crc = 0;
 	if (haveCRC) {
 		NSData *decodedCRC = nil;
 		
@@ -602,84 +626,112 @@ typedef enum {
 	}
 	
 	
-	NSData *preferedData = nil, *secondData = nil;
+	
+	BOOL (^testDataFromIndex)(NSUInteger, NSData **) = ^BOOL (NSUInteger index, NSData **decodedData) {
+		// Test if the content of base64Data starting at index is a valid pgp-packet.
+		NSData *possibleBase64 = [base64Data subdataWithRange:NSMakeRange(index, (base64Data.length - index) & ~3)];
+		
+		if ([self isDataBase64EncodedPGP:possibleBase64]) {
+			NSData *base64Decoded = possibleBase64.base64DecodedData;
+			if (haveCRC) {
+				UInt32 calculatedCRC = base64Decoded.crc24;
+				if (crc == calculatedCRC) {
+					*decodedData = base64Decoded;
+					return YES;
+				}
+			} else {
+				*decodedData = base64Decoded;
+				return YES;
+			}
+		}
+		
+		return NO;
+	};
+	
 	
 	if (alternativeStart && base64Data.length % 4 == 0 && (base64Data.length - alternativeStart) % 4 != 0) {
 		preferAlternative = NO;
 	}
 	
+	// Append up to 2 "=" when needed.
 	[base64Data appendBytes:"==" length:2 - equalsAdded];
 	
-	if (alternativeStart) {
-		NSUInteger newLength = (base64Data.length - alternativeStart) & ~3;
-		NSData *alternativeData = [base64Data subdataWithRange:NSMakeRange(alternativeStart, newLength)];
-		
-		if (preferAlternative) {
-			preferedData = alternativeData;
-		} else {
-			secondData = alternativeData;
-		}
-	}
-	
-	[base64Data setLength:base64Data.length & ~3];
 	
 	
-	if (preferedData) {
-		secondData = base64Data;
+	NSUInteger preferedStart;
+	NSUInteger secondStart;
+	__block NSData *unarmoredData = nil;
+	__block NSData *firstUnarmoredData = nil;
+	__block BOOL boolResult = NO;
+
+	
+	// First test the data from preferedStart.
+	if (preferAlternative) {
+		preferedStart = alternativeStart;
+		secondStart = 0;
 	} else {
-		preferedData = base64Data;
+		preferedStart = 0;
+		secondStart = alternativeStart;
 	}
 	
 	
+	// Does the packet start at preferedStart?
+	boolResult = testDataFromIndex(preferedStart, &unarmoredData);
+	firstUnarmoredData = unarmoredData;
 	
-	NSData *result = nil;
-	if ([self isDataBase64EncodedPGP:preferedData]) {
-		result = [preferedData base64DecodedData];
+	if (!boolResult && alternativeStart) {
+		// Does the packet start at secondStart?
+		boolResult = testDataFromIndex(secondStart, &unarmoredData);
+		if (!firstUnarmoredData) {
+			firstUnarmoredData = unarmoredData;
+		}
 	}
-	NSData *alternativeResult = result;
-	UInt32 dataCRC;
 	
-	if (haveCRC && result) {
-		// Calculate crc of the decoded base64 data.
-		dataCRC = result.crc24;
+	if (!boolResult) {
+		// Try if the packet starts at any whitespace in the message.
+
+		// Index 0 and alternativeStart have already been testet.
+		[possibleStarts removeIndex:0];
+		[possibleStarts removeIndex:alternativeStart];
 		
-		if (crc != dataCRC) {
-			result = nil;
-		}
+		// Only search in the first 1000 bytes.
+		[possibleStarts removeIndexesInRange:NSMakeRange(1000, possibleStarts.lastIndex - 1000)];
+		
+		// Retain and autorelease is required to get firstUnarmoredData and unarmoredData out of the block.
+		[firstUnarmoredData retain];
+		
+		[possibleStarts enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL * _Nonnull stop) {
+			boolResult = testDataFromIndex(idx, &unarmoredData);
+			if (!firstUnarmoredData) {
+				firstUnarmoredData = unarmoredData;
+				[firstUnarmoredData retain];
+			}
+			if (boolResult) {
+				[unarmoredData retain];
+				*stop = YES;
+			}
+		}];
+		
+		// Retain and autorelease is required to get firstUnarmoredData and unarmoredData out of the block.
+		[firstUnarmoredData autorelease];
+		[unarmoredData autorelease];
 	}
 	
-	if (!result) {
-		if ([self isDataBase64EncodedPGP:secondData]) {
-			result = [secondData base64DecodedData];
-		}
-		if (!result) {
-			if (alternativeResult) {
-				result = alternativeResult;
-				NSLog(@"unArmor: 'CRC Error'");
-				self.error = [NSError errorWithDomain:LibmacgpgErrorDomain code:GPGErrorChecksumError userInfo:nil];
-			} else {
-				NSLog(@"unArmor: 'No Data'");
-				self.error = [NSError errorWithDomain:LibmacgpgErrorDomain code:GPGErrorNoData userInfo:nil];
-				return stateSearchBegin;
-			}
+
+	if (!boolResult) {
+		if (haveCRC && firstUnarmoredData) {
+			unarmoredData = firstUnarmoredData;
+			NSLog(@"unArmor: 'CRC Error'");
+			self.error = [NSError errorWithDomain:LibmacgpgErrorDomain code:GPGErrorChecksumError userInfo:nil];
 		} else {
-			if (haveCRC) {
-				// Calculate crc of the decoded base64 data.
-				dataCRC = result.crc24;
-				if (crc != dataCRC) {
-					NSLog(@"unArmor: 'CRC Error'");
-					self.error = [NSError errorWithDomain:LibmacgpgErrorDomain code:GPGErrorChecksumError userInfo:nil];
-					
-					if (alternativeResult) {
-						result = alternativeResult;
-					}
-				}
-			}
+			NSLog(@"unArmor: 'Invalid Data'");
+			self.error = [NSError errorWithDomain:LibmacgpgErrorDomain code:GPGErrorInvalidData userInfo:nil];
+			return stateSearchBegin;
 		}
 	}
+
 	
-	self.data = result;
-	
+	self.data = unarmoredData;
 	return stateTrashEnd;
 }
 
@@ -693,7 +745,7 @@ typedef enum {
 	NSInteger endMarkIndex = 0;
 	NSInteger dashes = 0;
 	
-	while ((byte = [self nextByte]) >= 0) {
+	while ((byte = [self nextDecodedByte]) >= 0) {
 		endMarkIndex++;
 		if (byte == '-') {
 			dashes++;
@@ -704,7 +756,10 @@ typedef enum {
 		}
 		if (endMarkIndex == 22 || dashes == 5) {
 			[stream seekToOffset:streamOffset];
-			cacheIndex = cacheSize;
+			// cacheIndex = NSUIntegerMax discards the cache.
+			// The cache will be filled again, if another packet gets decoded.
+			// If the cache was not discarded, then the stream and chache would be out of sync.
+			cacheIndex = NSUIntegerMax;
 			return stateFinish;
 		}
 	}
@@ -952,31 +1007,168 @@ static UInt32 crc32_tab[] = {
 }
 
 
+
+
+/**
+ * UTF-8 decodes byte. Some charaters will be converted to there ASCII version.
+ *
+ * @param consume Consume all byte of the UTF-8 character.
+ *
+ * @return The decoded byte.
+ */
+
+- (NSInteger)decodedByte:(NSInteger)byte consume:(BOOL)consume {
+	// This method is based on code from Bjoern Hoehrmann.
+	// Original copyright notice:
+	//
+	// Copyright (c) 2008-2009 Bjoern Hoehrmann <bjoern@hoehrmann.de>
+	//
+	// Permission is hereby granted, free of charge, to any person obtaining a copy
+	// of this software and associated documentation files (the "Software"), to deal
+	// in the Software without restriction, including without limitation the rights
+	// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	// copies of the Software, and to permit persons to whom the Software is
+	// furnished to do so, subject to the following conditions:
+	//
+	// The above copyright notice and this permission notice shall be included in all
+	// copies or substantial portions of the Software.
+
+	
+	if (byte < 0xC0 | byte > 0xFF) {
+		return byte;
+	}
+	
+	static const uint8_t utf8d[] = {
+		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9, // 80..9f
+		7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7, // a0..bf
+		8,8,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2, // c0..df
+		0xa,0x3,0x3,0x3,0x3,0x3,0x3,0x3,0x3,0x3,0x3,0x3,0x3,0x4,0x3,0x3, // e0..ef
+		0xb,0x6,0x6,0x6,0x5,0x8,0x8,0x8,0x8,0x8,0x8,0x8,0x8,0x8,0x8,0x8  // f0..ff
+	};
+	static const uint8_t utf8s[] = {
+		0x0,0x1,0x2,0x3,0x5,0x8,0x7,0x1,0x1,0x1,0x4,0x6,0x1,0x1,0x1,0x1, // s0..s0
+		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,0,1,0,1,1,1,1,1,1, // s1..s2
+		1,2,1,1,1,1,1,2,1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1, // s3..s4
+		1,2,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,3,1,3,1,1,1,1,1,1, // s5..s6
+		1,3,1,1,1,1,1,3,1,3,1,1,1,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1  // s7..s8
+	};
+	
+	uint8_t type = utf8d[byte-0x80];
+	NSUInteger state = utf8s[type];
+	NSUInteger codepoint = (0xFF >> type) & byte;
+	NSInteger i = 0;
+	
+	while (state != 0) {
+		// Get the next byte.
+		NSInteger nextByte = [self getByte:i];
+		if (nextByte < 0x80 || nextByte > 0xFF) {
+			// End of data.
+			return byte;
+		}
+
+		type = utf8d[nextByte - 0x80];
+		state = utf8s[state * 16 + type];
+		codepoint = (nextByte & 0x3F) | (codepoint << 6);
+		
+		if (state == 1) {
+			// Invalid character.
+			return byte;
+		}
+		i++;
+	}
+	
+	
+	switch (codepoint) {
+		case 173:
+		case 727:
+		case 8208:
+		case 8209:
+		case 8210:
+		case 8211:
+		case 8212:
+		case 8213:
+		case 8722:
+		case 65073:
+		case 65074:
+		case 65112:
+		case 65123:
+		case 65293:
+			// Convert unicode dashes to a normal dash.
+			byte = '-';
+			break;
+		default:
+			return byte;
+			break;
+	}
+	
+
+	if (consume) {
+		// Remove all read bytes.
+		for (; i > 0; i--) {
+			[self nextByte];
+		}
+	}
+	
+	return byte;
+}
+
+
+- (NSInteger)nextDecodedByte {
+	return [self decodedByte:[self nextByte] consume:YES];
+}
+
+- (NSInteger)getDecodedByte:(NSUInteger)offset {
+	return [self decodedByte:[self getByte:offset] consume:NO];
+}
+
 - (NSInteger)nextByte {
+	// This method return the next byte from the input stream.
+	// It uses a cache to speed up the reading.
+	
+	
+	// The cache isn't filled yet or empty again.
 	if (cacheIndex >= cacheSize) {
+		// Read some bytes from the stream.
 		NSData *tempData = [stream readDataOfLength:cacheSize];
 		NSUInteger tempDataLength = tempData.length;
 		
 		if (cacheIndex == NSUIntegerMax) {
-			cacheIndex = 2;
+			// It's the first time, the cache is filled.
+			// Set the pointer after the reserve.
+			cacheIndex = cacheReserve;
 		} else {
+			// Copy the reserve from the end of the buffer, to the beginning of the cache.
 			[cacheData replaceBytesInRange:NSMakeRange(0, cacheReserve) withBytes:cacheBytes+cacheSize];
+			// Set the pointer to the beginning of the cache.
 			cacheIndex = 0;
 		}
+		// Copy the data read from the stream in the cache behind the reserve.
 		[cacheData replaceBytesInRange:NSMakeRange(cacheReserve, tempDataLength) withBytes:tempData.bytes];
 		
 		if (tempDataLength < cacheSize) {
-			cacheEnd = tempDataLength;
+			// All bytes were read from the stream.
+			// Mark the end.
+			cacheEnd = tempDataLength + cacheReserve;
+		} else if (maxBytesToRead > 0) {
+			// If maxBytesToRead is set, the stream is read for max that number of bytes, but still to the end of the cache.
+			if (maxBytesToRead - streamOffset < cacheSize - cacheIndex) {
+				cacheEnd = cacheSize - 1;
+			}
 		}
 	}
 	if (cacheIndex == cacheEnd) {
-		return -1;
+		// All bytes were read from the cache and stream.
+		return EOF;
 	}
 	
+	// Get the next byte from the cache.
 	UInt8 byte = cacheBytes[cacheIndex];
+	// Increment pointer and counter.
 	cacheIndex++;
 	streamOffset++;
 	
+	
+	// This block helps [self parseBase64] to handle damaged/misformed armor.
 	//TODO: Handle Unicode line seperators!
 	switch (byte) {
 		case '\n':
@@ -1006,7 +1198,7 @@ static UInt32 crc32_tab[] = {
 
 	NSUInteger index = cacheIndex + offset;
 	if (index >= cacheEnd) {
-		return -1;
+		return EOF;
 	}
 	
 	UInt8 byte = cacheBytes[index];
@@ -1032,6 +1224,7 @@ static UInt32 crc32_tab[] = {
 	cacheEnd = NSUIntegerMax;
 	cacheIndex = NSUIntegerMax;
 	base64Data = [[NSMutableData alloc] init];
+	possibleStarts = [[NSMutableIndexSet alloc] init];
 	cacheData = [[NSMutableData alloc] initWithLength:cacheSize + cacheReserve];
 	cacheBytes = cacheData.mutableBytes;
 	
@@ -1041,6 +1234,7 @@ static UInt32 crc32_tab[] = {
 - (void)dealloc {
 	[stream release];
 	[base64Data release];
+	[possibleStarts release];
 	[cacheData release];
 	self.data = nil;
 	self.clearText = nil;

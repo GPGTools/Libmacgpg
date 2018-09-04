@@ -1,5 +1,5 @@
 /*
- Copyright © Roman Zechmeister und Lukas Pitschl (@lukele), 2014
+ Copyright © Roman Zechmeister und Lukas Pitschl (@lukele), 2017
  
  Diese Datei ist Teil von Libmacgpg.
  
@@ -35,6 +35,8 @@
 	BOOL _local;
 
 	GPGKey *_primaryKey;
+	
+	NSUInteger _hash;
 }
 
 - (instancetype)init;
@@ -49,6 +51,10 @@
 @property (nonatomic, readonly) int signatureClass;
 @property (nonatomic, readonly) BOOL revocation;
 @property (nonatomic, readonly) BOOL local;
+@property (nonatomic, readonly) BOOL mdcSupport;
+@property (nonatomic, readonly) GPGValidity validity;
+@property (nonatomic, readonly) BOOL selfSignature;
+
 
 @property (nonatomic, readonly) GPGKey *primaryKey;
 

@@ -1,5 +1,5 @@
 /*
- Copyright © Roman Zechmeister und Lukas Pitschl (@lukele), 2014
+ Copyright © Roman Zechmeister und Lukas Pitschl (@lukele), 2017
  
  Diese Datei ist Teil von Libmacgpg.
  
@@ -104,6 +104,8 @@
 @property (nonatomic, readonly) BOOL canAnyEncrypt;
 @property (nonatomic, readonly) BOOL canAnyCertify;
 @property (nonatomic, readonly) BOOL canAnyAuthenticate;
+
+@property (nonatomic, readonly) BOOL mdcSupport;
 
 // Calculated properties.
 @property (nonatomic, readonly) NSString *textForFilter;

@@ -3,7 +3,7 @@
 /* GPGTaskHelperXPC.h created by Lukas Pitschl (@lukele) on Mon 22-Apr-2014 */
 
 /*
- * Copyright (c) 2000-2014, GPGTools Team <team@gpgtools.org>
+ * Copyright (c) 2000-2017, GPGTools Team <team@gpgtools.org>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -59,7 +59,7 @@
 }
 
 - (id)init;
-- (NSDictionary *)launchGPGWithArguments:(NSArray *)arguments data:(NSArray *)data readAttributes:(BOOL)readAttributes;
+- (NSDictionary *)launchGPGWithArguments:(NSArray *)arguments data:(NSData *)data readAttributes:(BOOL)readAttributes closeInput:(BOOL)closeInput;
 - (BOOL)launchGeneralTask:(NSString *)path withArguments:(NSArray *)arguments wait:(BOOL)wait;
 - (void)shutdown;
 - (NSString *)loadConfigFileAtPath:(NSString *)path;

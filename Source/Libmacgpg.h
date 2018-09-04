@@ -1,5 +1,5 @@
 /*
- Copyright © Roman Zechmeister, 2014
+ Copyright © Roman Zechmeister, 2017
  
  Diese Datei ist Teil von Libmacgpg.
  
@@ -48,3 +48,7 @@
 #import <Libmacgpg/GPGUserAttributePacket.h>
 #import <Libmacgpg/GPGUserIDPacket.h>
 #import <Libmacgpg/GPGUpdateController.h>
+#import <Libmacgpg/NSBundle+GPGLocalization.h>
+#import <Libmacgpg/GPGStatusLine.h>
+#import <Libmacgpg/GPGKeyMonitoring.h>
+

@@ -23,9 +23,9 @@ NSString * const GPGKeysChangedNotification = @"GPGKeysChangedNotification";
 @synthesize jailfree;
 #endif
 
-#define TOLERANCE_BEFORE 10.0
-#define TOLERANCE_AFTER 10.0
-#define DW_LATENCY 5.0
+#define TOLERANCE_BEFORE 4.0
+#define TOLERANCE_AFTER 4.0
+#define DW_LATENCY 2.0
 
 static NSString * const kWatcherLastFoundChange = @"lastFoundChange";
 static NSString * const kWatchedFileName = @"watchedFileName";
@@ -152,11 +152,13 @@ static NSString * const kWatchedFileName = @"watchedFileName";
 
 - (void)postNotificationName:(NSString *)name object:(NSString *)object {
 #if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
-    if(!self.checkForSandbox)
+	if (jailfree && !self.checkForSandbox) {
         [[jailfree remoteObjectProxy] postNotificationName:name object:object];
-    else
+	} else
 #endif
+	{
         [[NSDistributedNotificationCenter defaultCenter] postNotificationName:name object:object userInfo:nil options:0];
+	}
 }
 
 //TODO: Testen ob Symlinks in der Mitte des Pfades korrekt verarbeitet werden.
@@ -244,7 +246,8 @@ static id syncRoot = nil;
                         GPGKeysChangedNotification, @"pubring.gpg", 
                         GPGKeysChangedNotification, @"secring.gpg",
                         GPGConfigurationModifiedNotification, @"gpg.conf",
-                        GPGConfigurationModifiedNotification, @"gpg-agent.conf",
+						GPGConfigurationModifiedNotification, @"gpg-agent.conf",
+						GPGConfigurationModifiedNotification, @"dirmngr.conf",
                         nil];
 
 		identifier = [[NSString alloc] initWithFormat:@"%i%p", [[NSProcessInfo processInfo] processIdentifier], self];

@@ -1,7 +1,7 @@
 /* GPGTaskHelper.h created by Lukas Pitschl (@lukele) on Thu 02-Jun-2012 */
 
 /*
- * Copyright (c) 2000-2014, GPGTools Project Team <gpgtools-org@lists.gpgtools.org>
+ * Copyright (c) 2000-2017, GPGTools Team <team@gpgtools.org>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -44,7 +44,7 @@
 #import "GPGGlobals.h"
 #import "JailfreeProtocol.h"
 
-@class LPXTTask, GPGStream, GPGTaskHelperXPC;
+@class GPGStream, GPGTaskHelperXPC;
 
 typedef NSData *  (^lp_process_status_t)(NSString *keyword, NSString *value);
 typedef void (^lp_progress_handler_t)(NSUInteger processedBytes, NSUInteger totalBytes);
@@ -65,7 +65,8 @@ typedef void (^lp_progress_handler_t)(NSUInteger processedBytes, NSUInteger tota
 #else
 @interface GPGTaskHelper: NSObject {
 #endif
-    NSArray *_inData;
+    GPGStream *_inData;
+	BOOL _closeInput;
     NSUInteger _totalInData;
     NSArray *_arguments;
     NSDictionary *_environmentVariables;
@@ -74,7 +75,7 @@ typedef void (^lp_progress_handler_t)(NSUInteger processedBytes, NSUInteger tota
     NSData *_errors;
     NSData *_attributes;
     NSUInteger _exitStatus;
-    LPXTTask *_task;
+    NSTask *_task;
     lp_process_status_t _processStatus;
     BOOL _readAttributes;
     NSDictionary *_userIDHint;
@@ -91,7 +92,8 @@ typedef void (^lp_progress_handler_t)(NSUInteger processedBytes, NSUInteger tota
 	NSUInteger _timeout;
 }
 
-@property (nonatomic, retain) NSArray *inData;
+@property (nonatomic, retain) GPGStream *inData;
+@property (nonatomic) BOOL closeInput;
 @property (nonatomic, copy) NSArray *arguments;
 @property (nonatomic, copy) NSDictionary *environmentVariables;
 @property (nonatomic, retain) GPGStream *output;
@@ -140,7 +142,11 @@ typedef void (^lp_progress_handler_t)(NSUInteger processedBytes, NSUInteger tota
 
 + (NSString *)gpgAgentSocket;
 + (BOOL)isPassphraseInGPGAgentCache:(id)key;
+	
++ (NSDictionary *)statusCodes;
+	
+@end
 
-+ (NSString *)pinentryPath;
-
+@interface NSTask (GPGThreadSafeWait)
+- (void)threadSafeWaitUntilExit;
 @end
