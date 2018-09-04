@@ -44,8 +44,8 @@
 			return maybeLocalize(@"GPG_ElgamalEncryptOnlyAlgorithm");
 		case GPG_DSAAlgorithm:
 			return maybeLocalize(@"GPG_DSAAlgorithm");
-		case GPG_EllipticCurveAlgorithm:
-			return maybeLocalize(@"GPG_EllipticCurveAlgorithm");
+		case GPG_ECDHAlgorithm:
+			return maybeLocalize(@"GPG_ECDHAlgorithm");
 		case GPG_ECDSAAlgorithm:
 			return maybeLocalize(@"GPG_ECDSAAlgorithm");
 		case GPG_ElgamalAlgorithm:

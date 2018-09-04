@@ -40,7 +40,7 @@ typedef enum {
     GPG_RSASignOnlyAlgorithm        =  3,
     GPG_ElgamalEncryptOnlyAlgorithm = 16,
     GPG_DSAAlgorithm                = 17,
-    GPG_EllipticCurveAlgorithm      = 18,
+    GPG_ECDHAlgorithm               = 18,
     GPG_ECDSAAlgorithm              = 19,
     GPG_ElgamalAlgorithm            = 20,
     GPG_DiffieHellmanAlgorithm      = 21,
