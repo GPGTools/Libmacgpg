@@ -1,51 +1,51 @@
 
-GetPassphraseDescription = "Du behöver ett lösenord för att låsa upp den privata nyckeln för användare: \"%@\", ID %@";
-GetPassphraseDescription_Subkey = "Du behöver ett lösenord för att låsa upp den privata nyckeln för användare: \"%@\", ID %@, (ID för huvudnyckel %@)";
-PassphraseLabel = "Lösenord:";
+GetPassphraseDescription = "Potřebujete heslo pro odemknutí tajného klíče uživatele: „%@“, ID %@";
+GetPassphraseDescription_Subkey = "Potřebujete heslo pro odemknutí tajného klíče uživatele: „%@“, ID %@, (ID hlavního klíče %@)";
+PassphraseLabel = "Heslo:";
 
 
 
 
 /* For Key-Status */
-"Invalid" = "Ogiltig";
-"Revoked" = "Återkallad";
-"Expired" = "Utgått";
-"Disabled" = "Avaktiverad";
-"Unknown" = "Okänd";
+"Invalid" = "Neplatný";
+"Revoked" = "Zneplatněno";
+"Expired" = "Platnost vypršela";
+"Disabled" = "Zakázáno";
+"Unknown" = "Neznámý";
 "Never" = "Never";
-"Marginal" = "Marginell";
-"Full" = "Komplett";
-"Ultimate" = "Ultimat";
+"Marginal" = "Okrajový";
+"Full" = "Plný";
+"Ultimate" = "Ultimátní";
 
 
 /* For Undo and Redo */
-Undo_NewKey = "Ny nyckel";
-Undo_Delete = "Radera";
-Undo_CleanKey = "Rensa";
-Undo_MinimizeKey = "Minimera";
-Undo_RevokeKey = "Återkalla nyckel";
-Undo_ChangeExpirationDate = "Ändra utgångsdatum";
-Undo_ChangePassphrase = "Ändra lösenord";
-Undo_AlgorithmPreferences = "Ändra algoritminställningar";
-Undo_Import = "Importera";
-Undo_AddSignature = "Lägg till signatur";
-Undo_RemoveSignature = "Ta bort signatur";
-Undo_RevokeSignature = "Återkalla signatur";
-Undo_AddSubkey = "Lägg till undernyckel";
-Undo_RemoveSubkey = "Ta bort undernyckel";
-Undo_RevokeSubkey = "Återkalla undernyckel";
-Undo_AddUserID = "Lägg till användar-ID";
-Undo_RemoveUserID = "Ta bort användar-ID";
-Undo_RevokeUserID = "Återkalla användar-ID";
-Undo_PrimaryUserID = "Primärt användar-ID";
-Undo_AddPhoto = "Lägg till bild";
-Undo_RefreshFromServer = "Ladda om från server";
-Undo_ReceiveFromServer = "Ta emot från server";
+Undo_NewKey = "Nový klíč";
+Undo_Delete = "Smazat";
+Undo_CleanKey = "Vyčistit";
+Undo_MinimizeKey = "Minimalizovat";
+Undo_RevokeKey = "Zneplatnit klíč";
+Undo_ChangeExpirationDate = "Změnit datum platnosti";
+Undo_ChangePassphrase = "Změnit heslo";
+Undo_AlgorithmPreferences = "Zmenit výchozí metodu";
+Undo_Import = "Importovat";
+Undo_AddSignature = "Přidat podpis";
+Undo_RemoveSignature = "Odstranit podpis";
+Undo_RevokeSignature = "Zneplatnit podpis";
+Undo_AddSubkey = "Přidat podklíč";
+Undo_RemoveSubkey = "Odstranit podklíč";
+Undo_RevokeSubkey = "Zneplatnit podklíč";
+Undo_AddUserID = "Přidat userID";
+Undo_RemoveUserID = "Odstranit userID";
+Undo_RevokeUserID = "Zneplatnit userID";
+Undo_PrimaryUserID = "Primární userID";
+Undo_AddPhoto = "Fotografie";
+Undo_RefreshFromServer = "Obnoveno ze serveru";
+Undo_ReceiveFromServer = "Zkopírováno ze serveru";
 
 
 
 /* Algorithm names */
-CIPHER_ALGO_NONE = "Ingen";
+CIPHER_ALGO_NONE = "Nic";
 CIPHER_ALGO_IDEA = "IDEA";
 CIPHER_ALGO_3DES = "3DES";
 CIPHER_ALGO_CAST5 = "CAST5";
@@ -64,7 +64,7 @@ DIGEST_ALGO_SHA256 = "SHA256";
 DIGEST_ALGO_SHA384 = "SHA384";
 DIGEST_ALGO_SHA512 = "SHA512";
 DIGEST_ALGO_SHA224 = "SHA224";
-COMPRESS_ALGO_NONE = "Ingen";
+COMPRESS_ALGO_NONE = "Nic";
 COMPRESS_ALGO_ZIP = "ZIP";
 COMPRESS_ALGO_ZLIB = "ZLIB";
 COMPRESS_ALGO_BZIP2 = "BZIP2";
@@ -79,17 +79,17 @@ GPG_ECDSAAlgorithm = "ECDSA";
 GPG_ElgamalAlgorithm = "ELG";
 GPG_DiffieHellmanAlgorithm = "DiffieHellman";
 GPG_EdDSAAlgorithm = "EdDSA";
-"Algorithm_%i" = "Algoritm_%i";
+"Algorithm_%i" = "Metoda_%i";
 
 /* GPGSignature humanReadableDescription */
-"Signed" = "Signerad";
-"Signature expired" = "Signaturen har gått ut";
-"Key expired" = "Nyckeln har gått ut";
-"Bad signature" = "Signatur och innehåll matchar inte. Detta kan betyda att innehållet har mixtrats med.";
-"Signature revoked" = "Signaturen har återkallats";
-"Signature error" = "Signaturfel";
-"Unverifiable signature" = "Signaturen kan inte verifieras.";
-"Signed by stranger" = "Signaturen kan inte verifieras eftersom den motsvarande publika nyckeln saknas.";
+"Signed" = "Podepsáno";
+"Signature expired" = "Platnost podpisu vypršela";
+"Key expired" = "Platnost klíče vypršela";
+"Bad signature" = "Podpis a údaje si neodpovídají. Mohlo by to znamenat, že data jsou podvržena útočníkem.";
+"Signature revoked" = "Podpis byl zneplatněný";
+"Signature error" = "Chyba podpisu";
+"Unverifiable signature" = "Podpis nelze ověřit.";
+"Signed by stranger" = "Podpis nelze ověřit, protože odpovídající veřejný klíč chybí.";
 
 
 /* Key Descriptions */
@@ -126,6 +126,6 @@ UploadFailed_Title = "Failed to upload the key!";
 UploadFailed_Msg = "The key could not be uploaded to the keyserver.\n\nError: %@";
 
 
-UpdaterNotWorking_Title = "GPG Suite-uppdateraren fungerar inte som förväntat!";
-UpdaterNotWorking_Msg = "Hämta och installera om GPG Suite från https://gpgtools.org";
+UpdaterNotWorking_Title = "Aktualizační systém GPG Suite nepracuje správně!";
+UpdaterNotWorking_Msg = "Zkopírujte a nainstalujte prosím nejnovější verzi GPG Suite z umístění https://gpgtools.org";
 

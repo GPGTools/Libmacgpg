@@ -351,6 +351,9 @@
 		3080B0C61F603EA9009FF08F /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/Localizable.strings; sourceTree = "<group>"; };
 		3080B0C71F603EB3009FF08F /* nb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nb; path = nb.lproj/Localizable.strings; sourceTree = "<group>"; };
 		30895CBD20D03AF6008D1BE0 /* GPGTask_Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GPGTask_Private.h; sourceTree = "<group>"; };
+		3097C07F214F9E4A00797F47 /* cs */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = cs; path = cs.lproj/Localizable.strings; sourceTree = "<group>"; };
+		3097C080214F9E5100797F47 /* da */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = da; path = da.lproj/Localizable.strings; sourceTree = "<group>"; };
+		3097C081214F9E5A00797F47 /* th */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = th; path = th.lproj/Localizable.strings; sourceTree = "<group>"; };
 		309A18CE13E3812E0069DC0F /* GPGTransformer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGTransformer.h; sourceTree = "<group>"; };
 		309A18CF13E3812E0069DC0F /* GPGTransformer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGTransformer.m; sourceTree = "<group>"; };
 		309D8A101B87469B00D945BA /* GPGKeyFetcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGKeyFetcher.h; sourceTree = "<group>"; };
@@ -1106,6 +1109,9 @@
 				sv,
 				it,
 				nb,
+				cs,
+				da,
+				th,
 			);
 			mainGroup = 0867D691FE84028FC02AAC07 /* Libmacgpg */;
 			productRefGroup = 034768DFFF38A50411DB9C8B /* Products */;
@@ -1453,6 +1459,9 @@
 				3080B0C61F603EA9009FF08F /* it */,
 				3080B0C71F603EB3009FF08F /* nb */,
 				3034E5CA2065433E00E40A8E /* ja */,
+				3097C07F214F9E4A00797F47 /* cs */,
+				3097C080214F9E5100797F47 /* da */,
+				3097C081214F9E5A00797F47 /* th */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";

@@ -1,22 +1,24 @@
 
 GetPassphraseDescription = "Χρειάζεται κωδικός για να ξεκλειδώσετε το κρυφό κλειδί για τον χρήστη: \"%@\", ID %@";
-GetPassphraseDescription_Subkey = "You need a password to unlock the secret key for user: \"%@\", ID %@, (main key ID %@)";
+GetPassphraseDescription_Subkey = "Χρειάζεται κωδικός για να ξεκλειδώσετε το κρυφό κλειδί για τον χρήστη: \"%@\", ID %@, (ID κυρίου κλειδιού %@)";
 PassphraseLabel = "Κωδικός:";
 
 
 
-//For Key-Status
+
+/* For Key-Status */
 "Invalid" = "Άκυρο";
 "Revoked" = "Ανακληθέν";
 "Expired" = "Ληγμένο";
 "Disabled" = "Απενεργοποιημένο";
 "Unknown" = "Άγνωστη";
+"Never" = "Never";
 "Marginal" = "Οριακή";
 "Full" = "Πλήρης";
 "Ultimate" = "Απόλυτη";
 
 
-//For Undo and Redo
+/* For Undo and Redo */
 Undo_NewKey = "Νέο Κλειδί";
 Undo_Delete = "Διαγραφή";
 Undo_CleanKey = "Εκκαθάριση";
@@ -42,7 +44,7 @@ Undo_ReceiveFromServer = "Λήψη από τον εξυπηρετητή";
 
 
 
-//Algorithm names
+/* Algorithm names */
 CIPHER_ALGO_NONE = "Κανένα";
 CIPHER_ALGO_IDEA = "IDEA";
 CIPHER_ALGO_3DES = "3DES";
@@ -72,11 +74,11 @@ GPG_RSAEncryptOnlyAlgorithm = "RSA-E";
 GPG_RSASignOnlyAlgorithm = "RSA-S";
 GPG_ElgamalEncryptOnlyAlgorithm = "ELG-E";
 GPG_DSAAlgorithm = "DSA";
-GPG_EllipticCurveAlgorithm = "EllipticCurve";
+GPG_ECDHAlgorithm = "ECDH";
 GPG_ECDSAAlgorithm = "ECDSA";
 GPG_ElgamalAlgorithm = "ELG";
 GPG_DiffieHellmanAlgorithm = "DiffieHellman";
-GPG_EdDSAAlgorithm = "EdDSA";
+GPG_EdDSAAlgorithm = "edDSA";
 "Algorithm_%i" = "Αλγόριθμος_%i";
 
 /* GPGSignature humanReadableDescription */
@@ -90,7 +92,40 @@ GPG_EdDSAAlgorithm = "EdDSA";
 "Signed by stranger" = "Δεν ήταν δυνατή η επαλήθευση της υπογραφής, γιατί απουσιάζει το αντίστοιχο δημόσιο κλειδί.";
 
 
+/* Key Descriptions */
+KeyDescriptionAndMore = "and %lu more";
 
-UpdaterNotWorking_Title = "The GPG Suite Updater doesn't work as expected!";
-UpdaterNotWorking_Msg = "Please download and reinstall GPG Suite from https://gpgtools.org";
+
+/* Key Expiry Warning */
+KeyExpiryWarning_Title = "Warning: Your key is about to expire";
+KeyExpiryWarning_Msg = "Your key will expire on %1$@:\n\n%2$@\n\nExpired keys can not be used to encrypt or sign new messages. Decryption will continue to work. Your friends will not be able to send encrypted messages using this key.\n\nIf you choose to extend your key, it will be valid for two more years.\n\nDo you want to extend your key?";
+KeyExpiryWarning_Yes = "Extend Key";
+KeyExpiryWarning_No = "Cancel";
+KeyExpiryWarning_Suppress = "Do Not Ask Again";
+
+SubkeyExpiryWarning_Title = "Warning: Your subkey is about to expire";
+SubkeyExpiryWarning_Msg = "Your subkey will expire on %1$@:\n\n%2$@\n\nExpired subkeys can not be used to encrypt or sign new messages. Decryption will continue to work. Your friends will not be able to send encrypted messages using this subkey.\n\nIf you choose to extend your subkey, it will be valid for two more years.\n\nDo you want to extend your subkey?";
+SubkeyExpiryWarning_Yes = "Extend Subkey";
+SubkeyExpiryWarning_No = "Cancel";
+SubkeyExpiryWarning_Suppress = "Do Not Ask Again";
+
+WrongPasswordTryAgain_Title = "You entered the wrong password";
+WrongPasswordTryAgain_Msg = "Do you want to try it again?";
+WrongPasswordTryAgain_Yes = "Try Again";
+WrongPasswordTryAgain_No = "Cancel";
+
+KeyExpiryFailed_Title = "Failed to extend your key!";
+KeyExpiryFailed_Msg = "The key\n%1$@\ncould not be extened.\n\nError: %2$@";
+
+KeyExtendedWantToUpload_Title = "Your key was extended successfully";
+KeyExtendedWantToUpload_Msg = "In order for others to be able to see the new expiration date, it is necessary for them to import your updated key. Therefore it is recommended to upload your updated public key to the key servers.\n\nWarning: Key servers are public, so the name and email you use in your key will be publicly visible. Keys can not be deleted from the key servers. They can be revoked but not removed.\n\nIf you rather prefer not to use key servers, please consider attaching your public key to your signed and encrypted emails.\n\nDo you want to upload your public key?";
+KeyExtendedWantToUpload_Yes = "Upload Public Key";
+KeyExtendedWantToUpload_No = "No, Thanks!";
+
+UploadFailed_Title = "Failed to upload the key!";
+UploadFailed_Msg = "The key could not be uploaded to the keyserver.\n\nError: %@";
+
+
+UpdaterNotWorking_Title = "Η Εφαρμογή Ενημέρωσης του GPG Suite δε λειτουργεί όπως αναμένεται!";
+UpdaterNotWorking_Msg = "Παρακαλώ κατεβάστε και επανεγκαταστήστε το GPG Suite από το https://gpgtools.org";
 
