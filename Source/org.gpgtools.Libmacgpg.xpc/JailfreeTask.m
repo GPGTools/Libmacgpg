@@ -192,9 +192,10 @@
 
 
 - (Paddle *)paddleInstance {
+    // While truly perverted, this swizzle is now on the NSFileManager.
+    [[NSFileManager defaultManager] GSSetCustomBundleIdentifier:@"GPGTools/org.gpgtools.GPGMail"];
     Paddle *paddle = [Paddle sharedInstanceWithVendorID:@"2230" apiKey:@"ba08ae628cf630e40d1f8be305bbfb96" productID:@"496039" configuration:nil];
-    [paddle GSSetCustomBundleIdentifier:@"GPGTools/org.gpgtools.GPGMail"];
-
+    
     return paddle;
 }
 

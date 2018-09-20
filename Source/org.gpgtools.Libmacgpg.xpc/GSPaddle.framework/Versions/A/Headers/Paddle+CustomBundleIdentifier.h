@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <Paddle/Paddle.h>
 
-@interface Paddle (CustomBundleIdentifier)
+@interface NSFileManager (CustomBundleIdentifier)
 
 - (id)GSCustomBundleIdentifier;
 - (void)GSSetCustomBundleIdentifier:(NSString *)customBundleIdentifier;
