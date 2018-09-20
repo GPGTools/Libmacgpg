@@ -603,8 +603,9 @@ static NSString * const kDirmngrConfKVKey = @"dirmngrConf";
 			NSArray *servers = [self valueInCommonDefaultsForKey:@"keyservers"];
 			if (![servers containsObject:keyserver]) {
 				[self willChangeValueForKey:@"keyservers"];
-				servers = [servers arrayByAddingObject:keyserver];
-				[self setValueInCommonDefaults:servers forKey:@"keyservers"];
+				NSMutableArray *newServers = [NSMutableArray arrayWithArray:servers];
+				[newServers addObject:keyserver];
+				[self setValueInCommonDefaults:newServers forKey:@"keyservers"];
 				[self didChangeValueForKey:@"keyservers"];
 			}
 		}
