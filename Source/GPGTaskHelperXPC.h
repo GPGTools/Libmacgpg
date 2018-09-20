@@ -43,7 +43,7 @@
  * By default status and progress messages from the gpg2 task are not handled
  * by GPGTaskHelperXPC, but an API is exposed to setup handlers for those messages.
  */
-#import "JailfreeProtocol.h"
+#import <Libmacgpg/JailfreeProtocol.h>
 
 @interface GPGTaskHelperXPC : NSObject <Jail> {
 	NSData *(^_processStatus)(NSString *keyword, NSString *value);
