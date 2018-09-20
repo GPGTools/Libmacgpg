@@ -366,7 +366,8 @@ static NSLock *gpgTaskLock;
         case GPG_STATUS_ERROR: {
             NSRange range = [value rangeOfString:@" "];
 			if (range.length > 0) {
-                self.errorCode = [[value substringFromIndex:range.location + 1] intValue];
+				NSInteger tempValue = [value substringFromIndex:range.location + 1].integerValue;
+                self.errorCode = tempValue & 0xFFFF;
 			}
             break;
         }
@@ -379,6 +380,7 @@ static NSLock *gpgTaskLock;
 		case GPG_STATUS_DECRYPTION_OKAY:
 		case GPG_STATUS_KEY_CONSIDERED:
 			[self unsetErrorCode:GPGErrorNoSecretKey];
+			[self unsetErrorCode:GPGErrorCancelled];
 			break;
 		case GPG_STATUS_BAD_PASSPHRASE:
 			self.errorCode = GPGErrorBadPassphrase;
@@ -468,17 +470,30 @@ static NSLock *gpgTaskLock;
 	}
 }
 - (void)unsetErrorCode:(int)value {
-	NSNumber *code = [NSNumber numberWithInt:value];
-	if ([errorCodes containsObject:code]) {
-		[errorCodes removeObject:code];
+	NSMutableIndexSet *indexes = [NSMutableIndexSet indexSet];
+	NSUInteger count = errorCodes.count;
+	
+	// Find the error code with all possible prefixes.
+	for (NSUInteger i = 0; i < count; i++) {
+		NSInteger tempValue = errorCodes[i].integerValue;
+		tempValue = tempValue & 0xFFFF;
+		if (tempValue == value) {
+			[indexes addIndex:i];
+		}
+	}
+	
+	if (indexes.count > 0) {
+		[errorCodes removeObjectsAtIndexes:indexes];
+		
 		/* If other errors were found, set the errorCode to the
-           first one, otherwise to No Error.
-         */
-        if([errorCodes count])
-            errorCode = [[errorCodes objectAtIndex:0] intValue];
-        else
-            errorCode = GPGErrorNoError;
-    }
+		 first one, otherwise to No Error.
+		 */
+		if (errorCodes.count) {
+			errorCode = errorCodes[0].intValue;
+		} else {
+			errorCode = GPGErrorNoError;
+		}
+	}
 }
 - (NSArray *)errorCodes {
 	NSMutableArray *filteredCodes = [NSMutableArray arrayWithCapacity:errorCodes.count];

@@ -49,7 +49,7 @@ extern NSString * const GPGAttributeFilePlaceholder;
 	NSDictionary *userInfo;
 	NSInteger exitcode;
 	int errorCode;
-	NSMutableArray *errorCodes;
+	NSMutableArray<NSNumber *> *errorCodes;
 	BOOL getAttributeData;
 	NSDictionary *_environmentVariables;
 	
