@@ -35,7 +35,6 @@
 		1BD78BB21726B2830005F251 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1BD78BB01726B2830005F251 /* MainMenu.xib */; };
 		1BD78BBA1726B6060005F251 /* Libmacgpg.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DC2EF5B0486A6940098B216 /* Libmacgpg.framework */; };
 		1BD78BBC1726B6230005F251 /* Libmacgpg.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 8DC2EF5B0486A6940098B216 /* Libmacgpg.framework */; };
-		1BDCBDBE214FFB7D003919E5 /* org.gpgtools.Libmacgpg.xpc.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1BDCBDBD214FFB7D003919E5 /* org.gpgtools.Libmacgpg.xpc.plist */; };
 		1BDCBDC0214FFC24003919E5 /* org.gpgtools.Libmacgpg.xpc.plist in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1BDCBDBD214FFB7D003919E5 /* org.gpgtools.Libmacgpg.xpc.plist */; };
 		1BDCBDC121500FF5003919E5 /* JailfreeTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B2F2D7D214FF17500740DD3 /* JailfreeTask.m */; };
 		300F3DB51B4AC2CE00E36AAA /* libbz2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 300F3DB31B4AC2CE00E36AAA /* libbz2.dylib */; };
@@ -1167,7 +1166,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1BDCBDBE214FFB7D003919E5 /* org.gpgtools.Libmacgpg.xpc.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1255,7 +1253,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "JAILFREE_PLIST=\"${EXECUTABLE_NAME}.xpc.plist\"\nBUILD_LAUNCHAGENT_PATH=\"${BUILD_DIR}/${JAILFREE_PLIST}\"\nif [[ -z \"${XPC_INSTALLATION_DIR}\" || \"CONFIGURATION\" != \"Debug\" ]]; then\n    XPC_INSTALLATION_DIR=\"/Library/Application\\ Support/GPGTools\"\nfi\nXPC_INSTALLATION_PATH=\"${XPC_INSTALLATION_DIR}/${EXECUTABLE_NAME}/Contents/MacOS/${EXECUTABLE_NAME}\"\n\nXPC_NAME=$(\n    for x in $GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS; do\n        echo $x | while IFS=\"=\" read name value; do\n            if [ \"$name\" == \"JAILFREE_XPC_NAME\" ]; then\n                echo $value | sed \"s/\\\"//g\" | sed \"s/@//g\"\n                break\n            fi\n        done\n    done\n)\n\n\ncp \"${PROJECT_DIR}/Source/${EXECUTABLE_NAME}.xpc/${JAILFREE_PLIST}\" \"${BUILD_LAUNCHAGENT_PATH}\"\ncat \"${BUILD_LAUNCHAGENT_PATH}\"\n/usr/libexec/PlistBuddy -c \"Delete :MachServices\" \"${BUILD_LAUNCHAGENT_PATH}\"\n/usr/libexec/PlistBuddy -c \"Add :MachServices:$XPC_NAME bool true\" \"${BUILD_LAUNCHAGENT_PATH}\"\n/usr/libexec/PlistBuddy -c \"Set :ProgramArguments:0 \\\"${XPC_INSTALLATION_PATH}\\\"\" \"${BUILD_LAUNCHAGENT_PATH}\"\n# Uncomment if you want to test the XPC itself. Otherwise it will bring Mail to a halt...\n#if [[ \"$CONFIGURATION\" == \"Debug\" ]]; then\n#/usr/libexec/PlistBuddy -c \"Add :WaitForDebugger bool true\" \"${BUILD_LAUNCHAGENT_PATH}\"\n#fi";
+			shellScript = "JAILFREE_PLIST=\"${EXECUTABLE_NAME}.xpc.plist\"\nBUILD_LAUNCHAGENT_PATH=\"${BUILD_DIR}/${JAILFREE_PLIST}\"\nif [[ -z \"${XPC_INSTALLATION_DIR}\" || \"CONFIGURATION\" != \"Debug\" ]]; then\n    XPC_INSTALLATION_DIR=\"/Library/Application\\ Support/GPGTools\"\nfi\nXPC_INSTALLATION_PATH=\"${XPC_INSTALLATION_DIR}/${EXECUTABLE_NAME}.xpc/Contents/MacOS/${EXECUTABLE_NAME}\"\n\nXPC_NAME=$(\n    for x in $GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS; do\n        echo $x | while IFS=\"=\" read name value; do\n            if [ \"$name\" == \"JAILFREE_XPC_NAME\" ]; then\n                echo $value | sed \"s/\\\"//g\" | sed \"s/@//g\"\n                break\n            fi\n        done\n    done\n)\n\n\ncp \"${PROJECT_DIR}/Source/${EXECUTABLE_NAME}.xpc/${JAILFREE_PLIST}\" \"${BUILD_LAUNCHAGENT_PATH}\"\ncat \"${BUILD_LAUNCHAGENT_PATH}\"\n/usr/libexec/PlistBuddy -c \"Delete :MachServices\" \"${BUILD_LAUNCHAGENT_PATH}\"\n/usr/libexec/PlistBuddy -c \"Add :MachServices:$XPC_NAME bool true\" \"${BUILD_LAUNCHAGENT_PATH}\"\n/usr/libexec/PlistBuddy -c \"Set :ProgramArguments:0 \\\"${XPC_INSTALLATION_PATH}\\\"\" \"${BUILD_LAUNCHAGENT_PATH}\"\n# Uncomment if you want to test the XPC itself. Otherwise it will bring Mail to a halt...\n#if [[ \"$CONFIGURATION\" == \"Debug\" ]]; then\n#/usr/libexec/PlistBuddy -c \"Add :WaitForDebugger bool true\" \"${BUILD_LAUNCHAGENT_PATH}\"\n#fi";
 		};
 		1B2F2D86214FF48000740DD3 /* Install XPC Launchd and Insert Mach Name */ = {
 			isa = PBXShellScriptBuildPhase;
