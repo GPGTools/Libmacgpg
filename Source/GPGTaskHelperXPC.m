@@ -360,6 +360,66 @@
         self.progressHandler(processedBytes, total);
 }
 
+- (BOOL)validSupportContractAvailableForProduct:(NSString *)identifier activationInfo:(NSDictionary **)activationInfo {
+	[self prepareTask];
+	
+	__block BOOL valid = NO;
+    __block NSDictionary *tempActivationInfo = nil;
+    
+	[_jailfree validSupportContractAvailableForProduct:identifier reply:^(BOOL result, NSDictionary *info) {
+		valid = result;
+        tempActivationInfo = [info retain];
+		[self completeTaskWithSuccess];
+	}];
+	
+	[self waitForTaskToCompleteAndShutdown:YES throwExceptionIfNecessary:NO];
+	
+    if(activationInfo != NULL) {
+        *activationInfo = [tempActivationInfo autorelease];
+    }
+    
+	return valid;
+}
+
+- (BOOL)activateSupportContractWithEmail:(NSString *)email activationCode:(NSString *)activationCode error:(NSError **)error {
+    [self prepareTask];
+    
+    __block BOOL activated = NO;
+    __block NSError *activationError = nil;
+    
+    [_jailfree activateProductWithEmail:email activationCode:activationCode reply:^(BOOL success, NSError *tmpError) {
+        activated = success;
+        activationError = [tmpError retain];
+        
+        [self completeTaskWithSuccess];
+    }];
+    
+    [self waitForTaskToCompleteAndShutdown:YES throwExceptionIfNecessary:NO];
+    
+    if(!activated) {
+        if(error != nil) {
+            *error = activationError;
+        }
+    }
+    
+    return activated;
+}
+
+- (BOOL)startTrial {
+    [self prepareTask];
+    
+    __block BOOL success = NO;
+    
+    [_jailfree startTrialWithReply:^(BOOL tmpSuccess) {
+        success = tmpSuccess;
+        [self completeTaskWithSuccess];
+    }];
+    
+    [self waitForTaskToCompleteAndShutdown:YES throwExceptionIfNecessary:NO];
+    
+    return success;
+}
+
 #pragma mark - XPC connection cleanup
 
 - (void)shutdown {

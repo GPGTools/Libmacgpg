@@ -7,15 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1B0E27102153EFF600BF3DC0 /* GSPaddle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1B0E270F2153EFC200BF3DC0 /* GSPaddle.framework */; };
+		1B0E27122153F01600BF3DC0 /* GSPaddle.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1B0E270F2153EFC200BF3DC0 /* GSPaddle.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		1B0E27192153F0DA00BF3DC0 /* Paddle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1B0E27182153F0C900BF3DC0 /* Paddle.framework */; };
+		1B0E271A2153F0DC00BF3DC0 /* Paddle.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1B0E27182153F0C900BF3DC0 /* Paddle.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		1B16DD21179C83F000BC1366 /* GPGTypesRW.h in Headers */ = {isa = PBXBuildFile; fileRef = 1B16DD20179C83F000BC1366 /* GPGTypesRW.h */; };
-		1B2306AE179718A80061EB1A /* Libmacgpg.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DC2EF5B0486A6940098B216 /* Libmacgpg.framework */; };
+		1B2F2D77214FF12B00740DD3 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B2F2D76214FF12B00740DD3 /* main.m */; };
+		1B2F2D83214FF41300740DD3 /* Libmacgpg.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DC2EF5B0486A6940098B216 /* Libmacgpg.framework */; };
 		1B3D657A1565C60100D93BBE /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1B3D64DF1565BC6600D93BBE /* Foundation.framework */; };
-		1B46CFA2161531DC00CF9C5F /* org.gpgtools.Libmacgpg.xpc.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1B46CFA1161531DC00CF9C5F /* org.gpgtools.Libmacgpg.xpc.plist */; };
-		1B46CFCE161555DF00CF9C5F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1B3D64DF1565BC6600D93BBE /* Foundation.framework */; };
-		1B46CFD1161555DF00CF9C5F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B46CFD0161555DF00CF9C5F /* main.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		1B46CFD9161559EB00CF9C5F /* JailfreeTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B53AB1E1615241F00F4ECB2 /* JailfreeTask.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		1B46CFEB1615761C00CF9C5F /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 30BA88F1138FE593005982D9 /* SystemConfiguration.framework */; };
-		1B46CFEC1615765100CF9C5F /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3026F4AE13A203A000F3CA02 /* Security.framework */; };
 		1B72F741157AE89600101194 /* NSPipe+NoSigPipe.h in Headers */ = {isa = PBXBuildFile; fileRef = 1B72F73F157AE89600101194 /* NSPipe+NoSigPipe.h */; };
 		1B72F742157AE89600101194 /* NSPipe+NoSigPipe.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B72F740157AE89600101194 /* NSPipe+NoSigPipe.m */; };
 		1B84028717296EA4009A40E6 /* GPGUserDefaults.h in Headers */ = {isa = PBXBuildFile; fileRef = 1B84028517296EA4009A40E6 /* GPGUserDefaults.h */; };
@@ -23,10 +22,9 @@
 		1B89B68E1726F8FD004863FC /* PLWeakCompatibilityStubs.h in Headers */ = {isa = PBXBuildFile; fileRef = 1B89B68C1726F8FD004863FC /* PLWeakCompatibilityStubs.h */; };
 		1B9DB26A15784DB700488353 /* GPGTaskHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 1B9DB26815784DB700488353 /* GPGTaskHelper.h */; };
 		1B9DB26B15784DB700488353 /* GPGTaskHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B9DB26915784DB700488353 /* GPGTaskHelper.m */; };
-		1B9FF21017257A69004FB017 /* GPGTaskHelperXPC.h in Headers */ = {isa = PBXBuildFile; fileRef = 1B9FF20E17257A69004FB017 /* GPGTaskHelperXPC.h */; };
+		1B9FF21017257A69004FB017 /* GPGTaskHelperXPC.h in Headers */ = {isa = PBXBuildFile; fileRef = 1B9FF20E17257A69004FB017 /* GPGTaskHelperXPC.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1B9FF21117257A69004FB017 /* GPGTaskHelperXPC.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B9FF20F17257A69004FB017 /* GPGTaskHelperXPC.m */; };
 		1B9FF21517261470004FB017 /* JailfreeProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 1B9FF21417261470004FB017 /* JailfreeProtocol.h */; };
-		1BA5FE5B1619BE6700FC6A2C /* JailfreeTask.h in Headers */ = {isa = PBXBuildFile; fileRef = 1BA5FE5A1619BE6700FC6A2C /* JailfreeTask.h */; };
 		1BCE0CD11617A3DF0026DCFF /* NSBundle+Sandbox.h in Headers */ = {isa = PBXBuildFile; fileRef = 1BCE0CCF1617A3DF0026DCFF /* NSBundle+Sandbox.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1BCE0CD21617A3DF0026DCFF /* NSBundle+Sandbox.m in Sources */ = {isa = PBXBuildFile; fileRef = 1BCE0CD01617A3DF0026DCFF /* NSBundle+Sandbox.m */; };
 		1BD78BA01726B2830005F251 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
@@ -37,7 +35,9 @@
 		1BD78BB21726B2830005F251 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1BD78BB01726B2830005F251 /* MainMenu.xib */; };
 		1BD78BBA1726B6060005F251 /* Libmacgpg.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DC2EF5B0486A6940098B216 /* Libmacgpg.framework */; };
 		1BD78BBC1726B6230005F251 /* Libmacgpg.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 8DC2EF5B0486A6940098B216 /* Libmacgpg.framework */; };
-		1BDA56BC1618A94300185C72 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4591C4D314F86D38007F6D47 /* AppKit.framework */; };
+		1BDCBDBE214FFB7D003919E5 /* org.gpgtools.Libmacgpg.xpc.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1BDCBDBD214FFB7D003919E5 /* org.gpgtools.Libmacgpg.xpc.plist */; };
+		1BDCBDC0214FFC24003919E5 /* org.gpgtools.Libmacgpg.xpc.plist in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1BDCBDBD214FFB7D003919E5 /* org.gpgtools.Libmacgpg.xpc.plist */; };
+		1BDCBDC121500FF5003919E5 /* JailfreeTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B2F2D7D214FF17500740DD3 /* JailfreeTask.m */; };
 		300F3DB51B4AC2CE00E36AAA /* libbz2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 300F3DB31B4AC2CE00E36AAA /* libbz2.dylib */; };
 		300F3DB61B4AC2CE00E36AAA /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 300F3DB41B4AC2CE00E36AAA /* libz.dylib */; };
 		301A265720BE96680059010D /* LiteralAfterCustomEncrypted.gpg in Copy Decrypt Test-Cases */ = {isa = PBXBuildFile; fileRef = 301A264C20BE94110059010D /* LiteralAfterCustomEncrypted.gpg */; };
@@ -219,6 +219,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		1B0E27112153F00800BF3DC0 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				1B0E27122153F01600BF3DC0 /* GSPaddle.framework in CopyFiles */,
+				1B0E271A2153F0DC00BF3DC0 /* Paddle.framework in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		1BD78BBB1726B6150005F251 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -226,6 +237,16 @@
 			dstSubfolderSpec = 10;
 			files = (
 				1BD78BBC1726B6230005F251 /* Libmacgpg.framework in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1BDCBDBF214FFC0F003919E5 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 16;
+			files = (
+				1BDCBDC0214FFC24003919E5 /* org.gpgtools.Libmacgpg.xpc.plist in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -249,13 +270,15 @@
 
 /* Begin PBXFileReference section */
 		1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
+		1B0E270F2153EFC200BF3DC0 /* GSPaddle.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = GSPaddle.framework; sourceTree = "<group>"; };
+		1B0E27182153F0C900BF3DC0 /* Paddle.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Paddle.framework; sourceTree = "<group>"; };
 		1B16DD20179C83F000BC1366 /* GPGTypesRW.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGTypesRW.h; sourceTree = "<group>"; };
+		1B2F2D70214FF12A00740DD3 /* org.gpgtools.Libmacgpg.xpc */ = {isa = PBXFileReference; explicitFileType = "wrapper.xpc-service"; includeInIndex = 0; path = org.gpgtools.Libmacgpg.xpc; sourceTree = BUILT_PRODUCTS_DIR; };
+		1B2F2D76214FF12B00740DD3 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		1B2F2D78214FF12B00740DD3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		1B2F2D7C214FF17200740DD3 /* JailfreeTask.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JailfreeTask.h; sourceTree = "<group>"; };
+		1B2F2D7D214FF17500740DD3 /* JailfreeTask.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = JailfreeTask.m; sourceTree = "<group>"; };
 		1B3D64DF1565BC6600D93BBE /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		1B46CFA1161531DC00CF9C5F /* org.gpgtools.Libmacgpg.xpc.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = org.gpgtools.Libmacgpg.xpc.plist; sourceTree = "<group>"; };
-		1B46CFCC161555DF00CF9C5F /* org.gpgtools.Libmacgpg.xpc */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = org.gpgtools.Libmacgpg.xpc; sourceTree = BUILT_PRODUCTS_DIR; };
-		1B46CFD0161555DF00CF9C5F /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		1B46CFD3161555DF00CF9C5F /* org.gpgtools.Libmacgpg.xpc-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "org.gpgtools.Libmacgpg.xpc-Prefix.pch"; sourceTree = "<group>"; };
-		1B53AB1E1615241F00F4ECB2 /* JailfreeTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JailfreeTask.m; sourceTree = "<group>"; };
 		1B72F73F157AE89600101194 /* NSPipe+NoSigPipe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSPipe+NoSigPipe.h"; sourceTree = "<group>"; };
 		1B72F740157AE89600101194 /* NSPipe+NoSigPipe.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSPipe+NoSigPipe.m"; sourceTree = "<group>"; };
 		1B84028517296EA4009A40E6 /* GPGUserDefaults.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGUserDefaults.h; sourceTree = "<group>"; };
@@ -267,7 +290,6 @@
 		1B9FF20E17257A69004FB017 /* GPGTaskHelperXPC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGTaskHelperXPC.h; sourceTree = "<group>"; };
 		1B9FF20F17257A69004FB017 /* GPGTaskHelperXPC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGTaskHelperXPC.m; sourceTree = "<group>"; };
 		1B9FF21417261470004FB017 /* JailfreeProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JailfreeProtocol.h; path = Source/JailfreeProtocol.h; sourceTree = "<group>"; };
-		1BA5FE5A1619BE6700FC6A2C /* JailfreeTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JailfreeTask.h; sourceTree = "<group>"; };
 		1BCE0CCF1617A3DF0026DCFF /* NSBundle+Sandbox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSBundle+Sandbox.h"; sourceTree = "<group>"; };
 		1BCE0CD01617A3DF0026DCFF /* NSBundle+Sandbox.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSBundle+Sandbox.m"; sourceTree = "<group>"; };
 		1BD78B9F1726B2820005F251 /* LeakFinder.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LeakFinder.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -279,6 +301,7 @@
 		1BD78BAD1726B2830005F251 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		1BD78BAE1726B2830005F251 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		1BD78BB11726B2830005F251 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		1BDCBDBD214FFB7D003919E5 /* org.gpgtools.Libmacgpg.xpc.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = org.gpgtools.Libmacgpg.xpc.plist; path = Source/org.gpgtools.Libmacgpg.xpc/org.gpgtools.Libmacgpg.xpc.plist; sourceTree = SOURCE_ROOT; };
 		1BE88B3D1B47D7F900A812B6 /* GPGSocketCloseTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = GPGSocketCloseTest.m; path = ../NewUnitTests/GPGSocketCloseTest.m; sourceTree = "<group>"; };
 		3002C04316EE388B00D57C1E /* libcrypto.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcrypto.dylib; path = usr/lib/libcrypto.dylib; sourceTree = SDKROOT; };
 		3002C04516EE389100D57C1E /* libxar.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxar.dylib; path = usr/lib/libxar.dylib; sourceTree = SDKROOT; };
@@ -474,15 +497,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		1B46CFC9161555DF00CF9C5F /* Frameworks */ = {
+		1B2F2D6D214FF12A00740DD3 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1B2306AE179718A80061EB1A /* Libmacgpg.framework in Frameworks */,
-				1BDA56BC1618A94300185C72 /* AppKit.framework in Frameworks */,
-				1B46CFEC1615765100CF9C5F /* Security.framework in Frameworks */,
-				1B46CFEB1615761C00CF9C5F /* SystemConfiguration.framework in Frameworks */,
-				1B46CFCE161555DF00CF9C5F /* Foundation.framework in Frameworks */,
+				1B2F2D83214FF41300740DD3 /* Libmacgpg.framework in Frameworks */,
+				1B0E27102153EFF600BF3DC0 /* GSPaddle.framework in Frameworks */,
+				1B0E27192153F0DA00BF3DC0 /* Paddle.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -523,9 +544,9 @@
 			isa = PBXGroup;
 			children = (
 				8DC2EF5B0486A6940098B216 /* Libmacgpg.framework */,
-				1B46CFCC161555DF00CF9C5F /* org.gpgtools.Libmacgpg.xpc */,
 				1BD78B9F1726B2820005F251 /* LeakFinder.app */,
 				30BE73BE1B54015C001A2137 /* UnitTests.xctest */,
+				1B2F2D70214FF12A00740DD3 /* org.gpgtools.Libmacgpg.xpc */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -537,9 +558,9 @@
 				32C88DFF0371C24200C91783 /* Other Sources */,
 				1B53AB201615254D00F4ECB2 /* Interfaces */,
 				089C1665FE841158C02AAC07 /* Resources */,
-				1B46CFCF161555DF00CF9C5F /* org.gpgtools.Libmacgpg.xpc */,
 				1BD78BA11726B2830005F251 /* LeakFinder */,
 				30BE73BF1B54015C001A2137 /* UnitTests */,
+				1B2F2D71214FF12B00740DD3 /* org.gpgtools.Libmacgpg.xpc */,
 				0867D69AFE84028FC02AAC07 /* Frameworks */,
 				034768DFFF38A50411DB9C8B /* Products */,
 			);
@@ -619,25 +640,27 @@
 			path = Source;
 			sourceTree = "<group>";
 		};
-		1B46CFCF161555DF00CF9C5F /* org.gpgtools.Libmacgpg.xpc */ = {
+		1B0E27072153EB6700BF3DC0 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				1BA5FE5A1619BE6700FC6A2C /* JailfreeTask.h */,
-				1B53AB1E1615241F00F4ECB2 /* JailfreeTask.m */,
-				1B46CFD0161555DF00CF9C5F /* main.m */,
-				1B46CFA1161531DC00CF9C5F /* org.gpgtools.Libmacgpg.xpc.plist */,
-				1B46CFD2161555DF00CF9C5F /* Supporting Files */,
+				1B0E27182153F0C900BF3DC0 /* Paddle.framework */,
+				1B0E270F2153EFC200BF3DC0 /* GSPaddle.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		1B2F2D71214FF12B00740DD3 /* org.gpgtools.Libmacgpg.xpc */ = {
+			isa = PBXGroup;
+			children = (
+				1B0E27072153EB6700BF3DC0 /* Frameworks */,
+				1BDCBDBC214FFB5F003919E5 /* LaunchAgents */,
+				1B2F2D7C214FF17200740DD3 /* JailfreeTask.h */,
+				1B2F2D7D214FF17500740DD3 /* JailfreeTask.m */,
+				1B2F2D76214FF12B00740DD3 /* main.m */,
+				1B2F2D78214FF12B00740DD3 /* Info.plist */,
 			);
 			name = org.gpgtools.Libmacgpg.xpc;
 			path = Source/org.gpgtools.Libmacgpg.xpc;
-			sourceTree = "<group>";
-		};
-		1B46CFD2161555DF00CF9C5F /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				1B46CFD3161555DF00CF9C5F /* org.gpgtools.Libmacgpg.xpc-Prefix.pch */,
-			);
-			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
 		1B53AB201615254D00F4ECB2 /* Interfaces */ = {
@@ -682,6 +705,14 @@
 				1BD78BAA1726B2830005F251 /* Credits.rtf */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		1BDCBDBC214FFB5F003919E5 /* LaunchAgents */ = {
+			isa = PBXGroup;
+			children = (
+				1BDCBDBD214FFB7D003919E5 /* org.gpgtools.Libmacgpg.xpc.plist */,
+			);
+			name = LaunchAgents;
 			sourceTree = "<group>";
 		};
 		301A264920BE925C0059010D /* Decrypt */ = {
@@ -964,6 +995,7 @@
 				30E38DCB1E448655001AC933 /* NSBundle+GPGLocalization.h in Headers */,
 				1BCE0CD11617A3DF0026DCFF /* NSBundle+Sandbox.h in Headers */,
 				30D42DB120EE085D00FBCE5C /* GPGKeyMonitoring.h in Headers */,
+				1B9FF21017257A69004FB017 /* GPGTaskHelperXPC.h in Headers */,
 				301A265F20BE9ED10059010D /* GPGStatusLine.h in Headers */,
 				301A44CD1B436405002A38E4 /* GPGUnArmor.h in Headers */,
 				1B16DD21179C83F000BC1366 /* GPGTypesRW.h in Headers */,
@@ -977,9 +1009,7 @@
 				45156A2A14FB3EF700129FE7 /* GPGArraySetting.h in Headers */,
 				1B9DB26A15784DB700488353 /* GPGTaskHelper.h in Headers */,
 				1B72F741157AE89600101194 /* NSPipe+NoSigPipe.h in Headers */,
-				1BA5FE5B1619BE6700FC6A2C /* JailfreeTask.h in Headers */,
 				3048830F1462B22000F2E5F4 /* GPGWatcher.h in Headers */,
-				1B9FF21017257A69004FB017 /* GPGTaskHelperXPC.h in Headers */,
 				1B9FF21517261470004FB017 /* JailfreeProtocol.h in Headers */,
 				1B89B68E1726F8FD004863FC /* PLWeakCompatibilityStubs.h in Headers */,
 				1B84028717296EA4009A40E6 /* GPGUserDefaults.h in Headers */,
@@ -989,24 +1019,27 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		1B46CFCB161555DF00CF9C5F /* org.gpgtools.Libmacgpg.xpc */ = {
+		1B2F2D6F214FF12A00740DD3 /* org.gpgtools.Libmacgpg.xpc */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 1B46CFD6161555DF00CF9C5F /* Build configuration list for PBXNativeTarget "org.gpgtools.Libmacgpg.xpc" */;
+			buildConfigurationList = 1B2F2D79214FF12B00740DD3 /* Build configuration list for PBXNativeTarget "org.gpgtools.Libmacgpg.xpc" */;
 			buildPhases = (
-				1B46CFC8161555DF00CF9C5F /* Sources */,
-				1B46CFC9161555DF00CF9C5F /* Frameworks */,
-				1B483E061619E69900D692EB /* Prepare XPC Launchd.plist for the Packager */,
-				1BCE0CCB16176C920026DCFF /* Install XPC Launchd and Insert Mach Name */,
-				1B46CFDA16155C6900CF9C5F /* Install XPC Helper and launchd plist */,
+				1B2F2D6C214FF12A00740DD3 /* Sources */,
+				1B2F2D6D214FF12A00740DD3 /* Frameworks */,
+				1B2F2D6E214FF12A00740DD3 /* Resources */,
+				1BDCBDBF214FFC0F003919E5 /* CopyFiles */,
+				1B2F2D85214FF45F00740DD3 /* Prepare XPC Launchd.plist for the Packager */,
+				1B2F2D86214FF48000740DD3 /* Install XPC Launchd and Insert Mach Name */,
+				1B2F2D87214FF49500740DD3 /* Install XPC Helper and launchd plist */,
+				1B0E27112153F00800BF3DC0 /* CopyFiles */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			name = org.gpgtools.Libmacgpg.xpc;
-			productName = org.gpgtools.Libmacgpg.xpc;
-			productReference = 1B46CFCC161555DF00CF9C5F /* org.gpgtools.Libmacgpg.xpc */;
-			productType = "com.apple.product-type.tool";
+			productName = "Libmacgpg-meta";
+			productReference = 1B2F2D70214FF12A00740DD3 /* org.gpgtools.Libmacgpg.xpc */;
+			productType = "com.apple.product-type.xpc-service";
 		};
 		1BD78B9E1726B2820005F251 /* LeakFinder */ = {
 			isa = PBXNativeTarget;
@@ -1075,8 +1108,11 @@
 		0867D690FE84028FC02AAC07 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0820;
+				LastUpgradeCheck = 1000;
 				TargetAttributes = {
+					1B2F2D6F214FF12A00740DD3 = {
+						ProvisioningStyle = Manual;
+					};
 					30BE73BD1B54015C001A2137 = {
 						CreatedOnToolsVersion = 6.1.1;
 					};
@@ -1120,13 +1156,21 @@
 			targets = (
 				8DC2EF4F0486A6940098B216 /* Libmacgpg */,
 				30BE73BD1B54015C001A2137 /* UnitTests */,
-				1B46CFCB161555DF00CF9C5F /* org.gpgtools.Libmacgpg.xpc */,
 				1BD78B9E1726B2820005F251 /* LeakFinder */,
+				1B2F2D6F214FF12A00740DD3 /* org.gpgtools.Libmacgpg.xpc */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		1B2F2D6E214FF12A00740DD3 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1BDCBDBE214FFB7D003919E5 /* org.gpgtools.Libmacgpg.xpc.plist in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		1BD78B9D1726B2820005F251 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1192,7 +1236,6 @@
 				30B586F5141E255C000373F1 /* Keyservers.plist in Resources */,
 				30D68BC51B4FF5D500F7865C /* COPYING.pgpdump in Resources */,
 				30516558142281270038AAF0 /* Localizable.strings in Resources */,
-				1B46CFA2161531DC00CF9C5F /* org.gpgtools.Libmacgpg.xpc.plist in Resources */,
 				30B570931C6E250700F68EEB /* sks-keyservers.netCA.der in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1200,22 +1243,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		1B46CFDA16155C6900CF9C5F /* Install XPC Helper and launchd plist */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Install XPC Helper and launchd plist";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "[[ \"$CONFIGURATION\" == \"Debug\" ]] || exit 0\nUSER_LIBRARY=\"$HOME/Library\"\nmkdir -p \"$USER_LIBRARY/Application Support/GPGTools\"\ncp -R \"${BUILT_PRODUCTS_DIR}/org.gpgtools.Libmacgpg.xpc\" \"$USER_LIBRARY/Application Support/GPGTools\"\n# Reload the launchd.plist\nif [ -f \"/Library/LaunchAgents/org.gpgtools.Libmacgpg.xpc.plist\" ]; then\n    launchctl unload /Library/LaunchAgents/org.gpgtools.Libmacgpg.xpc.plist\nfi\nif [ -f \"$USER_LIBRARY/LaunchAgents/org.gpgtools.Libmacgpg.xpc.plist\" ]; then\n    launchctl unload \"$USER_LIBRARY/LaunchAgents/org.gpgtools.Libmacgpg.xpc.plist\"\n    sleep 3\n    launchctl load \"$USER_LIBRARY/LaunchAgents/org.gpgtools.Libmacgpg.xpc.plist\"\nfi";
-			showEnvVarsInLog = 0;
-		};
-		1B483E061619E69900D692EB /* Prepare XPC Launchd.plist for the Packager */ = {
+		1B2F2D85214FF45F00740DD3 /* Prepare XPC Launchd.plist for the Packager */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1227,8 +1255,35 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "JAILFREE_PLIST=\"${EXECUTABLE_NAME}.plist\"\nBUILD_LAUNCHAGENT_PATH=\"${BUILD_DIR}/${JAILFREE_PLIST}\"\nif [[ -z \"${XPC_INSTALLATION_DIR}\" || \"CONFIGURATION\" != \"Debug\" ]]; then\n    XPC_INSTALLATION_DIR=\"/Library/Application\\ Support/GPGTools\"\nfi\nXPC_INSTALLATION_PATH=\"${XPC_INSTALLATION_DIR}/${EXECUTABLE_NAME}\"\n\nXPC_NAME=$(\n    for x in $GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS; do\n        echo $x | while IFS=\"=\" read name value; do\n            if [ \"$name\" == \"JAILFREE_XPC_NAME\" ]; then\n                echo $value | sed \"s/\\\"//g\" | sed \"s/@//g\"\n                break\n            fi\n        done\n    done\n)\ncp \"${PROJECT_DIR}/Source/${EXECUTABLE_NAME}/${JAILFREE_PLIST}\" \"${BUILD_LAUNCHAGENT_PATH}\"\n/usr/libexec/PlistBuddy -c \"Delete :MachServices\" \"${BUILD_LAUNCHAGENT_PATH}\"\n/usr/libexec/PlistBuddy -c \"Add :MachServices:$XPC_NAME bool true\" \"${BUILD_LAUNCHAGENT_PATH}\"\n/usr/libexec/PlistBuddy -c \"Set :ProgramArguments:0 \\\"${XPC_INSTALLATION_PATH}\\\"\" \"${BUILD_LAUNCHAGENT_PATH}\"";
-			showEnvVarsInLog = 0;
+			shellScript = "JAILFREE_PLIST=\"${EXECUTABLE_NAME}.xpc.plist\"\nBUILD_LAUNCHAGENT_PATH=\"${BUILD_DIR}/${JAILFREE_PLIST}\"\nif [[ -z \"${XPC_INSTALLATION_DIR}\" || \"CONFIGURATION\" != \"Debug\" ]]; then\n    XPC_INSTALLATION_DIR=\"/Library/Application\\ Support/GPGTools\"\nfi\nXPC_INSTALLATION_PATH=\"${XPC_INSTALLATION_DIR}/${EXECUTABLE_NAME}/Contents/MacOS/${EXECUTABLE_NAME}\"\n\nXPC_NAME=$(\n    for x in $GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS; do\n        echo $x | while IFS=\"=\" read name value; do\n            if [ \"$name\" == \"JAILFREE_XPC_NAME\" ]; then\n                echo $value | sed \"s/\\\"//g\" | sed \"s/@//g\"\n                break\n            fi\n        done\n    done\n)\n\n\ncp \"${PROJECT_DIR}/Source/${EXECUTABLE_NAME}.xpc/${JAILFREE_PLIST}\" \"${BUILD_LAUNCHAGENT_PATH}\"\ncat \"${BUILD_LAUNCHAGENT_PATH}\"\n/usr/libexec/PlistBuddy -c \"Delete :MachServices\" \"${BUILD_LAUNCHAGENT_PATH}\"\n/usr/libexec/PlistBuddy -c \"Add :MachServices:$XPC_NAME bool true\" \"${BUILD_LAUNCHAGENT_PATH}\"\n/usr/libexec/PlistBuddy -c \"Set :ProgramArguments:0 \\\"${XPC_INSTALLATION_PATH}\\\"\" \"${BUILD_LAUNCHAGENT_PATH}\"\n# Uncomment if you want to test the XPC itself. Otherwise it will bring Mail to a halt...\n#if [[ \"$CONFIGURATION\" == \"Debug\" ]]; then\n#/usr/libexec/PlistBuddy -c \"Add :WaitForDebugger bool true\" \"${BUILD_LAUNCHAGENT_PATH}\"\n#fi";
+		};
+		1B2F2D86214FF48000740DD3 /* Install XPC Launchd and Insert Mach Name */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Install XPC Launchd and Insert Mach Name";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "[[ \"$CONFIGURATION\" == \"Debug\" ]] || exit 0\nUSER_LIBRARY=\"$HOME/Library\"\nJAILFREE_PLIST=\"${EXECUTABLE_NAME}.xpc.plist\"\nLAUNCHAGENT_PATH=\"${USER_LIBRARY}/LaunchAgents/${JAILFREE_PLIST}\"\nJAILFREE_PATH=\"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_NAME}.xpc/Contents/MacOS/${EXECUTABLE_NAME}\"\nBUILD_LAUNCHAGENT_PATH=\"${BUILD_DIR}/${JAILFREE_PLIST}\"\n\nif [ -d \"${USER_LIBRARY}/LaunchAgents\" ] && [ -w \"${USER_LIBRARY}/LaunchAgents\" ] && [ -x \"${USER_LIBRARY}/LaunchAgents\" ]; then\n    cp \"${BUILD_LAUNCHAGENT_PATH}\" \"${LAUNCHAGENT_PATH}\"\n    /usr/libexec/PlistBuddy -c \"Set :ProgramArguments:0 \\\"${JAILFREE_PATH}\\\"\" \"${LAUNCHAGENT_PATH}\"\nfi";
+		};
+		1B2F2D87214FF49500740DD3 /* Install XPC Helper and launchd plist */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Install XPC Helper and launchd plist";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "[[ \"$CONFIGURATION\" == \"Debug\" ]] || exit 0\nUSER_LIBRARY=\"$HOME/Library\"\nmkdir -p \"$USER_LIBRARY/Application Support/GPGTools\"\nif [ -d \"$USER_LIBRARY/Application Support/GPGTools/org.gpgtools.Libmacgpg.xpc\" ]; then\n rm -rf \"$USER_LIBRARY/Application Support/GPGTools/org.gpgtools.Libmacgpg.xpc\"\nfi\ncp -R \"${BUILT_PRODUCTS_DIR}/org.gpgtools.Libmacgpg.xpc\" \"$USER_LIBRARY/Application Support/GPGTools\"\n# Reload the launchd.plist\nif [ -f \"/Library/LaunchAgents/org.gpgtools.Libmacgpg.xpc.plist\" ]; then\n    launchctl unload /Library/LaunchAgents/org.gpgtools.Libmacgpg.xpc.plist\nfi\nif [ -f \"$USER_LIBRARY/LaunchAgents/org.gpgtools.Libmacgpg.xpc.plist\" ]; then\n launchctl unload \"$USER_LIBRARY/LaunchAgents/org.gpgtools.Libmacgpg.xpc.plist\"\n    sleep 3\n launchctl load \"$USER_LIBRARY/LaunchAgents/org.gpgtools.Libmacgpg.xpc.plist\"\nfi";
 		};
 		1B49BC6B1A97A8D6000440E9 /* Copy "How to get the source code" into Resources */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1242,7 +1297,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "[[ -d \"$DEPLOY_RESOURCES_DIR\" ]] || exit 0\n \n HOWTO_PATH=\"$DEPLOY_RESOURCES_DIR/resources/How to get the source code\"\n cp \"$HOWTO_PATH\" \"$BUILT_PRODUCTS_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/\"";
+			shellScript = "[[ -d \"$DEPLOY_RESOURCES_DIR\" ]] || exit 0\n \n HOWTO_PATH=\"$DEPLOY_RESOURCES_DIR/resources/How to get the source code\"\n cp \"$HOWTO_PATH\" \"$BUILT_PRODUCTS_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/\"\n";
 			showEnvVarsInLog = 0;
 		};
 		1BC07F34174660F3004263BB /* Link Libmacgpg into ~/Library/Frameworks */ = {
@@ -1258,21 +1313,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "[[ \"$CONFIGURATION\" == \"Debug\" ]] || exit 0\n# Copy the Framework into ~/Library for testing with other libs.\nFRAMEWORKS_DIR=\"$HOME/Library/Frameworks\"\nFRAMEWORK_NAME=\"Libmacgpg.framework\"\n\n# ~/Library/Frameworks doesn't exist in most cases, create it.\nif [ ! -d \"$FRAMEWORKS_DIR\" ]; then\n   mkdir -p \"$FRAMEWORKS_DIR\"\nfi\n\nln -Fs \"$BUILT_PRODUCTS_DIR/$FRAMEWORK_NAME\" \"$FRAMEWORKS_DIR/\"\n";
-			showEnvVarsInLog = 0;
-		};
-		1BCE0CCB16176C920026DCFF /* Install XPC Launchd and Insert Mach Name */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Install XPC Launchd and Insert Mach Name";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "[[ \"$CONFIGURATION\" == \"Debug\" ]] || exit 0\nUSER_LIBRARY=\"$HOME/Library\"\nJAILFREE_PLIST=\"${EXECUTABLE_NAME}.plist\"\nLAUNCHAGENT_PATH=\"${USER_LIBRARY}/LaunchAgents/${JAILFREE_PLIST}\"\nJAILFREE_PATH=\"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_NAME}\"\nBUILD_LAUNCHAGENT_PATH=\"${BUILD_DIR}/${JAILFREE_PLIST}\"\n\nif [ -d \"${USER_LIBRARY}/LaunchAgents\" ] && [ -w \"${USER_LIBRARY}/LaunchAgents\" ] && [ -x \"${USER_LIBRARY}/LaunchAgents\" ]; then\n    cp \"${BUILD_LAUNCHAGENT_PATH}\" \"${LAUNCHAGENT_PATH}\"\n    /usr/libexec/PlistBuddy -c \"Set :ProgramArguments:0 \\\"${JAILFREE_PATH}\\\"\" \"${LAUNCHAGENT_PATH}\"\nfi";
 			showEnvVarsInLog = 0;
 		};
 		30A8B42C1B17452E002F88BB /* Copy "How to get the source code" into Resources */ = {
@@ -1307,12 +1347,12 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		1B46CFC8161555DF00CF9C5F /* Sources */ = {
+		1B2F2D6C214FF12A00740DD3 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1B46CFD9161559EB00CF9C5F /* JailfreeTask.m in Sources */,
-				1B46CFD1161555DF00CF9C5F /* main.m in Sources */,
+				1BDCBDC121500FF5003919E5 /* JailfreeTask.m in Sources */,
+				1B2F2D77214FF12B00740DD3 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1469,48 +1509,109 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
-		1B46CFD7161555DF00CF9C5F /* Debug */ = {
+		1B2F2D7A214FF12B00740DD3 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				EXECUTABLE_EXTENSION = xpc;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+					"$(PROJECT_DIR)/Source/org.gpgtools.Libmacgpg.xpc",
+				);
+				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_ENABLE_OBJC_GC = unsupported;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Source/org.gpgtools.Libmacgpg.xpc/org.gpgtools.Libmacgpg.xpc-Prefix.pch";
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES;
-				LD_RUNPATH_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR) $(HOME)/Library/Frameworks /Library/Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				INFOPLIST_FILE = Source/org.gpgtools.Libmacgpg.xpc/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks $(BUILT_PRODUCTS_DIR) $(HOME)/Library/Frameworks /Library/Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = org.gpgtools.Libmacgpg.xpc;
+				PRODUCT_NAME = org.gpgtools.Libmacgpg;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SKIP_INSTALL = YES;
+				WRAPPER_EXTENSION = xpc;
 			};
 			name = Debug;
 		};
-		1B46CFD8161555DF00CF9C5F /* Release */ = {
+		1B2F2D7B214FF12B00740DD3 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_ENABLE_OBJC_GC = unsupported;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Source/org.gpgtools.Libmacgpg.xpc/org.gpgtools.Libmacgpg.xpc-Prefix.pch";
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES;
-				LD_RUNPATH_SEARCH_PATHS = "/Library/Frameworks $(HOME)/Library/Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_NS_ASSERTIONS = NO;
+				EXECUTABLE_EXTENSION = xpc;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+					"$(PROJECT_DIR)/Source/org.gpgtools.Libmacgpg.xpc",
+				);
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				INFOPLIST_FILE = Source/org.gpgtools.Libmacgpg.xpc/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks /Library/Frameworks $(HOME)/Library/Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = org.gpgtools.Libmacgpg.xpc;
+				PRODUCT_NAME = org.gpgtools.Libmacgpg;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SKIP_INSTALL = YES;
+				WRAPPER_EXTENSION = xpc;
 			};
 			name = Release;
 		};
@@ -1597,6 +1698,10 @@
 				DEVELOPMENT_TEAM = PKV8ZPD836;
 				DYLIB_COMPATIBILITY_VERSION = 2;
 				DYLIB_CURRENT_VERSION = 2;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				FRAMEWORK_VERSION = B;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
@@ -1632,6 +1737,10 @@
 				DEVELOPMENT_TEAM = PKV8ZPD836;
 				DYLIB_COMPATIBILITY_VERSION = 2;
 				DYLIB_CURRENT_VERSION = 2;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				FRAMEWORK_VERSION = B;
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -1811,11 +1920,11 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		1B46CFD6161555DF00CF9C5F /* Build configuration list for PBXNativeTarget "org.gpgtools.Libmacgpg.xpc" */ = {
+		1B2F2D79214FF12B00740DD3 /* Build configuration list for PBXNativeTarget "org.gpgtools.Libmacgpg.xpc" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				1B46CFD7161555DF00CF9C5F /* Debug */,
-				1B46CFD8161555DF00CF9C5F /* Release */,
+				1B2F2D7A214FF12B00740DD3 /* Debug */,
+				1B2F2D7B214FF12B00740DD3 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

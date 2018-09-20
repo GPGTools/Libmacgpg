@@ -30,6 +30,7 @@
 #import <Libmacgpg/GPGSignature.h>
 #import <Libmacgpg/GPGStream.h>
 #import <Libmacgpg/GPGTask.h>
+#import <Libmacgpg/GPGTaskHelperXPC.h>
 #import <Libmacgpg/GPGTransformer.h>
 #import <Libmacgpg/GPGUserID.h>
 #import <Libmacgpg/GPGUserIDSignature.h>

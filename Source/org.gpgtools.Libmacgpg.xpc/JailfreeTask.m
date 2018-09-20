@@ -1,4 +1,3 @@
-#if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
 //
 //  GPGXPCTask.m
 //  Libmacgpg
@@ -14,10 +13,12 @@
 #import "GPGTaskHelper.h"
 #import <xpc/xpc.h>
 
+#import <Paddle/Paddle.h>
+#import <GSPaddle/GSPaddle.h>
+
 @interface JailfreeTask ()
 - (BOOL)isCodeSignatureValidAtPath:(NSString *)path;
 @end
-
 
 @implementation JailfreeTask
 
@@ -153,6 +154,64 @@
 	reply([GPGTaskHelper isPassphraseInGPGAgentCache:key]);
 }
 
+#pragma mark - Paddle Helper Methods
+
+- (void)validSupportContractAvailableForProduct:(NSString *)identifier reply:(void (^)(BOOL, NSDictionary *))reply {
+    // Perform an offline check if a local license is available.
+    // TODO: Implement remote verification - maybe also not in here but instead in the GPG Suite Updater.
+    //       We'll have to look into that.
+    Paddle *paddle = [self paddleInstance];
+    PADProduct *product = [self paddleProduct];
+    
+    NSMutableDictionary *info = [NSMutableDictionary new];
+    BOOL isActivated = [product activated];
+    [info setValue:@(isActivated) forKey:@"Active"];
+    if(isActivated) {
+        [info setValue:[product licenseCode] forKey:@"ActivationCode"];
+        [info setValue:[product activationEmail] forKey:@"ActivationEmail"];
+    }
+    else {
+        [info setValue:[product trialDaysRemaining] forKey:@"ActivationRemainingTrialDays"];
+    }
+    reply(isActivated, (NSDictionary *)info);
+}
+
+- (void)activateProductWithEmail:(NSString *)email activationCode:(NSString *)activationCode reply:(void (^)(BOOL, NSError *))reply {
+    [self paddleInstance];
+    [[self paddleProduct] activateEmail:email license:activationCode completion:^(BOOL activated, NSError * _Nullable error) {
+        reply(activated, error);
+    }];
+}
+
+- (void)startTrialWithReply:(void (^)(BOOL))reply {
+    // Simply calling paddle product seems to create a trial file.
+    [self paddleInstance];
+    [self paddleProduct];
+    reply(YES);
+}
+
+
+- (Paddle *)paddleInstance {
+    Paddle *paddle = [Paddle sharedInstanceWithVendorID:@"2230" apiKey:@"ba08ae628cf630e40d1f8be305bbfb96" productID:@"496039" configuration:nil];
+    [paddle GSSetCustomBundleIdentifier:@"GPGTools/org.gpgtools.GPGMail"];
+
+    return paddle;
+}
+
+- (PADProduct *)paddleProduct {
+    PADProductConfiguration *productConfiguration = [[PADProductConfiguration alloc] init];
+    productConfiguration.productName = @"GPGMail";
+    productConfiguration.vendorName = @"GPGTools";
+    productConfiguration.trialType = PADProductTrialTimeLimited;
+    productConfiguration.trialLength = @(30);
+    
+    PADProduct *product = [[PADProduct alloc] initWithProductID:@"496039" productType:PADProductTypeSDKProduct configuration:productConfiguration];
+    return product;
+}
+
+
+#pragma mark - General Helper Methods
+
 // Helper methods
 
 - (BOOL)isCodeSignatureValidAtPath:(NSString *)path  {
@@ -184,4 +243,3 @@ finally:
 
 
 @end
-#endif
