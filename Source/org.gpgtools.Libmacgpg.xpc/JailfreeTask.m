@@ -179,6 +179,10 @@
 - (void)activateProductWithEmail:(NSString *)email activationCode:(NSString *)activationCode reply:(void (^)(BOOL, NSError *))reply {
     [self paddleInstance];
     [[self paddleProduct] activateEmail:email license:activationCode completion:^(BOOL activated, NSError * _Nullable error) {
+        // Instead of the paddle error, it is best to use our own error which contains
+        // more information of what actually happened.
+        NSError *realError = [[self paddleInstance] activationErrorForActivationCode:activationCode];
+        error = realError != nil ? realError : error;
         reply(activated, error);
     }];
 }
@@ -194,6 +198,9 @@
 - (Paddle *)paddleInstance {
     // While truly perverted, this swizzle is now on the NSFileManager.
     [[NSFileManager defaultManager] GSSetCustomBundleIdentifier:@"GPGTools/org.gpgtools.GPGMail"];
+    // While this call should no longer be necessary, since the GSPaddle framework makes sure
+    // that only activation calls are allowed, it can't hurt to still call it.
+    [PaddleAnalyticsKit disableTracking];
     Paddle *paddle = [Paddle sharedInstanceWithVendorID:@"2230" apiKey:@"ba08ae628cf630e40d1f8be305bbfb96" productID:@"496039" configuration:nil];
     
     return paddle;
