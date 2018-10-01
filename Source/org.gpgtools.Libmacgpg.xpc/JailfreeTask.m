@@ -198,7 +198,7 @@
 - (Paddle *)paddleInstance {
     // While this call should no longer be necessary, since the GSPaddle framework makes sure
     // that only activation calls are allowed, it can't hurt to still call it.
-    //[PaddleAnalyticsKit disableTracking];
+    [PaddleAnalyticsKit disableTracking];
     Paddle *paddle = [Paddle sharedInstanceWithVendorID:@"2230" apiKey:@"ba08ae628cf630e40d1f8be305bbfb96" productID:@"496039" configuration:[self paddleProductConfiguration]];
     
     return paddle;
