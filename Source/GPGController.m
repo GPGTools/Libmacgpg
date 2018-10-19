@@ -791,6 +791,20 @@ BOOL gpgConfigReaded = NO;
 			}
 		}
 		
+		if (comment.length == 0 && name.length > 1) {
+			NSRange firstBracket = [name rangeOfString:@"("];
+			NSRange lastBracket = [name rangeOfString:@")" options:NSBackwardsSearch];
+			
+			if (firstBracket.location != NSNotFound && lastBracket.location != NSNotFound && firstBracket.location < lastBracket.location) {
+				// The Name contains a part between brackets. Append an empty comment so the brackets are not treated as a comment.
+				NSString *append = @"()";
+				if ([name characterAtIndex:name.length - 1] != ' ') {
+					append = @" ()";
+				}
+				name = [name stringByAppendingString:append];
+			}
+		}
+		
 		if (name.length > 0) {
 			[cmdText appendFormat:@"Name-Real: %@\n", name];
 		}
