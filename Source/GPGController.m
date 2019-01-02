@@ -215,7 +215,7 @@ BOOL gpgConfigReaded = NO;
 	signerKeys = [[NSMutableArray alloc] init];
 	signatures = [[NSMutableArray alloc] init];
 	gpgKeyservers = [[NSMutableSet alloc] init];
-	keyserverTimeout = 20;
+	keyserverTimeout = 30; // Give the slow keyservers some time to answer.
 	asyncProxy = [[AsyncProxy alloc] initWithRealObject:self];
 	useDefaultComments = YES;
 	
@@ -2349,7 +2349,7 @@ BOOL gpgConfigReaded = NO;
 				
 				[self addArgumentsForOptions];
 				NSUInteger oldTimeout = keyserverTimeout;
-				keyserverTimeout = 3;
+				keyserverTimeout = 20; // This should be enough time for a healthy keyserver to answer.
 				[self addArgumentsForKeyserver];
 				keyserverTimeout = oldTimeout;
 				
@@ -2363,7 +2363,8 @@ BOOL gpgConfigReaded = NO;
 				dispatch_group_async(dispatchGroup, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
 					[gpgTask start];
 				});
-				if (dispatch_group_wait(dispatchGroup, dispatch_time(DISPATCH_TIME_NOW, 3 * NSEC_PER_SEC)) == 0) {
+				// Wait a maximum of 30 seconds for the answer. 10 seconds more than the keyserver timeout, to give some setup time.
+				if (dispatch_group_wait(dispatchGroup, dispatch_time(DISPATCH_TIME_NOW, 30 * NSEC_PER_SEC)) == 0) {
 					if (gpgTask.errorCode == GPGErrorNoError || gpgTask.errorCode == GPGErrorCancelled || gpgTask.errorCode == GPGErrorNoData) {
 						result = YES;
 					}
