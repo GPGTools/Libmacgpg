@@ -2356,7 +2356,7 @@ BOOL gpgConfigReaded = NO;
 				gpgTask.batchMode = YES;
 				gpgTask.nonBlocking = YES;
 				[gpgTask addArgument:@"--search-keys"];
-				[gpgTask addArgument:@"0x0000000000000000"];
+				[gpgTask addArgument:@"0x0000000000000000000000000000000000000000"]; // Search for a non-existing key.
 				
 				
 				dispatch_group_t dispatchGroup = dispatch_group_create();
@@ -2365,7 +2365,10 @@ BOOL gpgConfigReaded = NO;
 				});
 				// Wait a maximum of 30 seconds for the answer. 10 seconds more than the keyserver timeout, to give some setup time.
 				if (dispatch_group_wait(dispatchGroup, dispatch_time(DISPATCH_TIME_NOW, 30 * NSEC_PER_SEC)) == 0) {
-					if (gpgTask.errorCode == GPGErrorNoError || gpgTask.errorCode == GPGErrorCancelled || gpgTask.errorCode == GPGErrorNoData) {
+					if (gpgTask.errorCode == GPGErrorNoError || // Everything is good. Very unlikely, but ok.
+						gpgTask.errorCode == GPGErrorCancelled || // Test was cancelled. No need to show a warning.
+						gpgTask.errorCode == GPGErrorNoData || // Normal (key not found) response from old (< 2.2.12) gpg.
+						gpgTask.errorCode == GPGErrorNotFound) { // Normal (key not found) response from new (>= 2.2.12) gpg.
 						result = YES;
 					}
 				} else {
