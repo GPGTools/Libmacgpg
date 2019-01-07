@@ -2321,7 +2321,9 @@ BOOL gpgConfigReaded = NO;
 		[gpgTask addArgument:@"--"];
 		[gpgTask addArgument:pattern];
 		
-		if ([gpgTask start] != 0 && gpgTask.errorCode != GPGErrorNoData) {
+		if ([gpgTask start] != 0 &&
+			gpgTask.errorCode != GPGErrorNoData &&  // Key not found response from old (< 2.2.12) gpg.
+			gpgTask.errorCode != GPGErrorNotFound) { // Key not found response from new (>= 2.2.12) gpg.
 			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Search keys failed!") gpgTask:gpgTask];
 		}
 		
