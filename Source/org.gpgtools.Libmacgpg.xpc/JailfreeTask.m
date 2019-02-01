@@ -187,6 +187,13 @@
     }];
 }
 
+- (void)deactivateSupportPlanWithCompletion:(void (^)(BOOL, NSError *))reply {
+    [self paddleInstance];
+    [[self paddleProduct] deactivateWithCompletion:^(BOOL deactivated, NSError * _Nullable error) {
+        reply(deactivated, error);
+    }];
+}
+
 - (void)startTrialWithReply:(void (^)(BOOL))reply {
     // Simply calling paddle product seems to create a trial file.
     [self paddleProduct];

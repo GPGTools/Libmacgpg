@@ -43,6 +43,7 @@
 - (void)validSupportContractAvailableForProduct:(NSString *)identifier reply:(void (^)(BOOL, NSDictionary *))reply;
 - (void)startTrialWithReply:(void (^)(BOOL))reply;
 - (void)activateProductWithEmail:(NSString *)email activationCode:(NSString *)activationCode reply:(void (^)(BOOL, NSError *))reply;
+- (void)deactivateSupportPlanWithCompletion:(void (^)(BOOL, NSError *))reply;
 
 @end
 

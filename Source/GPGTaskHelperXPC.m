@@ -405,6 +405,30 @@
     return activated;
 }
 
+- (BOOL)deactivateSupportPlanWithError:(NSError **)error {
+    [self prepareTask];
+    
+    __block BOOL deactivated = NO;
+    __block NSError *deactivationError = nil;
+    
+    [_jailfree deactivateSupportPlanWithCompletion:^(BOOL success, NSError *tmpError) {
+        deactivated = success;
+        deactivationError = [tmpError retain];
+        
+        [self completeTaskWithSuccess];
+    }];
+    
+    [self waitForTaskToCompleteAndShutdown:YES throwExceptionIfNecessary:NO];
+    
+    if(!deactivated) {
+        if(error != nil) {
+            *error = deactivationError;
+        }
+    }
+    
+    return deactivated;
+}
+
 - (BOOL)startTrial {
     [self prepareTask];
     
