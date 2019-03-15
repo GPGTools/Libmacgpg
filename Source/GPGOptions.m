@@ -957,7 +957,7 @@ void SystemConfigurationDidChange(SCPreferencesRef prefs, SCPreferencesNotificat
 
 	
     NSSet *commonKeys = [NSSet setWithObjects:@"PathToGPG", @"ShowPassphrase",
-                         @"UseKeychain", @"DebugLog", nil];
+                         @"UseKeychain", @"DisableKeychain", @"DebugLog", nil];
     
     NSSet *specialKeys = [NSSet setWithObjects:@"httpProxy", @"keyservers",
                           @"PassphraseCacheTime", @"TrustAllKeys", @"keyserver", nil];
