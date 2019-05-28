@@ -137,6 +137,15 @@ extern NSString * const GPGAttributeFilePlaceholder;
 + (BOOL)launchGeneralTask:(NSString *)path withArguments:(NSArray *)arguments wait:(BOOL)wait;
 
 /**
+ * Opens GPG Suite Preferences.
+ *
+ * @param tab (optional) the tab to show. One of "settings", "report" or "about".
+ * @param arguments reserved for future use.
+ * @return YES if GPG Suite Preferences was successfully shown.
+ */
++ (BOOL)showGPGSuitePreferencesTab:(NSString *)tab arguments:(NSDictionary *)arguments;
+
+/**
  Check if the application Libmacgpg is used with is sandboxed.
  */
 + (BOOL)sandboxed;

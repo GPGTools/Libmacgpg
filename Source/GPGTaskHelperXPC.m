@@ -444,6 +444,24 @@
     return success;
 }
 
+- (BOOL)showGPGSuitePreferencesWithArguments:(NSDictionary *)arguments {
+	[self prepareTask];
+	
+	__block BOOL success = NO;
+	
+	[_jailfree showGPGSuitePreferencesWithArguments:arguments reply:^(BOOL result) {
+		success = result;
+		
+		[self completeTaskWithSuccess];
+	}];
+	
+	[self waitForTaskToCompleteAndShutdown:YES throwExceptionIfNecessary:NO];
+	
+	return success;
+}
+
+
+
 #pragma mark - XPC connection cleanup
 
 - (void)shutdown {

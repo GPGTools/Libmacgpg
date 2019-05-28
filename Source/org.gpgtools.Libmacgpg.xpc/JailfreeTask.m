@@ -154,6 +154,11 @@
 	reply([GPGTaskHelper isPassphraseInGPGAgentCache:key]);
 }
 
+- (void)showGPGSuitePreferencesWithArguments:(NSDictionary *)arguments reply:(void (^)(BOOL result))reply {
+	reply([GPGTaskHelper showGPGSuitePreferencesWithArguments:arguments]);
+}
+
+
 #pragma mark - Paddle Helper Methods
 
 - (void)validSupportContractAvailableForProduct:(NSString *)identifier reply:(void (^)(BOOL, NSDictionary *))reply {

@@ -45,6 +45,8 @@
 - (void)activateProductWithEmail:(NSString *)email activationCode:(NSString *)activationCode reply:(void (^)(BOOL, NSError *))reply;
 - (void)deactivateSupportPlanWithCompletion:(void (^)(BOOL, NSError *))reply;
 
+- (void)showGPGSuitePreferencesWithArguments:(NSDictionary *)arguments reply:(void (^)(BOOL result))reply;
+
 @end
 
 @protocol Jail <NSObject>

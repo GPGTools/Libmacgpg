@@ -70,6 +70,7 @@
 - (BOOL)activateSupportContractWithEmail:(NSString *)email activationCode:(NSString *)activationCode error:(NSError **)error;
 - (BOOL)startTrial;
 - (BOOL)deactivateSupportPlanWithError:(NSError **)error;
+- (BOOL)showGPGSuitePreferencesWithArguments:(NSDictionary *)arguments;
 
 @property (nonatomic, copy) NSData *(^processStatus)(NSString *keyword, NSString *value);
 @property (nonatomic, copy) void (^progressHandler)(NSUInteger processedBytes, NSUInteger totalBytes);

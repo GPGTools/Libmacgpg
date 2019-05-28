@@ -52,6 +52,7 @@
 
 
 static const NSUInteger kDataBufferSize = 65536; 
+static NSString * const GPGPreferencesShowTabNotification = @"GPGPreferencesShowTabNotification";
 
 typedef void (^basic_block_t)(void);
 
@@ -1088,6 +1089,63 @@ closeInput = _closeInput;
 	}
 	return YES;
 }
+
++ (BOOL)showGPGSuitePreferencesWithArguments:(NSDictionary *)arguments {	
+	if ([GPGTask sandboxed]) {
+		// Use the xpc.
+		
+		GPGTaskHelperXPC *xpcTask = [[GPGTaskHelperXPC alloc] init];
+		
+		BOOL succeeded = NO;
+		@try {
+			succeeded = [xpcTask showGPGSuitePreferencesWithArguments:arguments];
+		} @catch (NSException *exception) {
+			return NO;
+		} @finally {
+			[xpcTask release];
+		}
+		
+		return succeeded;
+	} else {
+		// Locate GPGPreferences.prefPane
+		NSString *panePath = @"/Library/PreferencePanes/GPGPreferences.prefPane";
+		if (![[NSFileManager defaultManager] fileExistsAtPath:panePath]) {
+			// Look in the user library.
+			panePath = [NSHomeDirectory() stringByAppendingPathComponent:panePath];
+			if (![[NSFileManager defaultManager] fileExistsAtPath:panePath]) {
+				// GPGPreferences.prefPane seems not to be installed.
+				return NO;
+			}
+		}
+		
+		if (arguments.count > 0) {
+			// Write the arguments for GPG Suite Preferences into a temp file with a known path.
+			NSString *directory = [NSString stringWithFormat:@"/private/tmp/GPGPreferences.%@", NSUserName()];
+			NSString *path = [directory stringByAppendingPathComponent:@"tab"];
+			[[NSFileManager defaultManager] createDirectoryAtPath:directory withIntermediateDirectories:NO attributes:nil error:nil];
+			
+			if (![arguments writeToFile:path atomically:YES]) {
+				return NO;
+			}
+		}
+		
+		NSURL *appURL = [NSURL fileURLWithPath:@"/Applications/System Preferences.app"];
+		NSURL *paneURL = [NSURL fileURLWithPath:panePath];
+		
+		// Open GPGPreferences.prefPane with System Preferences.app
+		NSRunningApplication *application = [[NSWorkspace sharedWorkspace] openURLs:@[paneURL] withApplicationAtURL:appURL options:0 configuration:@{} error:nil];
+		if (!application) {
+			return NO;
+		}
+		
+		if (arguments.count > 0) {
+			// Send the arguments to GPG Suite Preferences.
+			[[NSDistributedNotificationCenter defaultCenter] postNotificationName:GPGPreferencesShowTabNotification object:nil userInfo:arguments deliverImmediately:YES];
+		}
+	}
+	return YES;
+}
+
 
 
 @end
