@@ -546,6 +546,9 @@ static NSLock *gpgTaskLock;
 	
 	return [GPGTaskHelper showGPGSuitePreferencesWithArguments:arguments];
 }
++ (NSDictionary *)readGPGSuitePreferencesArguments {
+	return [GPGTaskHelper readGPGSuitePreferencesArguments];
+}
 
 
 

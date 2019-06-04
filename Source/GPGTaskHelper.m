@@ -1119,12 +1119,7 @@ closeInput = _closeInput;
 		}
 		
 		if (arguments.count > 0) {
-			// Write the arguments for GPG Suite Preferences into a temp file with a known path.
-			NSString *directory = [NSString stringWithFormat:@"/private/tmp/GPGPreferences.%@", NSUserName()];
-			NSString *path = [directory stringByAppendingPathComponent:@"tab"];
-			[[NSFileManager defaultManager] createDirectoryAtPath:directory withIntermediateDirectories:NO attributes:nil error:nil];
-			
-			if (![arguments writeToFile:path atomically:YES]) {
+			if (![self writeGPGSuitePreferencesArguments:arguments]) {
 				return NO;
 			}
 		}
@@ -1145,6 +1140,31 @@ closeInput = _closeInput;
 	}
 	return YES;
 }
++ (NSString *)gpgSuitePreferencesArgumentsFilePath {
+	return [NSString stringWithFormat:@"/private/tmp/GPGPreferences.%@/arguments", NSUserName()];
+}
++ (BOOL)writeGPGSuitePreferencesArguments:(NSDictionary *)arguments {
+	// Write the arguments for GPG Suite Preferences into a temp file with a known path.
+	NSString *path = [self gpgSuitePreferencesArgumentsFilePath];
+	NSString *directory = [path stringByDeletingLastPathComponent];
+	[[NSFileManager defaultManager] createDirectoryAtPath:directory withIntermediateDirectories:NO attributes:nil error:nil];
+	
+	return [arguments writeToFile:path atomically:YES];
+}
++ (NSDictionary *)readGPGSuitePreferencesArguments {
+	// Read the arguments for GPG Suite Preferences from a temp file with a known path and remove the file afterwards.
+	NSDictionary *arguments = nil;
+	
+	NSString *path = [self gpgSuitePreferencesArgumentsFilePath];
+	NSString *directory = [path stringByDeletingLastPathComponent];
+	if ([[NSFileManager defaultManager] fileExistsAtPath:path]) {
+		arguments = [NSDictionary dictionaryWithContentsOfFile:path];
+		[[NSFileManager defaultManager] removeItemAtPath:directory error:nil];
+	}
+
+	return arguments;
+}
+
 
 
 

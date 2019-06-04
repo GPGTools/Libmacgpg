@@ -144,6 +144,14 @@ extern NSString * const GPGAttributeFilePlaceholder;
  * @return YES if GPG Suite Preferences was successfully shown.
  */
 + (BOOL)showGPGSuitePreferencesTab:(NSString *)tab arguments:(NSDictionary *)arguments;
+/**
+ * Get the arguments, passed to GPG Suite Preferences via temp file.
+ * Removes the file after reading, so call it once and store it's return value, if needed later.
+ *
+ * @return The arguments from the temp file.
+ */
++ (NSDictionary *)readGPGSuitePreferencesArguments;
+
 
 /**
  Check if the application Libmacgpg is used with is sandboxed.

@@ -150,8 +150,15 @@ typedef void (^lp_progress_handler_t)(NSUInteger processedBytes, NSUInteger tota
  Opens GPG Suite Preferences.
  */
 + (BOOL)showGPGSuitePreferencesWithArguments:(NSDictionary *)arguments;
-
 	
+/**
+ Get the arguments, passed to GPG Suite Preferences via temp file.
+ Removes the file after reading, so call it once and store it's return value, if needed later.
+ Do not call this from inside the sandbox.
+ */
++ (NSDictionary *)readGPGSuitePreferencesArguments;
+
+
 @end
 
 @interface NSTask (GPGThreadSafeWait)
