@@ -181,6 +181,7 @@
 - (NSArray <GPGRemoteKey *> *)searchKeysOnServer:(NSString *)pattern;
 - (void)sendKeysToServer:(NSObject <EnumerationList> *)keys;
 - (void)testKeyserver;
+- (void)testKeyserverWithCompletionHandler:(void (^)(BOOL working))completionHandler;
 - (void)keysExistOnServer:(NSArray <GPGKey *> *)keys callback:(void (^)(NSArray <GPGKey *> *existingKeys, NSArray <GPGKey *> *nonExistingKeys))callback;
 - (void)removeSignature:(GPGUserIDSignature *)signature fromUserID:(GPGUserID *)userID ofKey:(NSObject <KeyFingerprint> *)key;
 - (void)removeSubkey:(NSObject <KeyFingerprint> *)subkey fromKey:(NSObject <KeyFingerprint> *)key;
