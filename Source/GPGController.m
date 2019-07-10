@@ -24,6 +24,7 @@
 #import "GPGTaskHelper.h"
 #import "GPGWatcher.h"
 #import "GPGTask_Private.h"
+#import "GPGVerifyingKeyserver.h"
 #import <sys/stat.h>
 #if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
 #import "GPGTaskHelperXPC.h"
@@ -2149,6 +2150,7 @@ BOOL gpgConfigReaded = NO;
 		[asyncProxy receiveKeysFromServer:keys];
 		return nil;
 	}
+	NSString *retVal = nil; // On success, contains the statusText of the import/recv-keys operation.
 	@try {
 		[self operationDidStart];
 		[self registerUndoForKeys:keys withName:@"Undo_ReceiveFromServer"];
@@ -2156,16 +2158,66 @@ BOOL gpgConfigReaded = NO;
 		if ([keys count] == 0) {
 			[NSException raise:NSInvalidArgumentException format:@"Empty key list!"];
 		}
-		self.gpgTask = [GPGTask gpgTask];
-		[self addArgumentsForOptions];
-		[self addArgumentsForKeyserver];
-		[gpgTask addArgument:@"--recv-keys"];
-		for (id key in keys) {
-			[gpgTask addArgument:[key description]];
-		}
-		
-		if ([gpgTask start] != 0 && ![gpgTask.statusDict objectForKey:@"IMPORT_RES"] && gpgTask.errorCode != GPGErrorNoData) {
-			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Receive keys failed!") gpgTask:gpgTask];
+		if ([GPGOptions sharedOptions].isVerifyingKeyserver) {
+			
+			// keys can be an NSArray or NSSet, convert to an NSArray of fingerprints.
+			NSMutableArray *fingerprints = [NSMutableArray array];
+			for (GPGKey *key in keys) {
+				[fingerprints addObject:key.description];
+			}
+			
+			
+			// A semaphore is used, because the old GPGController methods don't support callbacks.
+			dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+			
+			// Download the keys from the server and store the returned data and errror for later use.
+			__block NSData *data = nil;
+			__block NSError *blockError = nil;
+			GPGVerifyingKeyserver *verifyingKeyserver = [[GPGVerifyingKeyserver new] autorelease];
+			[verifyingKeyserver downloadKeys:fingerprints callback:^(NSData *keyData, NSError *theError) {
+				data = [keyData retain];
+				blockError = [theError retain];
+				dispatch_semaphore_signal(semaphore);
+			}];
+			dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+			[data autorelease]; // No ARC here, manually add to the autorelease pool.
+			[blockError autorelease]; // No ARC here, manually add to the autorelease pool.
+			
+			
+			
+			if (blockError) {
+				// GPGController uses Exception for it's error handling. Not nice.
+				@throw [GPGException exceptionWithReason:blockError.localizedDescription errorCode:(GPGErrorCode)blockError.code];
+			}
+			
+			// If data is empty, it means no keys were found. This is not an error.
+			if (data.length > 0) { // Some keys were downloaded.
+				// Import the downloaded keys.
+				retVal = [self importFromData:data fullImport:NO];
+				if (self.error) {
+					// The import failed.
+					retVal = nil;
+					@throw self.error; // self.error is an NSException, not an NSError!
+				}
+				
+				// Remember these keys came from keys.openpgp.org and the email-addresses are verified.
+				[self rememberDownloadedKeysAsVerified:data];
+			}
+			
+		} else {
+			self.gpgTask = [GPGTask gpgTask];
+			[self addArgumentsForOptions];
+			[self addArgumentsForKeyserver];
+			[gpgTask addArgument:@"--recv-keys"];
+			for (id key in keys) {
+				[gpgTask addArgument:[key description]];
+			}
+			
+			if ([gpgTask start] != 0 && ![gpgTask.statusDict objectForKey:@"IMPORT_RES"] && gpgTask.errorCode != GPGErrorNoData) {
+				@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Receive keys failed!") gpgTask:gpgTask];
+			}
+
+			retVal = [gpgTask statusText];
 		}
 		
 		NSSet *changedKeys = importedFingerprintsFromStatus(gpgTask.statusDict);
@@ -2176,10 +2228,57 @@ BOOL gpgConfigReaded = NO;
 		[self cleanAfterOperation];
 	}
 	
-	NSString *retVal = [gpgTask statusText];
 	[self operationDidFinishWithReturnValue:retVal];
 	return retVal;
 }
+- (void)rememberDownloadedKeysAsVerified:(NSData *)keyData {
+	// Add the keys and email-addresses to the keysFromVerifyingKeyserverKey dictionary.
+	// keysFromVerifyingKeyserverKey is a dict with verified email-addresses for a fingerprint.
+	
+	GPGOptions *options = [GPGOptions sharedOptions];
+	NSDate *now = [NSDate date];
+	__block NSMutableDictionary *keysFromVerifyingKeyserver = [options valueForKey:GPGKeysFromVerifyingKeyserverKey];
+	if ([keysFromVerifyingKeyserver isKindOfClass:[NSDictionary class]]) {
+		keysFromVerifyingKeyserver = [[keysFromVerifyingKeyserver mutableCopy] autorelease];
+	} else {
+		keysFromVerifyingKeyserver = [NSMutableDictionary dictionary];
+	}
+	
+	__block NSMutableArray *addresses = nil;
+	__block NSString *fingerprint = nil;
+	[GPGPacket enumeratePacketsWithData:keyData block:^(GPGPacket *packet, BOOL *stop) {
+		switch (packet.tag) {
+			case GPGPublicKeyPacketTag:
+			case GPGSecretKeyPacketTag:
+				if (fingerprint) {
+					keysFromVerifyingKeyserver[fingerprint] = @{@"addresses": addresses, @"date": now};
+				}
+				if (packet.tag == GPGPublicKeyPacketTag) {
+					fingerprint = ((GPGPublicKeyPacket *)packet).fingerprint;
+					addresses = [NSMutableArray array];
+				} else {
+					// Secret key packets should not be downloaded from a keyserver, ignore them.
+					fingerprint = nil;
+				}
+				break;
+			case GPGUserIDPacketTag: {
+				NSDictionary<NSString *, NSString *> *dict = ((GPGUserIDPacket *)packet).userID.splittedUserIDDescription;
+				if (dict[@"email"].length > 0) {
+					[addresses addObject:dict[@"email"]];
+				}
+				break;
+			}
+			default:
+				break;
+		}
+	}];
+	if (fingerprint) {
+		keysFromVerifyingKeyserver[fingerprint] = @{@"addresses": addresses, @"date": now};
+	}
+	
+	[options setValue:keysFromVerifyingKeyserver forKey:GPGKeysFromVerifyingKeyserverKey];
+}
+
 
 - (void)sendKeysToServer:(NSObject <EnumerationList> *)keys {
 	if (async && !asyncStarted) {
@@ -2195,32 +2294,97 @@ BOOL gpgConfigReaded = NO;
 		}
 		
 		
-		NSDictionary *cache = [[GPGOptions sharedOptions] valueInCommonDefaultsForKey:keysOnServerCacheKey];
-		NSMutableDictionary *mutableCache = nil;
-		if ([cache isKindOfClass:[NSDictionary class]]) {
-			mutableCache = [[cache mutableCopy] autorelease];
-		}
-		
-		self.gpgTask = [GPGTask gpgTask];
-		[self addArgumentsForOptions];
-		[self addArgumentsForKeyserver];
-		[gpgTask addArgument:@"--send-keys"];
-		for (id key in keys) {
-			NSString *fingerprint = [key description];
-			[gpgTask addArgument:fingerprint];
-			if ([mutableCache[fingerprint][@"exists"] boolValue] == NO) {
-				[mutableCache removeObjectForKey:fingerprint];
+		if ([GPGOptions sharedOptions].isVerifyingKeyserver) {
+			
+			// Export the keys ASCII armored and without any foreign signatures.
+			self.useArmor = YES;
+			NSData *exportedKeys = [self exportKeys:keys options:GPGExportMinimal];
+			if (self.error) {
+				@throw self.error;
+			}
+			
+			// Convert the ASCII armored data to a string.
+			NSString *keytext = exportedKeys.gpgString;
+			if (keytext.length < 10) {
+				@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Export failed!") errorCode:GPGErrorEncodingProblem];
+			}
+			
+			
+			// A semaphore is used, because the old GPGController methods don't support callbacks.
+			dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+			
+			// Upload to keys to the server and store a possible errror for later use.
+			__block NSError *blockError = nil;
+			GPGVerifyingKeyserver *verifyingKeyserver = [[GPGVerifyingKeyserver new] autorelease];
+			[verifyingKeyserver uploadKey:keytext callback:^(NSArray *fingerprints, NSDictionary<NSString *,NSString *> *status, NSString *token, NSError *theError) {
+				if (theError) {
+					// Only return the error.
+					blockError = [theError retain];
+					dispatch_semaphore_signal(semaphore);
+					return;
+				}
+
+				// Get list of emailAddresses which are not published.
+				NSMutableArray *emailAddressesToVerify = [NSMutableArray array];
+				for (NSString *email in status) {
+					NSString *state = status[email];
+					if ([state isEqualToString:GPGVKSStateUnpublished] || [state isEqualToString:GPGVKSStatePending]) {
+						[emailAddressesToVerify addObject:email];
+					}
+				}
+				
+				if (emailAddressesToVerify.count > 0) {
+					// Request verification emails for all unpublished addresses of the key.
+					
+					[verifyingKeyserver requestVerification:emailAddressesToVerify token:token callback:^(NSArray *fingerprints2, NSDictionary<NSString *,NSString *> *status2, NSString *token2, NSError *error2) {
+						if (error2) {
+							// The verification request failed, return the error.
+							blockError = [theError retain];
+						}
+						dispatch_semaphore_signal(semaphore);
+					}];
+				} else {
+					dispatch_semaphore_signal(semaphore);
+				}
+
+			}];
+			dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+			[blockError autorelease]; // No ARC here, manually add to the autorelease pool.
+			
+			if (blockError) {
+				// The upload or verification request did fail.
+				@throw [GPGException exceptionWithReason:blockError.localizedDescription errorCode:(GPGErrorCode)blockError.code];
+			}
+			
+		} else {
+			NSDictionary *cache = [[GPGOptions sharedOptions] valueInCommonDefaultsForKey:keysOnServerCacheKey];
+			NSMutableDictionary *mutableCache = nil;
+			if ([cache isKindOfClass:[NSDictionary class]]) {
+				mutableCache = [[cache mutableCopy] autorelease];
+			}
+			
+			self.gpgTask = [GPGTask gpgTask];
+			[self addArgumentsForOptions];
+			[self addArgumentsForKeyserver];
+			[gpgTask addArgument:@"--send-keys"];
+			for (id key in keys) {
+				NSString *fingerprint = [key description];
+				[gpgTask addArgument:fingerprint];
+				if ([mutableCache[fingerprint][@"exists"] boolValue] == NO) {
+					[mutableCache removeObjectForKey:fingerprint];
+				}
+			}
+			
+			if (mutableCache && ![mutableCache isEqualToDictionary:cache]) {
+				[[GPGOptions sharedOptions] setValueInCommonDefaults:mutableCache forKey:keysOnServerCacheKey];
+			}
+			
+			
+			if ([gpgTask start] != 0) {
+				@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Send keys failed!") gpgTask:gpgTask];
 			}
 		}
 		
-		if (mutableCache && ![mutableCache isEqualToDictionary:cache]) {
-			[[GPGOptions sharedOptions] setValueInCommonDefaults:mutableCache forKey:keysOnServerCacheKey];
-		}
-		
-		
-		if ([gpgTask start] != 0) {
-			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Send keys failed!") gpgTask:gpgTask];
-		}
 	} @catch (NSException *e) {
 		[self handleException:e];
 	} @finally {
@@ -2269,32 +2433,63 @@ BOOL gpgConfigReaded = NO;
 				break;
 		}
 		
+		BOOL isVerifyingKeyserver = [GPGOptions sharedOptions].isVerifyingKeyserver;
+		
 		if (stringToCheck && [stringToCheck rangeOfCharacterFromSet:[[NSCharacterSet characterSetWithCharactersInString:@"0123456789ABCDEFabcdef"] invertedSet]].length == 0) {
 			// The pattern is a keyID or fingerprint.
-			pattern = [@"0x" stringByAppendingString:stringToCheck];
+			if (isVerifyingKeyserver) {
+				// The fingerprint/keyID should not start with "0x" for hagrid.
+				pattern = stringToCheck;
+			} else {
+				// gpg needs "0x" as prefix for the key search.
+				pattern = [@"0x" stringByAppendingString:stringToCheck];
+			}
 		} else {
 			// The pattern is any other text.
 			pattern = [pattern stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 		}
 		
-		
-		
-		
-		self.gpgTask = [GPGTask gpgTask];
-		[self addArgumentsForOptions];
-		gpgTask.batchMode = YES;
-		[self addArgumentsForKeyserver];
-		[gpgTask addArgument:@"--search-keys"];
-		[gpgTask addArgument:@"--"];
-		[gpgTask addArgument:pattern];
-		
-		if ([gpgTask start] != 0 &&
-			gpgTask.errorCode != GPGErrorNoData &&  // Key not found response from old (< 2.2.12) gpg.
-			gpgTask.errorCode != GPGErrorNotFound) { // Key not found response from new (>= 2.2.12) gpg.
-			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Search keys failed!") gpgTask:gpgTask];
+		if (isVerifyingKeyserver) {
+
+			// A semaphore is used, because the old GPGController methods don't support callbacks.
+			dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+			
+			// Search for the keys and store the returned data and errror for later use.
+			__block NSArray<GPGRemoteKey *> *foundKeys;
+			__block NSError *blockError = nil;
+			GPGVerifyingKeyserver *verifyingKeyserver = [[GPGVerifyingKeyserver new] autorelease];
+			[verifyingKeyserver searchKeys:@[pattern] callback:^(NSArray<GPGRemoteKey *> *theFoundKeys, NSError *theError) {
+				foundKeys = [theFoundKeys retain];
+				blockError = [theError retain];
+				dispatch_semaphore_signal(semaphore);
+			}];
+			dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+			[foundKeys autorelease]; // No ARC here, manually add to the autorelease pool.
+			[blockError autorelease]; // No ARC here, manually add to the autorelease pool.
+			
+			if (blockError) {
+				@throw [GPGException exceptionWithReason:blockError.localizedDescription errorCode:(GPGErrorCode)blockError.code];
+			} else {
+				keys = foundKeys;
+			}
+		} else {
+			self.gpgTask = [GPGTask gpgTask];
+			[self addArgumentsForOptions];
+			gpgTask.batchMode = YES;
+			[self addArgumentsForKeyserver];
+			[gpgTask addArgument:@"--search-keys"];
+			[gpgTask addArgument:@"--"];
+			[gpgTask addArgument:pattern];
+			
+			if ([gpgTask start] != 0 &&
+				gpgTask.errorCode != GPGErrorNoData &&  // Key not found response from old (< 2.2.12) gpg.
+				gpgTask.errorCode != GPGErrorNotFound) { // Key not found response from new (>= 2.2.12) gpg.
+				@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Search keys failed!") gpgTask:gpgTask];
+			}
+			
+			keys = [GPGRemoteKey keysWithListing:gpgTask.outText];
 		}
 		
-		keys = [GPGRemoteKey keysWithListing:gpgTask.outText];
 	} @catch (NSException *e) {
 		[self handleException:e];
 	} @finally {
