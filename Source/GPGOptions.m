@@ -587,7 +587,17 @@ static NSString * const kDirmngrConfKVKey = @"dirmngrConf";
 
 
 
-
+- (BOOL)isVerifyingKeyserver {
+	NSString *keyserverAddress = self.keyserver;
+	NSURL *keyserverURL = [NSURL URLWithString:keyserverAddress];
+	if (!keyserverURL.host) {
+		keyserverURL = [NSURL URLWithString:[@"hkps://" stringByAppendingString:keyserverAddress]];
+	}
+	if ([keyserverURL.host isEqualToString:@"keys.openpgp.org"]) {
+		return YES;
+	}
+	return NO;
+}
 - (NSString *)keyserver {
 	return [self valueInDirmngrConfForKey:@"keyserver"];
 }
