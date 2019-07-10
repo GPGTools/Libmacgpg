@@ -122,6 +122,8 @@
 		30A48E8F1B4C1344006AD363 /* GPGSignaturePacket.m in Sources */ = {isa = PBXBuildFile; fileRef = 30A48E8D1B4C1344006AD363 /* GPGSignaturePacket.m */; };
 		30A70EE513EF328000EE9CD9 /* GPGException.h in Headers */ = {isa = PBXBuildFile; fileRef = 30A70EE313EF328000EE9CD9 /* GPGException.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		30A70EE613EF328000EE9CD9 /* GPGException.m in Sources */ = {isa = PBXBuildFile; fileRef = 30A70EE413EF328000EE9CD9 /* GPGException.m */; };
+		30AC724022C0FBA7009CE792 /* GPGVerifyingKeyserver.h in Headers */ = {isa = PBXBuildFile; fileRef = 30AC723E22C0FBA7009CE792 /* GPGVerifyingKeyserver.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		30AC724122C0FBA7009CE792 /* GPGVerifyingKeyserver.m in Sources */ = {isa = PBXBuildFile; fileRef = 30AC723F22C0FBA7009CE792 /* GPGVerifyingKeyserver.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		30B11EE120C91643006D333D /* NoMDC.gpg in Resources */ = {isa = PBXBuildFile; fileRef = 30B11EDF20C91642006D333D /* NoMDC.gpg */; };
 		30B570931C6E250700F68EEB /* sks-keyservers.netCA.der in Resources */ = {isa = PBXBuildFile; fileRef = 30B570921C6E250700F68EEB /* sks-keyservers.netCA.der */; };
 		30B586F5141E255C000373F1 /* Keyservers.plist in Resources */ = {isa = PBXBuildFile; fileRef = 30B586F4141E255C000373F1 /* Keyservers.plist */; };
@@ -403,6 +405,8 @@
 		30A48E8D1B4C1344006AD363 /* GPGSignaturePacket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = GPGSignaturePacket.m; path = GPGPacket/GPGSignaturePacket.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		30A70EE313EF328000EE9CD9 /* GPGException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGException.h; sourceTree = "<group>"; };
 		30A70EE413EF328000EE9CD9 /* GPGException.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGException.m; sourceTree = "<group>"; };
+		30AC723E22C0FBA7009CE792 /* GPGVerifyingKeyserver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GPGVerifyingKeyserver.h; sourceTree = "<group>"; };
+		30AC723F22C0FBA7009CE792 /* GPGVerifyingKeyserver.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GPGVerifyingKeyserver.m; sourceTree = "<group>"; };
 		30B11EDF20C91642006D333D /* NoMDC.gpg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = NoMDC.gpg; sourceTree = "<group>"; };
 		30B570921C6E250700F68EEB /* sks-keyservers.netCA.der */ = {isa = PBXFileReference; lastKnownFileType = file; path = "sks-keyservers.netCA.der"; sourceTree = "<group>"; };
 		30B586F4141E255C000373F1 /* Keyservers.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Keyservers.plist; sourceTree = "<group>"; };
@@ -626,6 +630,8 @@
 				3048830A1462B11700F2E5F4 /* DirectoryWatcher.m */,
 				301D5D9D178C9871003026E7 /* GPGKeyserver.h */,
 				301D5D9E178C9871003026E7 /* GPGKeyserver.m */,
+				30AC723E22C0FBA7009CE792 /* GPGVerifyingKeyserver.h */,
+				30AC723F22C0FBA7009CE792 /* GPGVerifyingKeyserver.m */,
 				309D8A101B87469B00D945BA /* GPGKeyFetcher.h */,
 				309D8A111B87469B00D945BA /* GPGKeyFetcher.m */,
 				30F45A8A1CE0B5F600D2B42D /* GPGUpdateController.h */,
@@ -992,6 +998,7 @@
 				30F45A8C1CE0B5F600D2B42D /* GPGUpdateController.h in Headers */,
 				301D5D9F178C9871003026E7 /* GPGKeyserver.h in Headers */,
 				30E38DCB1E448655001AC933 /* NSBundle+GPGLocalization.h in Headers */,
+				30AC724022C0FBA7009CE792 /* GPGVerifyingKeyserver.h in Headers */,
 				1BCE0CD11617A3DF0026DCFF /* NSBundle+Sandbox.h in Headers */,
 				30D42DB120EE085D00FBCE5C /* GPGKeyMonitoring.h in Headers */,
 				1B9FF21017257A69004FB017 /* GPGTaskHelperXPC.h in Headers */,
@@ -1407,6 +1414,7 @@
 				30691AA5136AECC4004AA469 /* GPGOptions.m in Sources */,
 				309A18D113E3812E0069DC0F /* GPGTransformer.m in Sources */,
 				301A44CE1B436405002A38E4 /* GPGUnArmor.m in Sources */,
+				30AC724122C0FBA7009CE792 /* GPGVerifyingKeyserver.m in Sources */,
 				301A266020BE9ED10059010D /* GPGStatusLine.m in Sources */,
 				309D8A131B87469B00D945BA /* GPGKeyFetcher.m in Sources */,
 				307FDE431B4E636A00462E4E /* GPGCompressedDataPacket.m in Sources */,
