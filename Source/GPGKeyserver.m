@@ -9,6 +9,8 @@
 #import "GPGKeyserver.h"
 #import "GPGOptions.h"
 #import "GPGException.h"
+#import "GPGGlobals.h"
+
 
 @interface GPGKeyserver ()
 @property (retain, nonatomic) NSURLConnection *connection;
