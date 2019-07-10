@@ -2314,36 +2314,53 @@ BOOL gpgConfigReaded = NO;
 			BOOL result = NO;
 			@try {
 				[self operationDidStart];
-				self.gpgTask = [GPGTask gpgTask];
-				
-				[self addArgumentsForOptions];
-				NSUInteger oldTimeout = keyserverTimeout;
-				keyserverTimeout = 20; // This should be enough time for a healthy keyserver to answer.
-				[self addArgumentsForKeyserver];
-				keyserverTimeout = oldTimeout;
-				
-				gpgTask.batchMode = YES;
-				gpgTask.nonBlocking = YES;
-				[gpgTask addArgument:@"--search-keys"];
-				[gpgTask addArgument:@"0x0000000000000000000000000000000000000000"]; // Search for a non-existing key.
 				
 				
-				dispatch_group_t dispatchGroup = dispatch_group_create();
-				dispatch_group_async(dispatchGroup, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-					[gpgTask start];
-				});
-				// Wait a maximum of 30 seconds for the answer. 10 seconds more than the keyserver timeout, to give some setup time.
-				if (dispatch_group_wait(dispatchGroup, dispatch_time(DISPATCH_TIME_NOW, 30 * NSEC_PER_SEC)) == 0) {
-					if (gpgTask.errorCode == GPGErrorNoError || // Everything is good. Very unlikely, but ok.
-						gpgTask.errorCode == GPGErrorCancelled || // Test was cancelled. No need to show a warning.
-						gpgTask.errorCode == GPGErrorNoData || // Normal (key not found) response from old (< 2.2.12) gpg.
-						gpgTask.errorCode == GPGErrorNotFound) { // Normal (key not found) response from new (>= 2.2.12) gpg.
-						result = YES;
+				if (keyserver) {
+					NSURL *keyserverURL = [NSURL URLWithString:keyserver];
+					if (!keyserverURL.host) {
+						keyserverURL = [NSURL URLWithString:[@"hkps://" stringByAppendingString:keyserver]];
 					}
-				} else {
-					[gpgTask cancel];
+					if ([keyserverURL.host isEqualToString:@"keys.openpgp.org"]) {
+						// Assume keys.openpgp.org is working, because wo don't wont it marked invalid, if only the user's internet connection is broken.
+						result = YES;
+						// If keys.openpgp.org is used, always use hkps://keys.openpgp.org as the URL.
+						self.keyserver = GPG_DEFAULT_KEYSERVER;
+					}
 				}
-				dispatch_release(dispatchGroup);
+				
+				if (!result) {
+					self.gpgTask = [GPGTask gpgTask];
+					
+					[self addArgumentsForOptions];
+					NSUInteger oldTimeout = keyserverTimeout;
+					keyserverTimeout = 20; // This should be enough time for a healthy keyserver to answer.
+					[self addArgumentsForKeyserver];
+					keyserverTimeout = oldTimeout;
+					
+					gpgTask.batchMode = YES;
+					gpgTask.nonBlocking = YES;
+					[gpgTask addArgument:@"--search-keys"];
+					[gpgTask addArgument:@"0x0000000000000000000000000000000000000000"]; // Search for a non-existing key.
+					
+					
+					dispatch_group_t dispatchGroup = dispatch_group_create();
+					dispatch_group_async(dispatchGroup, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+						[gpgTask start];
+					});
+					// Wait a maximum of 30 seconds for the answer. 10 seconds more than the keyserver timeout, to give some setup time.
+					if (dispatch_group_wait(dispatchGroup, dispatch_time(DISPATCH_TIME_NOW, 30 * NSEC_PER_SEC)) == 0) {
+						if (gpgTask.errorCode == GPGErrorNoError || // Everything is good. Very unlikely, but ok.
+							gpgTask.errorCode == GPGErrorCancelled || // Test was cancelled. No need to show a warning.
+							gpgTask.errorCode == GPGErrorNoData || // Normal (key not found) response from old (< 2.2.12) gpg.
+							gpgTask.errorCode == GPGErrorNotFound) { // Normal (key not found) response from new (>= 2.2.12) gpg.
+							result = YES;
+						}
+					} else {
+						[gpgTask cancel];
+					}
+					dispatch_release(dispatchGroup);
+				}
 				
 			} @catch (NSException *e) {
 			} @finally {
