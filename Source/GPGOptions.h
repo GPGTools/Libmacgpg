@@ -21,6 +21,9 @@
 
 @class GPGConf;
 
+extern NSString * const GPGKeysFromVerifyingKeyserverKey;
+
+
 typedef enum {
 	GPGDomain_standard = 0,
 	GPGDomain_common = 1,
