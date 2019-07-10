@@ -587,17 +587,18 @@ static NSString * const kDirmngrConfKVKey = @"dirmngrConf";
 }
 
 
-
-- (BOOL)isVerifyingKeyserver {
-	NSString *keyserverAddress = self.keyserver;
-	NSURL *keyserverURL = [NSURL URLWithString:keyserverAddress];
++ (BOOL)isVerifyingKeyserver:(NSString *)keyserver {
+	NSURL *keyserverURL = [NSURL URLWithString:keyserver];
 	if (!keyserverURL.host) {
-		keyserverURL = [NSURL URLWithString:[@"hkps://" stringByAppendingString:keyserverAddress]];
+		keyserverURL = [NSURL URLWithString:[@"hkps://" stringByAppendingString:keyserver]];
 	}
 	if ([keyserverURL.host isEqualToString:@"keys.openpgp.org"]) {
 		return YES;
 	}
 	return NO;
+}
+- (BOOL)isVerifyingKeyserver {
+	return [self.class isVerifyingKeyserver:self.keyserver];
 }
 - (NSString *)keyserver {
 	return [self valueInDirmngrConfForKey:@"keyserver"];

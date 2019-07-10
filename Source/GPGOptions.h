@@ -67,6 +67,7 @@ typedef enum {
  * Currently only YES for keys.openpgp.org
  */
 @property (nonatomic, readonly) BOOL isVerifyingKeyserver;
++ (BOOL)isVerifyingKeyserver:(NSString *)keyserver;
 
 
 
