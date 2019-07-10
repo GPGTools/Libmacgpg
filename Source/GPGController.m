@@ -2143,39 +2143,6 @@ BOOL gpgConfigReaded = NO;
 
 #pragma mark Working with keyserver
 
-- (NSString *)refreshKeysFromServer:(NSObject <EnumerationList> *)keys {
-	if (async && !asyncStarted) {
-		asyncStarted = YES;
-		[asyncProxy refreshKeysFromServer:keys];
-		return nil;
-	}
-	@try {
-		[self operationDidStart];
-		[self registerUndoForKeys:keys withName:@"Undo_RefreshFromServer"];
-		
-		self.gpgTask = [GPGTask gpgTask];
-		[self addArgumentsForOptions];
-		[self addArgumentsForKeyserver];
-		[gpgTask addArgument:@"--refresh-keys"];
-		for (id key in keys) {
-			[gpgTask addArgument:[key description]];
-		}
-		
-		if ([gpgTask start] != 0) {
-			@throw [GPGException exceptionWithReason:localizedLibmacgpgString(@"Refresh keys failed!") gpgTask:gpgTask];
-		}
-		[self keysChanged:keys];
-	} @catch (NSException *e) {
-		[self handleException:e];
-	} @finally {
-		[self cleanAfterOperation];
-	}
-	
-	NSString *retVal = [gpgTask statusText];
-	[self operationDidFinishWithReturnValue:retVal];
-	return retVal;
-}
-
 - (NSString *)receiveKeysFromServer:(NSObject <EnumerationList> *)keys {
 	if (async && !asyncStarted) {
 		asyncStarted = YES;
