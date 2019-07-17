@@ -556,7 +556,15 @@ static NSString * const kDirmngrConfKVKey = @"dirmngrConf";
 - (NSArray *)keyservers { // Returns a list of possible keyservers.
 	NSMutableArray *uniqueServers = [NSMutableArray array];
 	
-	NSArray *servers = [self valueInCommonDefaultsForKey:@"keyservers"];
+	NSArray *servers = self.keyserversInPlist;
+	for (NSString *server in servers) {
+		if (![uniqueServers containsObject:server]) {
+			[uniqueServers addObject:server];
+		}
+	}
+
+	
+	servers = [self valueInCommonDefaultsForKey:@"keyservers"];
 	if ([servers isKindOfClass:[NSArray class]]) {
 		for (NSString *server in servers) {
 			if (![uniqueServers containsObject:server]) {
@@ -565,12 +573,6 @@ static NSString * const kDirmngrConfKVKey = @"dirmngrConf";
 		}
 	}
 	
-	servers = self.keyserversInPlist;
-	for (NSString *server in servers) {
-		if (![uniqueServers containsObject:server]) {
-			[uniqueServers addObject:server];
-		}
-	}
 	
     return uniqueServers;
 }
