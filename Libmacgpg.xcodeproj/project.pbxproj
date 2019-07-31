@@ -163,6 +163,7 @@
 		30ECA95A1FBF4AE100C00279 /* Unarmor_UnicodeDashes.txt in Resources */ = {isa = PBXBuildFile; fileRef = 30ECA9581FBF4AE100C00279 /* Unarmor_UnicodeDashes.txt */; };
 		30F45A8C1CE0B5F600D2B42D /* GPGUpdateController.h in Headers */ = {isa = PBXBuildFile; fileRef = 30F45A8A1CE0B5F600D2B42D /* GPGUpdateController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		30F45A8D1CE0B5F600D2B42D /* GPGUpdateController.m in Sources */ = {isa = PBXBuildFile; fileRef = 30F45A8B1CE0B5F600D2B42D /* GPGUpdateController.m */; };
+		30F5B79F22F195440029FFEB /* sks-keyservers.plist in Resources */ = {isa = PBXBuildFile; fileRef = 30F5B79E22F195440029FFEB /* sks-keyservers.plist */; };
 		30FF413712FAC6CD00F39832 /* GPGController.h in Headers */ = {isa = PBXBuildFile; fileRef = 30FF411D12FAC6CD00F39832 /* GPGController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		30FF413812FAC6CD00F39832 /* GPGController.m in Sources */ = {isa = PBXBuildFile; fileRef = 30FF411E12FAC6CD00F39832 /* GPGController.m */; };
 		30FF413B12FAC6CD00F39832 /* GPGGlobals.h in Headers */ = {isa = PBXBuildFile; fileRef = 30FF412112FAC6CD00F39832 /* GPGGlobals.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -444,6 +445,7 @@
 		30ECA9581FBF4AE100C00279 /* Unarmor_UnicodeDashes.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Unarmor_UnicodeDashes.txt; sourceTree = "<group>"; };
 		30F45A8A1CE0B5F600D2B42D /* GPGUpdateController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGUpdateController.h; sourceTree = "<group>"; };
 		30F45A8B1CE0B5F600D2B42D /* GPGUpdateController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGUpdateController.m; sourceTree = "<group>"; };
+		30F5B79E22F195440029FFEB /* sks-keyservers.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "sks-keyservers.plist"; sourceTree = "<group>"; };
 		30FF411D12FAC6CD00F39832 /* GPGController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGController.h; sourceTree = "<group>"; };
 		30FF411E12FAC6CD00F39832 /* GPGController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGController.m; sourceTree = "<group>"; };
 		30FF412112FAC6CD00F39832 /* GPGGlobals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGGlobals.h; sourceTree = "<group>"; };
@@ -593,6 +595,7 @@
 			children = (
 				30516556142281270038AAF0 /* Localizable.strings */,
 				30B586F4141E255C000373F1 /* Keyservers.plist */,
+				30F5B79E22F195440029FFEB /* sks-keyservers.plist */,
 				8DC2EF5A0486A6940098B216 /* Info.plist */,
 				30D68BC41B4FF5D500F7865C /* COPYING.pgpdump */,
 				30B570921C6E250700F68EEB /* sks-keyservers.netCA.der */,
@@ -1238,6 +1241,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				30F5B79F22F195440029FFEB /* sks-keyservers.plist in Resources */,
 				30B586F5141E255C000373F1 /* Keyservers.plist in Resources */,
 				30D68BC51B4FF5D500F7865C /* COPYING.pgpdump in Resources */,
 				30516558142281270038AAF0 /* Localizable.strings in Resources */,

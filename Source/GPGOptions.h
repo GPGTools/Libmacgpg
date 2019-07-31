@@ -63,11 +63,18 @@ typedef enum {
 @property (nonatomic, readonly) NSString *pinentryPath;
 
 /*
- * Return YES if the current keyserver supports the Verifying Keyserver Interface.
+ * Returns YES if the current keyserver supports the Verifying Keyserver Interface.
  * Currently only YES for keys.openpgp.org
  */
 @property (nonatomic, readonly) BOOL isVerifyingKeyserver;
 + (BOOL)isVerifyingKeyserver:(NSString *)keyserver;
+
+
+/*
+ * Returns YES if the current keyserver is one of the old SKS keyservers.
+ */
+@property (nonatomic, readonly) BOOL isSKSKeyserver;
+- (BOOL)isSKSKeyserver:(NSString *)keyserver;
 
 
 

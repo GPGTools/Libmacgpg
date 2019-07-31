@@ -642,6 +642,70 @@ static NSString * const kDirmngrConfKVKey = @"dirmngrConf";
 }
 
 
+- (NSArray *)sksKeyserversInPlist {
+	NSURL *keyserversPlistURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"sks-keyservers" withExtension:@"plist"];
+	return [NSArray arrayWithContentsOfURL:keyserversPlistURL];
+}
+- (NSArray *)sksKeyservers {
+	NSMutableArray *uniqueServers = [NSMutableArray array];
+	
+	NSArray *servers = self.sksKeyserversInPlist;
+	for (NSString *server in servers) {
+		if (![uniqueServers containsObject:server]) {
+			[uniqueServers addObject:server];
+		}
+	}
+	
+	
+	servers = [self valueInCommonDefaultsForKey:@"sks-keyservers"];
+	if ([servers isKindOfClass:[NSArray class]]) {
+		for (NSString *server in servers) {
+			if (![uniqueServers containsObject:server]) {
+				[uniqueServers addObject:server];
+			}
+		}
+	}
+	
+	
+	return uniqueServers;
+}
+- (BOOL)isSKSKeyserver:(NSString *)keyserver {
+	NSURL *keyserverURL = [NSURL URLWithString:keyserver];
+	if (!keyserverURL.host) {
+		// URLWithString only works, if the scheme is given. So add it and try again.
+		keyserverURL = [NSURL URLWithString:[@"hkp://" stringByAppendingString:keyserver]];
+	}
+	NSString *host = keyserverURL.host;
+	if (!host) {
+		// Not a valid URL, can't test if it is a SKS keyserver.
+		return NO;
+	}
+	host = host.lowercaseString;
+	
+	if ([keyserverURL.host isEqualToString:@"keys.openpgp.org"]) {
+		// This check is an early return in case keys.openpgp.org is used.
+		return NO;
+	}
+
+	if ([host rangeOfString:@"sks-keyservers.net"].location != NSNotFound) {
+		// Is a pool address of sks-keyservers.net
+		return YES;
+	}
+	
+	// Now test if the server is in the list of known SKS keyserver.
+	NSArray *sksKeyservers = self.sksKeyservers;
+	if ([sksKeyservers containsObject:host]) {
+		// Yep, it is in the list.
+		return YES;
+	}
+	
+	return NO;
+}
+- (BOOL)isSKSKeyserver {
+	return [self isSKSKeyserver:self.keyserver];
+}
+
+
 
 
 - (NSString *)httpProxy {
