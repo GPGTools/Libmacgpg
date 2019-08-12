@@ -1124,7 +1124,7 @@ closeInput = _closeInput;
 			}
 		}
 		
-		NSURL *appURL = [NSURL fileURLWithPath:@"/Applications/System Preferences.app"];
+		NSURL *appURL = [[NSWorkspace sharedWorkspace] URLForApplicationWithBundleIdentifier:@"com.apple.systempreferences"];
 		NSURL *paneURL = [NSURL fileURLWithPath:panePath];
 		
 		// Open GPGPreferences.prefPane with System Preferences.app
