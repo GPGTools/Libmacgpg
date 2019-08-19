@@ -227,9 +227,11 @@
 - (void)failedWithError:(NSError *)e {
 	self.error = e;
 	
-	if (finishedHandler) {
-		finishedHandler(self);
-	}
+	dispatch_once(&_finishedHandlerOnceToken, ^{
+		if (finishedHandler) {
+			finishedHandler(self);
+		}
+	});
 }
 
 
@@ -270,9 +272,11 @@
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
-	if (finishedHandler) {
-		finishedHandler(self);
-	}
+	dispatch_once(&_finishedHandlerOnceToken, ^{
+		if (finishedHandler) {
+			finishedHandler(self);
+		}
+	});
 	
 	self.connection = nil;
 }
