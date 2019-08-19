@@ -612,6 +612,7 @@
 				301D291A1B4BE47100599BE8 /* GPGPacket */,
 				306C73821B45B0F200A34730 /* GPGStream */,
 				30BE73D51B5405B7001A2137 /* GPGTask */,
+				30E7EAC4230A9AFF009DA1D5 /* Keyserver */,
 				30C60EEE12FF3321006BB8DA /* Libmacgpg.h */,
 				30FF411D12FAC6CD00F39832 /* GPGController.h */,
 				30FF411E12FAC6CD00F39832 /* GPGController.m */,
@@ -631,12 +632,6 @@
 				3048830E1462B22000F2E5F4 /* GPGWatcher.m */,
 				304883091462B11700F2E5F4 /* DirectoryWatcher.h */,
 				3048830A1462B11700F2E5F4 /* DirectoryWatcher.m */,
-				301D5D9D178C9871003026E7 /* GPGKeyserver.h */,
-				301D5D9E178C9871003026E7 /* GPGKeyserver.m */,
-				30AC723E22C0FBA7009CE792 /* GPGVerifyingKeyserver.h */,
-				30AC723F22C0FBA7009CE792 /* GPGVerifyingKeyserver.m */,
-				309D8A101B87469B00D945BA /* GPGKeyFetcher.h */,
-				309D8A111B87469B00D945BA /* GPGKeyFetcher.m */,
 				30F45A8A1CE0B5F600D2B42D /* GPGUpdateController.h */,
 				30F45A8B1CE0B5F600D2B42D /* GPGUpdateController.m */,
 				30E38DC91E448655001AC933 /* NSBundle+GPGLocalization.h */,
@@ -920,6 +915,19 @@
 				304FDC8B210872D80022B0B3 /* GPGUTF8Argument.m */,
 			);
 			name = GPGTask;
+			sourceTree = "<group>";
+		};
+		30E7EAC4230A9AFF009DA1D5 /* Keyserver */ = {
+			isa = PBXGroup;
+			children = (
+				301D5D9D178C9871003026E7 /* GPGKeyserver.h */,
+				301D5D9E178C9871003026E7 /* GPGKeyserver.m */,
+				30AC723E22C0FBA7009CE792 /* GPGVerifyingKeyserver.h */,
+				30AC723F22C0FBA7009CE792 /* GPGVerifyingKeyserver.m */,
+				309D8A101B87469B00D945BA /* GPGKeyFetcher.h */,
+				309D8A111B87469B00D945BA /* GPGKeyFetcher.m */,
+			);
+			name = Keyserver;
 			sourceTree = "<group>";
 		};
 		32C88DFF0371C24200C91783 /* Other Sources */ = {
