@@ -26,6 +26,7 @@
 @property (nonatomic, readonly) NSUInteger length;
 @property (nonatomic, readonly) BOOL expired;
 @property (nonatomic, readonly) BOOL revoked;
+@property (nonatomic, readonly) BOOL fromVKS;
 @property (nonatomic, readonly, strong) NSString *fingerprint;
 @property (nonatomic, readonly, strong) NSString *keyID;
 @property (nonatomic, readonly, strong) NSDate *creationDate;
@@ -33,8 +34,11 @@
 @property (nonatomic, readonly, strong) NSArray *userIDs;
 
 
++ (NSArray<GPGRemoteKey *> *)keysWithListing:(NSString *)listing fromVKS:(BOOL)fromVKS;
 + (NSArray<GPGRemoteKey *> *)keysWithListing:(NSString *)listing;
++ (id)keyWithListing:(NSArray *)listing fromVKS:(BOOL)fromVKS;
 + (id)keyWithListing:(NSArray *)listing;
+- (id)initWithListing:(NSArray *)listing fromVKS:(BOOL)fromVKS;
 - (id)initWithListing:(NSArray *)listing;
 
 @end

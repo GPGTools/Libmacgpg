@@ -403,7 +403,7 @@ NSString * const GPGVKSStateRevoked = @"revoked";
 				// A key was found.
 				@try { // -keysWithListing: may throw an exception, if the listing isn't well-formed.
 					NSString *listing = data.gpgString;
-					NSArray<GPGRemoteKey *> *remoteKeys = [GPGRemoteKey keysWithListing:listing];
+					NSArray<GPGRemoteKey *> *remoteKeys = [GPGRemoteKey keysWithListing:listing fromVKS:YES];
 					@synchronized (lock) {
 						[foundKeys addObjectsFromArray:remoteKeys];
 					}

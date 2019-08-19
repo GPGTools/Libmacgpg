@@ -29,6 +29,7 @@
 @property (nonatomic) NSUInteger length;
 @property (nonatomic) BOOL expired;
 @property (nonatomic) BOOL revoked;
+@property (nonatomic) BOOL fromVKS;
 @property (nonatomic, strong) NSString *fingerprint;
 @property (nonatomic, strong) NSDate *creationDate;
 @property (nonatomic, strong) NSDate *expirationDate;
@@ -40,7 +41,7 @@
 @implementation GPGRemoteKey
 
 
-+ (NSArray <GPGRemoteKey *> *)keysWithListing:(NSString *)listing {
++ (NSArray <GPGRemoteKey *> *)keysWithListing:(NSString *)listing fromVKS:(BOOL)fromVKS {
 	NSArray<NSString *> *lines = [listing componentsSeparatedByString:@"\n"];
 	NSMutableArray *keys = [NSMutableArray new];
 	NSRange range;
@@ -52,24 +53,30 @@
 		if ([lines[i] hasPrefix:@"pub:"]) {
 			if (range.location != NSNotFound) {
 				range.length = i - range.location;
-				[keys addObject:[self keyWithListing:[lines subarrayWithRange:range]]];
+				[keys addObject:[self keyWithListing:[lines subarrayWithRange:range] fromVKS:fromVKS]];
 			}
 			range.location = i;
 		}
 	}
 	if (range.location != NSNotFound) {
 		range.length = i - range.location;
-		[keys addObject:[self keyWithListing:[lines subarrayWithRange:range]]];
+		[keys addObject:[self keyWithListing:[lines subarrayWithRange:range] fromVKS:fromVKS]];
 	}
 	
 	return keys;
 }
-
-+ (id)keyWithListing:(NSArray *)listing {
-	return [[self alloc] initWithListing:listing];
++ (NSArray <GPGRemoteKey *> *)keysWithListing:(NSString *)listing {
+	return [self keysWithListing:listing fromVKS:NO];
 }
 
-- (id)initWithListing:(NSArray<NSString *> *)listing {
++ (id)keyWithListing:(NSArray *)listing {
+	return [[self alloc] initWithListing:listing fromVKS:NO];
+}
++ (id)keyWithListing:(NSArray *)listing fromVKS:(BOOL)fromVKS {
+	return [[self alloc] initWithListing:listing fromVKS:fromVKS];
+}
+
+- (id)initWithListing:(NSArray<NSString *> *)listing fromVKS:(BOOL)fromVKS {
 	if ((self = [super init]) == nil) {
 		return nil;
 	}
@@ -103,9 +110,13 @@
 		}
 	}
 	self.userIDs = theUserIDs;
+	self.fromVKS = fromVKS;
 	
 	
 	return self;	
+}
+- (id)initWithListing:(NSArray<NSString *> *)listing {
+	return [self initWithListing:listing fromVKS:NO];
 }
 
 - (NSString *)keyID {
