@@ -36,6 +36,7 @@
 NSString * const GPGOptionsChangedNotification = @"GPGOptionsChangedNotification";
 NSString * const GPGConfigurationModifiedNotification = @"GPGConfigurationModifiedNotification";
 NSString * const GPGKeysFromVerifyingKeyserverKey = @"KeysFromVerifyingKeyserver";
+NSString * const GPGUseSKSKeyserverAsBackupKey = @"UseSKSKeyserverAsBackup";
 
 @interface GPGOptions ()
 @property (nonatomic, readonly) NSMutableDictionary *commonDefaults;
@@ -1036,7 +1037,7 @@ void SystemConfigurationDidChange(SCPreferencesRef prefs, SCPreferencesNotificat
 	
     NSSet *commonKeys = [NSSet setWithObjects:@"PathToGPG", @"ShowPassphrase",
                          @"UseKeychain", @"DisableKeychain", @"DebugLog",
-						 GPGKeysFromVerifyingKeyserverKey, nil];
+						 GPGKeysFromVerifyingKeyserverKey, GPGUseSKSKeyserverAsBackupKey, nil];
     
     NSSet *specialKeys = [NSSet setWithObjects:@"httpProxy", @"keyservers",
                           @"PassphraseCacheTime", @"TrustAllKeys", @"keyserver", nil];

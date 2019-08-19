@@ -22,6 +22,7 @@
 @class GPGConf;
 
 extern NSString * const GPGKeysFromVerifyingKeyserverKey;
+extern NSString * const GPGUseSKSKeyserverAsBackupKey;
 
 
 typedef enum {
