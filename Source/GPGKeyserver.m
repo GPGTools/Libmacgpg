@@ -7,7 +7,6 @@
 //
 
 #import "GPGKeyserver.h"
-#import "GPGOptions.h"
 #import "GPGException.h"
 #import "GPGGlobals.h"
 
@@ -332,7 +331,7 @@
 	}
 	
 	self.finishedHandler = handler;
-	self.keyserver = [[GPGOptions sharedOptions] keyserver];
+	self.keyserver = @"hkps://hkps.pool.sks-keyservers.net";
 	receivedData = [[NSMutableData alloc] init];
 	self.timeout = 20;
 	
