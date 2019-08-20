@@ -288,7 +288,9 @@ static NSString * const kDirmngrConfKVKey = @"dirmngrConf";
 - (id)valueInCommonDefaultsForKey:(NSString *)key {
 	id value = [self.commonDefaults objectForKey:key];
 	if (!value) {
-		value = [@{@"UseKeychain": @YES} valueForKey:key];
+		value = [@{@"UseKeychain": @YES,
+				   GPGUseSKSKeyserverAsBackupKey: @YES
+				   } valueForKey:key];
 	}
 	return value;
 }
