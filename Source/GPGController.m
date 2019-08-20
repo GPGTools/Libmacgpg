@@ -2159,31 +2159,116 @@ BOOL gpgConfigReaded = NO;
 			[NSException raise:NSInvalidArgumentException format:@"Empty key list!"];
 		}
 		if ([GPGOptions sharedOptions].isVerifyingKeyserver) {
+			__block NSData *data = nil;
+			__block NSError *blockError = nil;
+
+			BOOL useSKS = [[GPGOptions sharedOptions] boolForKey:GPGUseSKSKeyserverAsBackupKey];;
 			
 			// keys can be an NSArray or NSSet, convert to an NSArray of fingerprints.
 			NSMutableArray *fingerprints = [NSMutableArray array];
 			for (GPGKey *key in keys) {
 				[fingerprints addObject:key.description];
+				
+				/* When GPGUseSKSKeyserverAsBackupKey is set and
+				   all objects in "keys" are GPGRemoteKey with fromVKS == NO, the old sks keyserver is uesd.
+				 */
+				if (useSKS && (![key respondsToSelector:@selector(fromVKS)] || [(GPGRemoteKey *)key fromVKS])) {
+					useSKS = NO;
+				}
 			}
 			
 			
-			// A semaphore is used, because the old GPGController methods don't support callbacks.
-			dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-			
-			// Download the keys from the server and store the returned data and errror for later use.
-			__block NSData *data = nil;
-			__block NSError *blockError = nil;
-			GPGVerifyingKeyserver *verifyingKeyserver = [[GPGVerifyingKeyserver new] autorelease];
-			[verifyingKeyserver downloadKeys:fingerprints callback:^(NSData *keyData, NSError *theError) {
-				data = [keyData retain];
-				blockError = [theError retain];
-				dispatch_semaphore_signal(semaphore);
-			}];
-			dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
-			[data autorelease]; // No ARC here, manually add to the autorelease pool.
-			[blockError autorelease]; // No ARC here, manually add to the autorelease pool.
-			
-			
+			if (useSKS) {
+				/* If useSKS is YES download all keys using GPGKeyserver from the old sks keyserver.
+				 * GPGKeyserver uses a callback, so all downloads are performed at the same time, the results
+				 * are stored in the two arrays datas and errors. After all downloads are completed without
+				 * an error, all the received keys are un-armored and combined to be imported.
+				 */
+				
+				NSMutableArray<NSData *> *datas = [NSMutableArray array];
+				NSMutableArray<NSError *> *errors = [NSMutableArray array];
+				__block NSMutableArray<NSData *> *blockDatas = datas;
+				__block NSMutableArray<NSError *> *blockErrors = errors;
+
+				dispatch_group_t dispatchGroup = dispatch_group_create();
+
+				for (NSString *fingerprint in fingerprints) {
+					GPGKeyserver *sksKeyserver = [[GPGKeyserver new] autorelease];
+					[gpgKeyservers addObject:sksKeyserver];
+					sksKeyserver.finishedHandler = ^(GPGKeyserver *server) {
+						NSData *serverData = server.receivedData;
+						NSError *serverError = server.error;
+						
+						@synchronized (datas) {
+							if (serverData) {
+								[blockDatas addObject:serverData];
+							}
+							if (serverError) {
+								[blockErrors addObject:serverError];
+							}
+						}
+						
+						dispatch_group_leave(dispatchGroup);
+					};
+					
+					dispatch_group_enter(dispatchGroup);
+					[sksKeyserver getKey:fingerprint];
+				}
+				
+				// Do not wait more than 30 seconds for the sks keyservers.
+				BOOL timedOut = (dispatch_group_wait(dispatchGroup, dispatch_time(DISPATCH_TIME_NOW, 30 * NSEC_PER_SEC)) != noErr);
+				dispatch_release(dispatchGroup);
+
+				// Prevent the finishedHandler from modifying our arrays anymore.
+				@synchronized (datas) {
+					blockDatas = nil;
+					blockErrors = nil;
+				}
+				
+				// Cancel any possible running keyserver and clear the list.
+				for (GPGKeyserver *sksKeyserver in gpgKeyservers) {
+					[sksKeyserver cancel];
+				}
+				[gpgKeyservers removeAllObjects];
+				
+				
+				if (blockErrors.count > 0) {
+					// At least one error occured, return the first.
+					blockError = blockErrors[0];
+				} else if (timedOut) {
+					// Timeout. Return an error.
+					blockError = [NSError errorWithDomain:LibmacgpgErrorDomain code:GPGErrorTimeout userInfo:nil];
+				} else {
+					// Un-armor all received data and prepare for import.
+					NSMutableData *allData = [NSMutableData data];
+					for (NSData *serverData in datas) {
+						if (serverData.length > 100 && serverData.isArmored) {
+							// Un-armor the data.
+							NSData *unarmoredData = [GPGUnArmor unArmorWithGPGStream:[GPGMemoryStream memoryStreamForReading:serverData]].decodeAll;
+							if (unarmoredData) {
+								[allData appendData:unarmoredData];
+							}
+						}
+					}
+					data = allData;
+				}
+				
+			} else {
+				// A semaphore is used, because the old GPGController methods don't support callbacks.
+				dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+				// Download the keys from the server and store the returned data and errror for later use.
+				GPGVerifyingKeyserver *verifyingKeyserver = [[GPGVerifyingKeyserver new] autorelease];
+				[verifyingKeyserver downloadKeys:fingerprints callback:^(NSData *keyData, NSError *theError) {
+					data = [keyData retain];
+					blockError = [theError retain];
+					dispatch_semaphore_signal(semaphore);
+				}];
+				dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+				dispatch_release(semaphore);
+				[data autorelease]; // No ARC here, manually add to the autorelease pool.
+				[blockError autorelease]; // No ARC here, manually add to the autorelease pool.
+			}
+
 			
 			if (blockError) {
 				// GPGController uses Exception for it's error handling. Not nice.
@@ -2200,8 +2285,10 @@ BOOL gpgConfigReaded = NO;
 					@throw self.error; // self.error is an NSException, not an NSError!
 				}
 				
-				// Remember these keys came from keys.openpgp.org and the email-addresses are verified.
-				[self rememberDownloadedKeysAsVerified:data];
+				if (!useSKS) {
+					// Remember these keys came from keys.openpgp.org and the email-addresses are verified.
+					[self rememberDownloadedKeysAsVerified:data];
+				}
 			}
 			
 		} else {
@@ -2491,7 +2578,10 @@ BOOL gpgConfigReaded = NO;
 				sksKeyserver = [[GPGKeyserver new] autorelease];
 				[gpgKeyservers addObject:sksKeyserver];
 				sksKeyserver.finishedHandler = ^(GPGKeyserver *server) {
-					[resultHolder addObject:[GPGRemoteKey keysWithListing:server.receivedData.gpgString]];
+					NSArray *remoteKeys = [GPGRemoteKey keysWithListing:server.receivedData.gpgString];
+					if (remoteKeys) {
+						[resultHolder addObject:remoteKeys];
+					}
 					
 					dispatch_semaphore_signal(sksSemaphore);
 					dispatch_release(sksSemaphore);
