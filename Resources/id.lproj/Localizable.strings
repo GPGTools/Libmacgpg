@@ -130,9 +130,9 @@ UpdaterNotWorking_Title = "Pemutakhir Keluarga GPG tak bekerja seperti yang diha
 UpdaterNotWorking_Msg = "Harap unduh dan pasang ulang Keluarga GPG dari https://gpgtools.org";
 
 
-SwitchToOldKeyserver_Title = "Warning: You are about to switch the key server";
-SwitchToOldKeyserver_Msg = "Switching to the old key servers will lower the quality of search results. While keys.openpgp.org allows verification of the email address and only then will show the email in search results, the old key servers do not support that mechanism.\n\nWe recommend to keep using keys.openpgp.org\n\nDo you really want to switch the key server?";
+SwitchToOldKeyserver_Title = "Peringatan: Anda akan berganti server kunci";
+SwitchToOldKeyserver_Msg = "Bertukar ke server kunci lama akan menurunkan kualitas hasil pencarian. Walaupun keys.openpgp.org mengizinkan verifikasi alamat surel dan kemudian akan menampilkan surel dalam hasil pencarian, server kunci lama tidak mendukung mekanisme itu.\n\nKami menyarankan untuk tetap memakai keys.openpgp.org\n\nApakah Anda yakin hendak berganti server kunci?";
 SwitchToOldKeyserver_No = "Batal";
-SwitchToOldKeyserver_Yes = "Switch to old Key Server";
+SwitchToOldKeyserver_Yes = "Bertukar ke Server Kunci lama";
 
 
