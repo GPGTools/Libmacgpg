@@ -196,7 +196,7 @@
 		return;
 	}
 		
-	NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url cachePolicy:0 timeoutInterval:self.timeout];
+	NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:self.timeout];
 	if (!request) {
 		[self failedWithError:[NSError errorWithDomain:LibmacgpgErrorDomain
 												  code:GPGErrorKeyServerError
