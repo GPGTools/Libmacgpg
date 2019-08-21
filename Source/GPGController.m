@@ -2691,7 +2691,11 @@ BOOL gpgConfigReaded = NO;
 	if (keyserver) {
 		NSURL *keyserverURL = [NSURL URLWithString:keyserver];
 		if (!keyserverURL.host) {
-			keyserverURL = [NSURL URLWithString:[@"hkps://" stringByAppendingString:keyserver]];
+			keyserverURL = [NSURL URLWithString:[@"hkp://" stringByAppendingString:keyserver]];
+			if (keyserverURL) {
+				// Repair the URL. gpg doesn't want URLs without a scheme.
+				self.keyserver = keyserverURL.absoluteString;
+			}
 		}
 		if ([keyserverURL.host isEqualToString:@"keys.openpgp.org"]) {
 			// Assume keys.openpgp.org is working, because wo don't wont it marked invalid, if only the user's internet connection is broken.
