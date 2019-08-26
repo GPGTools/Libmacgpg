@@ -2560,26 +2560,18 @@ BOOL gpgConfigReaded = NO;
             BOOL __block vksSearchIsRunning = NO;
 
             NSArray<GPGRemoteKey *> *results = nil;
-
-            // An autoreleased array is used here, to hold result from the sks search.
-            // With a normal __block variable, it would be complicate to prevent memory leaks.
-            // The object added to this array, will live until this method ends.
-            NSMutableArray<NSArray *> *sksResults = [NSMutableArray new];
+			__block NSArray<GPGRemoteKey *> *sksResults = nil;
 
 			if (alsoUseSKS) {
-                sksKeyserver = [GPGKeyserver new];
-                // Do not wait more than 20 seconds for the sks keyserver.
-                sksKeyserver.timeout = 20;
+                sksKeyserver = [[GPGKeyserver new] autorelease];
+				// Add to gpgKeyservers array, so the user can cancel it.
                 [gpgKeyservers addObject:sksKeyserver];
                 dispatch_group_enter(dispatchGroup);
 
                 sksKeyserver.finishedHandler = ^(GPGKeyserver *server) {
                     sksSearchIsRunning = NO;
-
-                    NSArray *remoteKeys = [GPGRemoteKey keysWithListing:server.receivedData.gpgString];
-                    if (remoteKeys) {
-                        [sksResults addObject:remoteKeys];
-                    }
+					// retain the results here and autorelease it after dispatch_group_wait.
+                    sksResults = [[GPGRemoteKey keysWithListing:server.receivedData.gpgString] retain];
                     dispatch_group_leave(dispatchGroup);
                 };
 
@@ -2603,9 +2595,9 @@ BOOL gpgConfigReaded = NO;
                 // If they are usable – a key found with user id's, then kill
                 // SKS search.
                 // Otherwise wait for SKS to return results as backup.
-                [theFoundKeys retain];
                 GPGRemoteKey *key = [theFoundKeys count] == 1 ? theFoundKeys[0] : nil;
-                BOOL isValidVKSResult = (key.userIDs.count > 0 || [[[GPGKeyManager sharedInstance] allKeys] member:key]) && !blockError;
+				// First test blockError, so GPGKeyManager is not used if something got wrong.
+                BOOL isValidVKSResult = !blockError && (key.userIDs.count > 0 || [[[GPGKeyManager sharedInstance] allKeys] member:key]);
                 if(isValidVKSResult) {
                     if(sksSearchIsRunning) {
                         [sksKeyserver cancel];
@@ -2613,12 +2605,23 @@ BOOL gpgConfigReaded = NO;
 
                     vksResults = [theFoundKeys retain];
                 }
-                [theFoundKeys release];
                 dispatch_group_leave(dispatchGroup);
 			}];
 
             dispatch_group_wait(dispatchGroup, DISPATCH_TIME_FOREVER);
             dispatch_release(dispatchGroup);
+			
+			// autorelease all the retained __block objects and not only the returned results.
+			[vksResults autorelease];
+			[sksResults autorelease];
+			[blockError autorelease];
+
+			if (sksKeyserver) {
+				[gpgKeyservers removeObject:sksKeyserver];
+			}
+			
+			
+			
 
             // All results are in, now on to distinguish which one to use.
             if([vksResults count] == 1) {
@@ -2626,7 +2629,7 @@ BOOL gpgConfigReaded = NO;
                 results = vksResults;
             }
             else if([sksResults count] > 0) {
-                results = sksResults[0];
+                results = sksResults;
                 // Found keys on sks, ignore a possible vks error.
                 blockError = nil;
             }
@@ -2634,7 +2637,7 @@ BOOL gpgConfigReaded = NO;
             if (blockError) {
                 @throw [GPGException exceptionWithReason:blockError.localizedDescription errorCode:(GPGErrorCode)blockError.code];
             } else {
-                keys = [results autorelease];
+                keys = results;
             }
 		} else {
 			self.gpgTask = [GPGTask gpgTask];
