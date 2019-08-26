@@ -2551,111 +2551,91 @@ BOOL gpgConfigReaded = NO;
 		
 		
 		if (isVerifyingKeyserver) {
+            dispatch_group_t dispatchGroup = dispatch_group_create();
 
-			// semaphores are used, because the old GPGController methods don't support callbacks.
-			dispatch_semaphore_t vksSemaphore = dispatch_semaphore_create(0);
-			dispatch_semaphore_t sksSemaphore;
-			dispatch_time_t sksTimeout;
-			GPGKeyserver *sksKeyserver = nil;
+            GPGKeyserver *sksKeyserver = nil;
 			BOOL alsoUseSKS = [[GPGOptions sharedOptions] boolForKey:GPGUseSKSKeyserverAsBackupKey];
-			
-			// An autoreleased array is used here, to hold result from the sks search.
-			// With a normal __block variable, it would be complicate to prevent memory leaks.
-			// The object added to this array, will live until this method ends.
-			__block NSMutableArray<NSArray *> *resultHolder = [NSMutableArray array];
 
-			
+            BOOL __block sksSearchIsRunning = NO;
+            BOOL __block vksSearchIsRunning = NO;
+
+            NSArray<GPGRemoteKey *> *results = nil;
+
+            // An autoreleased array is used here, to hold result from the sks search.
+            // With a normal __block variable, it would be complicate to prevent memory leaks.
+            // The object added to this array, will live until this method ends.
+            NSMutableArray<NSArray *> *sksResults = [NSMutableArray new];
+
 			if (alsoUseSKS) {
-				// Start the search on the sks server first, it will probably take longer.
+                sksKeyserver = [GPGKeyserver new];
+                // Do not wait more than 20 seconds for the sks keyserver.
+                sksKeyserver.timeout = 20;
+                [gpgKeyservers addObject:sksKeyserver];
+                dispatch_group_enter(dispatchGroup);
 
-				sksSemaphore = dispatch_semaphore_create(0);
-				dispatch_retain(sksSemaphore);
-				
-				// Do not wait more than 20 seconds for the sks keyserver.
-				sksTimeout = dispatch_time(DISPATCH_TIME_NOW, 20 * NSEC_PER_SEC);
-				
-				
-				sksKeyserver = [[GPGKeyserver new] autorelease];
-				[gpgKeyservers addObject:sksKeyserver];
-				sksKeyserver.finishedHandler = ^(GPGKeyserver *server) {
-					NSArray *remoteKeys = [GPGRemoteKey keysWithListing:server.receivedData.gpgString];
-					if (remoteKeys) {
-						[resultHolder addObject:remoteKeys];
-					}
-					
-					dispatch_semaphore_signal(sksSemaphore);
-					dispatch_release(sksSemaphore);
-				};
-				
-				// The old sks keyservers need a "0x" prefix for fingerprints. patternForSKS has this prefix.
-				[sksKeyserver searchKey:patternForSKS ? patternForSKS : pattern];
+                sksKeyserver.finishedHandler = ^(GPGKeyserver *server) {
+                    sksSearchIsRunning = NO;
+
+                    NSArray *remoteKeys = [GPGRemoteKey keysWithListing:server.receivedData.gpgString];
+                    if (remoteKeys) {
+                        [sksResults addObject:remoteKeys];
+                    }
+                    dispatch_group_leave(dispatchGroup);
+                };
+
+                // The old sks keyservers need a "0x" prefix for fingerprints. patternForSKS has this prefix.
+                sksSearchIsRunning = YES;
+                [sksKeyserver searchKey:patternForSKS ? patternForSKS : pattern];
 			}
-			
-			
-			
-			
-			// Search for the keys and store the returned data and errror for later use.
-			__block NSArray<GPGRemoteKey *> *foundKeys;
+
+            // Search for the keys and store the returned data and errror for later use.
+			__block NSArray<GPGRemoteKey *> *vksResults = nil;
 			__block NSError *blockError = nil;
-			GPGVerifyingKeyserver *verifyingKeyserver = [[GPGVerifyingKeyserver new] autorelease];
-			[verifyingKeyserver searchKeys:@[pattern] callback:^(NSArray<GPGRemoteKey *> *theFoundKeys, NSError *theError) {
-				foundKeys = [theFoundKeys retain];
-				blockError = [theError retain];
-				dispatch_semaphore_signal(vksSemaphore);
+
+            dispatch_group_enter(dispatchGroup);
+            GPGVerifyingKeyserver *verifyingKeyserver = [[GPGVerifyingKeyserver new] autorelease];
+            vksSearchIsRunning = YES;
+            [verifyingKeyserver searchKeys:@[pattern] callback:^(NSArray<GPGRemoteKey *> *theFoundKeys, NSError *theError) {
+                vksSearchIsRunning = NO;
+                blockError = [theError retain];
+
+                // If the SKS search is still running, check the vks results.
+                // If they are usable – a key found with user id's, then kill
+                // SKS search.
+                // Otherwise wait for SKS to return results as backup.
+                [theFoundKeys retain];
+                GPGRemoteKey *key = [theFoundKeys count] == 1 ? theFoundKeys[0] : nil;
+                BOOL isValidVKSResult = (key.userIDs.count > 0 || [[[GPGKeyManager sharedInstance] allKeys] member:key]) && !blockError;
+                if(isValidVKSResult) {
+                    if(sksSearchIsRunning) {
+                        [sksKeyserver cancel];
+                    }
+
+                    vksResults = [theFoundKeys retain];
+                }
+                [theFoundKeys release];
+                dispatch_group_leave(dispatchGroup);
 			}];
-			dispatch_semaphore_wait(vksSemaphore, DISPATCH_TIME_FOREVER);
-			dispatch_release(vksSemaphore);
-			[foundKeys autorelease]; // No ARC here, manually add to the autorelease pool.
-			[blockError autorelease]; // No ARC here, manually add to the autorelease pool.
-			
-			
-			
-			
-			if (alsoUseSKS) {
-				BOOL useVKSResult = NO;
-				
-				if (!blockError && foundKeys.count == 1) {
-					// A key was found via VKS.
-					// Ignore keys without userIDs, which are not already in the keychain. These keys can't be imported.
-					GPGRemoteKey *key = foundKeys[0];
-					if (key.userIDs.count > 0) {
-						useVKSResult = YES;
-					} else {
-						GPGKeyManager *keyManager = [GPGKeyManager sharedInstance];
-						if ([keyManager.allKeys member:key]) {
-							useVKSResult = YES;
-						}
-					}
-				}
-				
-				if (useVKSResult) {
-					// Ignore possible results from sks.
-					[sksKeyserver cancel];
-					dispatch_semaphore_wait(sksSemaphore, DISPATCH_TIME_NOW); // Do not wait. Only balance signal and wait calls.
-				} else {
-					if (dispatch_semaphore_wait(sksSemaphore, sksTimeout) == noErr && resultHolder.count == 1) {
-						// sks did find something.
-						foundKeys = resultHolder[0]; // resultHolder contains an array.
-					} else {
-						// timeout or no keys found.
-						foundKeys = nil;
-					}
-					if (foundKeys.count > 0) {
-						// Found keys on sks, ignore a possible vks error.
-						blockError = nil;
-					}
-				}
-				resultHolder = nil; // Set to nil before it is released, to prevent the sks result block from using a freed object.
-				dispatch_release(sksSemaphore);
-				[gpgKeyservers removeObject:sksKeyserver];
-			}
-			
-			
-			if (blockError) {
-				@throw [GPGException exceptionWithReason:blockError.localizedDescription errorCode:(GPGErrorCode)blockError.code];
-			} else {
-				keys = foundKeys;
-			}
+
+            dispatch_group_wait(dispatchGroup, DISPATCH_TIME_FOREVER);
+            dispatch_release(dispatchGroup);
+
+            // All results are in, now on to distinguish which one to use.
+            if([vksResults count] == 1) {
+                // Always prefer VKS results.
+                results = vksResults;
+            }
+            else if([sksResults count] > 0) {
+                results = sksResults[0];
+                // Found keys on sks, ignore a possible vks error.
+                blockError = nil;
+            }
+            
+            if (blockError) {
+                @throw [GPGException exceptionWithReason:blockError.localizedDescription errorCode:(GPGErrorCode)blockError.code];
+            } else {
+                keys = [results autorelease];
+            }
 		} else {
 			self.gpgTask = [GPGTask gpgTask];
 			[self addArgumentsForOptions];
