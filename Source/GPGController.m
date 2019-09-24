@@ -3176,6 +3176,10 @@ BOOL gpgConfigReaded = NO;
 					self.lastSignature.status = GPGErrorGeneralError;
 					break;
 			}
+			// Add the signers key fingerprint, if available.
+			if (components.count >= 7 && [components[6] length] == 40) {
+				self.lastSignature.fingerprint = components[6];
+			}
 			break;
 			
 		case GPG_STATUS_VALIDSIG:
@@ -3208,7 +3212,8 @@ BOOL gpgConfigReaded = NO;
 	if (parseFingerprint) {
 		
 		GPGKeyManager *keyManager = [GPGKeyManager sharedInstance];
-		NSString *fingerprint = [components objectAtIndex:0];
+		// If the signature already contains a fingerprint, do not overwrite it with the keyID.
+		NSString *fingerprint = self.lastSignature.fingerprint ? self.lastSignature.fingerprint : components[0];
 		GPGKey *key;
 		
 		if (fingerprint.length == 16) { // KeyID
@@ -3216,9 +3221,9 @@ BOOL gpgConfigReaded = NO;
 		} else { // Fingerprint
 			key = [keyManager.allKeysAndSubkeys member:fingerprint];
 			
-			// If no key is available, but a fingerprint is available it means that our
+			// If no key is available, but components[0] is a fingerprint it means that our
 			// list of keys is outdated. In that case, the specific key is reloaded.
-			if(!key && fingerprint.length >= 32) {
+			if(!key && [components[0] length] >= 32) {
 				[keyManager loadKeys:[NSSet setWithObject:fingerprint] fetchSignatures:NO fetchUserAttributes:NO];
 				key = [keyManager.allKeysAndSubkeys member:fingerprint];
 			}
