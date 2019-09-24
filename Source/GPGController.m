@@ -3142,7 +3142,7 @@ BOOL gpgConfigReaded = NO;
 	}
 	
 	
-	NSArray *components = [prompt componentsSeparatedByString:@" "];
+	NSArray<NSString *> *components = [prompt componentsSeparatedByString:@" "];
 	
 	switch (status) {
 		case GPG_STATUS_GOODSIG:
@@ -3161,11 +3161,11 @@ BOOL gpgConfigReaded = NO;
 			self.lastSignature.status = GPGErrorCertificateRevoked;
 			break;
 		case GPG_STATUS_ERRSIG:
-			self.lastSignature.publicKeyAlgorithm = [[components objectAtIndex:1] intValue];
-			self.lastSignature.hashAlgorithm = [[components objectAtIndex:2] intValue];
-			self.lastSignature.signatureClass = hexToByte([[components objectAtIndex:3] UTF8String]);
-			self.lastSignature.creationDate = [NSDate dateWithGPGString:[components objectAtIndex:4]];
-			switch ([[components objectAtIndex:5] intValue]) {
+			self.lastSignature.publicKeyAlgorithm = components[1].intValue;
+			self.lastSignature.hashAlgorithm = components[2].intValue;
+			self.lastSignature.signatureClass = hexToByte(components[3].UTF8String);
+			self.lastSignature.creationDate = [NSDate dateWithGPGString:components[4]];
+			switch (components[5].intValue) {
 				case 4:
 					self.lastSignature.status = GPGErrorUnknownAlgorithm;
 					break;
@@ -3177,19 +3177,19 @@ BOOL gpgConfigReaded = NO;
 					break;
 			}
 			// Add the signers key fingerprint, if available.
-			if (components.count >= 7 && [components[6] length] == 40) {
+			if (components.count >= 7 && components[6].length == 40) {
 				self.lastSignature.fingerprint = components[6];
 			}
 			break;
 			
 		case GPG_STATUS_VALIDSIG:
 			parseFingerprint = YES;
-			self.lastSignature.creationDate = [NSDate dateWithGPGString:[components objectAtIndex:2]];
-			self.lastSignature.expirationDate = [NSDate dateWithGPGString:[components objectAtIndex:3]];
-			self.lastSignature.version = [[components objectAtIndex:4] intValue];
-			self.lastSignature.publicKeyAlgorithm = [[components objectAtIndex:6] intValue];
-			self.lastSignature.hashAlgorithm = [[components objectAtIndex:7] intValue];
-			self.lastSignature.signatureClass = hexToByte([[components objectAtIndex:8] UTF8String]);
+			self.lastSignature.creationDate = [NSDate dateWithGPGString:components[2]];
+			self.lastSignature.expirationDate = [NSDate dateWithGPGString:components[3]];
+			self.lastSignature.version = components[4].intValue;
+			self.lastSignature.publicKeyAlgorithm = components[6].intValue;
+			self.lastSignature.hashAlgorithm = components[7].intValue;
+			self.lastSignature.signatureClass = hexToByte(components[8].UTF8String);
 			break;
 		case GPG_STATUS_TRUST_UNDEFINED:
 			self.lastSignature.trust = GPGValidityUndefined;
@@ -3223,7 +3223,7 @@ BOOL gpgConfigReaded = NO;
 			
 			// If no key is available, but components[0] is a fingerprint it means that our
 			// list of keys is outdated. In that case, the specific key is reloaded.
-			if(!key && [components[0] length] >= 32) {
+			if(!key && components[0].length >= 32) {
 				[keyManager loadKeys:[NSSet setWithObject:fingerprint] fetchSignatures:NO fetchUserAttributes:NO];
 				key = [keyManager.allKeysAndSubkeys member:fingerprint];
 			}
