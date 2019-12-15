@@ -2706,7 +2706,7 @@ BOOL gpgConfigReaded = NO;
 				gpgTask.batchMode = YES;
 				gpgTask.nonBlocking = YES;
 				[gpgTask addArgument:@"--search-keys"];
-				[gpgTask addArgument:@"0x@0x0000000000000000000000000000000000000000.org"]; // Search for a non-existing key.
+				[gpgTask addArgument:@"libmacgpg@0x0000000000000000000000000000000000000000.org"]; // Search for a non-existing key.
 				
 				
 				dispatch_group_t dispatchGroup = dispatch_group_create();
@@ -2770,7 +2770,7 @@ BOOL gpgConfigReaded = NO;
 					gpgTask.batchMode = YES;
 					gpgTask.nonBlocking = YES;
 					[gpgTask addArgument:@"--search-keys"];
-					[gpgTask addArgument:@"0x0000000000000000000000000000000000000000"]; // Search for a non-existing key.
+					[gpgTask addArgument:@"libmacgpg@0x0000000000000000000000000000000000000000.org"]; // Search for a non-existing key.
 					
 					
 					dispatch_group_t dispatchGroup = dispatch_group_create();
