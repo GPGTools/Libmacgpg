@@ -1125,7 +1125,7 @@
 		0867D690FE84028FC02AAC07 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1010;
+				LastUpgradeCheck = 1130;
 				TargetAttributes = {
 					1B2F2D6F214FF12A00740DD3 = {
 						ProvisioningStyle = Manual;
@@ -1177,6 +1177,7 @@
 				cs,
 				da,
 				th,
+				ja,
 			);
 			mainGroup = 0867D691FE84028FC02AAC07 /* Libmacgpg */;
 			productRefGroup = 034768DFFF38A50411DB9C8B /* Products */;
