@@ -2145,11 +2145,20 @@ BOOL gpgConfigReaded = NO;
 #pragma mark Working with keyserver
 
 - (NSString *)receiveKeysFromServer:(NSObject <EnumerationList> *)keys {
+	return [self receiveKeysFromServer:keys refresh:NO];
+}
+- (NSString *)refreshKeysFromServer:(NSObject <EnumerationList> *)keys {
+	return [self receiveKeysFromServer:keys refresh:YES];
+}
+- (NSString *)receiveKeysFromServer:(NSObject <EnumerationList> *)keys refresh:(BOOL)refresh {
 	if (async && !asyncStarted) {
 		asyncStarted = YES;
-		[asyncProxy receiveKeysFromServer:keys];
+		[asyncProxy receiveKeysFromServer:keys refresh:refresh];
 		return nil;
 	}
+	// When refresh is YES, a verifying keyserver (vks) is used and UseSKSKeyserverAsBackup is YES,
+	// the old sks keyserver is also queried and the results are combined.
+	
 	NSString *retVal = nil; // On success, contains the statusText of the import/recv-keys operation.
 	@try {
 		[self operationDidStart];
@@ -2159,10 +2168,16 @@ BOOL gpgConfigReaded = NO;
 			[NSException raise:NSInvalidArgumentException format:@"Empty key list!"];
 		}
 		if ([GPGOptions sharedOptions].isVerifyingKeyserver) {
-			__block NSData *data = nil;
-			__block NSError *blockError = nil;
+			NSData *sksData = nil;
+			NSError *sksError = nil;
+			__block NSData *vksData = nil;
+			__block NSError *vksError = nil;
 
-			BOOL useSKS = [[GPGOptions sharedOptions] boolForKey:GPGUseSKSKeyserverAsBackupKey];;
+			BOOL useSKS = [[GPGOptions sharedOptions] boolForKey:GPGUseSKSKeyserverAsBackupKey];
+			if (!useSKS) {
+				// Only use both servers, if the sks fallback is enabled.
+				refresh = NO;
+			}
 			
 			// keys can be an NSArray or NSSet, convert to an NSArray of fingerprints.
 			NSMutableArray *fingerprints = [NSMutableArray array];
@@ -2177,11 +2192,18 @@ BOOL gpgConfigReaded = NO;
 				}
 			}
 			
+			BOOL useVKS = !useSKS;
+			if (refresh) {
+				useSKS = YES;
+				useVKS = YES;
+			}
+			
+			
 			
 			if (useSKS) {
 				/* If useSKS is YES download all keys using GPGKeyserver from the old sks keyserver.
 				 * GPGKeyserver uses a callback, so all downloads are performed at the same time, the results
-				 * are stored in the two arrays datas and errors. After all downloads are completed without
+				 * are stored in the two arrays: datas and errors. After all downloads are completed without
 				 * an error, all the received keys are un-armored and combined to be imported.
 				 */
 				
@@ -2234,10 +2256,10 @@ BOOL gpgConfigReaded = NO;
 				
 				if (blockErrors.count > 0) {
 					// At least one error occured, return the first.
-					blockError = blockErrors[0];
+					sksError = blockErrors[0];
 				} else if (timedOut) {
 					// Timeout. Return an error.
-					blockError = [NSError errorWithDomain:LibmacgpgErrorDomain code:GPGErrorTimeout userInfo:nil];
+					sksError = [NSError errorWithDomain:LibmacgpgErrorDomain code:GPGErrorTimeout userInfo:nil];
 				} else {
 					// Un-armor all received data and prepare for import.
 					NSMutableData *allData = [NSMutableData data];
@@ -2250,30 +2272,52 @@ BOOL gpgConfigReaded = NO;
 							}
 						}
 					}
-					data = allData;
+					sksData = allData;
 				}
 				
-			} else {
+			}
+			
+			if (useVKS) {
 				// A semaphore is used, because the old GPGController methods don't support callbacks.
 				dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
 				// Download the keys from the server and store the returned data and errror for later use.
 				GPGVerifyingKeyserver *verifyingKeyserver = [[GPGVerifyingKeyserver new] autorelease];
 				[verifyingKeyserver downloadKeys:fingerprints callback:^(NSData *keyData, NSError *theError) {
-					data = [keyData retain];
-					blockError = [theError retain];
+					vksData = [keyData retain];
+					vksError = [theError retain];
 					dispatch_semaphore_signal(semaphore);
 				}];
 				dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
 				dispatch_release(semaphore);
-				[data autorelease]; // No ARC here, manually add to the autorelease pool.
-				[blockError autorelease]; // No ARC here, manually add to the autorelease pool.
+				[vksData autorelease]; // No ARC here, manually add to the autorelease pool.
+				[vksError autorelease]; // No ARC here, manually add to the autorelease pool.
 			}
 
 			
-			if (blockError) {
-				// GPGController uses Exception for it's error handling. Not nice.
-				@throw [GPGException exceptionWithReason:blockError.localizedDescription errorCode:(GPGErrorCode)blockError.code];
+			if (sksError) {
+				sksData = nil;
 			}
+			if (vksError) {
+				vksData = nil;
+			}
+			if ((sksError || vksError) && sksData.length == 0 && vksData.length == 0) {
+				// GPGController uses Exception for it's error handling. Not nice.
+				@throw [GPGException exceptionWithReason:sksError.localizedDescription errorCode:(GPGErrorCode)sksError.code];
+			}
+			
+			
+			NSData *data;
+			if (sksData.length > 0 && vksData.length > 0) {
+				NSMutableData *newData = [NSMutableData dataWithCapacity:sksData.length + vksData.length];
+				[newData appendData:vksData];
+				[newData appendData:sksData];
+				data = newData;
+			} else if (sksData.length > 0) {
+				data = sksData;
+			} else {
+				data = vksData;
+			}
+			
 			
 			// If data is empty, it means no keys were found. This is not an error.
 			if (data.length > 0) { // Some keys were downloaded.
