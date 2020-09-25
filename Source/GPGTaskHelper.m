@@ -359,10 +359,12 @@ closeInput = _closeInput;
 	
 	
 	if (statusFifoPath) {
-		[[NSFileManager defaultManager] removeItemAtPath:statusFifoPath error:nil];
+		// Do not use NSFileManager -removeItemAtPath: because it has a bug on macOS 11.
+		unlink(statusFifoPath.UTF8String);
 	}
 	if (attributeFifoPath) {
-		[[NSFileManager defaultManager] removeItemAtPath:attributeFifoPath error:nil];
+		// Do not use NSFileManager -removeItemAtPath: because it has a bug on macOS 11.
+		unlink(attributeFifoPath.UTF8String);
 	}
 	
     if (blockException && !_cancelled && !_pinentryCancelled) {
