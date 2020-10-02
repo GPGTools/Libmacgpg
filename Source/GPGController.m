@@ -737,8 +737,7 @@ BOOL gpgConfigReaded = NO;
 		[gpgTask start];
 		
 		if (fifoPath) {
-			// Do not use NSFileManager -removeItemAtPath: because it has a bug on macOS 11.
-			unlink(fifoPath.UTF8String);
+			[[NSFileManager defaultManager] removeItemAtPath:fifoPath error:nil];
 		}
 	} @catch (NSException *e) {
 		[self handleException:e];
