@@ -19,7 +19,6 @@
 		1B72F742157AE89600101194 /* NSPipe+NoSigPipe.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B72F740157AE89600101194 /* NSPipe+NoSigPipe.m */; };
 		1B84028717296EA4009A40E6 /* GPGUserDefaults.h in Headers */ = {isa = PBXBuildFile; fileRef = 1B84028517296EA4009A40E6 /* GPGUserDefaults.h */; };
 		1B84028817296EA4009A40E6 /* GPGUserDefaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B84028617296EA4009A40E6 /* GPGUserDefaults.m */; };
-		1B89B68E1726F8FD004863FC /* PLWeakCompatibilityStubs.h in Headers */ = {isa = PBXBuildFile; fileRef = 1B89B68C1726F8FD004863FC /* PLWeakCompatibilityStubs.h */; };
 		1B9DB26A15784DB700488353 /* GPGTaskHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 1B9DB26815784DB700488353 /* GPGTaskHelper.h */; };
 		1B9DB26B15784DB700488353 /* GPGTaskHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B9DB26915784DB700488353 /* GPGTaskHelper.m */; };
 		1B9FF21017257A69004FB017 /* GPGTaskHelperXPC.h in Headers */ = {isa = PBXBuildFile; fileRef = 1B9FF20E17257A69004FB017 /* GPGTaskHelperXPC.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -285,8 +284,6 @@
 		1B72F740157AE89600101194 /* NSPipe+NoSigPipe.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSPipe+NoSigPipe.m"; sourceTree = "<group>"; };
 		1B84028517296EA4009A40E6 /* GPGUserDefaults.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGUserDefaults.h; sourceTree = "<group>"; };
 		1B84028617296EA4009A40E6 /* GPGUserDefaults.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGUserDefaults.m; sourceTree = "<group>"; };
-		1B89B68C1726F8FD004863FC /* PLWeakCompatibilityStubs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLWeakCompatibilityStubs.h; sourceTree = "<group>"; };
-		1B89B68D1726F8FD004863FC /* PLWeakCompatibilityStubs.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PLWeakCompatibilityStubs.m; sourceTree = "<group>"; };
 		1B9DB26815784DB700488353 /* GPGTaskHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGTaskHelper.h; sourceTree = "<group>"; };
 		1B9DB26915784DB700488353 /* GPGTaskHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPGTaskHelper.m; sourceTree = "<group>"; };
 		1B9FF20E17257A69004FB017 /* GPGTaskHelperXPC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGTaskHelperXPC.h; sourceTree = "<group>"; };
@@ -677,8 +674,6 @@
 		1B72F73E157AE85B00101194 /* Additions */ = {
 			isa = PBXGroup;
 			children = (
-				1B89B68C1726F8FD004863FC /* PLWeakCompatibilityStubs.h */,
-				1B89B68D1726F8FD004863FC /* PLWeakCompatibilityStubs.m */,
 				1B72F73F157AE89600101194 /* NSPipe+NoSigPipe.h */,
 				1B72F740157AE89600101194 /* NSPipe+NoSigPipe.m */,
 				1BCE0CCF1617A3DF0026DCFF /* NSBundle+Sandbox.h */,
@@ -1028,7 +1023,6 @@
 				1B9DB26A15784DB700488353 /* GPGTaskHelper.h in Headers */,
 				1B72F741157AE89600101194 /* NSPipe+NoSigPipe.h in Headers */,
 				3048830F1462B22000F2E5F4 /* GPGWatcher.h in Headers */,
-				1B89B68E1726F8FD004863FC /* PLWeakCompatibilityStubs.h in Headers */,
 				1B84028717296EA4009A40E6 /* GPGUserDefaults.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1835,10 +1829,6 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_CFLAGS = (
-					"-Xclang",
-					"-fobjc-runtime-has-weak",
-				);
 				SDKROOT = macosx;
 			};
 			name = Debug;
@@ -1875,10 +1865,6 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				LLVM_LTO = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
-				OTHER_CFLAGS = (
-					"-Xclang",
-					"-fobjc-runtime-has-weak",
-				);
 				SDKROOT = macosx;
 			};
 			name = Release;
