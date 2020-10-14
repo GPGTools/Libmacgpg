@@ -834,7 +834,7 @@ BOOL gpgConfigReaded = NO;
 			[cmdText appendFormat:@"Name-Comment: %@\n", comment];
 		}
 		
-		[cmdText appendFormat:@"Expire-Date: %i\n", [self dateToString:expirationDate]];
+		[cmdText appendFormat:@"Expire-Date: %@\n", [self dateToString:expirationDate]];
 		
 		if (preferences) {
 			[cmdText appendFormat:@"Preferences: %@\n", preferences];
