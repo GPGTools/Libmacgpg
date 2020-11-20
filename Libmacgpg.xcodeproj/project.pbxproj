@@ -7,10 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1B0E27102153EFF600BF3DC0 /* GSPaddle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1B0E270F2153EFC200BF3DC0 /* GSPaddle.framework */; };
-		1B0E27122153F01600BF3DC0 /* GSPaddle.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1B0E270F2153EFC200BF3DC0 /* GSPaddle.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		1B0E27192153F0DA00BF3DC0 /* Paddle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1B0E27182153F0C900BF3DC0 /* Paddle.framework */; };
-		1B0E271A2153F0DC00BF3DC0 /* Paddle.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1B0E27182153F0C900BF3DC0 /* Paddle.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		1B16DD21179C83F000BC1366 /* GPGTypesRW.h in Headers */ = {isa = PBXBuildFile; fileRef = 1B16DD20179C83F000BC1366 /* GPGTypesRW.h */; };
 		1B2F2D77214FF12B00740DD3 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B2F2D76214FF12B00740DD3 /* main.m */; };
 		1B2F2D83214FF41300740DD3 /* Libmacgpg.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DC2EF5B0486A6940098B216 /* Libmacgpg.framework */; };
@@ -226,8 +222,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				1B0E27122153F01600BF3DC0 /* GSPaddle.framework in CopyFiles */,
-				1B0E271A2153F0DC00BF3DC0 /* Paddle.framework in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -271,8 +265,6 @@
 
 /* Begin PBXFileReference section */
 		1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
-		1B0E270F2153EFC200BF3DC0 /* GSPaddle.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = GSPaddle.framework; sourceTree = "<group>"; };
-		1B0E27182153F0C900BF3DC0 /* Paddle.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Paddle.framework; sourceTree = "<group>"; };
 		1B16DD20179C83F000BC1366 /* GPGTypesRW.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPGTypesRW.h; sourceTree = "<group>"; };
 		1B2F2D70214FF12A00740DD3 /* org.gpgtools.Libmacgpg.xpc */ = {isa = PBXFileReference; explicitFileType = "wrapper.xpc-service"; includeInIndex = 0; path = org.gpgtools.Libmacgpg.xpc; sourceTree = BUILT_PRODUCTS_DIR; };
 		1B2F2D76214FF12B00740DD3 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -504,8 +496,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				1B2F2D83214FF41300740DD3 /* Libmacgpg.framework in Frameworks */,
-				1B0E27102153EFF600BF3DC0 /* GSPaddle.framework in Frameworks */,
-				1B0E27192153F0DA00BF3DC0 /* Paddle.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -640,19 +630,9 @@
 			path = Source;
 			sourceTree = "<group>";
 		};
-		1B0E27072153EB6700BF3DC0 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				1B0E27182153F0C900BF3DC0 /* Paddle.framework */,
-				1B0E270F2153EFC200BF3DC0 /* GSPaddle.framework */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
 		1B2F2D71214FF12B00740DD3 /* org.gpgtools.Libmacgpg.xpc */ = {
 			isa = PBXGroup;
 			children = (
-				1B0E27072153EB6700BF3DC0 /* Frameworks */,
 				1BDCBDBC214FFB5F003919E5 /* LaunchAgents */,
 				1B2F2D7C214FF17200740DD3 /* JailfreeTask.h */,
 				1B2F2D7D214FF17500740DD3 /* JailfreeTask.m */,
