@@ -41,7 +41,7 @@ If you're using GPGMail, follow these steps to install the xpc service helper.
 cp ./build/org.gpgtools.Libmacgpg.xpc.plist ~/Library/LaunchAgents/
 
 mkdir -p ~/Library/Application\ Support/GPGTools
-cp ~/build/Release/org.gpgtools.Libmacgpg.xpc ~/Library/Application\ Support/GPGTools
+cp ./build/Release/org.gpgtools.Libmacgpg.xpc ~/Library/Application\ Support/GPGTools
 
 launchctl unload ~/Library/LaunchAgents/org.gpgtools.Libmacgpg.xpc.plist
 launchctl load -w ~/Library/LaunchAgents/org.gpgtools.Libmacgpg.xpc.plist
