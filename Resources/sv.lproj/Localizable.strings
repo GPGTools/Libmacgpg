@@ -118,7 +118,7 @@ KeyExpiryFailed_Title = "Misslyckades att förlänga din nyckel!";
 KeyExpiryFailed_Msg = "Nyckeln\n%1$@\nkunde inte förlängas.\n\nFel: %2$@";
 
 KeyExtendedWantToUpload_Title = "Din nyckel förlängdes";
-KeyExtendedWantToUpload_Msg = "För att andra ska kunna se det nya slutdatumet måste de importera din nya nyckel. Vi rekommenderar dig därför att ladda upp din uppdaterade publika nyckel till nyckelservrarna.\n\nVarning: Nyckelservrar är publika, vilket innebär att det namn och den epostadress du använder i din nyckel kommer att vara publikt tillgängliga. Det är inte möjligt att radera nycklar från nyckelservrarna. De kan återkallas, men inte raderas.\n\nOm du föredrar att inte använda nyckelservrarna bör du fundera på att bifoga din publika nyckel till dina signerade och krypterade epostmeddelanden.\n\nVill du ladda upp din publika nyckel?";
+KeyExtendedWantToUpload_Msg = "För att andra ska kunna se det nya utgångsdatumet måste de importera din uppdaterade nyckel. Vi rekommenderar dig därför att ladda upp din uppdaterade publika nyckel till nyckelservrarna.\n\nVarning: Nyckelservrar är publika, vilket innebär att det namn och den e-postadress du använder i din nyckel kommer att vara publikt tillgängliga. Det är inte möjligt att radera nycklar från nyckelservrarna. De kan återkallas, men inte raderas.\n\nOm du föredrar att inte använda nyckelservrarna bör du fundera på att bifoga din publika nyckel till dina signerade och krypterade e-postmeddelanden.\n\nVill du ladda upp din publika nyckel?";
 KeyExtendedWantToUpload_Yes = "Ladda upp publik nyckel";
 KeyExtendedWantToUpload_No = "Nej, tack!";
 
