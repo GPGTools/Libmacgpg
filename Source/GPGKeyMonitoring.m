@@ -11,6 +11,7 @@
 #import "GPGOptions.h"
 #import "GPGGlobals.h"
 #import "GPGController.h"
+#import "GPGTransformer.h"
 
 
 static NSString * const keyMonitoringKey = @"keyMonitoring"; // NSDictionary.
@@ -336,13 +337,25 @@ static NSString * const keyMonitoringPong = @"GPGKeyMonitoringPong";
 
 	NSString *formattedDate = [NSDateFormatter localizedStringFromDate:expirationDate dateStyle:NSDateFormatterMediumStyle timeStyle:NSDateFormatterNoStyle];
 
-	NSArray *listedKeys;
-	if (info.warnForPirmary) {
-		listedKeys = @[info.primaryKey];
-	} else {
-		listedKeys = info.keys;
+	NSString *keyDescription = [[GPGKeyManager sharedInstance] descriptionForKeys:@[info.primaryKey]];
+	
+	if (!info.warnForPirmary) {
+		NSMutableString *mutableKeyDescription = [keyDescription.mutableCopy autorelease];
+		
+		[mutableKeyDescription appendString:@"\n"];
+		[mutableKeyDescription appendString:localizedLibmacgpgString(info.keys.count == 1 ? @"KeyExpiryWarning_Subkey" : @"KeyExpiryWarning_Subkeys")];
+		
+		GPGNoBreakFingerprintTransformer *transformer = [GPGNoBreakFingerprintTransformer sharedInstance];
+		for (GPGKey *subkey in info.keys) {
+			NSString *formattedFingerprint = [transformer transformedValue:subkey.fingerprint];
+			[mutableKeyDescription appendFormat:@"\n%@", formattedFingerprint];
+		}
+		
+		keyDescription = mutableKeyDescription;
 	}
-	NSString *keyDescription = [[GPGKeyManager sharedInstance] descriptionForKeys:listedKeys];
+
+	
+	
 	
 	
 	NSModalResponse response = [self showAlertWithButtons:@[@"Yes", @"No", @"Suppress"] prefix:prefix, formattedDate, keyDescription];
