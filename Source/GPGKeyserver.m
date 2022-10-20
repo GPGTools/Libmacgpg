@@ -51,7 +51,7 @@
 	
 	keyID = [@"0x" stringByAppendingString:keyID];
 	
-	NSString *query = [NSString stringWithFormat:@"/pks/lookup?op=get&options=mr&search=%@", keyID];
+	NSString *query = [NSString stringWithFormat:@"/pks/lookup?op=get&fingerprint=on&options=mr&search=%@", keyID];
 	
 	[self sendRequestWithQuery:query postData:nil];
 }
@@ -66,7 +66,7 @@
 	
 	pattern = [pattern stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
 	
-	NSString *query = [NSString stringWithFormat:@"/pks/lookup?op=index&options=mr&search=%@", pattern];
+	NSString *query = [NSString stringWithFormat:@"/pks/lookup?op=index&fingerprint=on&options=mr&search=%@", pattern];
 	
 	[self sendRequestWithQuery:query postData:nil];
 }
